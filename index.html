@@ -469,6 +469,11 @@ button, .tree-head, .search-box, input, [data-clickable], a {
         selectedModuleId = node.getAttribute("data-module");
         renderTree();
         renderDetail();
+    // 🌟 新增：手機版點擊條目後，自動收合側欄，讓玩家直接看內文
+    if (window.innerWidth <= 900) {
+      document.querySelector(".sidebar").classList.remove("open");
+      document.getElementById("sidebarOverlay").classList.remove("active");
+        }
       };
     });
 
