@@ -118,13 +118,14 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   }
   
   .search-box{
+    display: none; /* 暫時封印神識探查功能！未來需要時刪除此行即可 */
     margin:16px 22px 6px; background:var(--paper); border:1px solid var(--border); border-radius:2px;
     padding:9px 12px; color:var(--ink); font-size:14px; font-family:"LXGW WenKai TC",sans-serif; outline:none; width:calc(100% - 44px);
   }
   .search-box::placeholder{ color:var(--ink-faint2); letter-spacing: 1px; }
   .search-box:focus{ border-color:var(--gold); }
 
-  .tree{ flex:1; overflow-y:auto; padding:10px 10px 30px; }
+  .tree{ flex:1; overflow-y:auto; padding:20px 10px 30px; }
 
   .tree-node{ user-select:none; }
   .tree-head{
@@ -151,65 +152,47 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 
   /* Level 3：條目（子分類）的排版與互動強化 */
   .lvl-3 > .tree-head{
-    padding: 8px 10px 8px 16px; /* 稍微減少左邊距，讓它跟大標題靠得更緊密一點 */
+    padding: 8px 10px 8px 26px; /* 稍微微調縮排，對齊視覺 */
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  /* 解決孱弱感：放大、加粗、加深！ */
+  /* 保留強化的字體設定 */
   .lvl-3 > .tree-head .label{
     font-family: "LXGW WenKai TC", serif;
-    font-weight: 700; /* 加粗 */
-    font-size: 15.5px; /* 字體放大 */
-    color: var(--ink-dim); /* 顏色加深，提高對比度 */
+    font-weight: 700; 
+    font-size: 15.5px; 
+    color: var(--ink-dim); 
     line-height: 1.5;
     letter-spacing: 1px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
   }
 
-  /* 隱藏的佔位符變成「古風小圓點」 */
+  /* 將多餘的小圓點徹底隱藏 (保留透明度為0，維持排版間距) */
   .lvl-3 > .tree-head .caret.leaf {
-    opacity: 1;
-    width: 4px;
-    height: 4px;
-    background: var(--gold);
-    border-radius: 50%;
-    margin-right: 12px;
-    transition: all 0.3s ease;
+    opacity: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
-  /* 游標懸停 (Hover) 時的互動特效：文字微浮，圓點發光 */
+  /* 游標懸停 (Hover) 時的互動特效：只保留文字微浮！ */
   .lvl-3 > .tree-head:hover{
-    background: transparent; /* 拿掉原本醜醜的整塊背景變色 */
+    background: transparent; 
   }
   .lvl-3 > .tree-head:hover .label{
-    color: var(--ink); /* 變為最深的純墨色 */
-    transform: translateX(4px); /* 文字微微向右推，增加互動感 */
-  }
-  .lvl-3 > .tree-head:hover .caret.leaf {
-    background: var(--vermillion-bright);
-    box-shadow: 0 0 6px var(--vermillion-bright);
-    transform: scale(1.5); /* 硃砂點放大 */
+    color: var(--ink); /* 文字變為純墨色 */
+    transform: translateX(6px); /* 🌟 靈魂特效：文字微微向右推 */
   }
 
-  /* 被選中時 (Selected)：背景淡出漸層，圓點化為豎線 */
+  /* 被選中時 (Selected)：保留紅色邊條與漸層背景 */
   .lvl-3.selected > .tree-head{
     background: linear-gradient(90deg, var(--paper-3), transparent);
-    border-left-color: var(--vermillion);
+    border-left-color: var(--vermillion); /* 左邊的硃砂紅邊條 */
   }
   .lvl-3.selected > .tree-head .label{
     color: var(--vermillion-bright);
     font-weight: 700;
   }
-  .lvl-3.selected > .tree-head .caret.leaf {
-    background: var(--vermillion);
-    height: 14px; /* 圓點拉長變成竹簡上的標記線 */
-    border-radius: 2px;
-    box-shadow: 0 0 8px rgba(181, 55, 43, 0.4);
-  }
-  .tree-children{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1); }
-  .tree-node.open > .tree-children{ grid-template-rows:1fr; }
-  .tree-children-inner{ overflow:hidden; min-height:0; }
 
   /* ===== 內容顯示區 ===== */
   .detail-col{ flex:1; height:100vh; overflow-y:auto; padding:44px 64px 120px; }
