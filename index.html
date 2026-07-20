@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>逆命．規則書</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 引入三大修真字體：文楷(內文)、馬善政(印章)、指芒星(大標題狂草) -->
 <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 <style>
@@ -195,6 +196,32 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     font-weight: 700;
   }
 
+  .lvl-3 > .tree-head .label{ flex:1; min-width:0; }
+
+  /* ===== 釘選（Pin）===== */
+  .pin-btn{
+    margin-left:6px; flex-shrink:0; width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+    background:transparent; border:none; padding:0; opacity:.4; transition:opacity .2s, transform .15s; color:var(--gold-deep);
+  }
+  .lvl-3 > .tree-head:hover .pin-btn{ opacity:.85; }
+  .pin-btn:hover{ opacity:1 !important; transform:scale(1.15); }
+  .pin-btn.pinned{ opacity:1; color:var(--vermillion-bright); }
+  .pin-btn svg{ width:14px; height:14px; }
+
+  .pinned-section{ flex-shrink:0; padding:14px 14px 10px; border-bottom:1px solid var(--border); }
+  .pinned-section.empty{ display:none; }
+  .pinned-header{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:12.5px; letter-spacing:2px; color:var(--gold-deep); margin-bottom:8px; padding-left:4px; }
+  .pinned-list{ max-height:180px; overflow-y:auto; }
+  .pinned-item{ display:flex; align-items:center; gap:6px; padding:7px 8px; border-radius:3px; cursor:pointer; transition:background .15s; border-left:2px solid transparent; }
+  .pinned-item:hover{ background:var(--paper-3); }
+  .pinned-item.selected{ background:linear-gradient(90deg,var(--paper-3),transparent); border-left-color:var(--vermillion); }
+  .pinned-item .pinned-info{ flex:1; min-width:0; }
+  .pinned-item .pinned-title{ font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:14px; color:var(--ink-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pinned-item.selected .pinned-title{ color:var(--vermillion-bright); }
+  .pinned-item .pinned-sub{ font-size:10.5px; color:var(--ink-faint2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pinned-item .pin-btn{ opacity:.7; }
+  .pinned-item .pin-btn.pinned{ opacity:1; }
+
   .tree-children { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s cubic-bezier(.4,0,.2,1); }
   .tree-node.open > .tree-children { grid-template-rows: 1fr; }
   .tree-children-inner { overflow: hidden; min-height: 0; }
@@ -225,9 +252,23 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .content-bracket{ color:var(--vermillion); font-weight:700; font-family:"LXGW WenKai TC",serif; font-size: 19px; }
   .content-highlight{ color:var(--gold-deep); font-weight:700; font-family:"LXGW WenKai TC",serif; }
 
-  /* 手機版專屬元件 (桌機版預設隱藏) */
-  .mobile-header { display: none; }
-  .sidebar-overlay { display: none; }
+  /* ===== 上一條／下一條 ===== */
+  .detail-nav{ display:flex; justify-content:space-between; gap:12px; margin-top:44px; padding-top:22px; border-top:1px solid var(--border); max-width:760px; }
+  .detail-nav-btn{
+    flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; padding:12px 16px;
+    background:var(--paper-2); border:1px solid var(--border); border-radius:3px; text-align:left;
+    transition:background .15s, border-color .15s; font-family:inherit;
+  }
+  .detail-nav-btn.next{ text-align:right; align-items:flex-end; }
+  .detail-nav-btn:not(:disabled):hover{ background:var(--paper-3); border-color:var(--gold); }
+  .detail-nav-btn:disabled{ opacity:.3; cursor:default; }
+  .detail-nav-btn .nav-dir{ font-size:11px; letter-spacing:2px; color:var(--gold-deep); font-weight:700; }
+  .detail-nav-btn .nav-title{ font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:14.5px; color:var(--ink-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+
+  @media (max-width:900px){
+    .detail-nav{ flex-direction:column; }
+    .detail-nav-btn.next{ text-align:left; align-items:flex-start; }
+  }
 
   /* 手機版專屬元件 (桌機版預設隱藏) */
   .mobile-header { display: none; }
@@ -311,8 +352,6 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 <!-- =================================================== -->
 
 <div class="layout">
-
-<div class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="title-eyebrow">FIGHTING FATE</div>
@@ -323,6 +362,10 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       </div>
     </div>
     <input type="text" class="search-box" id="searchBox" placeholder="神識探查……">
+    <div class="pinned-section empty" id="pinnedSection">
+      <div class="pinned-header">📌 常用釘選</div>
+      <div class="pinned-list scrollable" id="pinnedList"></div>
+    </div>
     <div class="tree scrollable" id="tree"></div>
   </aside>
 
@@ -356,8 +399,182 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   const treeEl = document.getElementById("tree");
   const detailCol = document.getElementById("detailCol");
   const searchBox = document.getElementById("searchBox");
+  const pinnedSectionEl = document.getElementById("pinnedSection");
+  const pinnedListEl = document.getElementById("pinnedList");
+  const sidebar = document.querySelector(".sidebar");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
 
   const CARET_SVG = `<svg viewBox="0 0 8 8" fill="none"><path d="M1 0.5 L7 4 L1 7.5 Z" fill="#8C6B27"/></svg>`;
+  const PIN_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 4h6l-1 6.5 3 3V15H7v-1.5l3-3z"/></svg>`;
+
+  function escapeHtml(str){
+    return String(str==null ? "" : str).replace(/[&<>"']/g, c => (
+      { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]
+    ));
+  }
+
+  function closeMobileSidebar(){
+    if(window.innerWidth <= 900){
+      sidebar.classList.remove("open");
+      sidebarOverlay.classList.remove("active");
+    }
+  }
+
+  // ===== ① 網址 hash 深連結 =====
+  let hashInitApplied = false;
+
+  function findModuleByHash(rawHash){
+    if(!rawHash) return null;
+    let decoded;
+    try{ decoded = decodeURIComponent(rawHash); }catch(e){ decoded = rawHash; }
+    const found = Object.entries(modules).find(([id,m]) => m.title === decoded);
+    return found ? found[0] : null;
+  }
+
+  function updateHash(id){
+    const m = modules[id];
+    if(!m) return;
+    const newHash = "#" + encodeURIComponent(m.title);
+    if(location.hash !== newHash){
+      history.replaceState(null, "", newHash);
+    }
+  }
+
+  function applyModuleContext(id){
+    const m = modules[id];
+    if(!m) return;
+    if(m.chapterId) expandedChapters.add(m.chapterId);
+    if(m.chapterId && m.section) expandedSections.add(m.chapterId + "::" + m.section);
+  }
+
+  function tryApplyInitialHash(){
+    if(hashInitApplied) return;
+    const raw = location.hash.slice(1);
+    if(!raw){ hashInitApplied = true; return; }
+    if(Object.keys(modules).length===0) return; // 資料尚未載入，稍後再試
+    hashInitApplied = true;
+    const id = findModuleByHash(raw);
+    if(id){
+      selectedModuleId = id;
+      applyModuleContext(id);
+    }
+  }
+
+  window.addEventListener("hashchange", () => {
+    const raw = location.hash.slice(1);
+    if(!raw) return;
+    const id = findModuleByHash(raw);
+    if(id && id !== selectedModuleId){
+      selectedModuleId = id;
+      applyModuleContext(id);
+      renderTree();
+      renderDetail();
+      renderPinned();
+      detailCol.scrollTop = 0;
+    }
+  });
+
+  // ===== ② 常用規則釘選（localStorage） =====
+  const PIN_STORAGE_KEY = "tf_pinned_modules_v1";
+  let pinnedIds = [];
+  try{ pinnedIds = JSON.parse(localStorage.getItem(PIN_STORAGE_KEY)) || []; }catch(e){ pinnedIds = []; }
+
+  function savePinned(){ localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(pinnedIds)); }
+  function isPinned(id){ return pinnedIds.includes(id); }
+
+  function togglePin(id){
+    if(!id) return;
+    if(isPinned(id)) pinnedIds = pinnedIds.filter(x => x!==id);
+    else pinnedIds.push(id);
+    savePinned();
+    renderPinned();
+    // 只更新樹狀列表中對應的圖釘按鈕，不必整棵樹重繪（避免側欄捲動位置被重置）
+    const pinnedNow = isPinned(id);
+    treeEl.querySelectorAll(`.pin-btn[data-pin="${CSS.escape(id)}"]`).forEach(btn => {
+      btn.classList.toggle("pinned", pinnedNow);
+      btn.title = pinnedNow ? "取消釘選" : "釘選常用";
+    });
+  }
+
+  function renderPinned(){
+    // 注意：只用來畫面顯示過濾，不寫回 localStorage —— chapters/modules 是各自非同步載入，
+    // 若在 modules 尚未到位前就把「暫時對不上」的釘選項目存回去，會把使用者的釘選清單洗掉。
+    const valid = pinnedIds.filter(id => modules[id]);
+    if(valid.length===0){
+      pinnedSectionEl.classList.add("empty");
+      pinnedListEl.innerHTML = "";
+      return;
+    }
+    pinnedSectionEl.classList.remove("empty");
+    const scrollTop = pinnedListEl.scrollTop;
+    pinnedListEl.innerHTML = valid.map(id => {
+      const m = modules[id];
+      const chName = (chapters[m.chapterId]||{}).name || "";
+      const sub = chName + (m.section ? " · " + m.section : "");
+      const sel = selectedModuleId===id ? " selected" : "";
+      return `<div class="pinned-item${sel}" data-module="${id}">
+        <div class="pinned-info">
+          <div class="pinned-title">${escapeHtml(m.title)}</div>
+          <div class="pinned-sub">${escapeHtml(sub)}</div>
+        </div>
+        <button class="pin-btn pinned" data-pin="${id}" title="取消釘選">${PIN_SVG}</button>
+      </div>`;
+    }).join("");
+    pinnedListEl.scrollTop = scrollTop;
+  }
+
+  // 釘選清單用事件代理，不必每次 renderPinned() 後重新綁定
+  pinnedListEl.addEventListener("click", (e) => {
+    const pinBtn = e.target.closest(".pin-btn[data-pin]");
+    if(pinBtn){
+      e.stopPropagation();
+      togglePin(pinBtn.getAttribute("data-pin"));
+      return;
+    }
+    const item = e.target.closest(".pinned-item[data-module]");
+    if(item){
+      selectModule(item.getAttribute("data-module"));
+      closeMobileSidebar();
+    }
+  });
+
+  // ===== ③ 上一條／下一條 =====
+  function getOrderedModuleIds(){
+    const ids = [];
+    const chapterOrder = Object.entries(chapters).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+    chapterOrder.forEach(([chId]) => {
+      const chMods = Object.entries(modules)
+        .filter(([id,m]) => m.chapterId===chId)
+        .sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+      if(chMods.length===0) return;
+      const withSection = {};
+      const noSection = [];
+      chMods.forEach(([id,m]) => {
+        if(m.section){
+          if(!withSection[m.section]) withSection[m.section] = [];
+          withSection[m.section].push([id,m]);
+        } else {
+          noSection.push([id,m]);
+        }
+      });
+      noSection.forEach(([id]) => ids.push(id));
+      Object.values(withSection).forEach(items => items.forEach(([id]) => ids.push(id)));
+    });
+    return ids;
+  }
+
+  // 統一的規則選取邏輯：更新狀態、網址 hash、並重繪畫面
+  function selectModule(id){
+    if(!modules[id]) return;
+    selectedModuleId = id;
+    applyModuleContext(id);
+    updateHash(id);
+    renderTree();
+    renderDetail();
+    renderPinned();
+    detailCol.scrollTop = 0;
+  }
 
   function matchesSearch(m){
     if(!searchTerm) return true;
@@ -381,20 +598,58 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     }
     const m = modules[selectedModuleId];
     const chName = (chapters[m.chapterId]||{}).name || "";
+    const orderedIds = getOrderedModuleIds();
+    const idx = orderedIds.indexOf(selectedModuleId);
+    const prevId = idx>0 ? orderedIds[idx-1] : null;
+    const nextId = (idx>=0 && idx<orderedIds.length-1) ? orderedIds[idx+1] : null;
+
     detailCol.innerHTML = `
-      <div class="detail-breadcrumb">${chName}${m.section ? " · " + m.section : ""}</div>
-      <div class="detail-title">${m.title}</div>
+      <div class="detail-breadcrumb">${escapeHtml(chName)}${m.section ? " · " + escapeHtml(m.section) : ""}</div>
+      <div class="detail-title">${escapeHtml(m.title)}</div>
       <div class="detail-body">${parseContent(m.content)}</div>
+      <div class="detail-nav">
+        <button class="detail-nav-btn prev" data-nav="${prevId||""}" ${prevId?"":"disabled"}>
+          <span class="nav-dir">◀ 上一條</span>
+          <span class="nav-title">${prevId ? escapeHtml(modules[prevId].title) : "已是第一條"}</span>
+        </button>
+        <button class="detail-nav-btn next" data-nav="${nextId||""}" ${nextId?"":"disabled"}>
+          <span class="nav-dir">下一條 ▶</span>
+          <span class="nav-title">${nextId ? escapeHtml(modules[nextId].title) : "已是最後一條"}</span>
+        </button>
+      </div>
     `;
   }
+
+  // 上一條／下一條按鈕用事件代理，不必每次 renderDetail() 後重新綁定
+  detailCol.addEventListener("click", (e) => {
+    const btn = e.target.closest(".detail-nav-btn[data-nav]");
+    if(!btn) return;
+    const targetId = btn.getAttribute("data-nav");
+    if(targetId) selectModule(targetId);
+  });
 
   function buildTreeChildrenHTML(nodesHtml){
     return `<div class="tree-children"><div class="tree-children-inner">${nodesHtml}</div></div>`;
   }
 
+  function renderLeafHTML(id, m){
+    const sel = selectedModuleId===id ? " selected":"";
+    const pinned = isPinned(id) ? " pinned":"";
+    return `<div class="tree-node lvl-3${sel}" data-module="${id}">
+      <div class="tree-head">
+        <span class="caret leaf"></span>
+        <span class="label">${escapeHtml(m.title)}</span>
+        <button class="pin-btn${pinned}" data-pin="${id}" title="${isPinned(id)?"取消釘選":"釘選常用"}">${PIN_SVG}</button>
+      </div>
+    </div>`;
+  }
+
   function renderTree(){
-    treeEl.innerHTML = "";
     const chapterOrder = Object.entries(chapters).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+
+    // 第一遍：純資料分組整理，並在需要時先決定「預設選取」是哪一條，
+    // 避免像過去那樣為了套用預設選取而把整棵樹多重繪一次
+    const chapterGroups = [];
     let firstMatchId = null;
     let firstMatchChapter = null;
 
@@ -421,101 +676,96 @@ button, .tree-head, .search-box, input, [data-clickable], a {
         if(firstList && firstList.length){ firstMatchId = firstList[0][0]; firstMatchChapter = chId; }
       }
 
+      chapterGroups.push({ chId, ch, noSection, withSection });
+    });
+
+    if(!selectedModuleId && firstMatchId){
+      selectedModuleId = firstMatchId;
+      expandedChapters.add(firstMatchChapter);
+    }
+
+    const scrollTop = treeEl.scrollTop;
+    treeEl.innerHTML = "";
+    chapterGroups.forEach(({ chId, ch, noSection, withSection }) => {
       const isOpen = expandedChapters.has(chId) || (searchTerm.length>0);
       const chapterNode = document.createElement("div");
       chapterNode.className = "tree-node lvl-1" + (isOpen ? " open":"");
+      chapterNode.setAttribute("data-chapter", chId);
 
       let childrenHtml = "";
       noSection.forEach(([id,m]) => {
-        const sel = selectedModuleId===id ? " selected":"";
-        childrenHtml += `<div class="tree-node lvl-3${sel}" data-module="${id}">
-          <div class="tree-head"><span class="caret leaf"></span><span class="label">${m.title}</span></div>
-        </div>`;
+        childrenHtml += renderLeafHTML(id, m);
       });
       Object.entries(withSection).forEach(([secName, items]) => {
         const secKey = chId + "::" + secName;
         const secOpen = expandedSections.has(secKey) || (searchTerm.length>0);
         let itemsHtml = "";
         items.forEach(([id,m]) => {
-          const sel = selectedModuleId===id ? " selected":"";
-          itemsHtml += `<div class="tree-node lvl-3${sel}" data-module="${id}">
-            <div class="tree-head"><span class="caret leaf"></span><span class="label">${m.title}</span></div>
-          </div>`;
+          itemsHtml += renderLeafHTML(id, m);
         });
         childrenHtml += `<div class="tree-node lvl-2${secOpen?" open":""}" data-section="${secKey}">
-          <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${secName}</span></div>
+          <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${escapeHtml(secName)}</span></div>
           ${buildTreeChildrenHTML(itemsHtml)}
         </div>`;
       });
 
       chapterNode.innerHTML = `
-        <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${ch.name}</span></div>
+        <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${escapeHtml(ch.name)}</span></div>
         ${buildTreeChildrenHTML(childrenHtml)}
       `;
       treeEl.appendChild(chapterNode);
     });
+    treeEl.scrollTop = scrollTop;
+  }
 
-    // 綁定事件
-    treeEl.querySelectorAll(".lvl-1 > .tree-head, .lvl-2 > .tree-head").forEach(head => {
-      head.onclick = (e) => {
-        e.stopPropagation();
-        const node = head.parentElement;
-        if(node.classList.contains("lvl-1")){
-          const chId = chapterIdOf(node);
-          if(expandedChapters.has(chId)) expandedChapters.delete(chId); else expandedChapters.add(chId);
-        } else {
-          const secKey = node.getAttribute("data-section");
-          if(expandedSections.has(secKey)) expandedSections.delete(secKey); else expandedSections.add(secKey);
-        }
-        node.classList.toggle("open");
-      };
-    });
-    treeEl.querySelectorAll(".lvl-3 > .tree-head").forEach(head => {
-      head.onclick = (e) => {
-        e.stopPropagation();
-        const node = head.parentElement;
-        selectedModuleId = node.getAttribute("data-module");
-        renderTree();
-        renderDetail();
-    // 🌟 新增：手機版點擊條目後，自動收合側欄，讓玩家直接看內文
-    if (window.innerWidth <= 900) {
-      document.querySelector(".sidebar").classList.remove("open");
-      document.getElementById("sidebarOverlay").classList.remove("active");
-        }
-      };
-    });
-
-    if(!selectedModuleId && firstMatchId){
-      selectedModuleId = firstMatchId;
-      expandedChapters.add(firstMatchChapter);
-      renderTree();
-      renderDetail();
+  // 側欄樹狀導覽用事件代理，不必每次 renderTree() 後重新綁定（重新整理過的樹會重建所有節點，
+  // 逐一綁定監聽器既浪費效能、也容易讓側欄捲動位置在互動時被重置）
+  treeEl.addEventListener("click", (e) => {
+    const pinBtn = e.target.closest(".pin-btn[data-pin]");
+    if(pinBtn){
+      e.stopPropagation();
+      togglePin(pinBtn.getAttribute("data-pin"));
+      return;
     }
-  }
-
-  function chapterIdOf(lvl1Node){
-    const label = lvl1Node.querySelector(":scope > .tree-head .label").textContent;
-    const found = Object.entries(chapters).find(([id,ch]) => ch.name===label);
-    return found ? found[0] : null;
-  }
+    const leafHead = e.target.closest(".lvl-3 > .tree-head");
+    if(leafHead){
+      selectModule(leafHead.parentElement.getAttribute("data-module"));
+      // 🌟 手機版點擊條目後，自動收合側欄，讓玩家直接看內文
+      closeMobileSidebar();
+      return;
+    }
+    const collapsibleHead = e.target.closest(".lvl-1 > .tree-head, .lvl-2 > .tree-head");
+    if(collapsibleHead){
+      const node = collapsibleHead.parentElement;
+      if(node.classList.contains("lvl-1")){
+        const chId = node.getAttribute("data-chapter");
+        if(expandedChapters.has(chId)) expandedChapters.delete(chId); else expandedChapters.add(chId);
+      } else {
+        const secKey = node.getAttribute("data-section");
+        if(expandedSections.has(secKey)) expandedSections.delete(secKey); else expandedSections.add(secKey);
+      }
+      node.classList.toggle("open");
+    }
+  });
 
   searchBox.addEventListener("input", e => { searchTerm = e.target.value; renderTree(); });
 
   db.ref("chapters").on("value", snap => {
     chapters = snap.val() || {};
+    tryApplyInitialHash();
     renderTree();
+    renderDetail();
+    renderPinned();
   });
   db.ref("modules").on("value", snap => {
     modules = snap.val() || {};
+    tryApplyInitialHash();
     renderTree();
     renderDetail();
+    renderPinned();
   });
-  
-  // ========== 手機版側欄抽屜邏輯 ==========
-  const hamburgerBtn = document.getElementById("hamburgerBtn");
-  const sidebarOverlay = document.getElementById("sidebarOverlay");
-  const sidebar = document.querySelector(".sidebar");
 
+  // ========== 手機版側欄抽屜邏輯 ==========
   if(hamburgerBtn && sidebarOverlay && sidebar) {
     // 點擊漢堡選單 -> 打開抽屜與遮罩
     hamburgerBtn.addEventListener("click", () => {
