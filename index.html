@@ -72,16 +72,15 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .title-eyebrow{ font-size:11px; letter-spacing:6px; color:var(--gold-deep); font-weight:700; margin-bottom:10px; }
   .title-row{ display:flex; align-items:flex-end; justify-content:center; gap:12px; }
   
-  /* 左側大標題：指芒星狂草，加上微微的墨色漸層 */
-  .title-main{ 
-    font-family: "Zhi Mang Xing", cursive; 
-    font-size: 58px; 
-    line-height: .85; 
-    background: linear-gradient(180deg, var(--ink), #4A3C31);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    letter-spacing: 4px; 
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
-    padding-right: 5px; /* 避免草書尾巴被裁切 */
+  /* 左側大標題 (圖片版) */
+  .title-main-img {
+    height: 75px; /* 這裡可以調整數字，控制標題的大小 */
+    object-fit: contain;
+    margin-right: -2px; /* 讓右邊的「逆」字印章靠過來一點 */
+    
+    /* 最重要的魔法：自動把白底變透明，黑字融入紙張！ */
+    mix-blend-mode: multiply; 
+    opacity: 0.9; /* 稍微調低一點點，讓絕對的死黑變成自然的濃墨色 */
   }
   
   /* 印章：保留馬善政，圓角不規則化模擬實體印泥 */
@@ -178,7 +177,8 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     <div class="sidebar-header">
       <div class="title-eyebrow">FIGHTING FATE</div>
       <div class="title-row">
-        <div class="title-main">逆命</div>
+        <!-- 記得確認 src 的檔名跟你放進資料夾的圖片名稱一模一樣喔 -->
+        <img src="logo.png" alt="逆命" class="title-main-img">
         <div class="title-seal">逆</div>
       </div>
     </div>
