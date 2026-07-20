@@ -118,6 +118,7 @@
   .content-warn{ background: rgba(156,43,34,0.12); color:var(--vermillion-bright); font-weight:700; padding:2px 8px; border-radius:3px; border:1px solid rgba(156,43,34,0.3); }
   .content-underline{ text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
   .content-strike{ text-decoration: line-through; color: var(--ink-faint2); opacity:.7; }
+  .content-note{ font-size: 0.85em; color: var(--ink-faint2); letter-spacing: 0.5px; }
 
   /* 就地編輯表單 */
   .inline-form { background: var(--paper); padding: 20px; border-bottom: 2px solid var(--gold); box-shadow: inset 0 3px 10px rgba(0,0,0,0.03);}
@@ -383,6 +384,7 @@
       .replace(/!!(.*?)!!/g, '<span class="content-warn">⚠ $1</span>')
       .replace(/__(.*?)__/g, '<span class="content-underline">$1</span>')
       .replace(/~~(.*?)~~/g, '<span class="content-strike">$1</span>')
+      .replace(/註[:：]([^\n]*)/g, '<span class="content-note">註：$1</span>')
       .replace(/\|/g, '<span class="content-divider">|</span>')
       .replace(/([a-zA-Z]{2,}\d+)/g, '<span class="content-highlight">$1</span>')
       .replace(/(1d\d+)/ig, '<span class="content-highlight">$1</span>');
@@ -628,6 +630,7 @@
         <span>!!文字!!</span> 警示框
         <span>__文字__</span> 底線
         <span>~~文字~~</span> 刪除線（棄用規則）
+        <span>註：文字</span> 小號淡色註記（延伸到該行結尾）
       </div>
       <div class="template-btns">
         <button type="button" onclick="insertTemplate('race')">載入[種族]範本</button>
@@ -712,7 +715,7 @@
     const ta = document.getElementById('if-content');
     if(type === 'race') ta.value += "\n【種族屬性】\n所有屬性值+1 | 壽命約X年 | 體型中型 | 速度30尺\n\n【種族特性】\n特性名稱：特性說明寫這裡。\n";
     if(type === 'monster') ta.value += "\n【怪物名稱】靈根：木 | HP10 AC10 速度30尺 | POT10 PER10 CON10 CHA10 INT10 LUK10\n嚙咬(1d20,1d4穿刺)\n被動-特性名稱：說明寫這裡\n主動-技能名稱(短休1次)：說明寫這裡\n";
-    if(type === 'demo') ta.value += "\n【排版示範】\nHP15 AC12 1d20 | 這裡的 | 會變成分隔線\n!!GM限定：這段會用醒目的警示框顯示!!\n這裡的__重點字__會加底線，~~已棄用的舊規則~~會加上刪除線。\n";
+    if(type === 'demo') ta.value += "\n【排版示範】\nHP15 AC12 1d20 | 這裡的 | 會變成分隔線\n!!GM限定：這段會用醒目的警示框顯示!!\n這裡的__重點字__會加底線，~~已棄用的舊規則~~會加上刪除線。\n註：這是一行小號淡色的補充註記，適合寫版本備註或次要說明，不會搶走主要內容的視覺焦點。\n";
     ta.focus();
     ta.dispatchEvent(new Event("input")); // 觸發即時預覽更新
   };
