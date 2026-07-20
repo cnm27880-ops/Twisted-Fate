@@ -62,35 +62,59 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 
   .layout{ display:flex; height:100vh; position:relative; z-index:1; }
 
-  /* ===== 側欄（單一樹狀導覽） ===== */
+/* ===== 側欄（單一樹狀導覽） ===== */
   .sidebar{
     width:320px; flex-shrink:0; height:100vh;
     background:var(--paper-2); border-right:1px solid var(--border);
     display:flex; flex-direction:column;
   }
   .sidebar-header{ padding:26px 22px 14px; text-align:center; flex-shrink:0; border-bottom:1px solid var(--border); }
-  .title-eyebrow{ font-size:11px; letter-spacing:6px; color:var(--gold-deep); font-weight:700; margin-bottom:10px; }
-  .title-row{ display:flex; align-items:flex-end; justify-content:center; gap:12px; }
   
-  /* 左側大標題 (圖片版) */
-  .title-main-img {
-    height: 75px; /* 這裡可以調整數字，控制標題的大小 */
-    object-fit: contain;
-    margin-right: -2px; /* 讓右邊的「逆」字印章靠過來一點 */
-    
-    /* 最重要的魔法：自動把白底變透明，黑字融入紙張！ */
-    mix-blend-mode: multiply; 
-    opacity: 0.9; /* 稍微調低一點點，讓絕對的死黑變成自然的濃墨色 */
+  /* 1. 英文副標加強 (電影感排版) */
+  .title-eyebrow{ 
+    font-family: "Noto Serif TC", serif; 
+    font-size: 14px; 
+    letter-spacing: 12px; 
+    color: var(--gold-deep); 
+    font-weight: 900; 
+    margin-bottom: -15px; /* 往下靠，與主標題產生連結 */
+    margin-left: 12px; /* 補償 letter-spacing 造成的視覺偏移 */
+    position: relative;
+    z-index: 1;
   }
   
-  /* 印章：保留馬善政，圓角不規則化模擬實體印泥 */
+  /* 2. 標題與印章的容器 (取消置底，改用絕對微調) */
+  .title-row{ 
+    display: flex; 
+    align-items: center; /* 改成置中對齊 */
+    justify-content: center; 
+    /* 取消了原本的 gap，用 margin 讓印章強行貼上去 */
+  }
+  
+  /* 3. 圖片版主標題狠狠放大！ */
+  .title-main-img {
+    height: 140px; /* 這裡可以依照圖片的白邊大小，自行加減數值 (比如160px) */
+    object-fit: contain;
+    mix-blend-mode: multiply; 
+    opacity: 0.95; 
+  }
+  
+  /* 4. 印章微調 (落款疊加感) */
   .title-seal{
-    width:34px; height:34px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(155deg, var(--vermillion-bright), var(--vermillion) 60%, #6E1D18);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius:4px 2px 5px 3px; transform:rotate(-4deg);
-    font-family:"Ma Shan Zheng", cursive; color:#F5E4D3; font-size:18px;
-    box-shadow:2px 2px 6px rgba(0,0,0,.4);
+    width: 38px; height: 38px; 
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(155deg, var(--vermillion-bright), var(--vermillion) 60%, #6E1D18);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 4px 2px 5px 3px; 
+    transform: rotate(-6deg);
+    font-family: "Ma Shan Zheng", cursive; color: #F5E4D3; font-size: 20px;
+    box-shadow: 2px 3px 8px rgba(0,0,0,.5);
+    
+    /* 神奇魔法：用負邊距把印章往左上拉，蓋到圖片白邊範圍裡 */
+    margin-left: -20px; 
+    margin-top: 50px; /* 往下壓，製造右下角落款的感覺 */
+    position: relative;
+    z-index: 2;
   }
   
   .search-box{
