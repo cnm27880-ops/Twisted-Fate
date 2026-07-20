@@ -133,13 +133,14 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     border-left:2px solid transparent; transition:background .15s, color .15s;
   }
   .tree-head:hover{ background:var(--paper-3); }
-  .caret{
-    width:10px; height:10px; flex-shrink:0; transition:transform .25s ease;
-    display:flex; align-items:center; justify-content:center;
+  /* 展開/收合的小箭頭 */
+  .caret {
+    width: 10px; height: 10px; flex-shrink: 0; transition: transform .25s ease;
+    display: flex; align-items: center; justify-content: center;
   }
-  .caret svg{ width:8px; height:8px; }
-  .tree-node.open > .tree-head .caret{ transform:rotate(90deg); }
-  .caret.leaf{ opacity:0; }
+  .caret svg { width: 8px; height: 8px; }
+  .tree-node.open > .tree-head .caret { transform: rotate(90deg); } /* 展開時箭頭旋轉 */
+  .caret.leaf { opacity: 0 !important; } /* 條目不需要箭頭 */
 
   /* 樹狀目錄字體統一為文楷，調整粗細與大小 */
   /* 左側一級目錄換成宋體極粗，並稍微放大 */
@@ -193,6 +194,10 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     color: var(--vermillion-bright);
     font-weight: 700;
   }
+
+  .tree-children { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s cubic-bezier(.4,0,.2,1); }
+  .tree-node.open > .tree-children { grid-template-rows: 1fr; }
+  .tree-children-inner { overflow: hidden; min-height: 0; }
 
   /* ===== 內容顯示區 ===== */
   .detail-col{ flex:1; height:100vh; overflow-y:auto; padding:44px 64px 120px; }
