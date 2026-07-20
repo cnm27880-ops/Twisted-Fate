@@ -54,6 +54,8 @@
   button.primary:hover{ background:var(--vermillion-bright); border-color:var(--vermillion-bright);}
   button.danger{ color:var(--danger); background: transparent; border-color: transparent;}
   button.danger:hover{ background: rgba(156, 43, 34, 0.1); border-color: var(--danger);}
+  .full { display: block; width: 100%; margin-top: 25px; padding: 12px 0; text-align: center; }
+  .error { color: var(--danger); font-size: 14px; margin-top: 12px; min-height: 16px; text-align: center; font-weight: bold; }
 
   /* 工具列 */
   .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:30px; border-bottom: 2px solid var(--gold); padding-bottom: 20px;}
@@ -125,7 +127,6 @@
   <div class="topbar">
     <div>
       <h1>逆命．後台樞紐</h1>
-      <div class="sub">拖曳排序、即時搜尋、與時光備份法寶</div>
     </div>
     <div style="text-align:right;">
       <div class="userinfo" id="userEmail"></div>
@@ -195,6 +196,14 @@
     auth.signInWithEmailAndPassword(document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
       .catch(err => document.getElementById("loginError").textContent = "登入失敗");
   };
+  // 支援在帳號或密碼輸入框按 Enter 鍵直接登入
+  const handleEnterKey = (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("loginBtn").click();
+    }
+  };
+  document.getElementById("loginEmail").addEventListener("keypress", handleEnterKey);
+  document.getElementById("loginPassword").addEventListener("keypress", handleEnterKey);
   document.getElementById("logoutBtn").onclick = () => auth.signOut();
 
   // 初始化資料
@@ -348,7 +357,7 @@
     
     box.innerHTML = `
       <div class="cheat-sheet">
-        <strong>排版提示：</strong> 輸入 <span>【文字】</span> 會變成金色粗體小標 | 鍵入 <span>1d20</span> 或 <span>HP15</span> 等屬性會自動高亮 | 用 <span>|</span> 符號可作為分隔線。
+        <strong>排版提示：</strong> 輸入 <span>【文字】</span> 會變成紅色粗體小標 | 鍵入 <span>1d20</span> 或 <span>HP15</span> 等屬性會自動高亮 | 用 <span>|</span> 符號可作為分隔線。
       </div>
       <div class="template-btns">
         <button type="button" onclick="insertTemplate('race')">載入[種族]範本</button>
