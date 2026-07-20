@@ -229,7 +229,14 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .mobile-header { display: none; }
   .sidebar-overlay { display: none; }
 
+  /* 手機版專屬元件 (桌機版預設隱藏) */
+  .mobile-header { display: none; }
+  .sidebar-overlay { display: none; }
+
   @media (max-width: 900px){
+    /* 🌟 修復一：解除父層封印，讓側欄可以浮到遮罩上方！ */
+    .layout { z-index: auto; flex-direction: column; height: 100dvh; }
+
     /* 1. 頂部固定導覽列 */
     .mobile-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -254,15 +261,15 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     /* 2. 側欄變成「左側滑動抽屜」 */
     .sidebar {
       position: fixed; top: 0; left: 0; bottom: 0; 
-      height: 100vh; width: 290px; /* 抽屜寬度 */
+      /* 🌟 修復二：使用 100dvh (動態視窗高度)，並確保在遮罩(90)之上 */
+      height: 100dvh; width: 290px; 
       z-index: 100; 
-      transform: translateX(-100%); /* 預設藏在畫面左外側 */
+      transform: translateX(-100%); 
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 5px 0 25px rgba(0,0,0,0.2);
     }
-    .sidebar.open { transform: translateX(0); /* 滑入畫面 */ }
+    .sidebar.open { transform: translateX(0); }
     
-    /* 配合手機版稍微縮小側欄裡的圖片與印章 */
     .title-main-img { height: 110px; margin-right: -10px; }
     .title-seal { width: 30px; height: 30px; font-size: 16px; margin-top: 30px; margin-left: -15px; }
 
@@ -270,16 +277,17 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     .sidebar-overlay {
       display: block; position: fixed; inset: 0;
       background: rgba(29, 23, 18, 0.6); backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px); /* 支援蘋果系統的模糊 */
       z-index: 90; opacity: 0; pointer-events: none;
       transition: opacity 0.4s ease;
     }
     .sidebar-overlay.active { opacity: 1; pointer-events: auto; cursor: pointer; }
 
-    /* 4. 內文區塊填滿螢幕，並預留頂部 Header 空間 */
-    .layout{ flex-direction: column; }
+    /* 4. 內文區塊填滿螢幕 */
     .detail-col { 
-      height: 100vh; 
-      padding: 85px 24px 80px; /* 上方空出 85px 避免被導覽列遮住 */
+      /* 🌟 修復二：使用 100dvh，並把底部內距(padding)從 80px 加大到 120px */
+      height: 100dvh; 
+      padding: 85px 24px 120px; 
     }
     .detail-title { font-size: 24px; }
     .detail-body { font-size: 16.5px; }
