@@ -233,8 +233,11 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   /* 空狀態的圖示也換成狂草 */
   .detail-empty .glyph{ font-family:"Zhi Mang Xing",cursive; font-size:76px; color:var(--border); margin-bottom:16px; }
 
-  /* 內文整體容器：統一版心寬度並置中，避免標題與內文寬度不一、右側留白過大 */
-  .detail-content{ max-width:820px; margin:0 auto; }
+  /* 內文整體容器：統一版心寬度並置中，避免標題與內文寬度不一。
+     寬度會隨螢幕大小流動調整（65% 視窗寬），小螢幕維持 760px 起跳的舒適閱讀寬度，
+     大螢幕（如 32 吋以上）最多長到 1500px，避免大螢幕下版心太窄、右側留白過大，
+     也避免超寬螢幕下單行文字被拉得太長難以閱讀。側邊欄寬度不受影響，維持固定 320px。 */
+  .detail-content{ max-width: clamp(760px, 65vw, 1500px); margin:0 auto; }
 
   .detail-breadcrumb{ font-size:12px; color:var(--gold-deep); letter-spacing:2px; margin-bottom:10px; font-weight:600; }
 
