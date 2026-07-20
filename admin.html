@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>逆命．規則書後台</title>
+<!-- 仙氣字體 -->
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<!-- 引入 SortableJS (拖曳排序神器) -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+<style>
+  :root{
+    --paper: #F2E9D6; --paper-2: #EBDFC5; --paper-3: #E0D0A9;
+    --ink: #1D1712; --ink-dim: #453A2A; --ink-faint2: #6E5F45;
+    --vermillion: #9C2B22; --vermillion-bright: #B5372B;
+    --gold: #8C6B27; --gold-deep: #5F470F;
+    --border: rgba(95, 71, 15, 0.25);
+    --danger: #9C2B22;
+  }
+  *{box-sizing:border-box;}
+  
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family: "LXGW WenKai TC", serif; min-height:100vh; position: relative; padding-bottom: 100px; }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.5; mix-blend-mode:multiply;
+  }
+
+  .wrap{ max-width:960px; margin:0 auto; padding:40px 30px; }
+  
+  /* 標題與登入 */
+  h1{ font-family:"Noto Serif TC",serif; font-size:42px; letter-spacing:4px; color:var(--ink); margin:0 0 6px; font-weight:900;}
+  .sub{ color:var(--ink-faint2); font-size:15px; margin:0 0 32px; letter-spacing: 2px; font-weight: bold;}
+
+  .login-box{ max-width:380px; margin:120px auto; background:var(--paper-2); border:1px solid var(--border); padding:40px 35px; border-radius:2px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .login-box h2{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); margin:0 0 25px; text-align:center; letter-spacing:2px;}
+  
+  label{ display:block; font-size:14px; font-weight:700; color:var(--ink-dim); margin:16px 0 8px; letter-spacing:1px;}
+  input, textarea, select{
+    width:100%; background:var(--paper); border:1px solid var(--border); color:var(--ink);
+    padding:12px 14px; font-size:15px; font-family:"LXGW WenKai TC",serif; border-radius:2px; outline:none; transition: border-color 0.3s;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:var(--gold); box-shadow: 0 0 8px rgba(140, 107, 39, 0.2);}
+  textarea{ min-height:220px; resize:vertical; line-height:1.8; }
+  
+  button{
+    font-family:"Noto Serif TC",serif; font-size:14px; font-weight:900; letter-spacing: 2px;
+    padding:8px 16px; border-radius:2px; cursor:pointer; border:1px solid var(--border);
+    background:var(--paper-3); color:var(--ink); transition:all .2s;
+  }
+  button:hover{ background: var(--gold); border-color:var(--gold); color:#fff; }
+  button.primary{ background:var(--vermillion); border-color:var(--vermillion); color:#F5E9DD; }
+  button.primary:hover{ background:var(--vermillion-bright); border-color:var(--vermillion-bright);}
+  button.danger{ color:var(--danger); background: transparent; border-color: transparent;}
+  button.danger:hover{ background: rgba(156, 43, 34, 0.1); border-color: var(--danger);}
+
+  /* 工具列 */
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:30px; border-bottom: 2px solid var(--gold); padding-bottom: 20px;}
+  .toolbar{ display:flex; gap: 10px; margin-bottom: 25px; }
+  .search-box{ flex: 1; position: relative; }
+  .search-box input{ font-size: 16px; padding-left: 40px; border-color: var(--gold); background: var(--paper-2);}
+  .search-box::before{ content:"尋"; font-family:"Noto Serif TC",serif; position:absolute; left:12px; top:12px; color:var(--gold-deep); font-weight:900; font-size:18px;}
+
+  /* 拖曳列表樣式 */
+  .chapter-block { background: var(--paper-2); border: 1px solid var(--border); margin-bottom: 20px; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
+  .chapter-header { 
+    background: var(--paper-3); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 18px; display: flex; align-items: center; gap: 10px;}
+  .drag-handle { cursor: grab; color: var(--gold-deep); opacity: 0.5; font-size: 18px; font-weight: bold; padding: 0 8px; user-select: none;}
+  .drag-handle:active { cursor: grabbing; opacity: 1;}
+
+  .module-list { min-height: 10px; }
+  .module-item { 
+    display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--paper-2); transition: background 0.2s;
+  }
+  .module-item:last-child { border-bottom: none; }
+  .module-item:hover { background: var(--paper); }
+  .module-info { flex: 1; }
+  .module-title { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px;}
+  .module-meta { font-size: 13px; color: var(--ink-faint2); margin-top: 4px; }
+  
+  /* 草稿樣式 */
+  .is-draft { opacity: 0.6; }
+  .draft-badge { background: var(--ink-dim); color: var(--paper); font-size: 11px; padding: 2px 6px; border-radius: 2px; }
+
+  /* 搜尋高亮 */
+  .highlight { background: rgba(156, 43, 34, 0.15); color: var(--vermillion-bright); font-weight: bold; border-radius: 2px; padding: 0 2px;}
+  .search-snippet { font-size: 13px; color: var(--ink-faint2); margin-top: 6px; background: rgba(0,0,0,0.03); padding: 4px 8px; border-left: 2px solid var(--gold); }
+
+  /* 就地編輯表單 */
+  .inline-form { background: var(--paper); padding: 20px; border-bottom: 2px solid var(--gold); box-shadow: inset 0 3px 10px rgba(0,0,0,0.03);}
+  .form-row { display: flex; gap: 15px; margin-bottom: 15px;}
+  .form-row > div { flex: 1; }
+  .cheat-sheet { font-size: 13px; color: var(--ink-faint2); background: var(--paper-3); padding: 10px; border-radius: 4px; margin-bottom: 15px;}
+  .cheat-sheet span { color: var(--vermillion); font-weight: bold; }
+  .template-btns { display: flex; gap: 8px; margin-bottom: 10px;}
+  .template-btns button { font-size: 12px; padding: 4px 8px; }
+
+  /* 日誌彈窗 */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px);}
+  .modal { background: var(--paper); width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; padding: 30px; border-radius: 4px; border: 2px solid var(--gold);}
+  .log-item { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;}
+  .log-time { font-size: 12px; color: var(--ink-faint2); }
+  .log-action { font-weight: bold; color: var(--vermillion); }
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap" style="display:none;">
+  <div class="login-box">
+    <h2>管理者登入</h2>
+    <label>帳號 (Email)</label>
+    <input type="email" id="loginEmail" placeholder="name@example.com">
+    <label>密碼 (Password)</label>
+    <input type="password" id="loginPassword">
+    <button class="primary full" id="loginBtn">登入樞紐</button>
+    <div class="error" id="loginError"></div>
+  </div>
+</div>
+
+<div id="appView" class="wrap" style="display:none;">
+  <div class="topbar">
+    <div>
+      <h1>逆命．後台樞紐</h1>
+      <div class="sub">拖曳排序、即時搜尋、與時光備份法寶</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="userinfo" id="userEmail"></div>
+      <button id="btnBackup" style="margin-right:8px;">備份JSON</button>
+      <button id="btnLogs" style="margin-right:8px;">修改日誌</button>
+      <button id="logoutBtn" class="danger">登出</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜尋規則... (支援前後文高亮預覽)">
+    </div>
+    <button class="primary" id="addChapterBtn">+ 新增章節</button>
+  </div>
+
+  <div id="mainContainer"></div>
+</div>
+
+<!-- 日誌彈窗 -->
+<div class="modal-overlay" id="logsModal">
+  <div class="modal">
+    <h2 style="margin-top:0;">天道紀事本 (修改日誌)</h2>
+    <p style="font-size:14px; color:var(--ink-faint2);">近 50 筆修改紀錄。若不慎改錯，可點擊「還原」恢復該條目的舊內容。</p>
+    <div id="logsList"></div>
+    <button style="margin-top: 20px;" onclick="document.getElementById('logsModal').style.display='none'">關閉</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
+    authDomain: "twisted-fate-trpg.firebaseapp.com",
+    databaseURL: "https://twisted-fate-trpg-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "twisted-fate-trpg",
+    storageBucket: "twisted-fate-trpg.firebasestorage.app",
+    messagingSenderId: "804781497200",
+    appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  let chapters = {};
+  let modules = {};
+  let logs = {};
+  let searchTerm = "";
+  let editingId = null; // 當前正在編輯的 ID，避免重複展開
+
+  // 登入邏輯
+  auth.onAuthStateChanged(user => {
+    if(user){
+      document.getElementById("loginView").style.display = "none";
+      document.getElementById("appView").style.display = "block";
+      document.getElementById("userEmail").textContent = "管理員：" + user.email;
+      initApp();
+    } else {
+      document.getElementById("loginView").style.display = "block";
+      document.getElementById("appView").style.display = "none";
+    }
+  });
+
+  document.getElementById("loginBtn").onclick = () => {
+    auth.signInWithEmailAndPassword(document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
+      .catch(err => document.getElementById("loginError").textContent = "登入失敗");
+  };
+  document.getElementById("logoutBtn").onclick = () => auth.signOut();
+
+  // 初始化資料
+  function initApp(){
+    db.ref("chapters").on("value", snap => { chapters = snap.val() || {}; renderAll(); });
+    db.ref("modules").on("value", snap => { modules = snap.val() || {}; renderAll(); });
+    db.ref("logs").orderByChild("time").limitToLast(50).on("value", snap => { logs = snap.val() || {}; });
+  }
+
+  // 紀錄日誌
+  function writeLog(action, title, oldData) {
+    db.ref("logs").push({
+      time: Date.now(),
+      user: auth.currentUser.email,
+      action: action,
+      title: title,
+      oldData: oldData ? JSON.stringify(oldData) : null
+    });
+  }
+
+  // 搜尋前後文擷取與高亮
+  function getSnippet(text, query) {
+    if(!query || !text) return "";
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if(idx === -1) return "";
+    const start = Math.max(0, idx - 15);
+    const end = Math.min(text.length, idx + query.length + 20);
+    let snippet = text.substring(start, end).replace(/</g, "&lt;");
+    if(start > 0) snippet = "..." + snippet;
+    if(end < text.length) snippet = snippet + "...";
+    const regex = new RegExp(`(${query})`, "gi");
+    return snippet.replace(regex, '<span class="highlight">$1</span>');
+  }
+
+  // 主渲染函數
+  function renderAll() {
+    const container = document.getElementById("mainContainer");
+    container.innerHTML = "";
+    
+    // 將 modules 分類到對應的 chapter
+    const chOrder = Object.entries(chapters).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+    
+    chOrder.forEach(([chId, ch]) => {
+      let chMods = Object.entries(modules)
+        .filter(([id, m]) => m.chapterId === chId)
+        .sort((a,b) => (a[1].order||0) - (b[1].order||0));
+      
+      // 搜尋過濾
+      if(searchTerm) {
+        chMods = chMods.filter(([id, m]) => {
+          return (m.title||"").toLowerCase().includes(searchTerm) || (m.content||"").toLowerCase().includes(searchTerm);
+        });
+        if(chMods.length === 0 && !(ch.name.toLowerCase().includes(searchTerm))) return; // 沒中關鍵字的章節隱藏
+      }
+
+      // 建立章節區塊
+      const block = document.createElement("div");
+      block.className = "chapter-block";
+      block.dataset.id = chId;
+      block.innerHTML = `
+        <div class="chapter-header">
+          <div class="chapter-title"><span class="drag-handle chapter-handle">≡</span> ${ch.name}</div>
+          <div>
+            <button class="primary" onclick="openInlineEditor('new', '${chId}', this.parentElement.parentElement.nextElementSibling)">+ 條目</button>
+            <button onclick="editChapter('${chId}')">修改</button>
+          </div>
+        </div>
+        <div class="module-list" id="list-${chId}"></div>
+      `;
+      container.appendChild(block);
+
+      const listEl = block.querySelector(".module-list");
+      
+      // 填入條目
+      chMods.forEach(([mId, m]) => {
+        const item = document.createElement("div");
+        item.className = `module-item ${m.isDraft ? 'is-draft' : ''}`;
+        item.dataset.id = mId;
+        
+        let highlightTitle = (m.title||"").replace(/</g, "&lt;");
+        let snippetHtml = "";
+        
+        if(searchTerm) {
+          const regex = new RegExp(`(${searchTerm})`, "gi");
+          highlightTitle = highlightTitle.replace(regex, '<span class="highlight">$1</span>');
+          const snippet = getSnippet(m.content, searchTerm);
+          if(snippet) snippetHtml = `<div class="search-snippet">${snippet}</div>`;
+        }
+
+        item.innerHTML = `
+          <span class="drag-handle module-handle">≡</span>
+          <div class="module-info">
+            <div class="module-title">${m.isDraft ? '<span class="draft-badge">草稿</span>' : ''} ${highlightTitle}</div>
+            <div class="module-meta">${m.section ? '子分類: ' + m.section : '無子分類'}</div>
+            ${snippetHtml}
+          </div>
+          <div>
+            <button onclick="openInlineEditor('${mId}', '${chId}', this.parentElement.parentElement)">修改</button>
+            <button class="danger" onclick="deleteModule('${mId}', '${m.title}')">刪除</button>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+
+      // 初始化條目拖曳 (只允許在章節內排序)
+      if(!searchTerm) {
+        new Sortable(listEl, {
+          handle: '.module-handle', animation: 150,
+          onEnd: (evt) => {
+            const itemIds = Array.from(listEl.children).map(el => el.dataset.id).filter(id=>id);
+            const updates = {};
+            itemIds.forEach((id, index) => { updates[`modules/${id}/order`] = index; });
+            db.ref().update(updates);
+          }
+        });
+      }
+    });
+
+    // 初始化章節拖曳
+    if(!searchTerm) {
+      new Sortable(container, {
+        handle: '.chapter-handle', animation: 150,
+        onEnd: (evt) => {
+          const chIds = Array.from(container.children).map(el => el.dataset.id).filter(id=>id);
+          const updates = {};
+          chIds.forEach((id, index) => { updates[`chapters/${id}/order`] = index; });
+          db.ref().update(updates);
+        }
+      });
+    }
+  }
+
+  // 搜尋功能即時監聽
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchTerm = e.target.value.toLowerCase().trim();
+    renderAll();
+  });
+
+  // ========== 就地編輯表單 (Inline Editor) ==========
+  function openInlineEditor(moduleId, chapterId, targetElement) {
+    if(document.getElementById("inlineFormBox")) {
+      alert("請先儲存或取消當前的編輯"); return;
+    }
+    
+    const isNew = (moduleId === 'new');
+    const m = isNew ? {chapterId: chapterId, section:"", title:"", content:"", tags:"", isDraft:false} : modules[moduleId];
+    
+    const box = document.createElement("div");
+    box.id = "inlineFormBox";
+    box.className = "inline-form";
+    
+    box.innerHTML = `
+      <div class="cheat-sheet">
+        <strong>排版提示：</strong> 輸入 <span>【文字】</span> 會變成金色粗體小標 | 鍵入 <span>1d20</span> 或 <span>HP15</span> 等屬性會自動高亮 | 用 <span>|</span> 符號可作為分隔線。
+      </div>
+      <div class="template-btns">
+        <button type="button" onclick="insertTemplate('race')">載入[種族]範本</button>
+        <button type="button" onclick="insertTemplate('monster')">載入[靈獸]範本</button>
+      </div>
+      <div class="form-row">
+        <div style="flex:2;"><label>條目名稱</label><input type="text" id="if-title" value="${(m.title||"").replace(/"/g,'&quot;')}"></div>
+        <div style="flex:1;"><label>子分類 (選填)</label><input type="text" id="if-section" value="${m.section||""}"></div>
+        <div style="flex:1; display:flex; align-items:flex-end; padding-bottom:12px;">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="if-draft" style="width:auto;" ${m.isDraft ? 'checked' : ''}> 設為隱藏草稿
+          </label>
+        </div>
+      </div>
+      <label>規則內容</label>
+      <textarea id="if-content">${m.content||""}</textarea>
+      
+      <div class="form-actions" style="margin-top:15px;">
+        <button class="primary" onclick="saveInlineEditor('${moduleId}', '${chapterId}')">儲存條目</button>
+        <button onclick="cancelInlineEditor()">取消</button>
+      </div>
+    `;
+
+    // 隱藏原本的行，插入表單
+    if(!isNew) targetElement.style.display = 'none';
+    targetElement.parentNode.insertBefore(box, isNew ? targetElement.firstChild : targetElement.nextSibling);
+    
+    // 保存引用以便取消時恢復
+    box.dataset.targetId = isNew ? "" : moduleId;
+  }
+
+  function cancelInlineEditor() {
+    const box = document.getElementById("inlineFormBox");
+    if(box.dataset.targetId) {
+      const item = document.querySelector(`.module-item[data-id="${box.dataset.targetId}"]`);
+      if(item) item.style.display = 'flex';
+    }
+    box.remove();
+  }
+
+  function saveInlineEditor(moduleId, fallbackChapterId) {
+    const title = document.getElementById("if-title").value.trim();
+    const section = document.getElementById("if-section").value.trim();
+    const content = document.getElementById("if-content").value;
+    const isDraft = document.getElementById("if-draft").checked;
+    
+    if(!title) { alert("請輸入標題"); return; }
+    
+    const newId = (moduleId === 'new') ? "m" + Date.now() : moduleId;
+    const oldData = (moduleId === 'new') ? null : modules[moduleId];
+    
+    const dataToSave = {
+      chapterId: (moduleId === 'new') ? fallbackChapterId : oldData.chapterId,
+      order: (moduleId === 'new') ? 999 : oldData.order, // 新增排最後，後續可拖曳
+      title, section, content, isDraft
+    };
+
+    db.ref("modules/" + newId).set(dataToSave).then(() => {
+      writeLog(moduleId === 'new' ? '新增' : '修改', title, oldData);
+      document.getElementById("inlineFormBox").remove();
+    });
+  }
+
+  // 快速範本
+  window.insertTemplate = function(type) {
+    const ta = document.getElementById('if-content');
+    if(type === 'race') ta.value += "\n【種族屬性】\n所有屬性值+1 | 壽命約X年 | 體型中型 | 速度30尺\n\n【種族特性】\n特性名稱：特性說明寫這裡。\n";
+    if(type === 'monster') ta.value += "\n【怪物名稱】靈根：木 | HP10 AC10 速度30尺 | POT10 PER10 CON10 CHA10 INT10 LUK10\n嚙咬(1d20,1d4穿刺)\n被動-特性名稱：說明寫這裡\n主動-技能名稱(短休1次)：說明寫這裡\n";
+    ta.focus();
+  };
+
+  function deleteModule(id, title) {
+    if(confirm(`確定要刪除「${title}」嗎？`)) {
+      writeLog('刪除', title, modules[id]);
+      db.ref("modules/"+id).remove();
+    }
+  }
+
+  // ========== 章節管理 (獨立視窗) ==========
+  document.getElementById("addChapterBtn").onclick = () => {
+    const name = prompt("請輸入新大章節名稱：");
+    if(name) {
+      db.ref("chapters/c"+Date.now()).set({name: name.trim(), order: 999});
+    }
+  };
+  window.editChapter = function(id) {
+    const name = prompt("修改章節名稱：", chapters[id].name);
+    if(name) {
+      db.ref("chapters/"+id+"/name").set(name.trim());
+    }
+  };
+
+  // ========== 日誌與還原 ==========
+  document.getElementById("btnLogs").onclick = () => {
+    const list = document.getElementById("logsList");
+    list.innerHTML = "";
+    Object.entries(logs).reverse().forEach(([id, log]) => {
+      const timeStr = new Date(log.time).toLocaleString();
+      let btnHtml = log.oldData ? `<button onclick='restoreLog(${JSON.stringify(log.oldData).replace(/'/g,"&#39;")})'>還原舊內容</button>` : '';
+      list.innerHTML += `
+        <div class="log-item">
+          <div>
+            <div class="log-time">${timeStr} - ${log.user}</div>
+            <div><span class="log-action">${log.action}</span>了「${log.title}」</div>
+          </div>
+          <div>${btnHtml}</div>
+        </div>`;
+    });
+    document.getElementById("logsModal").style.display = "flex";
+  };
+
+  window.restoreLog = function(oldDataStr) {
+    if(confirm("確定要把這筆資料恢復到當時的狀態嗎？")) {
+      const oldData = typeof oldDataStr === 'string' ? JSON.parse(oldDataStr) : oldDataStr;
+      db.ref("modules/m" + Date.now()).set(oldData);
+      alert("已作為新條目還原在最底部！你可以搜尋它並重新拖曳順序。");
+      document.getElementById("logsModal").style.display = "none";
+    }
+  };
+
+  // ========== JSON 一鍵備份 ==========
+  document.getElementById("btnBackup").onclick = () => {
+    const backupData = { chapters, modules };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    const dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "逆命規則書備份_" + new Date().toISOString().slice(0,10) + ".json");
+    dlAnchorElem.click();
+  };
+</script>
+</body>
+</html>
