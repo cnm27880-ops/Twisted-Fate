@@ -257,6 +257,15 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   /* 讓括號與屬性高亮的字體也吃文楷設定 */
   .content-bracket{ color:var(--vermillion); font-weight:700; font-family:"LXGW WenKai TC",serif; font-size: 19px; }
   .content-highlight{ color:var(--gold-deep); font-weight:700; font-family:"LXGW WenKai TC",serif; }
+  .content-divider{ color:var(--gold); opacity:.55; margin:0 8px; }
+  .content-warn{
+    display:inline-block; background: rgba(156,43,34,0.1); color:var(--vermillion-bright); font-weight:700;
+    padding:2px 10px; border-radius:3px; border:1px solid rgba(156,43,34,0.28);
+  }
+  .content-underline{ text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+  .content-strike{ text-decoration: line-through; color: var(--ink-faint2); opacity:.7; }
+  /* 註記小字：字級縮小、顏色轉淡，但沿用已在全站驗證過對比度的 --ink-faint2，維持可讀性 */
+  .content-note{ font-size: 14px; color: var(--ink-faint2); letter-spacing: 0.5px; }
 
   /* ===== 上一條／下一條 ===== */
   .detail-nav{ display:flex; justify-content:space-between; gap:12px; margin-top:44px; padding-top:22px; border-top:1px solid var(--border); }
@@ -592,6 +601,11 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     let c = (raw||"").replace(/</g,"&lt;");
     c = c
       .replace(/【(.*?)】/g, '<span class="content-bracket">【$1】</span>')
+      .replace(/!!(.*?)!!/g, '<span class="content-warn">⚠ $1</span>')
+      .replace(/__(.*?)__/g, '<span class="content-underline">$1</span>')
+      .replace(/~~(.*?)~~/g, '<span class="content-strike">$1</span>')
+      .replace(/註[:：]([^\n]*)/g, '<span class="content-note">註：$1</span>')
+      .replace(/\|/g, '<span class="content-divider">|</span>')
       .replace(/([a-zA-Z]{2,}\d+)/g, '<span class="content-highlight">$1</span>')
       .replace(/(1d\d+)/ig, '<span class="content-highlight">$1</span>');
     return c;

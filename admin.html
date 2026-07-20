@@ -59,10 +59,29 @@
 
   /* 工具列 */
   .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:30px; border-bottom: 2px solid var(--gold); padding-bottom: 20px;}
-  .toolbar{ display:flex; gap: 10px; margin-bottom: 25px; }
+  .toolbar{ display:flex; gap: 10px; margin-bottom: 10px; }
   .search-box{ flex: 1; position: relative; }
   .search-box input{ font-size: 16px; padding-left: 40px; border-color: var(--gold); background: var(--paper-2);}
   .search-box::before{ content:"尋"; font-family:"Noto Serif TC",serif; position:absolute; left:12px; top:12px; color:var(--gold-deep); font-weight:900; font-size:18px;}
+
+  /* 進階搜尋面板 */
+  .adv-panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 25px; }
+  .adv-row{ display:flex; align-items:center; flex-wrap:wrap; gap: 16px; margin-bottom: 10px; }
+  .adv-row:last-child{ margin-bottom: 0; }
+  .adv-label{ font-weight:700; color:var(--ink-dim); font-size:14px; }
+  .adv-row label{ display:flex; align-items:center; gap:6px; font-size:14px; font-weight:400; color:var(--ink-dim); cursor:pointer; margin:0; }
+  .adv-row input[type="checkbox"]{ width:auto; padding:0; }
+  .match-count{ margin-left:auto; font-size:13px; color:var(--gold-deep); font-weight:700; }
+  .replace-row input[type="text"]{ width:auto; flex:1; min-width:120px; }
+  .replace-row span{ color:var(--ink-faint2); }
+  .replace-summary{ font-size:13px; color:var(--ink-faint2); margin: 10px 0 8px; }
+  .replace-item{ background: var(--paper); border:1px solid var(--border); border-radius:3px; padding:10px 12px; margin-bottom:8px; }
+  .replace-item label{ display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; }
+  .replace-item input[type="checkbox"]{ width:auto; }
+  .replace-diff{ font-size:13px; margin-top:6px; padding-left:24px; line-height:1.7; word-break:break-word; }
+  .replace-diff del{ color: var(--danger); text-decoration: line-through; background: rgba(156,43,34,0.08); }
+  .replace-diff ins{ color: #2D5A4C; text-decoration: none; background: rgba(45,90,76,0.12); font-weight:700; }
+  .replace-empty{ font-size:13px; color:var(--ink-faint2); margin-top:10px; }
 
   /* 拖曳列表樣式 */
   .chapter-block { background: var(--paper-2); border: 1px solid var(--border); margin-bottom: 20px; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
@@ -90,16 +109,28 @@
 
   /* 搜尋高亮 */
   .highlight { background: rgba(156, 43, 34, 0.15); color: var(--vermillion-bright); font-weight: bold; border-radius: 2px; padding: 0 2px;}
-  .search-snippet { font-size: 13px; color: var(--ink-faint2); margin-top: 6px; background: rgba(0,0,0,0.03); padding: 4px 8px; border-left: 2px solid var(--gold); }
+  .search-snippet { font-size: 13px; color: var(--ink-faint2); margin-top: 6px; background: rgba(0,0,0,0.03); padding: 4px 8px; border-left: 2px solid var(--gold); white-space: pre-wrap; line-height: 1.7; }
+
+  /* 規則排版效果（與 index.html 的 parseContent 對應一致） */
+  .content-bracket{ color:var(--vermillion); font-weight:700; }
+  .content-highlight{ color:var(--gold-deep); font-weight:700; }
+  .content-divider{ color:var(--gold); opacity:.55; margin:0 6px; }
+  .content-warn{ background: rgba(156,43,34,0.12); color:var(--vermillion-bright); font-weight:700; padding:2px 8px; border-radius:3px; border:1px solid rgba(156,43,34,0.3); }
+  .content-underline{ text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+  .content-strike{ text-decoration: line-through; color: var(--ink-faint2); opacity:.7; }
+  .content-note{ font-size: 0.85em; color: var(--ink-faint2); letter-spacing: 0.5px; }
 
   /* 就地編輯表單 */
   .inline-form { background: var(--paper); padding: 20px; border-bottom: 2px solid var(--gold); box-shadow: inset 0 3px 10px rgba(0,0,0,0.03);}
   .form-row { display: flex; gap: 15px; margin-bottom: 15px;}
   .form-row > div { flex: 1; }
-  .cheat-sheet { font-size: 13px; color: var(--ink-faint2); background: var(--paper-3); padding: 10px; border-radius: 4px; margin-bottom: 15px;}
+  .cheat-sheet { font-size: 13px; color: var(--ink-faint2); background: var(--paper-3); padding: 10px; border-radius: 4px; margin-bottom: 10px; line-height: 2.2;}
   .cheat-sheet span { color: var(--vermillion); font-weight: bold; }
   .template-btns { display: flex; gap: 8px; margin-bottom: 10px;}
   .template-btns button { font-size: 12px; padding: 4px 8px; }
+  .preview-toggle-row { margin-bottom: 10px; }
+  .preview-toggle-row button { font-size: 12px; padding: 4px 8px; }
+  .preview-box { font-size: 15px; line-height: 2; color: var(--ink-dim); background: var(--paper); border: 1px dashed var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 15px; white-space: pre-wrap; min-height: 40px; }
 
   /* 日誌彈窗 */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px);}
@@ -140,7 +171,31 @@
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="搜尋規則... (支援前後文高亮預覽)">
     </div>
+    <button type="button" id="advToggleBtn">進階搜尋 ▾</button>
     <button class="primary" id="addChapterBtn">+ 新增章節</button>
+  </div>
+
+  <div class="adv-panel" id="advPanel" style="display:none;">
+    <div class="adv-row">
+      <span class="adv-label">搜尋範圍：</span>
+      <label><input type="checkbox" id="adv-scope-title" checked> 標題</label>
+      <label><input type="checkbox" id="adv-scope-content" checked> 內容</label>
+      <label><input type="checkbox" id="adv-scope-section"> 子分類</label>
+    </div>
+    <div class="adv-row">
+      <label><input type="checkbox" id="adv-wholeword"> 全字比對</label>
+      <label><input type="checkbox" id="adv-casesensitive"> 區分大小寫</label>
+      <label><input type="checkbox" id="adv-regex"> 正則表達式</label>
+      <span class="match-count" id="matchCount"></span>
+    </div>
+    <div class="adv-row replace-row">
+      <span class="adv-label">批次校正：</span>
+      <input type="text" id="replaceFrom" placeholder="找出字詞...">
+      <span>→</span>
+      <input type="text" id="replaceTo" placeholder="取代為...">
+      <button type="button" id="replacePreviewBtn">預覽取代</button>
+    </div>
+    <div id="replaceResults"></div>
   </div>
 
   <div id="mainContainer"></div>
@@ -178,6 +233,8 @@
   let logs = {};
   let searchTerm = "";
   let editingId = null; // 當前正在編輯的 ID，避免重複展開
+  let advOptions = { scopeTitle: true, scopeContent: true, scopeSection: false, wholeWord: false, caseSensitive: false, regex: false };
+  let lastReplaceFrom = "", lastReplaceTo = "";
 
   // 登入邏輯
   auth.onAuthStateChanged(user => {
@@ -224,39 +281,138 @@
     });
   }
 
-  // 搜尋前後文擷取與高亮
-  function getSnippet(text, query) {
-    if(!query || !text) return "";
-    const idx = text.toLowerCase().indexOf(query.toLowerCase());
-    if(idx === -1) return "";
-    const start = Math.max(0, idx - 15);
-    const end = Math.min(text.length, idx + query.length + 20);
-    let snippet = text.substring(start, end).replace(/</g, "&lt;");
-    if(start > 0) snippet = "..." + snippet;
-    if(end < text.length) snippet = snippet + "...";
-    const regex = new RegExp(`(${query})`, "gi");
-    return snippet.replace(regex, '<span class="highlight">$1</span>');
+  // ========== 搜尋工具函式 ==========
+
+  // 依照進階選項（全字比對／區分大小寫／正則表達式）組出搜尋用的正則
+  function buildSearchRegex(term, opts) {
+    if(!term) return null;
+    let pattern;
+    if(opts.regex) {
+      pattern = term;
+    } else {
+      pattern = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+    let flags = "g" + (opts.caseSensitive ? "" : "i");
+    if(opts.wholeWord) {
+      // 原生 \b 只認得 ASCII 字母數字，中文詞彙幾乎比對不到；改用 Unicode 屬性判斷左右是否為文字/數字
+      pattern = `(?<![\\p{L}\\p{N}_])(?:${pattern})(?![\\p{L}\\p{N}_])`;
+      flags += "u";
+    }
+    try {
+      return new RegExp(pattern, flags);
+    } catch(e) {
+      return null; // 正則語法錯誤時視為無效搜尋，不中斷畫面
+    }
+  }
+
+  function searchFields(m, opts) {
+    const fields = [];
+    if(opts.scopeTitle) fields.push(m.title || "");
+    if(opts.scopeContent) fields.push(m.content || "");
+    if(opts.scopeSection) fields.push(m.section || "");
+    return fields;
+  }
+
+  function moduleMatches(m, regex, opts) {
+    return searchFields(m, opts).some(f => { regex.lastIndex = 0; return regex.test(f); });
+  }
+
+  function countMatches(m, regex, opts) {
+    let count = 0;
+    searchFields(m, opts).forEach(f => {
+      regex.lastIndex = 0;
+      let match;
+      while((match = regex.exec(f))) {
+        count++;
+        if(match.index === regex.lastIndex) regex.lastIndex++; // 避免零寬比對造成無窮迴圈
+      }
+    });
+    return count;
+  }
+
+  function highlightText(text, regex) {
+    let escaped = (text || "").replace(/</g, "&lt;");
+    if(!regex) return escaped;
+    regex.lastIndex = 0;
+    return escaped.replace(regex, '<span class="highlight">$&</span>');
+  }
+
+  // 搜尋前後文擷取：顯示相符字詞所在的「整段落」（以空行分段），而不只是單行片段
+  function getSnippet(text, regex) {
+    if(!regex || !text) return "";
+    regex.lastIndex = 0;
+    const m = regex.exec(text);
+    if(!m) return "";
+    const idx = m.index;
+
+    const paraSep = /\n\s*\n/g;
+    let paraStart = 0, paraEnd = text.length, sepMatch;
+    while((sepMatch = paraSep.exec(text))) {
+      if(sepMatch.index >= idx) { paraEnd = sepMatch.index; break; }
+      paraStart = sepMatch.index + sepMatch[0].length;
+    }
+
+    let paragraph = text.substring(paraStart, paraEnd);
+    const MAX = 260;
+    if(paragraph.length > MAX) {
+      const localIdx = idx - paraStart;
+      const start = Math.max(0, localIdx - MAX / 2);
+      const end = Math.min(paragraph.length, localIdx + MAX / 2);
+      paragraph = paragraph.substring(start, end);
+      if(start > 0) paragraph = "…" + paragraph;
+      if(end < text.length) paragraph = paragraph + "…";
+    } else {
+      if(paraStart > 0) paragraph = "…\n" + paragraph;
+      if(paraEnd < text.length) paragraph = paragraph + "\n…";
+    }
+
+    let escaped = paragraph.replace(/</g, "&lt;");
+    regex.lastIndex = 0;
+    return escaped.replace(regex, '<span class="highlight">$&</span>');
+  }
+
+  function updateMatchCount(regex, entryCount, totalMatches) {
+    const el = document.getElementById("matchCount");
+    el.textContent = regex ? `共找到 ${entryCount} 筆條目、${totalMatches} 處相符` : "";
+  }
+
+  // 與 index.html 的 parseContent() 保持一致，供編輯表單即時預覽排版效果
+  function adminParseContent(raw) {
+    let c = (raw || "").replace(/</g, "&lt;");
+    c = c
+      .replace(/【(.*?)】/g, '<span class="content-bracket">【$1】</span>')
+      .replace(/!!(.*?)!!/g, '<span class="content-warn">⚠ $1</span>')
+      .replace(/__(.*?)__/g, '<span class="content-underline">$1</span>')
+      .replace(/~~(.*?)~~/g, '<span class="content-strike">$1</span>')
+      .replace(/註[:：]([^\n]*)/g, '<span class="content-note">註：$1</span>')
+      .replace(/\|/g, '<span class="content-divider">|</span>')
+      .replace(/([a-zA-Z]{2,}\d+)/g, '<span class="content-highlight">$1</span>')
+      .replace(/(1d\d+)/ig, '<span class="content-highlight">$1</span>');
+    return c;
   }
 
   // 主渲染函數
   function renderAll() {
     const container = document.getElementById("mainContainer");
     container.innerHTML = "";
-    
+
+    const regex = buildSearchRegex(searchTerm, advOptions);
+    let totalEntries = 0, totalMatches = 0;
+
     // 將 modules 分類到對應的 chapter
     const chOrder = Object.entries(chapters).sort((a,b) => (a[1].order||0) - (b[1].order||0));
-    
+
     chOrder.forEach(([chId, ch]) => {
       let chMods = Object.entries(modules)
         .filter(([id, m]) => m.chapterId === chId)
         .sort((a,b) => (a[1].order||0) - (b[1].order||0));
-      
+
       // 搜尋過濾
-      if(searchTerm) {
-        chMods = chMods.filter(([id, m]) => {
-          return (m.title||"").toLowerCase().includes(searchTerm) || (m.content||"").toLowerCase().includes(searchTerm);
-        });
-        if(chMods.length === 0 && !(ch.name.toLowerCase().includes(searchTerm))) return; // 沒中關鍵字的章節隱藏
+      if(regex) {
+        chMods = chMods.filter(([id, m]) => moduleMatches(m, regex, advOptions));
+        regex.lastIndex = 0;
+        const chapterNameMatches = regex.test(ch.name || "");
+        if(chMods.length === 0 && !chapterNameMatches) return; // 沒中關鍵字的章節隱藏
       }
 
       // 建立章節區塊
@@ -279,17 +435,17 @@
       
       // 填入條目
       chMods.forEach(([mId, m]) => {
+        totalEntries++;
         const item = document.createElement("div");
         item.className = `module-item ${m.isDraft ? 'is-draft' : ''}`;
         item.dataset.id = mId;
-        
-        let highlightTitle = (m.title||"").replace(/</g, "&lt;");
+
+        let highlightTitle = highlightText(m.title, regex);
         let snippetHtml = "";
-        
-        if(searchTerm) {
-          const regex = new RegExp(`(${searchTerm})`, "gi");
-          highlightTitle = highlightTitle.replace(regex, '<span class="highlight">$1</span>');
-          const snippet = getSnippet(m.content, searchTerm);
+
+        if(regex) {
+          totalMatches += countMatches(m, regex, advOptions);
+          const snippet = getSnippet(m.content, regex);
           if(snippet) snippetHtml = `<div class="search-snippet">${snippet}</div>`;
         }
 
@@ -309,7 +465,7 @@
       });
 
       // 初始化條目拖曳 (只允許在章節內排序)
-      if(!searchTerm) {
+      if(!regex) {
         new Sortable(listEl, {
           handle: '.module-handle', animation: 150,
           onEnd: (evt) => {
@@ -323,7 +479,7 @@
     });
 
     // 初始化章節拖曳
-    if(!searchTerm) {
+    if(!regex) {
       new Sortable(container, {
         handle: '.chapter-handle', animation: 150,
         onEnd: (evt) => {
@@ -334,13 +490,123 @@
         }
       });
     }
+
+    updateMatchCount(regex, totalEntries, totalMatches);
   }
 
   // 搜尋功能即時監聽
   document.getElementById("searchInput").addEventListener("input", (e) => {
-    searchTerm = e.target.value.toLowerCase().trim();
+    searchTerm = e.target.value.trim();
     renderAll();
   });
+
+  // 進階搜尋面板：顯示/隱藏
+  document.getElementById("advToggleBtn").onclick = () => {
+    const panel = document.getElementById("advPanel");
+    panel.style.display = (panel.style.display === "none") ? "block" : "none";
+  };
+
+  // 進階搜尋選項變更時重新渲染
+  ["adv-scope-title","adv-scope-content","adv-scope-section","adv-wholeword","adv-casesensitive","adv-regex"].forEach(id => {
+    document.getElementById(id).addEventListener("change", () => {
+      advOptions = {
+        scopeTitle: document.getElementById("adv-scope-title").checked,
+        scopeContent: document.getElementById("adv-scope-content").checked,
+        scopeSection: document.getElementById("adv-scope-section").checked,
+        wholeWord: document.getElementById("adv-wholeword").checked,
+        caseSensitive: document.getElementById("adv-casesensitive").checked,
+        regex: document.getElementById("adv-regex").checked,
+      };
+      renderAll();
+    });
+  });
+
+  // ========== 批次校正 (尋找與取代，供字詞校正使用) ==========
+  function escapeHtmlText(s) { return (s || "").replace(/[&<>]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" }[c])); }
+  function escapeReplacement(s) { return (s || "").replace(/\$/g, "$$$$"); } // 避免 $1 $& 等被 String.replace 當成特殊語法
+
+  function fieldLabel(key) { return key === "title" ? "標題" : (key === "section" ? "子分類" : "內容"); }
+
+  function previewReplace() {
+    const from = document.getElementById("replaceFrom").value;
+    const to = document.getElementById("replaceTo").value;
+    const resultsBox = document.getElementById("replaceResults");
+    if(!from) { alert("請輸入要尋找的字詞"); return; }
+
+    const regex = buildSearchRegex(from, advOptions);
+    if(!regex) { alert("正則表達式格式錯誤，請檢查語法"); return; }
+
+    lastReplaceFrom = from;
+    lastReplaceTo = to;
+
+    const results = [];
+    Object.entries(modules).forEach(([id, m]) => {
+      const preview = {};
+      let touched = false;
+      ["title","content","section"].forEach(key => {
+        if(!advOptions["scope" + key.charAt(0).toUpperCase() + key.slice(1)]) return;
+        const val = m[key] || "";
+        regex.lastIndex = 0;
+        if(regex.test(val)) {
+          touched = true;
+          regex.lastIndex = 0;
+          preview[key] = escapeHtmlText(val).replace(regex, match =>
+            `<del>${escapeHtmlText(match)}</del><ins>${escapeHtmlText(to)}</ins>`);
+        }
+      });
+      if(touched) results.push({ id, title: m.title, preview });
+    });
+
+    if(results.length === 0) {
+      resultsBox.innerHTML = '<div class="replace-empty">沒有找到符合的條目。</div>';
+      return;
+    }
+
+    let html = `<div class="replace-summary">共 ${results.length} 筆條目將被修改（可取消勾選排除個別條目）：</div><div id="replaceList">`;
+    results.forEach(r => {
+      html += `
+        <div class="replace-item">
+          <label><input type="checkbox" class="replace-check" value="${r.id}" checked> <strong>${escapeHtmlText(r.title)}</strong></label>
+          ${Object.entries(r.preview).map(([k,v]) => `<div class="replace-diff">${fieldLabel(k)}：${v}</div>`).join("")}
+        </div>`;
+    });
+    html += `</div><button class="primary" type="button" onclick="applyReplace()">確認套用取代</button>`;
+    resultsBox.innerHTML = html;
+  }
+
+  window.applyReplace = function() {
+    const regex = buildSearchRegex(lastReplaceFrom, advOptions);
+    if(!regex) { alert("正則表達式格式錯誤，請重新預覽"); return; }
+
+    const checkedIds = Array.from(document.querySelectorAll(".replace-check:checked")).map(el => el.value);
+    if(checkedIds.length === 0) { alert("請至少勾選一筆條目"); return; }
+    if(!confirm(`確定要將勾選的 ${checkedIds.length} 筆條目套用「${lastReplaceFrom}」→「${lastReplaceTo}」的取代嗎？\n（每筆都會留下修改日誌，可個別還原）`)) return;
+
+    const replacement = escapeReplacement(lastReplaceTo);
+    const updates = {};
+    checkedIds.forEach(id => {
+      const m = modules[id];
+      if(!m) return;
+      const oldData = { ...m };
+      const newData = { ...m };
+      ["title","content","section"].forEach(key => {
+        if(!advOptions["scope" + key.charAt(0).toUpperCase() + key.slice(1)]) return;
+        regex.lastIndex = 0;
+        newData[key] = (m[key] || "").replace(regex, replacement);
+      });
+      updates["modules/" + id] = newData;
+      writeLog("校正取代", newData.title, oldData);
+    });
+
+    db.ref().update(updates).then(() => {
+      alert("已完成批次取代！");
+      document.getElementById("replaceResults").innerHTML = "";
+      document.getElementById("replaceFrom").value = "";
+      document.getElementById("replaceTo").value = "";
+    });
+  };
+
+  document.getElementById("replacePreviewBtn").onclick = previewReplace;
 
   // ========== 就地編輯表單 (Inline Editor) ==========
   function openInlineEditor(moduleId, chapterId, targetElement) {
@@ -357,12 +623,22 @@
     
     box.innerHTML = `
       <div class="cheat-sheet">
-        <strong>排版提示：</strong> 輸入 <span>【文字】</span> 會變成紅色粗體小標 | 鍵入 <span>1d20</span> 或 <span>HP15</span> 等屬性會自動高亮 | 用 <span>|</span> 符號可作為分隔線。
+        <strong>排版語法：</strong>
+        <span>【文字】</span>紅色粗體小標
+        <span>HP15</span> / <span>1d20</span> 等屬性自動高亮
+        <span>|</span> 分隔線
+        <span>!!文字!!</span> 警示框
+        <span>__文字__</span> 底線
+        <span>~~文字~~</span> 刪除線（棄用規則）
+        <span>註：文字</span> 小號淡色註記（延伸到該行結尾）
       </div>
       <div class="template-btns">
         <button type="button" onclick="insertTemplate('race')">載入[種族]範本</button>
         <button type="button" onclick="insertTemplate('monster')">載入[靈獸]範本</button>
+        <button type="button" onclick="insertTemplate('demo')">載入[排版示範]範本</button>
+        <button type="button" id="if-preview-toggle" style="margin-left:auto;">顯示排版預覽 ▾</button>
       </div>
+      <div class="preview-box" id="if-preview" style="display:none;"></div>
       <div class="form-row">
         <div style="flex:2;"><label>條目名稱</label><input type="text" id="if-title" value="${(m.title||"").replace(/"/g,'&quot;')}"></div>
         <div style="flex:1;"><label>子分類 (選填)</label><input type="text" id="if-section" value="${m.section||""}"></div>
@@ -374,7 +650,7 @@
       </div>
       <label>規則內容</label>
       <textarea id="if-content">${m.content||""}</textarea>
-      
+
       <div class="form-actions" style="margin-top:15px;">
         <button class="primary" onclick="saveInlineEditor('${moduleId}', '${chapterId}')">儲存條目</button>
         <button onclick="cancelInlineEditor()">取消</button>
@@ -384,9 +660,22 @@
     // 隱藏原本的行，插入表單
     if(!isNew) targetElement.style.display = 'none';
     targetElement.parentNode.insertBefore(box, isNew ? targetElement.firstChild : targetElement.nextSibling);
-    
+
     // 保存引用以便取消時恢復
     box.dataset.targetId = isNew ? "" : moduleId;
+
+    // 即時排版預覽：所見即所得，跟正式頁面（index.html）用同一套規則
+    const contentTa = document.getElementById("if-content");
+    const previewBox = document.getElementById("if-preview");
+    const previewToggle = document.getElementById("if-preview-toggle");
+    const refreshPreview = () => { previewBox.innerHTML = adminParseContent(contentTa.value) || "（尚無內容）"; };
+    contentTa.addEventListener("input", refreshPreview);
+    previewToggle.onclick = () => {
+      const showing = previewBox.style.display !== "none";
+      previewBox.style.display = showing ? "none" : "block";
+      previewToggle.textContent = showing ? "顯示排版預覽 ▾" : "隱藏排版預覽 ▴";
+      if(!showing) refreshPreview();
+    };
   }
 
   function cancelInlineEditor() {
@@ -426,7 +715,9 @@
     const ta = document.getElementById('if-content');
     if(type === 'race') ta.value += "\n【種族屬性】\n所有屬性值+1 | 壽命約X年 | 體型中型 | 速度30尺\n\n【種族特性】\n特性名稱：特性說明寫這裡。\n";
     if(type === 'monster') ta.value += "\n【怪物名稱】靈根：木 | HP10 AC10 速度30尺 | POT10 PER10 CON10 CHA10 INT10 LUK10\n嚙咬(1d20,1d4穿刺)\n被動-特性名稱：說明寫這裡\n主動-技能名稱(短休1次)：說明寫這裡\n";
+    if(type === 'demo') ta.value += "\n【排版示範】\nHP15 AC12 1d20 | 這裡的 | 會變成分隔線\n!!GM限定：這段會用醒目的警示框顯示!!\n這裡的__重點字__會加底線，~~已棄用的舊規則~~會加上刪除線。\n註：這是一行小號淡色的補充註記，適合寫版本備註或次要說明，不會搶走主要內容的視覺焦點。\n";
     ta.focus();
+    ta.dispatchEvent(new Event("input")); // 觸發即時預覽更新
   };
 
   function deleteModule(id, title) {
