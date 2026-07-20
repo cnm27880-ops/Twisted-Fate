@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>逆命．規則書</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 引入三大修真字體：文楷(內文)、馬善政(印章)、指芒星(大標題狂草) -->
 <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 <style>
@@ -273,10 +274,6 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .mobile-header { display: none; }
   .sidebar-overlay { display: none; }
 
-  /* 手機版專屬元件 (桌機版預設隱藏) */
-  .mobile-header { display: none; }
-  .sidebar-overlay { display: none; }
-
   @media (max-width: 900px){
     /* 🌟 修復一：解除父層封印，讓側欄可以浮到遮罩上方！ */
     .layout { z-index: auto; flex-direction: column; height: 100dvh; }
@@ -355,8 +352,6 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 <!-- =================================================== -->
 
 <div class="layout">
-
-<div class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="title-eyebrow">FIGHTING FATE</div>
@@ -406,9 +401,25 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   const searchBox = document.getElementById("searchBox");
   const pinnedSectionEl = document.getElementById("pinnedSection");
   const pinnedListEl = document.getElementById("pinnedList");
+  const sidebar = document.querySelector(".sidebar");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
 
   const CARET_SVG = `<svg viewBox="0 0 8 8" fill="none"><path d="M1 0.5 L7 4 L1 7.5 Z" fill="#8C6B27"/></svg>`;
   const PIN_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 4h6l-1 6.5 3 3V15H7v-1.5l3-3z"/></svg>`;
+
+  function escapeHtml(str){
+    return String(str==null ? "" : str).replace(/[&<>"']/g, c => (
+      { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]
+    ));
+  }
+
+  function closeMobileSidebar(){
+    if(window.innerWidth <= 900){
+      sidebar.classList.remove("open");
+      sidebarOverlay.classList.remove("active");
+    }
+  }
 
   // ===== ① 網址 hash 深連結 =====
   let hashInitApplied = false;
@@ -478,20 +489,25 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     else pinnedIds.push(id);
     savePinned();
     renderPinned();
-    renderTree();
+    // 只更新樹狀列表中對應的圖釘按鈕，不必整棵樹重繪（避免側欄捲動位置被重置）
+    const pinnedNow = isPinned(id);
+    treeEl.querySelectorAll(`.pin-btn[data-pin="${CSS.escape(id)}"]`).forEach(btn => {
+      btn.classList.toggle("pinned", pinnedNow);
+      btn.title = pinnedNow ? "取消釘選" : "釘選常用";
+    });
   }
 
   function renderPinned(){
     // 注意：只用來畫面顯示過濾，不寫回 localStorage —— chapters/modules 是各自非同步載入，
     // 若在 modules 尚未到位前就把「暫時對不上」的釘選項目存回去，會把使用者的釘選清單洗掉。
     const valid = pinnedIds.filter(id => modules[id]);
-    if(!pinnedListEl || !pinnedSectionEl) return;
     if(valid.length===0){
       pinnedSectionEl.classList.add("empty");
       pinnedListEl.innerHTML = "";
       return;
     }
     pinnedSectionEl.classList.remove("empty");
+    const scrollTop = pinnedListEl.scrollTop;
     pinnedListEl.innerHTML = valid.map(id => {
       const m = modules[id];
       const chName = (chapters[m.chapterId]||{}).name || "";
@@ -499,33 +515,29 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       const sel = selectedModuleId===id ? " selected" : "";
       return `<div class="pinned-item${sel}" data-module="${id}">
         <div class="pinned-info">
-          <div class="pinned-title">${m.title}</div>
-          <div class="pinned-sub">${sub}</div>
+          <div class="pinned-title">${escapeHtml(m.title)}</div>
+          <div class="pinned-sub">${escapeHtml(sub)}</div>
         </div>
         <button class="pin-btn pinned" data-pin="${id}" title="取消釘選">${PIN_SVG}</button>
       </div>`;
     }).join("");
-
-    pinnedListEl.querySelectorAll(".pinned-item").forEach(el => {
-      el.addEventListener("click", () => {
-        selectModule(el.getAttribute("data-module"));
-        closeMobileSidebar();
-      });
-    });
-    pinnedListEl.querySelectorAll(".pin-btn[data-pin]").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        togglePin(btn.getAttribute("data-pin"));
-      });
-    });
+    pinnedListEl.scrollTop = scrollTop;
   }
 
-  function closeMobileSidebar(){
-    if(window.innerWidth <= 900){
-      document.querySelector(".sidebar").classList.remove("open");
-      document.getElementById("sidebarOverlay").classList.remove("active");
+  // 釘選清單用事件代理，不必每次 renderPinned() 後重新綁定
+  pinnedListEl.addEventListener("click", (e) => {
+    const pinBtn = e.target.closest(".pin-btn[data-pin]");
+    if(pinBtn){
+      e.stopPropagation();
+      togglePin(pinBtn.getAttribute("data-pin"));
+      return;
     }
-  }
+    const item = e.target.closest(".pinned-item[data-module]");
+    if(item){
+      selectModule(item.getAttribute("data-module"));
+      closeMobileSidebar();
+    }
+  });
 
   // ===== ③ 上一條／下一條 =====
   function getOrderedModuleIds(){
@@ -592,27 +604,29 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     const nextId = (idx>=0 && idx<orderedIds.length-1) ? orderedIds[idx+1] : null;
 
     detailCol.innerHTML = `
-      <div class="detail-breadcrumb">${chName}${m.section ? " · " + m.section : ""}</div>
-      <div class="detail-title">${m.title}</div>
+      <div class="detail-breadcrumb">${escapeHtml(chName)}${m.section ? " · " + escapeHtml(m.section) : ""}</div>
+      <div class="detail-title">${escapeHtml(m.title)}</div>
       <div class="detail-body">${parseContent(m.content)}</div>
       <div class="detail-nav">
         <button class="detail-nav-btn prev" data-nav="${prevId||""}" ${prevId?"":"disabled"}>
           <span class="nav-dir">◀ 上一條</span>
-          <span class="nav-title">${prevId ? modules[prevId].title : "已是第一條"}</span>
+          <span class="nav-title">${prevId ? escapeHtml(modules[prevId].title) : "已是第一條"}</span>
         </button>
         <button class="detail-nav-btn next" data-nav="${nextId||""}" ${nextId?"":"disabled"}>
           <span class="nav-dir">下一條 ▶</span>
-          <span class="nav-title">${nextId ? modules[nextId].title : "已是最後一條"}</span>
+          <span class="nav-title">${nextId ? escapeHtml(modules[nextId].title) : "已是最後一條"}</span>
         </button>
       </div>
     `;
-
-    detailCol.querySelectorAll(".detail-nav-btn").forEach(btn => {
-      const targetId = btn.getAttribute("data-nav");
-      if(!targetId) return;
-      btn.onclick = () => selectModule(targetId);
-    });
   }
+
+  // 上一條／下一條按鈕用事件代理，不必每次 renderDetail() 後重新綁定
+  detailCol.addEventListener("click", (e) => {
+    const btn = e.target.closest(".detail-nav-btn[data-nav]");
+    if(!btn) return;
+    const targetId = btn.getAttribute("data-nav");
+    if(targetId) selectModule(targetId);
+  });
 
   function buildTreeChildrenHTML(nodesHtml){
     return `<div class="tree-children"><div class="tree-children-inner">${nodesHtml}</div></div>`;
@@ -624,15 +638,18 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     return `<div class="tree-node lvl-3${sel}" data-module="${id}">
       <div class="tree-head">
         <span class="caret leaf"></span>
-        <span class="label">${m.title}</span>
+        <span class="label">${escapeHtml(m.title)}</span>
         <button class="pin-btn${pinned}" data-pin="${id}" title="${isPinned(id)?"取消釘選":"釘選常用"}">${PIN_SVG}</button>
       </div>
     </div>`;
   }
 
   function renderTree(){
-    treeEl.innerHTML = "";
     const chapterOrder = Object.entries(chapters).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+
+    // 第一遍：純資料分組整理，並在需要時先決定「預設選取」是哪一條，
+    // 避免像過去那樣為了套用預設選取而把整棵樹多重繪一次
+    const chapterGroups = [];
     let firstMatchId = null;
     let firstMatchChapter = null;
 
@@ -659,9 +676,21 @@ button, .tree-head, .search-box, input, [data-clickable], a {
         if(firstList && firstList.length){ firstMatchId = firstList[0][0]; firstMatchChapter = chId; }
       }
 
+      chapterGroups.push({ chId, ch, noSection, withSection });
+    });
+
+    if(!selectedModuleId && firstMatchId){
+      selectedModuleId = firstMatchId;
+      expandedChapters.add(firstMatchChapter);
+    }
+
+    const scrollTop = treeEl.scrollTop;
+    treeEl.innerHTML = "";
+    chapterGroups.forEach(({ chId, ch, noSection, withSection }) => {
       const isOpen = expandedChapters.has(chId) || (searchTerm.length>0);
       const chapterNode = document.createElement("div");
       chapterNode.className = "tree-node lvl-1" + (isOpen ? " open":"");
+      chapterNode.setAttribute("data-chapter", chId);
 
       let childrenHtml = "";
       noSection.forEach(([id,m]) => {
@@ -675,63 +704,49 @@ button, .tree-head, .search-box, input, [data-clickable], a {
           itemsHtml += renderLeafHTML(id, m);
         });
         childrenHtml += `<div class="tree-node lvl-2${secOpen?" open":""}" data-section="${secKey}">
-          <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${secName}</span></div>
+          <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${escapeHtml(secName)}</span></div>
           ${buildTreeChildrenHTML(itemsHtml)}
         </div>`;
       });
 
       chapterNode.innerHTML = `
-        <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${ch.name}</span></div>
+        <div class="tree-head"><span class="caret">${CARET_SVG}</span><span class="label">${escapeHtml(ch.name)}</span></div>
         ${buildTreeChildrenHTML(childrenHtml)}
       `;
       treeEl.appendChild(chapterNode);
     });
+    treeEl.scrollTop = scrollTop;
+  }
 
-    // 綁定事件
-    treeEl.querySelectorAll(".lvl-1 > .tree-head, .lvl-2 > .tree-head").forEach(head => {
-      head.onclick = (e) => {
-        e.stopPropagation();
-        const node = head.parentElement;
-        if(node.classList.contains("lvl-1")){
-          const chId = chapterIdOf(node);
-          if(expandedChapters.has(chId)) expandedChapters.delete(chId); else expandedChapters.add(chId);
-        } else {
-          const secKey = node.getAttribute("data-section");
-          if(expandedSections.has(secKey)) expandedSections.delete(secKey); else expandedSections.add(secKey);
-        }
-        node.classList.toggle("open");
-      };
-    });
-    treeEl.querySelectorAll(".lvl-3 > .tree-head").forEach(head => {
-      head.onclick = (e) => {
-        e.stopPropagation();
-        const node = head.parentElement;
-        selectModule(node.getAttribute("data-module"));
-        // 🌟 手機版點擊條目後，自動收合側欄，讓玩家直接看內文
-        closeMobileSidebar();
-      };
-    });
-    treeEl.querySelectorAll(".pin-btn[data-pin]").forEach(btn => {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        togglePin(btn.getAttribute("data-pin"));
-      };
-    });
-
-    if(!selectedModuleId && firstMatchId){
-      selectedModuleId = firstMatchId;
-      expandedChapters.add(firstMatchChapter);
-      renderTree();
-      renderDetail();
-      renderPinned();
+  // 側欄樹狀導覽用事件代理，不必每次 renderTree() 後重新綁定（重新整理過的樹會重建所有節點，
+  // 逐一綁定監聽器既浪費效能、也容易讓側欄捲動位置在互動時被重置）
+  treeEl.addEventListener("click", (e) => {
+    const pinBtn = e.target.closest(".pin-btn[data-pin]");
+    if(pinBtn){
+      e.stopPropagation();
+      togglePin(pinBtn.getAttribute("data-pin"));
+      return;
     }
-  }
-
-  function chapterIdOf(lvl1Node){
-    const label = lvl1Node.querySelector(":scope > .tree-head .label").textContent;
-    const found = Object.entries(chapters).find(([id,ch]) => ch.name===label);
-    return found ? found[0] : null;
-  }
+    const leafHead = e.target.closest(".lvl-3 > .tree-head");
+    if(leafHead){
+      selectModule(leafHead.parentElement.getAttribute("data-module"));
+      // 🌟 手機版點擊條目後，自動收合側欄，讓玩家直接看內文
+      closeMobileSidebar();
+      return;
+    }
+    const collapsibleHead = e.target.closest(".lvl-1 > .tree-head, .lvl-2 > .tree-head");
+    if(collapsibleHead){
+      const node = collapsibleHead.parentElement;
+      if(node.classList.contains("lvl-1")){
+        const chId = node.getAttribute("data-chapter");
+        if(expandedChapters.has(chId)) expandedChapters.delete(chId); else expandedChapters.add(chId);
+      } else {
+        const secKey = node.getAttribute("data-section");
+        if(expandedSections.has(secKey)) expandedSections.delete(secKey); else expandedSections.add(secKey);
+      }
+      node.classList.toggle("open");
+    }
+  });
 
   searchBox.addEventListener("input", e => { searchTerm = e.target.value; renderTree(); });
 
@@ -749,12 +764,8 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     renderDetail();
     renderPinned();
   });
-  
-  // ========== 手機版側欄抽屜邏輯 ==========
-  const hamburgerBtn = document.getElementById("hamburgerBtn");
-  const sidebarOverlay = document.getElementById("sidebarOverlay");
-  const sidebar = document.querySelector(".sidebar");
 
+  // ========== 手機版側欄抽屜邏輯 ==========
   if(hamburgerBtn && sidebarOverlay && sidebar) {
     // 點擊漢堡選單 -> 打開抽屜與遮罩
     hamburgerBtn.addEventListener("click", () => {
