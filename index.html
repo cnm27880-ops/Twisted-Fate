@@ -225,17 +225,84 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .content-bracket{ color:var(--vermillion); font-weight:700; font-family:"LXGW WenKai TC",serif; font-size: 19px; }
   .content-highlight{ color:var(--gold-deep); font-weight:700; font-family:"LXGW WenKai TC",serif; }
 
+  /* 手機版專屬元件 (桌機版預設隱藏) */
+  .mobile-header { display: none; }
+  .sidebar-overlay { display: none; }
+
   @media (max-width: 900px){
-    .layout{ flex-direction:column; }
-    .sidebar{ width:100%; height:44vh; }
-    .detail-col{ height:56vh; padding:28px 22px 80px; }
-    .title-main{ font-size:42px; }
+    /* 1. 頂部固定導覽列 */
+    .mobile-header {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--paper-2); 
+      border-bottom: 2px solid var(--gold);
+      padding: 12px 20px; 
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 50; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    .mobile-header-left { display: flex; align-items: center; }
+    .hamburger {
+      width: 32px; height: 32px; color: var(--vermillion); margin-right: 12px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .hamburger svg { width: 30px; height: 30px; stroke-width: 2.5; }
+    .mobile-title {
+      font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px;
+      color: var(--ink); letter-spacing: 2px;
+    }
+    
+    /* 2. 側欄變成「左側滑動抽屜」 */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; 
+      height: 100vh; width: 290px; /* 抽屜寬度 */
+      z-index: 100; 
+      transform: translateX(-100%); /* 預設藏在畫面左外側 */
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 5px 0 25px rgba(0,0,0,0.2);
+    }
+    .sidebar.open { transform: translateX(0); /* 滑入畫面 */ }
+    
+    /* 配合手機版稍微縮小側欄裡的圖片與印章 */
+    .title-main-img { height: 110px; margin-right: -10px; }
+    .title-seal { width: 30px; height: 30px; font-size: 16px; margin-top: 30px; margin-left: -15px; }
+
+    /* 3. 抽屜打開時的深色半透明遮罩 */
+    .sidebar-overlay {
+      display: block; position: fixed; inset: 0;
+      background: rgba(29, 23, 18, 0.6); backdrop-filter: blur(2px);
+      z-index: 90; opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .sidebar-overlay.active { opacity: 1; pointer-events: auto; cursor: pointer; }
+
+    /* 4. 內文區塊填滿螢幕，並預留頂部 Header 空間 */
+    .layout{ flex-direction: column; }
+    .detail-col { 
+      height: 100vh; 
+      padding: 85px 24px 80px; /* 上方空出 85px 避免被導覽列遮住 */
+    }
+    .detail-title { font-size: 24px; }
+    .detail-body { font-size: 16.5px; }
   }
 </style>
 </head>
 <body>
 
 <div class="watermark">命</div>
+
+<!-- ========== 新增：手機版專用頂部導覽列與遮罩 ========== -->
+<div class="mobile-header">
+  <div class="mobile-header-left">
+    <div class="hamburger" id="hamburgerBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+    </div>
+    <div class="mobile-title">逆命規則書</div>
+  </div>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<!-- =================================================== -->
+
+<div class="layout">
 
 <div class="layout">
   <aside class="sidebar">
@@ -430,6 +497,24 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     renderTree();
     renderDetail();
   });
+  
+  // ========== 手機版側欄抽屜邏輯 ==========
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+  const sidebar = document.querySelector(".sidebar");
+
+  if(hamburgerBtn && sidebarOverlay && sidebar) {
+    // 點擊漢堡選單 -> 打開抽屜與遮罩
+    hamburgerBtn.addEventListener("click", () => {
+      sidebar.classList.add("open");
+      sidebarOverlay.classList.add("active");
+    });
+    // 點擊黑色遮罩 -> 關閉抽屜
+    sidebarOverlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      sidebarOverlay.classList.remove("active");
+    });
+  }
 </script>
 </body>
 </html>
