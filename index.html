@@ -118,7 +118,8 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .caret.leaf{ opacity:0; }
 
   /* 樹狀目錄字體統一為文楷，調整粗細與大小 */
-  .lvl-1 > .tree-head .label{ font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:16px; letter-spacing:2px; color:var(--ink); }
+  /* 左側一級目錄換成宋體極粗，並稍微放大 */
+  .lvl-1 > .tree-head .label{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:17px; letter-spacing:2px; color:var(--ink); }
   .lvl-1 > .tree-head{ margin-top:6px; }
   .lvl-1.open > .tree-head{ color:var(--vermillion-bright); }
 
@@ -143,9 +144,9 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   
   .detail-breadcrumb{ font-size:12px; color:var(--gold-deep); letter-spacing:2px; margin-bottom:10px; font-weight:600; }
   
-  /* 內文標題 */
+  /* 內文標題 (換回思源宋體極粗，展現劍氣與威嚴) */
   .detail-title{
-    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:28px; color:var(--ink);
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:28px; color:var(--ink);
     padding-bottom:16px; margin-bottom:24px; border-bottom:2px solid var(--gold); position:relative;
   }
   .detail-title::after{ content:""; position:absolute; left:0; bottom:-2px; width:60px; height:2px; background:var(--vermillion); }
