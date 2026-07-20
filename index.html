@@ -149,11 +149,64 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .lvl-2 > .tree-head{ padding-left:22px; }
   .lvl-2 > .tree-head .label{ font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:14.5px; color:var(--ink-dim); }
 
-  .lvl-3 > .tree-head{ padding-left:34px; cursor:pointer; }
-  .lvl-3 > .tree-head .label{ font-family:"LXGW WenKai TC",serif; font-weight:400; font-size:14px; color:var(--ink-faint2); line-height:1.5; }
-  .lvl-3.selected > .tree-head{ background:var(--paper-3); border-left-color:var(--vermillion); }
-  .lvl-3.selected > .tree-head .label{ color:var(--vermillion-bright); font-weight:700; }
+  /* Level 3：條目（子分類）的排版與互動強化 */
+  .lvl-3 > .tree-head{
+    padding: 8px 10px 8px 16px; /* 稍微減少左邊距，讓它跟大標題靠得更緊密一點 */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* 解決孱弱感：放大、加粗、加深！ */
+  .lvl-3 > .tree-head .label{
+    font-family: "LXGW WenKai TC", serif;
+    font-weight: 700; /* 加粗 */
+    font-size: 15.5px; /* 字體放大 */
+    color: var(--ink-dim); /* 顏色加深，提高對比度 */
+    line-height: 1.5;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+  }
 
+  /* 隱藏的佔位符變成「古風小圓點」 */
+  .lvl-3 > .tree-head .caret.leaf {
+    opacity: 1;
+    width: 4px;
+    height: 4px;
+    background: var(--gold);
+    border-radius: 50%;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+  }
+
+  /* 游標懸停 (Hover) 時的互動特效：文字微浮，圓點發光 */
+  .lvl-3 > .tree-head:hover{
+    background: transparent; /* 拿掉原本醜醜的整塊背景變色 */
+  }
+  .lvl-3 > .tree-head:hover .label{
+    color: var(--ink); /* 變為最深的純墨色 */
+    transform: translateX(4px); /* 文字微微向右推，增加互動感 */
+  }
+  .lvl-3 > .tree-head:hover .caret.leaf {
+    background: var(--vermillion-bright);
+    box-shadow: 0 0 6px var(--vermillion-bright);
+    transform: scale(1.5); /* 硃砂點放大 */
+  }
+
+  /* 被選中時 (Selected)：背景淡出漸層，圓點化為豎線 */
+  .lvl-3.selected > .tree-head{
+    background: linear-gradient(90deg, var(--paper-3), transparent);
+    border-left-color: var(--vermillion);
+  }
+  .lvl-3.selected > .tree-head .label{
+    color: var(--vermillion-bright);
+    font-weight: 700;
+  }
+  .lvl-3.selected > .tree-head .caret.leaf {
+    background: var(--vermillion);
+    height: 14px; /* 圓點拉長變成竹簡上的標記線 */
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(181, 55, 43, 0.4);
+  }
   .tree-children{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1); }
   .tree-node.open > .tree-children{ grid-template-rows:1fr; }
   .tree-children-inner{ overflow:hidden; min-height:0; }
