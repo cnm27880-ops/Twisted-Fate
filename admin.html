@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>逆命．規則書後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 仙氣字體 -->
 <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
-<!-- 引入 SortableJS (拖曳排序神器) -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
 <style>
   :root{
@@ -59,10 +59,20 @@
 
   /* 工具列 */
   .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:30px; border-bottom: 2px solid var(--gold); padding-bottom: 20px;}
+  .topbar-actions{ display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
   .toolbar{ display:flex; gap: 10px; margin-bottom: 10px; }
   .search-box{ flex: 1; position: relative; }
   .search-box input{ font-size: 16px; padding-left: 40px; border-color: var(--gold); background: var(--paper-2);}
   .search-box::before{ content:"尋"; font-family:"Noto Serif TC",serif; position:absolute; left:12px; top:12px; color:var(--gold-deep); font-weight:900; font-size:18px;}
+
+  /* 章節快速切換：點擊直接捲動到該章節區塊，不必手動捲動尋找 */
+  .chapter-jump{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .chapter-jump-item{
+    font-family:"LXGW WenKai TC",serif; font-size:13px; font-weight:700; color:var(--ink-dim);
+    background:var(--paper-2); border:1px solid var(--border); border-radius:20px; padding:6px 14px;
+    cursor:pointer; transition:all .15s; user-select:none;
+  }
+  .chapter-jump-item:hover{ border-color:var(--gold); background:var(--paper-3); color:var(--ink); }
 
   /* 進階搜尋面板 */
   .adv-panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 25px; }
@@ -89,17 +99,19 @@
     background: var(--paper-3); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--border);
   }
-  .chapter-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 18px; display: flex; align-items: center; gap: 10px;}
+  .chapter-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 18px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .chapter-actions{ display:flex; gap:8px; flex-shrink:0; }
   .drag-handle { cursor: grab; color: var(--gold-deep); opacity: 0.5; font-size: 18px; font-weight: bold; padding: 0 8px; user-select: none;}
   .drag-handle:active { cursor: grabbing; opacity: 1;}
 
   .module-list { min-height: 10px; }
-  .module-item { 
+  .module-item {
     display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--paper-2); transition: background 0.2s;
   }
   .module-item:last-child { border-bottom: none; }
   .module-item:hover { background: var(--paper); }
-  .module-info { flex: 1; }
+  .module-info { flex: 1; min-width: 0; }
+  .module-actions{ display:flex; gap:6px; flex-shrink:0; margin-left:8px; }
   .module-title { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px;}
   .module-meta { font-size: 13px; color: var(--ink-faint2); margin-top: 4px; }
   
@@ -124,10 +136,14 @@
   .inline-form { background: var(--paper); padding: 20px; border-bottom: 2px solid var(--gold); box-shadow: inset 0 3px 10px rgba(0,0,0,0.03);}
   .form-row { display: flex; gap: 15px; margin-bottom: 15px;}
   .form-row > div { flex: 1; }
-  .cheat-sheet { font-size: 13px; color: var(--ink-faint2); background: var(--paper-3); padding: 10px; border-radius: 4px; margin-bottom: 10px; line-height: 2.2;}
+  .cheat-sheet { font-size: 13px; color: var(--ink-faint2); background: var(--paper-3); padding: 10px 12px; border-radius: 4px; margin-bottom: 10px; }
+  .cheat-title { font-weight: 700; color: var(--ink-dim); margin-bottom: 8px; letter-spacing: 1px; }
+  .cheat-list { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+  .cheat-item { display: flex; align-items: center; gap: 4px; background: var(--paper); border: 1px solid var(--border); border-radius: 3px; padding: 4px 10px; line-height: 1.6; }
   .cheat-sheet span { color: var(--vermillion); font-weight: bold; }
-  .template-btns { display: flex; gap: 8px; margin-bottom: 10px;}
-  .template-btns button { font-size: 12px; padding: 4px 8px; }
+  .template-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;}
+  .template-btns button { font-size: 12px; padding: 4px 8px; white-space: nowrap; }
+  .preview-toggle-btn { margin-left: auto; }
   .preview-toggle-row { margin-bottom: 10px; }
   .preview-toggle-row button { font-size: 12px; padding: 4px 8px; }
   .preview-box { font-size: 15px; line-height: 2; color: var(--ink-dim); background: var(--paper); border: 1px dashed var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 15px; white-space: pre-wrap; min-height: 40px; }
@@ -138,6 +154,45 @@
   .log-item { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;}
   .log-time { font-size: 12px; color: var(--ink-faint2); }
   .log-action { font-weight: bold; color: var(--vermillion); }
+
+  /* ===== 手機版排版 ===== */
+  @media (max-width: 700px){
+    .wrap{ padding: 22px 14px; }
+    h1{ font-size: 26px; letter-spacing: 1px; }
+
+    .login-box{ margin: 60px auto; padding: 30px 22px; }
+
+    .topbar{ flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: 22px; }
+    .topbar-actions{ width: 100%; justify-content: flex-start; }
+
+    .toolbar{ flex-direction: column; align-items: stretch; }
+    .chapter-jump{ gap: 6px; margin-bottom: 16px; }
+    .chapter-jump-item{ font-size: 12px; padding: 5px 12px; }
+
+    .adv-panel{ padding: 12px; }
+    .adv-row{ gap: 10px 14px; }
+    .match-count{ margin-left: 0; width: 100%; }
+    .replace-row{ flex-direction: column; align-items: stretch; gap: 8px; }
+    .replace-row input[type="text"]{ width: 100%; min-width: 0; }
+    .replace-arrow{ display: none; }
+    .replace-row button{ width: 100%; }
+
+    .chapter-header{ padding: 10px 12px; }
+    .chapter-title{ font-size: 16px; }
+    .chapter-actions button, .module-actions button{ font-size: 12px; padding: 6px 10px; letter-spacing: 1px; }
+    .module-item{ padding: 10px 12px; }
+    .drag-handle{ padding: 0 4px; }
+
+    .cheat-list{ gap: 6px; }
+    .cheat-item{ padding: 3px 8px; font-size: 12px; }
+    .template-btns button{ flex: 1 1 calc(50% - 8px); }
+    .preview-toggle-btn{ margin-left: 0; flex: 1 1 100%; }
+
+    .form-row{ flex-direction: column; gap: 10px; }
+
+    .modal{ padding: 20px; width: 94%; }
+    .log-item{ flex-wrap: wrap; gap: 8px; }
+  }
 </style>
 </head>
 <body>
@@ -159,10 +214,10 @@
     <div>
       <h1>逆命．後台樞紐</h1>
     </div>
-    <div style="text-align:right;">
+    <div class="topbar-actions">
       <div class="userinfo" id="userEmail"></div>
-      <button id="btnBackup" style="margin-right:8px;">備份JSON</button>
-      <button id="btnLogs" style="margin-right:8px;">修改日誌</button>
+      <button id="btnBackup">備份JSON</button>
+      <button id="btnLogs">修改日誌</button>
       <button id="logoutBtn" class="danger">登出</button>
     </div>
   </div>
@@ -174,6 +229,8 @@
     <button type="button" id="advToggleBtn">進階搜尋 ▾</button>
     <button class="primary" id="addChapterBtn">+ 新增章節</button>
   </div>
+
+  <div class="chapter-jump" id="chapterJump"></div>
 
   <div class="adv-panel" id="advPanel" style="display:none;">
     <div class="adv-row">
@@ -191,7 +248,7 @@
     <div class="adv-row replace-row">
       <span class="adv-label">批次校正：</span>
       <input type="text" id="replaceFrom" placeholder="找出字詞...">
-      <span>→</span>
+      <span class="replace-arrow">→</span>
       <input type="text" id="replaceTo" placeholder="取代為...">
       <button type="button" id="replacePreviewBtn">預覽取代</button>
     </div>
@@ -211,6 +268,8 @@
   </div>
 </div>
 
+<!-- 引入 SortableJS (拖曳排序神器)：釘住版本才能吃到 CDN 的長效快取，且不受上游改版影響 -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -391,8 +450,31 @@
     return c;
   }
 
+  // 章節快速切換：永遠列出全部章節，不受搜尋篩選影響
+  function renderChapterJump() {
+    const el = document.getElementById("chapterJump");
+    const chOrder = Object.entries(chapters).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+    el.innerHTML = chOrder.map(([chId, ch]) =>
+      `<span class="chapter-jump-item" data-jump-chapter="${chId}">${(ch.name||"").replace(/</g,"&lt;")}</span>`
+    ).join("");
+  }
+
+  document.getElementById("chapterJump").addEventListener("click", (e) => {
+    const item = e.target.closest(".chapter-jump-item[data-jump-chapter]");
+    if(!item) return;
+    const chId = item.getAttribute("data-jump-chapter");
+    if(searchTerm) {
+      searchTerm = "";
+      document.getElementById("searchInput").value = "";
+      renderAll();
+    }
+    const block = document.querySelector(`.chapter-block[data-id="${CSS.escape(chId)}"]`);
+    if(block) block.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   // 主渲染函數
   function renderAll() {
+    renderChapterJump();
     const container = document.getElementById("mainContainer");
     container.innerHTML = "";
 
@@ -422,7 +504,7 @@
       block.innerHTML = `
         <div class="chapter-header">
           <div class="chapter-title"><span class="drag-handle chapter-handle">≡</span> ${ch.name}</div>
-          <div>
+          <div class="chapter-actions">
             <button class="primary" onclick="openInlineEditor('new', '${chId}', this.parentElement.parentElement.nextElementSibling)">+ 條目</button>
             <button onclick="editChapter('${chId}')">修改</button>
           </div>
@@ -456,7 +538,7 @@
             <div class="module-meta">${m.section ? '子分類: ' + m.section : '無子分類'}</div>
             ${snippetHtml}
           </div>
-          <div>
+          <div class="module-actions">
             <button onclick="openInlineEditor('${mId}', '${chId}', this.parentElement.parentElement)">修改</button>
             <button class="danger" onclick="deleteModule('${mId}', '${m.title}')">刪除</button>
           </div>
@@ -623,20 +705,22 @@
     
     box.innerHTML = `
       <div class="cheat-sheet">
-        <strong>排版語法：</strong>
-        <span>【文字】</span>紅色粗體小標
-        <span>HP15</span> / <span>1d20</span> 等屬性自動高亮
-        <span>|</span> 分隔線
-        <span>!!文字!!</span> 警示框
-        <span>__文字__</span> 底線
-        <span>~~文字~~</span> 刪除線（棄用規則）
-        <span>註：文字</span> 小號淡色註記（延伸到該行結尾）
+        <div class="cheat-title">排版語法</div>
+        <div class="cheat-list">
+          <div class="cheat-item"><span>【文字】</span>紅色粗體小標</div>
+          <div class="cheat-item"><span>HP15</span> / <span>1d20</span> 屬性自動高亮</div>
+          <div class="cheat-item"><span>|</span> 分隔線</div>
+          <div class="cheat-item"><span>!!文字!!</span> 警示框</div>
+          <div class="cheat-item"><span>__文字__</span> 底線</div>
+          <div class="cheat-item"><span>~~文字~~</span> 刪除線（棄用規則）</div>
+          <div class="cheat-item"><span>註：文字</span> 小號淡色註記（延伸到該行結尾）</div>
+        </div>
       </div>
       <div class="template-btns">
         <button type="button" onclick="insertTemplate('race')">載入[種族]範本</button>
         <button type="button" onclick="insertTemplate('monster')">載入[靈獸]範本</button>
         <button type="button" onclick="insertTemplate('demo')">載入[排版示範]範本</button>
-        <button type="button" id="if-preview-toggle" style="margin-left:auto;">顯示排版預覽 ▾</button>
+        <button type="button" id="if-preview-toggle" class="preview-toggle-btn">顯示排版預覽 ▾</button>
       </div>
       <div class="preview-box" id="if-preview" style="display:none;"></div>
       <div class="form-row">
