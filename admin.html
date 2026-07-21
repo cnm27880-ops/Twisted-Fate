@@ -74,6 +74,11 @@
   }
   .chapter-jump-item:hover{ border-color:var(--gold); background:var(--paper-3); color:var(--ink); }
 
+  /* 載入中 / 連線失敗狀態 */
+  .state-msg{ text-align:center; color:var(--ink-faint2); font-size:16px; padding:60px 20px; letter-spacing:1px; }
+  .state-msg.error{ color:var(--danger); font-weight:700; }
+  .state-detail{ display:inline-block; margin-top:8px; font-size:13px; font-weight:400; color:var(--ink-faint2); }
+
   /* 進階搜尋面板 */
   .adv-panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 25px; }
   .adv-row{ display:flex; align-items:center; flex-wrap:wrap; gap: 16px; margin-bottom: 10px; }
@@ -298,6 +303,7 @@
   let editingId = null; // 當前正在編輯的 ID，避免重複展開
   let advOptions = { scopeTitle: true, scopeContent: true, scopeSection: false, wholeWord: false, caseSensitive: false, regex: false };
   let lastReplaceFrom = "", lastReplaceTo = "";
+  let renderPending = false; // 編輯表單開啟時，暫緩即時更新造成的重繪，避免洗掉未存內容
 
   // 登入邏輯
   onAuthStateChanged(auth, user => {
@@ -326,11 +332,32 @@
   document.getElementById("loginPassword").addEventListener("keypress", handleEnterKey);
   document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
+  // 編輯表單開啟時關閉/重新整理分頁，提醒有未儲存內容
+  window.addEventListener("beforeunload", (e) => {
+    if(document.getElementById("inlineFormBox")) { e.preventDefault(); e.returnValue = ""; }
+  });
+
   // 初始化資料
   function initApp(){
-    onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; renderAll(); });
-    onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; renderAll(); });
-    onValue(query(ref(db, "logs"), orderByChild("time"), limitToLast(50)), snap => { logs = snap.val() || {}; });
+    const mainContainer = document.getElementById("mainContainer");
+    mainContainer.innerHTML = '<div class="state-msg">載入規則中…</div>';
+    let chOk = false, modOk = false;
+    const showError = (err) => {
+      mainContainer.innerHTML = '<div class="state-msg error">連線失敗，請重新整理頁面再試。'
+        + (err && err.message ? '<br><span class="state-detail">' + escapeHtmlText(err.message) + '</span>' : '')
+        + '</div>';
+    };
+    // 章節與條目都到齊才第一次繪製，避免先畫出沒有條目的空章節
+    const maybeRender = () => { if(chOk && modOk) renderAll(); };
+    onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chOk = true; maybeRender(); }, showError);
+    onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modOk = true; maybeRender(); }, showError);
+    onValue(query(ref(db, "logs"), orderByChild("time"), limitToLast(50)), snap => { logs = snap.val() || {}; }, () => {});
+    // 連線太慢的備援提示：逾時仍無資料就提醒檢查網路（資料稍後到達仍會正常覆蓋）
+    setTimeout(() => {
+      if(!(chOk && modOk) && mainContainer.querySelector('.state-msg:not(.error)')) {
+        mainContainer.innerHTML = '<div class="state-msg">載入較慢，請確認網路連線…</div>';
+      }
+    }, 10000);
   }
 
   // 紀錄日誌
@@ -478,6 +505,10 @@
 
   // 主渲染函數
   function renderAll() {
+    // 若正在就地編輯，任何即時更新（自己另一分頁、其他管理員）都先不重繪，
+    // 以免把還沒儲存的編輯內容整個清掉；待表單關閉後再補上這次更新
+    if(document.getElementById("inlineFormBox")) { renderPending = true; return; }
+    renderPending = false;
     renderChapterJump();
     const container = document.getElementById("mainContainer");
     container.innerHTML = "";
@@ -766,6 +797,11 @@
     };
   }
 
+  // 表單關閉後，若期間有被暫緩的即時更新，補畫一次以顯示最新資料
+  function flushPendingRender() {
+    if(renderPending) { renderPending = false; renderAll(); }
+  }
+
   function cancelInlineEditor() {
     const box = document.getElementById("inlineFormBox");
     if(box.dataset.targetId) {
@@ -773,6 +809,7 @@
       if(item) item.style.display = 'flex';
     }
     box.remove();
+    flushPendingRender();
   }
 
   function saveInlineEditor(moduleId, fallbackChapterId) {
@@ -780,22 +817,26 @@
     const section = document.getElementById("if-section").value.trim();
     const content = document.getElementById("if-content").value;
     const isDraft = document.getElementById("if-draft").checked;
-    
+
     if(!title) { alert("請輸入標題"); return; }
-    
+
     const newId = (moduleId === 'new') ? "m" + Date.now() : moduleId;
-    const oldData = (moduleId === 'new') ? null : modules[moduleId];
-    
+    // 編輯期間該條目可能已被其他人刪除，modules[moduleId] 會是 undefined，
+    // 此時退回用開啟編輯器時帶入的章節，避免讀取 undefined 屬性而中斷儲存
+    const existing = (moduleId === 'new') ? null : (modules[moduleId] || null);
+    const oldData = existing;
+
     const dataToSave = {
-      chapterId: (moduleId === 'new') ? fallbackChapterId : oldData.chapterId,
-      order: (moduleId === 'new') ? 999 : oldData.order, // 新增排最後，後續可拖曳
+      chapterId: existing ? existing.chapterId : fallbackChapterId,
+      order: existing ? existing.order : 999, // 新增或原條目已不存在時排最後，後續可拖曳
       title, section, content, isDraft
     };
 
     set(ref(db, "modules/" + newId), dataToSave).then(() => {
       writeLog(moduleId === 'new' ? '新增' : '修改', title, oldData);
-      // 寫入觸發的 onValue 會先重繪列表、連帶清掉表單，這裡可能已找不到元素
+      // 寫入觸發的 onValue 會被暫緩（因表單仍在），先移除表單再補畫一次顯示最新資料
       document.getElementById("inlineFormBox")?.remove();
+      flushPendingRender();
     });
   }
 
