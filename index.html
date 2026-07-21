@@ -127,6 +127,9 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .search-box:focus{ border-color:var(--gold); }
 
   .tree{ flex:1; overflow-y:auto; padding:20px 10px 30px; }
+  /* 載入中 / 連線失敗狀態 */
+  .tree-state{ padding:30px 16px; text-align:center; color:var(--ink-faint2); font-size:14px; letter-spacing:1px; line-height:1.8; }
+  .tree-state.error{ color:var(--vermillion-bright); font-weight:700; }
 
   .tree-node{ user-select:none; }
   .tree-head{
@@ -385,13 +388,16 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   </aside>
 
   <main class="detail-col scrollable" id="detailCol">
-    <div class="detail-empty"><div class="glyph">卷</div>從左側選擇一則規則查看</div>
+    <div class="detail-empty"><div class="glyph">卷</div>載入規則中…</div>
   </main>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script>
+<script type="module">
+  // Firebase modular SDK：只載入實際用到的 app + database 模組，
+  // 比舊的 compat 全量包輕巧許多（本頁不需要 auth）
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
     authDomain: "twisted-fate-trpg.firebaseapp.com",
@@ -401,8 +407,8 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     messagingSenderId: "804781497200",
     appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
   };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
   let chapters = {};
   let modules = {};
@@ -772,20 +778,36 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 
   searchBox.addEventListener("input", e => { searchTerm = e.target.value; renderTree(); });
 
-  db.ref("chapters").on("value", snap => {
+  // 載入狀態：資料到齊前先在側欄顯示「載入中」，連線失敗則顯示提示
+  treeEl.innerHTML = '<div class="tree-state">載入規則中…</div>';
+  let chLoaded = false, modLoaded = false;
+  const showTreeError = () => {
+    treeEl.innerHTML = '<div class="tree-state error">連線失敗，請重新整理頁面再試。</div>';
+  };
+  // 章節與條目都到齊才第一次繪製，避免先閃出沒有條目的空樹
+  const renderIfReady = () => {
+    if(chLoaded && modLoaded){ renderTree(); renderDetail(); renderPinned(); }
+  };
+
+  onValue(ref(db, "chapters"), snap => {
     chapters = snap.val() || {};
+    chLoaded = true;
     tryApplyInitialHash();
-    renderTree();
-    renderDetail();
-    renderPinned();
-  });
-  db.ref("modules").on("value", snap => {
+    renderIfReady();
+  }, showTreeError);
+  onValue(ref(db, "modules"), snap => {
     modules = snap.val() || {};
+    modLoaded = true;
     tryApplyInitialHash();
-    renderTree();
-    renderDetail();
-    renderPinned();
-  });
+    renderIfReady();
+  }, showTreeError);
+
+  // 連線太慢的備援提示：逾時仍無資料就提醒檢查網路（資料稍後到達仍會正常覆蓋）
+  setTimeout(() => {
+    if(!(chLoaded && modLoaded) && !treeEl.querySelector('.tree-state.error')){
+      treeEl.innerHTML = '<div class="tree-state">載入較慢，請確認網路連線…</div>';
+    }
+  }, 10000);
 
   // ========== 手機版側欄抽屜邏輯 ==========
   if(hamburgerBtn && sidebarOverlay && sidebar) {

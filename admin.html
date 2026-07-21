@@ -74,6 +74,11 @@
   }
   .chapter-jump-item:hover{ border-color:var(--gold); background:var(--paper-3); color:var(--ink); }
 
+  /* 載入中 / 連線失敗狀態 */
+  .state-msg{ text-align:center; color:var(--ink-faint2); font-size:16px; padding:60px 20px; letter-spacing:1px; }
+  .state-msg.error{ color:var(--danger); font-weight:700; }
+  .state-detail{ display:inline-block; margin-top:8px; font-size:13px; font-weight:400; color:var(--ink-faint2); }
+
   /* 進階搜尋面板 */
   .adv-panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 25px; }
   .adv-row{ display:flex; align-items:center; flex-wrap:wrap; gap: 16px; margin-bottom: 10px; }
@@ -270,10 +275,14 @@
 
 <!-- 引入 SortableJS (拖曳排序神器)：釘住版本才能吃到 CDN 的長效快取，且不受上游改版影響 -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script>
+<script type="module">
+  // Firebase modular SDK：只載入實際用到的模組（app + auth + database），
+  // 比舊的 compat 全量包輕巧許多。注意本 script 為 module，
+  // 內部函式不再是全域，被 HTML 內聯 onclick 引用的都需掛到 window 上。
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, set, update, remove, push, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
     authDomain: "twisted-fate-trpg.firebaseapp.com",
@@ -283,9 +292,9 @@
     messagingSenderId: "804781497200",
     appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
   };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
 
   let chapters = {};
   let modules = {};
@@ -294,9 +303,10 @@
   let editingId = null; // 當前正在編輯的 ID，避免重複展開
   let advOptions = { scopeTitle: true, scopeContent: true, scopeSection: false, wholeWord: false, caseSensitive: false, regex: false };
   let lastReplaceFrom = "", lastReplaceTo = "";
+  let renderPending = false; // 編輯表單開啟時，暫緩即時更新造成的重繪，避免洗掉未存內容
 
   // 登入邏輯
-  auth.onAuthStateChanged(user => {
+  onAuthStateChanged(auth, user => {
     if(user){
       document.getElementById("loginView").style.display = "none";
       document.getElementById("appView").style.display = "block";
@@ -309,7 +319,7 @@
   });
 
   document.getElementById("loginBtn").onclick = () => {
-    auth.signInWithEmailAndPassword(document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
+    signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
       .catch(err => document.getElementById("loginError").textContent = "登入失敗");
   };
   // 支援在帳號或密碼輸入框按 Enter 鍵直接登入
@@ -320,18 +330,39 @@
   };
   document.getElementById("loginEmail").addEventListener("keypress", handleEnterKey);
   document.getElementById("loginPassword").addEventListener("keypress", handleEnterKey);
-  document.getElementById("logoutBtn").onclick = () => auth.signOut();
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+  // 編輯表單開啟時關閉/重新整理分頁，提醒有未儲存內容
+  window.addEventListener("beforeunload", (e) => {
+    if(document.getElementById("inlineFormBox")) { e.preventDefault(); e.returnValue = ""; }
+  });
 
   // 初始化資料
   function initApp(){
-    db.ref("chapters").on("value", snap => { chapters = snap.val() || {}; renderAll(); });
-    db.ref("modules").on("value", snap => { modules = snap.val() || {}; renderAll(); });
-    db.ref("logs").orderByChild("time").limitToLast(50).on("value", snap => { logs = snap.val() || {}; });
+    const mainContainer = document.getElementById("mainContainer");
+    mainContainer.innerHTML = '<div class="state-msg">載入規則中…</div>';
+    let chOk = false, modOk = false;
+    const showError = (err) => {
+      mainContainer.innerHTML = '<div class="state-msg error">連線失敗，請重新整理頁面再試。'
+        + (err && err.message ? '<br><span class="state-detail">' + escapeHtmlText(err.message) + '</span>' : '')
+        + '</div>';
+    };
+    // 章節與條目都到齊才第一次繪製，避免先畫出沒有條目的空章節
+    const maybeRender = () => { if(chOk && modOk) renderAll(); };
+    onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chOk = true; maybeRender(); }, showError);
+    onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modOk = true; maybeRender(); }, showError);
+    onValue(query(ref(db, "logs"), orderByChild("time"), limitToLast(50)), snap => { logs = snap.val() || {}; }, () => {});
+    // 連線太慢的備援提示：逾時仍無資料就提醒檢查網路（資料稍後到達仍會正常覆蓋）
+    setTimeout(() => {
+      if(!(chOk && modOk) && mainContainer.querySelector('.state-msg:not(.error)')) {
+        mainContainer.innerHTML = '<div class="state-msg">載入較慢，請確認網路連線…</div>';
+      }
+    }, 10000);
   }
 
   // 紀錄日誌
   function writeLog(action, title, oldData) {
-    db.ref("logs").push({
+    push(ref(db, "logs"), {
       time: Date.now(),
       user: auth.currentUser.email,
       action: action,
@@ -474,6 +505,10 @@
 
   // 主渲染函數
   function renderAll() {
+    // 若正在就地編輯，任何即時更新（自己另一分頁、其他管理員）都先不重繪，
+    // 以免把還沒儲存的編輯內容整個清掉；待表單關閉後再補上這次更新
+    if(document.getElementById("inlineFormBox")) { renderPending = true; return; }
+    renderPending = false;
     renderChapterJump();
     const container = document.getElementById("mainContainer");
     container.innerHTML = "";
@@ -554,7 +589,7 @@
             const itemIds = Array.from(listEl.children).map(el => el.dataset.id).filter(id=>id);
             const updates = {};
             itemIds.forEach((id, index) => { updates[`modules/${id}/order`] = index; });
-            db.ref().update(updates);
+            update(ref(db), updates);
           }
         });
       }
@@ -568,7 +603,7 @@
           const chIds = Array.from(container.children).map(el => el.dataset.id).filter(id=>id);
           const updates = {};
           chIds.forEach((id, index) => { updates[`chapters/${id}/order`] = index; });
-          db.ref().update(updates);
+          update(ref(db), updates);
         }
       });
     }
@@ -680,7 +715,7 @@
       writeLog("校正取代", newData.title, oldData);
     });
 
-    db.ref().update(updates).then(() => {
+    update(ref(db), updates).then(() => {
       alert("已完成批次取代！");
       document.getElementById("replaceResults").innerHTML = "";
       document.getElementById("replaceFrom").value = "";
@@ -762,6 +797,11 @@
     };
   }
 
+  // 表單關閉後，若期間有被暫緩的即時更新，補畫一次以顯示最新資料
+  function flushPendingRender() {
+    if(renderPending) { renderPending = false; renderAll(); }
+  }
+
   function cancelInlineEditor() {
     const box = document.getElementById("inlineFormBox");
     if(box.dataset.targetId) {
@@ -769,6 +809,7 @@
       if(item) item.style.display = 'flex';
     }
     box.remove();
+    flushPendingRender();
   }
 
   function saveInlineEditor(moduleId, fallbackChapterId) {
@@ -776,21 +817,26 @@
     const section = document.getElementById("if-section").value.trim();
     const content = document.getElementById("if-content").value;
     const isDraft = document.getElementById("if-draft").checked;
-    
+
     if(!title) { alert("請輸入標題"); return; }
-    
+
     const newId = (moduleId === 'new') ? "m" + Date.now() : moduleId;
-    const oldData = (moduleId === 'new') ? null : modules[moduleId];
-    
+    // 編輯期間該條目可能已被其他人刪除，modules[moduleId] 會是 undefined，
+    // 此時退回用開啟編輯器時帶入的章節，避免讀取 undefined 屬性而中斷儲存
+    const existing = (moduleId === 'new') ? null : (modules[moduleId] || null);
+    const oldData = existing;
+
     const dataToSave = {
-      chapterId: (moduleId === 'new') ? fallbackChapterId : oldData.chapterId,
-      order: (moduleId === 'new') ? 999 : oldData.order, // 新增排最後，後續可拖曳
+      chapterId: existing ? existing.chapterId : fallbackChapterId,
+      order: existing ? existing.order : 999, // 新增或原條目已不存在時排最後，後續可拖曳
       title, section, content, isDraft
     };
 
-    db.ref("modules/" + newId).set(dataToSave).then(() => {
+    set(ref(db, "modules/" + newId), dataToSave).then(() => {
       writeLog(moduleId === 'new' ? '新增' : '修改', title, oldData);
-      document.getElementById("inlineFormBox").remove();
+      // 寫入觸發的 onValue 會被暫緩（因表單仍在），先移除表單再補畫一次顯示最新資料
+      document.getElementById("inlineFormBox")?.remove();
+      flushPendingRender();
     });
   }
 
@@ -807,21 +853,27 @@
   function deleteModule(id, title) {
     if(confirm(`確定要刪除「${title}」嗎？`)) {
       writeLog('刪除', title, modules[id]);
-      db.ref("modules/"+id).remove();
+      remove(ref(db, "modules/"+id));
     }
   }
+
+  // module script 的函式不是全域，動態產生 HTML 裡的內聯 onclick 需要透過 window 找到它們
+  window.openInlineEditor = openInlineEditor;
+  window.saveInlineEditor = saveInlineEditor;
+  window.cancelInlineEditor = cancelInlineEditor;
+  window.deleteModule = deleteModule;
 
   // ========== 章節管理 (獨立視窗) ==========
   document.getElementById("addChapterBtn").onclick = () => {
     const name = prompt("請輸入新大章節名稱：");
     if(name) {
-      db.ref("chapters/c"+Date.now()).set({name: name.trim(), order: 999});
+      set(ref(db, "chapters/c"+Date.now()), {name: name.trim(), order: 999});
     }
   };
   window.editChapter = function(id) {
     const name = prompt("修改章節名稱：", chapters[id].name);
     if(name) {
-      db.ref("chapters/"+id+"/name").set(name.trim());
+      set(ref(db, "chapters/"+id+"/name"), name.trim());
     }
   };
 
@@ -847,7 +899,7 @@
   window.restoreLog = function(oldDataStr) {
     if(confirm("確定要把這筆資料恢復到當時的狀態嗎？")) {
       const oldData = typeof oldDataStr === 'string' ? JSON.parse(oldDataStr) : oldDataStr;
-      db.ref("modules/m" + Date.now()).set(oldData);
+      set(ref(db, "modules/m" + Date.now()), oldData);
       alert("已作為新條目還原在最底部！你可以搜尋它並重新拖曳順序。");
       document.getElementById("logsModal").style.display = "none";
     }
