@@ -65,6 +65,15 @@
   .search-box input{ font-size: 16px; padding-left: 40px; border-color: var(--gold); background: var(--paper-2);}
   .search-box::before{ content:"尋"; font-family:"Noto Serif TC",serif; position:absolute; left:12px; top:12px; color:var(--gold-deep); font-weight:900; font-size:18px;}
 
+  /* 章節快速切換：點擊直接捲動到該章節區塊，不必手動捲動尋找 */
+  .chapter-jump{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .chapter-jump-item{
+    font-family:"LXGW WenKai TC",serif; font-size:13px; font-weight:700; color:var(--ink-dim);
+    background:var(--paper-2); border:1px solid var(--border); border-radius:20px; padding:6px 14px;
+    cursor:pointer; transition:all .15s; user-select:none;
+  }
+  .chapter-jump-item:hover{ border-color:var(--gold); background:var(--paper-3); color:var(--ink); }
+
   /* 進階搜尋面板 */
   .adv-panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 25px; }
   .adv-row{ display:flex; align-items:center; flex-wrap:wrap; gap: 16px; margin-bottom: 10px; }
@@ -157,6 +166,8 @@
     .topbar-actions{ width: 100%; justify-content: flex-start; }
 
     .toolbar{ flex-direction: column; align-items: stretch; }
+    .chapter-jump{ gap: 6px; margin-bottom: 16px; }
+    .chapter-jump-item{ font-size: 12px; padding: 5px 12px; }
 
     .adv-panel{ padding: 12px; }
     .adv-row{ gap: 10px 14px; }
@@ -218,6 +229,8 @@
     <button type="button" id="advToggleBtn">進階搜尋 ▾</button>
     <button class="primary" id="addChapterBtn">+ 新增章節</button>
   </div>
+
+  <div class="chapter-jump" id="chapterJump"></div>
 
   <div class="adv-panel" id="advPanel" style="display:none;">
     <div class="adv-row">
@@ -435,8 +448,31 @@
     return c;
   }
 
+  // 章節快速切換：永遠列出全部章節，不受搜尋篩選影響
+  function renderChapterJump() {
+    const el = document.getElementById("chapterJump");
+    const chOrder = Object.entries(chapters).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+    el.innerHTML = chOrder.map(([chId, ch]) =>
+      `<span class="chapter-jump-item" data-jump-chapter="${chId}">${(ch.name||"").replace(/</g,"&lt;")}</span>`
+    ).join("");
+  }
+
+  document.getElementById("chapterJump").addEventListener("click", (e) => {
+    const item = e.target.closest(".chapter-jump-item[data-jump-chapter]");
+    if(!item) return;
+    const chId = item.getAttribute("data-jump-chapter");
+    if(searchTerm) {
+      searchTerm = "";
+      document.getElementById("searchInput").value = "";
+      renderAll();
+    }
+    const block = document.querySelector(`.chapter-block[data-id="${CSS.escape(chId)}"]`);
+    if(block) block.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   // 主渲染函數
   function renderAll() {
+    renderChapterJump();
     const container = document.getElementById("mainContainer");
     container.innerHTML = "";
 

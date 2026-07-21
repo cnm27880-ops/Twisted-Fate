@@ -126,6 +126,16 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .search-box::placeholder{ color:var(--ink-faint2); letter-spacing: 1px; }
   .search-box:focus{ border-color:var(--gold); }
 
+  /* 章節快速切換：點擊直接展開並捲動到該章節，不必在樹狀列表裡手動找 */
+  .chapter-jump{ display:flex; flex-wrap:wrap; gap:6px; padding:12px 14px 6px; flex-shrink:0; }
+  .chapter-jump-item{
+    font-family:"LXGW WenKai TC",serif; font-size:12.5px; font-weight:700; color:var(--ink-dim);
+    background:var(--paper); border:1px solid var(--border); border-radius:20px; padding:5px 12px;
+    cursor:pointer; transition:all .15s; white-space:nowrap; user-select:none;
+  }
+  .chapter-jump-item:hover{ border-color:var(--gold); color:var(--ink); }
+  .chapter-jump-item.active{ background:var(--vermillion); border-color:var(--vermillion); color:#F5E9DD; }
+
   .tree{ flex:1; overflow-y:auto; padding:20px 10px 30px; }
 
   .tree-node{ user-select:none; }
@@ -377,6 +387,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       </div>
     </div>
     <input type="text" class="search-box" id="searchBox" placeholder="神識探查……">
+    <div class="chapter-jump scrollable" id="chapterJump"></div>
     <div class="pinned-section empty" id="pinnedSection">
       <div class="pinned-header">📌 常用釘選</div>
       <div class="pinned-list scrollable" id="pinnedList"></div>
@@ -414,6 +425,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   const treeEl = document.getElementById("tree");
   const detailCol = document.getElementById("detailCol");
   const searchBox = document.getElementById("searchBox");
+  const chapterJumpEl = document.getElementById("chapterJump");
   const pinnedSectionEl = document.getElementById("pinnedSection");
   const pinnedListEl = document.getElementById("pinnedList");
   const sidebar = document.querySelector(".sidebar");
@@ -484,6 +496,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       selectedModuleId = id;
       applyModuleContext(id);
       renderTree();
+      renderChapterJump();
       renderDetail();
       renderPinned();
       detailCol.scrollTop = 0;
@@ -586,6 +599,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     applyModuleContext(id);
     updateHash(id);
     renderTree();
+    renderChapterJump();
     renderDetail();
     renderPinned();
     detailCol.scrollTop = 0;
@@ -648,6 +662,26 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     if(!btn) return;
     const targetId = btn.getAttribute("data-nav");
     if(targetId) selectModule(targetId);
+  });
+
+  // 章節快速切換：不受搜尋篩選影響，永遠列出全部章節
+  function renderChapterJump(){
+    const chapterOrder = Object.entries(chapters).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+    chapterJumpEl.innerHTML = chapterOrder.map(([chId, ch]) => {
+      const active = expandedChapters.has(chId) ? " active" : "";
+      return `<span class="chapter-jump-item${active}" data-jump-chapter="${chId}">${escapeHtml(ch.name)}</span>`;
+    }).join("");
+  }
+
+  chapterJumpEl.addEventListener("click", (e) => {
+    const item = e.target.closest(".chapter-jump-item[data-jump-chapter]");
+    if(!item) return;
+    const chId = item.getAttribute("data-jump-chapter");
+    expandedChapters.add(chId);
+    renderTree();
+    renderChapterJump();
+    const node = treeEl.querySelector(`.tree-node.lvl-1[data-chapter="${CSS.escape(chId)}"]`);
+    if(node) node.scrollIntoView({behavior:"smooth", block:"start"});
   });
 
   function buildTreeChildrenHTML(nodesHtml){
@@ -762,6 +796,8 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       if(node.classList.contains("lvl-1")){
         const chId = node.getAttribute("data-chapter");
         if(expandedChapters.has(chId)) expandedChapters.delete(chId); else expandedChapters.add(chId);
+        const jumpChip = chapterJumpEl.querySelector(`.chapter-jump-item[data-jump-chapter="${CSS.escape(chId)}"]`);
+        if(jumpChip) jumpChip.classList.toggle("active", expandedChapters.has(chId));
       } else {
         const secKey = node.getAttribute("data-section");
         if(expandedSections.has(secKey)) expandedSections.delete(secKey); else expandedSections.add(secKey);
@@ -776,6 +812,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     chapters = snap.val() || {};
     tryApplyInitialHash();
     renderTree();
+    renderChapterJump();
     renderDetail();
     renderPinned();
   });
@@ -783,6 +820,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     modules = snap.val() || {};
     tryApplyInitialHash();
     renderTree();
+    renderChapterJump();
     renderDetail();
     renderPinned();
   });
