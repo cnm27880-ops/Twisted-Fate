@@ -389,9 +389,12 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   </main>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script>
+<script type="module">
+  // Firebase modular SDK：只載入實際用到的 app + database 模組，
+  // 比舊的 compat 全量包輕巧許多（本頁不需要 auth）
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
     authDomain: "twisted-fate-trpg.firebaseapp.com",
@@ -401,8 +404,8 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     messagingSenderId: "804781497200",
     appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
   };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
   let chapters = {};
   let modules = {};
@@ -772,14 +775,14 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 
   searchBox.addEventListener("input", e => { searchTerm = e.target.value; renderTree(); });
 
-  db.ref("chapters").on("value", snap => {
+  onValue(ref(db, "chapters"), snap => {
     chapters = snap.val() || {};
     tryApplyInitialHash();
     renderTree();
     renderDetail();
     renderPinned();
   });
-  db.ref("modules").on("value", snap => {
+  onValue(ref(db, "modules"), snap => {
     modules = snap.val() || {};
     tryApplyInitialHash();
     renderTree();

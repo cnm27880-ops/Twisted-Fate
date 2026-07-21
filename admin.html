@@ -270,10 +270,14 @@
 
 <!-- 引入 SortableJS (拖曳排序神器)：釘住版本才能吃到 CDN 的長效快取，且不受上游改版影響 -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script>
+<script type="module">
+  // Firebase modular SDK：只載入實際用到的模組（app + auth + database），
+  // 比舊的 compat 全量包輕巧許多。注意本 script 為 module，
+  // 內部函式不再是全域，被 HTML 內聯 onclick 引用的都需掛到 window 上。
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, set, update, remove, push, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
     authDomain: "twisted-fate-trpg.firebaseapp.com",
@@ -283,9 +287,9 @@
     messagingSenderId: "804781497200",
     appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
   };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
 
   let chapters = {};
   let modules = {};
@@ -296,7 +300,7 @@
   let lastReplaceFrom = "", lastReplaceTo = "";
 
   // 登入邏輯
-  auth.onAuthStateChanged(user => {
+  onAuthStateChanged(auth, user => {
     if(user){
       document.getElementById("loginView").style.display = "none";
       document.getElementById("appView").style.display = "block";
@@ -309,7 +313,7 @@
   });
 
   document.getElementById("loginBtn").onclick = () => {
-    auth.signInWithEmailAndPassword(document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
+    signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
       .catch(err => document.getElementById("loginError").textContent = "登入失敗");
   };
   // 支援在帳號或密碼輸入框按 Enter 鍵直接登入
@@ -320,18 +324,18 @@
   };
   document.getElementById("loginEmail").addEventListener("keypress", handleEnterKey);
   document.getElementById("loginPassword").addEventListener("keypress", handleEnterKey);
-  document.getElementById("logoutBtn").onclick = () => auth.signOut();
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
   // 初始化資料
   function initApp(){
-    db.ref("chapters").on("value", snap => { chapters = snap.val() || {}; renderAll(); });
-    db.ref("modules").on("value", snap => { modules = snap.val() || {}; renderAll(); });
-    db.ref("logs").orderByChild("time").limitToLast(50).on("value", snap => { logs = snap.val() || {}; });
+    onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; renderAll(); });
+    onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; renderAll(); });
+    onValue(query(ref(db, "logs"), orderByChild("time"), limitToLast(50)), snap => { logs = snap.val() || {}; });
   }
 
   // 紀錄日誌
   function writeLog(action, title, oldData) {
-    db.ref("logs").push({
+    push(ref(db, "logs"), {
       time: Date.now(),
       user: auth.currentUser.email,
       action: action,
@@ -554,7 +558,7 @@
             const itemIds = Array.from(listEl.children).map(el => el.dataset.id).filter(id=>id);
             const updates = {};
             itemIds.forEach((id, index) => { updates[`modules/${id}/order`] = index; });
-            db.ref().update(updates);
+            update(ref(db), updates);
           }
         });
       }
@@ -568,7 +572,7 @@
           const chIds = Array.from(container.children).map(el => el.dataset.id).filter(id=>id);
           const updates = {};
           chIds.forEach((id, index) => { updates[`chapters/${id}/order`] = index; });
-          db.ref().update(updates);
+          update(ref(db), updates);
         }
       });
     }
@@ -680,7 +684,7 @@
       writeLog("校正取代", newData.title, oldData);
     });
 
-    db.ref().update(updates).then(() => {
+    update(ref(db), updates).then(() => {
       alert("已完成批次取代！");
       document.getElementById("replaceResults").innerHTML = "";
       document.getElementById("replaceFrom").value = "";
@@ -788,9 +792,10 @@
       title, section, content, isDraft
     };
 
-    db.ref("modules/" + newId).set(dataToSave).then(() => {
+    set(ref(db, "modules/" + newId), dataToSave).then(() => {
       writeLog(moduleId === 'new' ? '新增' : '修改', title, oldData);
-      document.getElementById("inlineFormBox").remove();
+      // 寫入觸發的 onValue 會先重繪列表、連帶清掉表單，這裡可能已找不到元素
+      document.getElementById("inlineFormBox")?.remove();
     });
   }
 
@@ -807,21 +812,27 @@
   function deleteModule(id, title) {
     if(confirm(`確定要刪除「${title}」嗎？`)) {
       writeLog('刪除', title, modules[id]);
-      db.ref("modules/"+id).remove();
+      remove(ref(db, "modules/"+id));
     }
   }
+
+  // module script 的函式不是全域，動態產生 HTML 裡的內聯 onclick 需要透過 window 找到它們
+  window.openInlineEditor = openInlineEditor;
+  window.saveInlineEditor = saveInlineEditor;
+  window.cancelInlineEditor = cancelInlineEditor;
+  window.deleteModule = deleteModule;
 
   // ========== 章節管理 (獨立視窗) ==========
   document.getElementById("addChapterBtn").onclick = () => {
     const name = prompt("請輸入新大章節名稱：");
     if(name) {
-      db.ref("chapters/c"+Date.now()).set({name: name.trim(), order: 999});
+      set(ref(db, "chapters/c"+Date.now()), {name: name.trim(), order: 999});
     }
   };
   window.editChapter = function(id) {
     const name = prompt("修改章節名稱：", chapters[id].name);
     if(name) {
-      db.ref("chapters/"+id+"/name").set(name.trim());
+      set(ref(db, "chapters/"+id+"/name"), name.trim());
     }
   };
 
@@ -847,7 +858,7 @@
   window.restoreLog = function(oldDataStr) {
     if(confirm("確定要把這筆資料恢復到當時的狀態嗎？")) {
       const oldData = typeof oldDataStr === 'string' ? JSON.parse(oldDataStr) : oldDataStr;
-      db.ref("modules/m" + Date.now()).set(oldData);
+      set(ref(db, "modules/m" + Date.now()), oldData);
       alert("已作為新條目還原在最底部！你可以搜尋它並重新拖曳順序。");
       document.getElementById("logsModal").style.display = "none";
     }
