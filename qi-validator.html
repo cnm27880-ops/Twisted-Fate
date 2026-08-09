@@ -160,7 +160,7 @@
     <div>
       <h1>靈氣消耗檢查器</h1>
       <div class="sub">
-        掃描各章節技能敘述中的靈氣消耗片段，依候率公式（候率倍數 = 10<sup>等級</sup>）驗算是否合理，列出疑似套用錯誤或漏套的條目供人工核對，並提供建議修正值可一鍵套用。
+        掃描各章節技能敘述中的靈氣消耗片段，依倍率公式（倍率 = 10<sup>等級</sup>）驗算是否合理，並額外檢查是否剛好符合鄰近等級的公式（疑似套錯階數），列出疑似有問題的條目供人工核對，並提供建議修正值可一鍵套用。
       </div>
     </div>
     <div class="topbar-actions">
@@ -171,7 +171,7 @@
   </div>
 
   <div class="warn-box">
-    掃描本身只讀取資料。只有在「疑似候率有問題」清單裡按下「套用修正」時才會寫入 Firebase，且只會覆寫該筆 <code>modules/&lt;id&gt;/content</code> 裡對應的那個數字（不動其他文字或欄位）。<br>
+    掃描本身只讀取資料。只有在「疑似倍率有問題」清單裡按下「套用修正」時才會寫入 Firebase，且只會覆寫該筆 <code>modules/&lt;id&gt;/content</code> 裡對應的那個數字（不動其他文字或欄位）。<br>
     套用前會先重新比對內容是否被更動過，套用後也會記一筆修改日誌，可從後台「修改日誌」還原。建議修正值都可以在套用前自行改成你認為正確的數字。
   </div>
 
@@ -250,32 +250,73 @@
 
   function escapeHtml(s){ return (s || "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
 
-  // ========== 候率公式驗算（全部使用 BigInt，避免 10^15 量級的浮點誤差） ==========
-  // 正確公式：候率倍數 = 10 的 N 次方（N 為技能標註等級）；消耗數字應等於「候率倍數 × 合理原始值(1~30)」
-  const RAW_MIN = 1n, RAW_MAX = 30n;
+  // ========== 倍率公式驗算（全部使用 BigInt，避免 10^15 量級的浮點誤差） ==========
+  // 正確公式：倍率 = 10 的 N 次方（N 為技能標註等級）；消耗數字應等於「倍率 × 合理原始值(1~30)」
+  //
+  // 光靠「這個數字除以標註等級的倍率是否整除」不夠：因為倍率彼此差 10 倍，
+  // 一個數字很可能同時整除兩個相鄰等級的倍率（例如 2000 = 2×10^3，也剛好 = 20×10^2），
+  // 這正是「套錯階數」最容易被誤判成正常的情況——用錯的倍率算出來的數字剛好落在
+  // 1~30 的合理範圍內，光看標註等級本身完全看不出異常。
+  // 所以除了驗算標註等級本身，還要掃過 1~15 其他所有等級，找出「這個數字剛好也符合
+  // 哪個等級的公式」，藉此抓出套錯階數、以及給出更合理的建議修正值。
+  const RAW_MIN = 1n, RAW_MAX = 30n, LEVEL_MIN = 1, LEVEL_MAX = 15;
+
+  // 檢查數字是否剛好等於「某等級倍率 × 1~30 的整數」，是的話回傳那個原始值，否則回傳 null
+  function findCleanRaw(valueBigInt, level){
+    const multiplier = 10n ** BigInt(level);
+    if(valueBigInt % multiplier !== 0n) return null;
+    const raw = valueBigInt / multiplier;
+    if(raw < RAW_MIN || raw > RAW_MAX) return null;
+    return raw;
+  }
 
   function classifyValue(valueBigInt, level){
     const multiplier = 10n ** BigInt(level);
     const min = multiplier * RAW_MIN;
     const max = multiplier * RAW_MAX;
+    const ownRaw = findCleanRaw(valueBigInt, level);
+
+    // 掃描其他等級，看這個數字是不是「剛好」也符合別的等級的公式（10 的次方彼此差距很大，
+    // 通常最多只會巧合命中一個相鄰等級，不需要特別去重）
+    let altLevel = null, altRaw = null;
+    for(let lv = LEVEL_MIN; lv <= LEVEL_MAX; lv++){
+      if(lv === level) continue;
+      const raw = findCleanRaw(valueBigInt, lv);
+      if(raw !== null){ altLevel = lv; altRaw = raw; break; }
+    }
+
     let status;
-    if(valueBigInt < min) status = "unmultiplied";
-    else if(valueBigInt > max) status = "wrong";
-    else if(valueBigInt % multiplier === 0n) status = "ok";
-    else status = "wrong";
-    return { multiplier, min, max, status, quotient: valueBigInt / multiplier, remainder: valueBigInt % multiplier };
+    if(ownRaw !== null){
+      status = altLevel !== null ? "ok_ambiguous" : "ok"; // 符合標註等級，但同時也符合別的等級 → 需要人工確認是不是套錯階
+    } else if(altLevel !== null){
+      status = "wrong_tier"; // 不符合標註等級，但剛好完全符合別的等級 → 很可能是套錯階數
+    } else if(valueBigInt < min){
+      status = "unmultiplied";
+    } else {
+      status = "wrong";
+    }
+
+    return {
+      multiplier, min, max, status, ownRaw, altLevel, altRaw,
+      quotient: valueBigInt / multiplier, remainder: valueBigInt % multiplier,
+    };
   }
 
   // 依判定結果推算「建議修正值」，只是給人工核對用的起始猜測，套用前使用者仍可在欄位裡手動改掉
+  //   wrong_tier：數字剛好符合別的等級的公式，最可能就是套錯階數——沿用抓到的原始值，改套標註等級的倍率
   //   unmultiplied：多半是漏乘，原始值大概率就是目前寫的這個數字本身
-  //   wrong：數字量級大致對，但不是候率倍數的整數倍，取四捨五入後最接近的整數倍
+  //   wrong：數字量級大致對，但不是倍率的整數倍，取四捨五入後最接近的整數倍
+  //   ok / ok_ambiguous：本身已符合公式，不主動給建議值（ok_ambiguous 只是提醒人工確認，不代表一定有錯）
   function computeSuggestion(valueBigInt, cls){
-    if(cls.status !== "unmultiplied" && cls.status !== "wrong") return null;
     let raw;
-    if(cls.status === "unmultiplied"){
+    if(cls.status === "wrong_tier"){
+      raw = cls.altRaw;
+    } else if(cls.status === "unmultiplied"){
       raw = valueBigInt;
-    } else {
+    } else if(cls.status === "wrong"){
       raw = (cls.remainder * 2n >= cls.multiplier) ? cls.quotient + 1n : cls.quotient;
+    } else {
+      return null;
     }
     if(raw < 1n) raw = 1n;
     return { raw, value: raw * cls.multiplier };
@@ -389,6 +430,7 @@
         findings.forEach(f => {
           results.push({
             rowKey: mId + "::" + f.index,
+            index: f.index,
             moduleId: mId,
             chapterName: ch.name || "",
             moduleTitle: m.title || "(未命名條目)",
@@ -411,16 +453,26 @@
 
   // ========== 畫面渲染 ==========
   function verdictLabel(r){
-    if(r.kind === "unmultiplied") return { badgeClass:"problem", text:"疑似完全未套用候率" };
-    if(r.kind === "wrong") return { badgeClass:"problem", text:"疑似候率套用錯誤" };
+    if(r.kind === "unmultiplied") return { badgeClass:"problem", text:"疑似完全未套用倍率" };
+    if(r.kind === "wrong") return { badgeClass:"problem", text:"疑似倍率套用錯誤" };
+    if(r.kind === "wrong_tier") return { badgeClass:"problem", text:"疑似套錯階數" };
+    if(r.kind === "ok_ambiguous") return { badgeClass:"unrec", text:"正常但疑似可能套錯階數" };
     if(r.kind === "ok") return { badgeClass:"ok", text:"判定正常" };
     return { badgeClass:"unrec", text:"無法自動判讀" };
   }
 
   function verdictDetail(r){
     if(!r.cls) return "";
-    const raw = r.cls.remainder === 0n ? String(r.cls.quotient) : `≈${r.cls.quotient} 餘 ${r.cls.remainder}`;
-    return `候率倍數 10^${r.level} = ${r.cls.multiplier.toString()}；合理範圍 ${r.cls.min.toString()} ~ ${r.cls.max.toString()}；換算原始值 ${raw}`;
+    const c = r.cls;
+    if(c.status === "wrong_tier"){
+      return `數字不符合標註的「${r.level}級」倍率(10^${r.level}=${c.multiplier.toString()})，但剛好完全符合「${c.altLevel}級」的公式(原始值 ${c.altRaw.toString()} × 10^${c.altLevel})，很可能是套錯階數`;
+    }
+    const raw = c.remainder === 0n ? String(c.quotient) : `≈${c.quotient} 餘 ${c.remainder}`;
+    let detail = `倍率 10^${r.level} = ${c.multiplier.toString()}；合理範圍 ${c.min.toString()} ~ ${c.max.toString()}；換算原始值 ${raw}`;
+    if(c.status === "ok_ambiguous"){
+      detail += `；同時也剛好符合「${c.altLevel}級」的公式(原始值 ${c.altRaw.toString()} × 10^${c.altLevel})，請人工確認標註等級與數字是否都正確`;
+    }
+    return detail;
   }
 
   function renderChapterFilter(container){
@@ -482,7 +534,13 @@
       statusEl.className = "fix-status fail";
       return;
     }
-    if(!confirm(`確定要把「${r.moduleTitle}」${r.skillName ? '「' + r.skillName + '」' : ''}的消耗數字從 ${r.valueStr} 改成 ${newValueStr} 嗎？\n（會寫入 Firebase，並記錄到後台修改日誌，可從日誌還原）`)){
+
+    // 消耗量要跟著角色當下的境界浮動，所以純數字寫法（沒有「境界 x」字樣）套用修正時
+    // 一併補上「境界 x 」，改寫成公式寫法；已經是公式寫法的只需要換掉數字本身
+    const insertText = (r.mode === "plain" ? "境界 x " : "") + newValueStr;
+    const newSnippet = r.snippet.slice(0, start - r.index) + insertText + r.snippet.slice(end - r.index);
+
+    if(!confirm(`確定要把「${r.moduleTitle}」${r.skillName ? '「' + r.skillName + '」' : ''}的消耗描述套用修正嗎？\n\n原本：${r.snippet}\n修改為：${newSnippet}\n\n（會寫入 Firebase，並記錄到後台修改日誌，可從日誌還原）`)){
       return;
     }
 
@@ -491,7 +549,7 @@
     statusEl.textContent = "套用中…";
     statusEl.className = "fix-status";
 
-    const newContent = content.slice(0, start) + newValueStr + content.slice(end);
+    const newContent = content.slice(0, start) + insertText + content.slice(end);
     const oldData = { ...mod };
     const newData = { ...mod, content: newContent };
 
@@ -500,7 +558,7 @@
       await push(ref(db, "logs"), {
         time: Date.now(),
         user: auth.currentUser.email,
-        action: "候率修正",
+        action: "倍率修正",
         title: mod.title || "",
         oldData: JSON.stringify(oldData),
       });
@@ -612,7 +670,8 @@
     }
 
     const all = scanAll(selectedChapters);
-    const problems = all.filter(r => r.kind === "unmultiplied" || r.kind === "wrong");
+    const problems = all.filter(r => r.kind === "unmultiplied" || r.kind === "wrong" || r.kind === "wrong_tier");
+    const ambiguous = all.filter(r => r.kind === "ok_ambiguous");
     const unrecognized = all.filter(r => r.kind === "unrecognized");
     const okRows = all.filter(r => r.kind === "ok");
 
@@ -620,13 +679,16 @@
     summary.className = "summary-bar";
     summary.innerHTML = `
       <div class="summary-item"><span class="summary-num neutral">${all.length}</span> 筆消耗片段（掃描到）</div>
-      <div class="summary-item"><span class="summary-num">${problems.length}</span> 筆疑似候率有誤</div>
+      <div class="summary-item"><span class="summary-num">${problems.length}</span> 筆疑似倍率有誤</div>
+      <div class="summary-item"><span class="summary-num">${ambiguous.length}</span> 筆正常但疑似套錯階數</div>
       <div class="summary-item"><span class="summary-num">${unrecognized.length}</span> 筆無法自動判讀</div>
       <div class="summary-item"><span class="summary-num ok">${okRows.length}</span> 筆判定正常</div>
     `;
     container.appendChild(summary);
 
-    renderResultTable(container, "疑似候率有問題", problems, "problem", "目前勾選的章節中沒有找到疑似候率錯誤的項目。");
+    renderResultTable(container, "疑似倍率有問題", problems, "problem", "目前勾選的章節中沒有找到疑似倍率錯誤的項目。");
+    renderResultTable(container, "正常但疑似套錯階數（需人工確認）", ambiguous, "found",
+      "沒有這類項目。這裡列的是數字本身符合標註等級的公式、但同時也剛好符合另一個等級的公式，無法單靠數字判斷對錯，需要你確認遊戲設計上的原始值是否正確。");
     renderResultTable(container, "無法自動判讀，需人工檢查", unrecognized, "unrec", "沒有無法辨識的片段。");
     if(showOkRows){
       renderResultTable(container, "判定正常", okRows, "found", "沒有判定正常的項目。");
