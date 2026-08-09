@@ -160,7 +160,7 @@
     <div>
       <h1>靈氣消耗檢查器</h1>
       <div class="sub">
-        掃描各章節技能敘述中的靈氣消耗片段，依倍率公式（倍率 = 10<sup>等級</sup>）驗算是否合理，並額外檢查是否剛好符合鄰近等級的公式（疑似套錯階數），列出疑似有問題的條目供人工核對，並提供建議修正值可一鍵套用。
+        掃描各章節技能敘述中的靈氣消耗片段，依倍率公式（倍率 = 10<sup>等級</sup>，1級與2級合併共用 10<sup>2</sup>）驗算是否合理，並額外檢查是否剛好符合鄰近等級的公式（疑似套錯階數），列出疑似有問題的條目供人工核對，並提供建議修正值可一鍵套用。
       </div>
     </div>
     <div class="topbar-actions">
@@ -261,9 +261,16 @@
   // 哪個等級的公式」，藉此抓出套錯階數、以及給出更合理的建議修正值。
   const RAW_MIN = 1n, RAW_MAX = 30n, LEVEL_MIN = 1, LEVEL_MAX = 15;
 
+  // 倍率表覆寫：預設每個等級各自用 10^等級，但某些等級是刻意合併共用同一個倍率的
+  // （目前設計：1級與2級合併共用「境界 x 100」這個倍率，不再各自 10^1／10^2）。
+  // 之後如果還有其他等級要合併，只要在這裡加一筆對照即可，不用動下面的驗算邏輯。
+  const LEVEL_MULTIPLIER_OVERRIDE = { 1: 2 }; // 標註等級 → 改用這個等級的 10^N 倍率
+  function effectiveLevelFor(level){ return LEVEL_MULTIPLIER_OVERRIDE[level] || level; }
+  function multiplierForLevel(level){ return 10n ** BigInt(effectiveLevelFor(level)); }
+
   // 檢查數字是否剛好等於「某等級倍率 × 1~30 的整數」，是的話回傳那個原始值，否則回傳 null
   function findCleanRaw(valueBigInt, level){
-    const multiplier = 10n ** BigInt(level);
+    const multiplier = multiplierForLevel(level);
     if(valueBigInt % multiplier !== 0n) return null;
     const raw = valueBigInt / multiplier;
     if(raw < RAW_MIN || raw > RAW_MAX) return null;
@@ -271,16 +278,18 @@
   }
 
   function classifyValue(valueBigInt, level){
-    const multiplier = 10n ** BigInt(level);
+    const multiplier = multiplierForLevel(level);
     const min = multiplier * RAW_MIN;
     const max = multiplier * RAW_MAX;
     const ownRaw = findCleanRaw(valueBigInt, level);
 
     // 掃描其他等級，看這個數字是不是「剛好」也符合別的等級的公式（10 的次方彼此差距很大，
-    // 通常最多只會巧合命中一個相鄰等級，不需要特別去重）
+    // 通常最多只會巧合命中一個相鄰等級，不需要特別去重）。
+    // 倍率跟標註等級相同的等級（例如 1級／2級合併後彼此的倍率相同）不算「別的等級」，
+    // 不然每一筆 1級／2級的項目都會互相誤判成套錯階數。
     let altLevel = null, altRaw = null;
     for(let lv = LEVEL_MIN; lv <= LEVEL_MAX; lv++){
-      if(lv === level) continue;
+      if(lv === level || multiplierForLevel(lv) === multiplier) continue;
       const raw = findCleanRaw(valueBigInt, lv);
       if(raw !== null){ altLevel = lv; altRaw = raw; break; }
     }
@@ -461,16 +470,22 @@
     return { badgeClass:"unrec", text:"無法自動判讀" };
   }
 
+  // 有倍率表覆寫時（例如 1級／2級合併），顯示成「1級→10^2」這種格式，避免直接寫 10^1 造成誤解
+  function levelFormulaLabel(level){
+    const eff = effectiveLevelFor(level);
+    return eff === level ? `${level}級(10^${level})` : `${level}級→10^${eff}`;
+  }
+
   function verdictDetail(r){
     if(!r.cls) return "";
     const c = r.cls;
     if(c.status === "wrong_tier"){
-      return `數字不符合標註的「${r.level}級」倍率(10^${r.level}=${c.multiplier.toString()})，但剛好完全符合「${c.altLevel}級」的公式(原始值 ${c.altRaw.toString()} × 10^${c.altLevel})，很可能是套錯階數`;
+      return `數字不符合標註的「${levelFormulaLabel(r.level)}」倍率(=${c.multiplier.toString()})，但剛好完全符合「${levelFormulaLabel(c.altLevel)}」的公式(原始值 ${c.altRaw.toString()} × 10^${effectiveLevelFor(c.altLevel)})，很可能是套錯階數`;
     }
     const raw = c.remainder === 0n ? String(c.quotient) : `≈${c.quotient} 餘 ${c.remainder}`;
-    let detail = `倍率 10^${r.level} = ${c.multiplier.toString()}；合理範圍 ${c.min.toString()} ~ ${c.max.toString()}；換算原始值 ${raw}`;
+    let detail = `倍率 ${levelFormulaLabel(r.level)} = ${c.multiplier.toString()}；合理範圍 ${c.min.toString()} ~ ${c.max.toString()}；換算原始值 ${raw}`;
     if(c.status === "ok_ambiguous"){
-      detail += `；同時也剛好符合「${c.altLevel}級」的公式(原始值 ${c.altRaw.toString()} × 10^${c.altLevel})，請人工確認標註等級與數字是否都正確`;
+      detail += `；同時也剛好符合「${levelFormulaLabel(c.altLevel)}」的公式(原始值 ${c.altRaw.toString()} × 10^${effectiveLevelFor(c.altLevel)})，請人工確認標註等級與數字是否都正確`;
     }
     return detail;
   }
