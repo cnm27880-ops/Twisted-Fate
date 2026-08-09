@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英文對照匯入．逆命後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper: #F2E9D6; --paper-2: #EBDFC5; --paper-3: #E0D0A9;
+    --ink: #1D1712; --ink-dim: #453A2A; --ink-faint2: #6E5F45;
+    --vermillion: #9C2B22; --vermillion-bright: #B5372B;
+    --gold: #8C6B27; --gold-deep: #5F470F;
+    --jade: #2D5A4C;
+    --border: rgba(95, 71, 15, 0.25);
+    --danger: #9C2B22;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family: "LXGW WenKai TC", serif; min-height:100vh; position: relative; padding-bottom: 100px; }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.5; mix-blend-mode:multiply;
+  }
+  .wrap{ max-width:1080px; margin:0 auto; padding:40px 30px; }
+  h1{ font-family:"Noto Serif TC",serif; font-size:32px; letter-spacing:3px; color:var(--ink); margin:0 0 6px; font-weight:900;}
+  .sub{ color:var(--ink-faint2); font-size:14px; margin:0 0 28px; letter-spacing: 1px; line-height:1.8; }
+  .warn-box{ background: rgba(156,43,34,0.08); border:1px solid rgba(156,43,34,0.3); color:var(--vermillion-bright); font-size:13px; font-weight:700; border-radius:4px; padding:12px 16px; margin-bottom:24px; line-height:1.8; }
+
+  .login-box{ max-width:380px; margin:120px auto; background:var(--paper-2); border:1px solid var(--border); padding:40px 35px; border-radius:2px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .login-box h2{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); margin:0 0 25px; text-align:center; letter-spacing:2px;}
+  label{ display:block; font-size:14px; font-weight:700; color:var(--ink-dim); margin:16px 0 8px; letter-spacing:1px;}
+  input, textarea{
+    width:100%; background:var(--paper); border:1px solid var(--border); color:var(--ink);
+    padding:12px 14px; font-size:15px; font-family:"LXGW WenKai TC",serif; border-radius:2px; outline:none; transition: border-color 0.3s;
+  }
+  input:focus, textarea:focus{ border-color:var(--gold); box-shadow: 0 0 8px rgba(140, 107, 39, 0.2);}
+  textarea{ min-height:160px; resize:vertical; line-height:1.7; font-size:13px; font-family:ui-monospace,monospace; }
+
+  button{
+    font-family:"Noto Serif TC",serif; font-size:14px; font-weight:900; letter-spacing: 2px;
+    padding:8px 16px; border-radius:2px; cursor:pointer; border:1px solid var(--border);
+    background:var(--paper-3); color:var(--ink); transition:all .2s;
+  }
+  button:hover{ background: var(--gold); border-color:var(--gold); color:#fff; }
+  button.primary{ background:var(--vermillion); border-color:var(--vermillion); color:#F5E9DD; }
+  button.primary:hover{ background:var(--vermillion-bright); border-color:var(--vermillion-bright);}
+  button.danger{ color:var(--danger); background: transparent; border-color: transparent;}
+  button:disabled{ opacity:.5; cursor:not-allowed; }
+  .full { display: block; width: 100%; margin-top: 25px; padding: 12px 0; text-align: center; }
+  .error { color: var(--danger); font-size: 14px; margin-top: 12px; min-height: 16px; text-align: center; font-weight: bold; }
+
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px; border-bottom: 2px solid var(--gold); padding-bottom: 20px; flex-wrap:wrap; gap:14px;}
+  .topbar-actions{ display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
+  .userinfo{ font-size:13px; color:var(--ink-faint2); margin-right:6px; }
+
+  .panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 18px 20px; margin-bottom: 22px; }
+  .panel-title{ font-weight:700; color:var(--ink-dim); margin-bottom:10px; letter-spacing:1px; }
+  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+
+  .result-table{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .result-head, .result-row{
+    display:grid; grid-template-columns: 0.6fr 0.7fr 1.6fr 0.9fr 0.9fr 0.5fr;
+    gap: 10px; align-items:center; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size:14px;
+  }
+  .result-head{ background: var(--paper-3); font-weight:700; font-size:13px; color:var(--ink-dim); letter-spacing:1px; }
+  .result-row:last-child{ border-bottom:none; }
+  .result-row:hover{ background: var(--paper); }
+  .cell-check input{ width:18px; height:18px; margin:0; cursor:pointer; }
+  .tag{ display:inline-block; padding:2px 8px; border-radius:3px; font-size:12px; font-weight:700; }
+  .tag.ok{ background: rgba(45,90,76,0.12); color:var(--jade); border:1px solid rgba(45,90,76,0.3); }
+  .tag.warn{ background: rgba(156,43,34,0.12); color:var(--vermillion-bright); border:1px solid rgba(156,43,34,0.3); }
+  .tag.overwrite{ background: rgba(95,71,15,0.12); color:var(--gold-deep); border:1px solid rgba(95,71,15,0.3); }
+  .empty-msg{ padding: 24px; text-align:center; color:var(--ink-faint2); font-size:14px; }
+  .status-line{ font-size:13px; margin-top:4px; }
+  .status-line.success{ color: var(--jade); }
+  .status-line.fail{ color: var(--danger); }
+
+  @media (max-width: 900px){
+    .result-head{ display:none; }
+    .result-row{ grid-template-columns: 1fr; gap:4px; }
+    .result-row > div::before{ content: attr(data-label); display:block; font-size:11px; font-weight:700; color:var(--ink-faint2); margin-bottom:2px; }
+  }
+  @media (max-width: 700px){
+    .wrap{ padding: 22px 14px; }
+    h1{ font-size: 22px; }
+    .login-box{ margin: 60px auto; padding: 30px 22px; }
+    .topbar{ flex-direction: column; align-items: flex-start; }
+    .topbar-actions{ width:100%; justify-content:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap" style="display:none;">
+  <div class="login-box">
+    <h2>管理者登入</h2>
+    <label>帳號 (Email)</label>
+    <input type="email" id="loginEmail" placeholder="name@example.com">
+    <label>密碼 (Password)</label>
+    <input type="password" id="loginPassword">
+    <button class="primary full" id="loginBtn">登入樞紐</button>
+    <div class="error" id="loginError"></div>
+  </div>
+</div>
+
+<div id="appView" class="wrap" style="display:none;">
+  <div class="topbar">
+    <div>
+      <h1>英文對照匯入工具</h1>
+      <div class="sub">
+        把 <code>scripts/split-en-reference.mjs</code> 切好的 JSON（{ moduleId: 英文內容 }）匯入 <code>en_reference</code> collection，<br>
+        供「中英比對小幫手」使用。
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="userinfo" id="userEmail"></div>
+      <button onclick="location.href='admin.html'">← 返回後台</button>
+      <button id="logoutBtn" class="danger">登出</button>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    此工具只會寫入 <code>en_reference/&lt;moduleId&gt;</code> 這個節點（欄位：en_content、importedAt、importedBy），<br>
+    絕對不會讀寫或修改 <code>chapters</code>、<code>modules</code>、<code>logs</code> 的任何資料。已存在的 moduleId 會被覆蓋，匯入前請先確認預覽表。
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">1. 載入 JSON</div>
+    <input type="file" id="fileInput" accept="application/json,.json">
+    <label>或直接貼上 JSON 內容</label>
+    <textarea id="jsonInput" placeholder='{ "m012": "Rogue Cultivation..." , "m013": "..." }'></textarea>
+    <div class="btn-row">
+      <button class="primary" id="btnParse">解析預覽</button>
+    </div>
+    <div class="error" id="parseError"></div>
+  </div>
+
+  <div id="previewContainer"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
+    authDomain: "twisted-fate-trpg.firebaseapp.com",
+    databaseURL: "https://twisted-fate-trpg-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "twisted-fate-trpg",
+    storageBucket: "twisted-fate-trpg.firebasestorage.app",
+    messagingSenderId: "804781497200",
+    appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  let modules = {};
+  let enReference = {};
+  let modulesLoaded = false, enRefLoaded = false;
+
+  onAuthStateChanged(auth, user => {
+    if(user){
+      document.getElementById("loginView").style.display = "none";
+      document.getElementById("appView").style.display = "block";
+      document.getElementById("userEmail").textContent = "管理員：" + user.email;
+      onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modulesLoaded = true; }, () => {});
+      onValue(ref(db, "en_reference"), snap => { enReference = snap.val() || {}; enRefLoaded = true; }, () => {});
+    } else {
+      document.getElementById("loginView").style.display = "block";
+      document.getElementById("appView").style.display = "none";
+    }
+  });
+
+  document.getElementById("loginBtn").onclick = () => {
+    signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
+      .catch(() => document.getElementById("loginError").textContent = "登入失敗");
+  };
+  const handleEnterKey = (e) => { if(e.key === "Enter") document.getElementById("loginBtn").click(); };
+  document.getElementById("loginEmail").addEventListener("keypress", handleEnterKey);
+  document.getElementById("loginPassword").addEventListener("keypress", handleEnterKey);
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+  function escapeHtml(s){ return (s || "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
+
+  document.getElementById("fileInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { document.getElementById("jsonInput").value = reader.result; };
+    reader.readAsText(file);
+  });
+
+  let parsedEntries = []; // { moduleId, enContent, moduleTitle, existsInModules, alreadyImported, checked }
+
+  document.getElementById("btnParse").onclick = () => {
+    const errEl = document.getElementById("parseError");
+    errEl.textContent = "";
+    const raw = document.getElementById("jsonInput").value.trim();
+    if(!raw){ errEl.textContent = "請先載入或貼上 JSON 內容"; return; }
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch(e) {
+      errEl.textContent = "JSON 格式錯誤：" + e.message;
+      return;
+    }
+    if(typeof data !== "object" || data === null || Array.isArray(data)){
+      errEl.textContent = "格式必須是一個物件，例如 { \"m012\": \"英文內容...\" }";
+      return;
+    }
+
+    parsedEntries = Object.entries(data).map(([moduleId, enContent]) => {
+      const mod = modules[moduleId];
+      return {
+        moduleId,
+        enContent: String(enContent),
+        moduleTitle: mod ? mod.title : null,
+        existsInModules: !!mod,
+        alreadyImported: !!enReference[moduleId],
+        checked: !!mod, // 找不到對應 module 的預設不勾選，避免誤匯入孤兒資料
+      };
+    });
+
+    renderPreview();
+  };
+
+  function renderPreview(){
+    const container = document.getElementById("previewContainer");
+    container.innerHTML = "";
+    if(parsedEntries.length === 0){
+      container.innerHTML = '<div class="empty-msg">尚未解析出任何項目。</div>';
+      return;
+    }
+
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.innerHTML = `<div class="panel-title">2. 預覽並確認匯入（共 ${parsedEntries.length} 筆）</div>`;
+
+    const table = document.createElement("div");
+    table.className = "result-table";
+    table.innerHTML = `<div class="result-head">
+      <div>moduleId</div><div>對應中文標題</div><div>英文內容預覽</div><div>字元數</div><div>狀態</div><div>匯入</div>
+    </div>`;
+
+    parsedEntries.forEach((entry, idx) => {
+      const row = document.createElement("div");
+      row.className = "result-row";
+      const statusTags = [];
+      if(!entry.existsInModules) statusTags.push('<span class="tag warn">找不到此 module id</span>');
+      if(entry.alreadyImported) statusTags.push('<span class="tag overwrite">將覆蓋既有資料</span>');
+      if(entry.existsInModules && !entry.alreadyImported) statusTags.push('<span class="tag ok">新增</span>');
+
+      row.innerHTML = `
+        <div data-label="moduleId"><strong>${escapeHtml(entry.moduleId)}</strong></div>
+        <div data-label="對應中文標題">${entry.moduleTitle ? escapeHtml(entry.moduleTitle) : '<span style="color:var(--ink-faint2);">—</span>'}</div>
+        <div data-label="英文內容預覽" style="font-size:12px; color:var(--ink-faint2);">${escapeHtml(entry.enContent.slice(0, 80))}…</div>
+        <div data-label="字元數">${entry.enContent.length}</div>
+        <div data-label="狀態">${statusTags.join(' ')}</div>
+        <div data-label="匯入" class="cell-check"><input type="checkbox" data-idx="${idx}" ${entry.checked ? 'checked' : ''}></div>
+      `;
+      row.querySelector('input[type="checkbox"]').addEventListener("change", (e) => {
+        parsedEntries[idx].checked = e.target.checked;
+      });
+      table.appendChild(row);
+    });
+
+    panel.appendChild(table);
+
+    const btnRow = document.createElement("div");
+    btnRow.className = "btn-row";
+    const importBtn = document.createElement("button");
+    importBtn.className = "primary";
+    importBtn.textContent = "確認匯入勾選項目";
+    importBtn.onclick = doImport;
+    btnRow.appendChild(importBtn);
+    panel.appendChild(btnRow);
+
+    const statusBox = document.createElement("div");
+    statusBox.id = "importStatus";
+    panel.appendChild(statusBox);
+
+    container.appendChild(panel);
+  }
+
+  async function doImport(){
+    const checked = parsedEntries.filter(e => e.checked);
+    if(checked.length === 0){ alert("請至少勾選一筆要匯入的項目"); return; }
+    if(!confirm(`確定要把這 ${checked.length} 筆英文對照資料寫入 en_reference 嗎？\n（只會動到 en_reference，不會影響 chapters / modules）`)) return;
+
+    const statusBox = document.getElementById("importStatus");
+    statusBox.innerHTML = "";
+    for(const entry of checked){
+      const line = document.createElement("div");
+      line.className = "status-line";
+      line.textContent = `匯入 ${entry.moduleId} 中…`;
+      statusBox.appendChild(line);
+      try {
+        await set(ref(db, "en_reference/" + entry.moduleId), {
+          en_content: entry.enContent,
+          importedAt: Date.now(),
+          importedBy: auth.currentUser.email,
+        });
+        line.textContent = `✓ ${entry.moduleId} 匯入成功`;
+        line.classList.add("success");
+      } catch(err) {
+        line.textContent = `✗ ${entry.moduleId} 匯入失敗：${err.message}`;
+        line.classList.add("fail");
+      }
+    }
+  }
+</script>
+</body>
+</html>
