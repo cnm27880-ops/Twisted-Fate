@@ -89,11 +89,16 @@
   .match-count{ margin-left:auto; font-size:13px; color:var(--gold-deep); font-weight:700; }
   .replace-row input[type="text"]{ width:auto; flex:1; min-width:120px; }
   .replace-row span{ color:var(--ink-faint2); }
-  .replace-summary{ font-size:13px; color:var(--ink-faint2); margin: 10px 0 8px; }
+  .replace-summary{ font-size:13px; color:var(--ink-faint2); margin: 10px 0 8px; display:flex; align-items:center; flex-wrap:wrap; gap:4px 10px; }
+  .replace-summary button{ font-size:12px; padding:4px 10px; }
   .replace-item{ background: var(--paper); border:1px solid var(--border); border-radius:3px; padding:10px 12px; margin-bottom:8px; }
-  .replace-item label{ display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; }
+  .replace-item-title{ font-weight:700; font-size:14px; margin-bottom:4px; }
   .replace-item input[type="checkbox"]{ width:auto; }
-  .replace-diff{ font-size:13px; margin-top:6px; padding-left:24px; line-height:1.7; word-break:break-word; }
+  .replace-occurrence{ display:flex; align-items:flex-start; gap:8px; padding:7px 0; border-top:1px solid var(--border); cursor:pointer; }
+  .replace-occurrence:first-of-type{ border-top:none; }
+  .replace-occurrence input[type="checkbox"]{ margin-top:3px; flex-shrink:0; }
+  .replace-field-tag{ font-size:11px; font-weight:700; color:var(--gold-deep); background:var(--paper-3); border-radius:3px; padding:2px 6px; flex-shrink:0; margin-top:1px; white-space:nowrap; }
+  .replace-diff{ font-size:13px; line-height:1.7; word-break:break-word; flex:1; }
   .replace-diff del{ color: var(--danger); text-decoration: line-through; background: rgba(156,43,34,0.08); }
   .replace-diff ins{ color: #2D5A4C; text-decoration: none; background: rgba(45,90,76,0.12); font-weight:700; }
   .replace-empty{ font-size:13px; color:var(--ink-faint2); margin-top:10px; }
@@ -307,6 +312,7 @@
   let editingId = null; // 當前正在編輯的 ID，避免重複展開
   let advOptions = { scopeTitle: true, scopeContent: true, scopeSection: false, wholeWord: false, caseSensitive: false, regex: false };
   let lastReplaceFrom = "", lastReplaceTo = "";
+  let lastReplaceOccurrences = []; // previewReplace() 掃出的每一個出現位置，供 applyReplace() 依勾選精準套用
   let renderPending = false; // 編輯表單開啟時，暫緩即時更新造成的重繪，避免洗掉未存內容
 
   // 登入邏輯
@@ -643,10 +649,24 @@
   });
 
   // ========== 批次校正 (尋找與取代，供字詞校正使用) ==========
+  // 逐一出現位置核對，而不是整份條目一次全有全無：對「氣」這種中文裡沒有詞界、
+  // 很容易誤中天氣／脾氣／運氣等無關詞彙的單字尤其重要——可以先廣泛搜尋，
+  // 再一筆一筆看上下文決定要不要取代，不用硬寫正則排除清單。
   function escapeHtmlText(s) { return (s || "").replace(/[&<>]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" }[c])); }
-  function escapeReplacement(s) { return (s || "").replace(/\$/g, "$$$$"); } // 避免 $1 $& 等被 String.replace 當成特殊語法
 
   function fieldLabel(key) { return key === "title" ? "標題" : (key === "section" ? "子分類" : "內容"); }
+
+  // 擷取單一出現位置前後一小段文字當作核對用的上下文（換行壓成空格，保持單行好讀）
+  function getReplaceContext(text, start, end, radius = 25) {
+    const s = Math.max(0, start - radius);
+    const e = Math.min(text.length, end + radius);
+    const clean = (t) => t.replace(/\s+/g, " ");
+    let prefix = clean(text.slice(s, start));
+    let suffix = clean(text.slice(end, e));
+    if(s > 0) prefix = "…" + prefix;
+    if(e < text.length) suffix = suffix + "…";
+    return { prefix, suffix };
+  }
 
   function previewReplace() {
     const from = document.getElementById("replaceFrom").value;
@@ -660,67 +680,119 @@
     lastReplaceFrom = from;
     lastReplaceTo = to;
 
-    const results = [];
+    const occurrences = []; // 每一筆都是「某條目、某欄位、第幾個字元」的獨立出現位置
     Object.entries(modules).forEach(([id, m]) => {
-      const preview = {};
-      let touched = false;
       ["title","content","section"].forEach(key => {
         if(!advOptions["scope" + key.charAt(0).toUpperCase() + key.slice(1)]) return;
         const val = m[key] || "";
         regex.lastIndex = 0;
-        if(regex.test(val)) {
-          touched = true;
-          regex.lastIndex = 0;
-          preview[key] = escapeHtmlText(val).replace(regex, match =>
-            `<del>${escapeHtmlText(match)}</del><ins>${escapeHtmlText(to)}</ins>`);
+        let match;
+        while((match = regex.exec(val))) {
+          occurrences.push({
+            key: id + "::" + key + "::" + match.index,
+            id, field: key,
+            start: match.index, end: match.index + match[0].length, matchText: match[0],
+          });
+          if(match.index === regex.lastIndex) regex.lastIndex++;
         }
       });
-      if(touched) results.push({ id, title: m.title, preview });
     });
 
-    if(results.length === 0) {
+    lastReplaceOccurrences = occurrences;
+
+    if(occurrences.length === 0) {
       resultsBox.innerHTML = '<div class="replace-empty">沒有找到符合的條目。</div>';
       return;
     }
 
-    let html = `<div class="replace-summary">共 ${results.length} 筆條目將被修改（可取消勾選排除個別條目）：</div><div id="replaceList">`;
-    results.forEach(r => {
-      html += `
-        <div class="replace-item">
-          <label><input type="checkbox" class="replace-check" value="${r.id}" checked> <strong>${escapeHtmlText(r.title)}</strong></label>
-          ${Object.entries(r.preview).map(([k,v]) => `<div class="replace-diff">${fieldLabel(k)}：${v}</div>`).join("")}
-        </div>`;
+    const byModule = new Map();
+    occurrences.forEach(o => {
+      if(!byModule.has(o.id)) byModule.set(o.id, []);
+      byModule.get(o.id).push(o);
     });
+
+    let html = `<div class="replace-summary">
+      共 ${occurrences.length} 個出現位置、${byModule.size} 筆條目（可取消勾選排除個別出現位置）：
+      <button type="button" id="replaceSelectAll">全選</button>
+      <button type="button" id="replaceSelectNone">全不選</button>
+    </div><div id="replaceList">`;
+
+    byModule.forEach((list, id) => {
+      const m = modules[id] || {};
+      html += `<div class="replace-item"><div class="replace-item-title">${escapeHtmlText(m.title || "")}</div>`;
+      list.forEach(o => {
+        const val = m[o.field] || "";
+        const ctx = getReplaceContext(val, o.start, o.end);
+        html += `
+          <label class="replace-occurrence">
+            <input type="checkbox" class="replace-check" value="${o.key}" checked>
+            <span class="replace-field-tag">${fieldLabel(o.field)}</span>
+            <span class="replace-diff">${escapeHtmlText(ctx.prefix)}<del>${escapeHtmlText(o.matchText)}</del><ins>${escapeHtmlText(to)}</ins>${escapeHtmlText(ctx.suffix)}</span>
+          </label>`;
+      });
+      html += `</div>`;
+    });
+
     html += `</div><button class="primary" type="button" onclick="applyReplace()">確認套用取代</button>`;
     resultsBox.innerHTML = html;
+
+    document.getElementById("replaceSelectAll").onclick = () => {
+      document.querySelectorAll(".replace-check").forEach(cb => cb.checked = true);
+    };
+    document.getElementById("replaceSelectNone").onclick = () => {
+      document.querySelectorAll(".replace-check").forEach(cb => cb.checked = false);
+    };
   }
 
   window.applyReplace = function() {
-    const regex = buildSearchRegex(lastReplaceFrom, advOptions);
-    if(!regex) { alert("正則表達式格式錯誤，請重新預覽"); return; }
+    const checkedKeys = new Set(Array.from(document.querySelectorAll(".replace-check:checked")).map(el => el.value));
+    if(checkedKeys.size === 0) { alert("請至少勾選一個出現位置"); return; }
+    if(!confirm(`確定要將勾選的 ${checkedKeys.size} 個出現位置套用「${lastReplaceFrom}」→「${lastReplaceTo}」的取代嗎？\n（每筆條目都會留下修改日誌，可個別還原）`)) return;
 
-    const checkedIds = Array.from(document.querySelectorAll(".replace-check:checked")).map(el => el.value);
-    if(checkedIds.length === 0) { alert("請至少勾選一筆條目"); return; }
-    if(!confirm(`確定要將勾選的 ${checkedIds.length} 筆條目套用「${lastReplaceFrom}」→「${lastReplaceTo}」的取代嗎？\n（每筆都會留下修改日誌，可個別還原）`)) return;
+    const checked = lastReplaceOccurrences.filter(o => checkedKeys.has(o.key));
 
-    const replacement = escapeReplacement(lastReplaceTo);
-    const updates = {};
-    checkedIds.forEach(id => {
+    // 依「條目＋欄位」分組；同一欄位內若有多個勾選的出現位置，要由後往前替換，
+    // 否則前面替換完，後面出現位置記錄的字元位置就會跟著位移而對不上
+    const byModuleField = new Map();
+    checked.forEach(o => {
+      const groupKey = o.id + "::" + o.field;
+      if(!byModuleField.has(groupKey)) byModuleField.set(groupKey, { id: o.id, field: o.field, list: [] });
+      byModuleField.get(groupKey).list.push(o);
+    });
+
+    const changedModules = new Map(); // id -> { oldData, newData }
+    let mismatchCount = 0;
+
+    byModuleField.forEach(({ id, field, list }) => {
       const m = modules[id];
       if(!m) return;
-      const oldData = { ...m };
-      const newData = { ...m };
-      ["title","content","section"].forEach(key => {
-        if(!advOptions["scope" + key.charAt(0).toUpperCase() + key.slice(1)]) return;
-        regex.lastIndex = 0;
-        newData[key] = (m[key] || "").replace(regex, replacement);
-      });
+      const original = m[field] || "";
+      const sorted = [...list].sort((a, b) => b.start - a.start);
+
+      // 套用前重新核對每個出現位置的文字沒有變動過（例如同時有其他人在編輯），有變動就整組跳過，不要硬套
+      const stillMatches = sorted.every(o => original.slice(o.start, o.end) === o.matchText);
+      if(!stillMatches) { mismatchCount++; return; }
+
+      let newValue = original;
+      sorted.forEach(o => { newValue = newValue.slice(0, o.start) + lastReplaceTo + newValue.slice(o.end); });
+
+      if(!changedModules.has(id)) changedModules.set(id, { oldData: { ...m }, newData: { ...m } });
+      changedModules.get(id).newData[field] = newValue;
+    });
+
+    if(changedModules.size === 0) {
+      alert(mismatchCount > 0 ? "內容自預覽後已被更動，未套用任何取代，請重新預覽一次。" : "沒有可套用的變更。");
+      return;
+    }
+
+    const updates = {};
+    changedModules.forEach(({ oldData, newData }, id) => {
       updates["modules/" + id] = newData;
       writeLog("校正取代", newData.title, oldData);
     });
 
     update(ref(db), updates).then(() => {
-      alert("已完成批次取代！");
+      alert(`已完成批次取代！${mismatchCount > 0 ? `（有 ${mismatchCount} 組欄位因內容已變動被跳過，請重新預覽確認）` : ""}`);
       document.getElementById("replaceResults").innerHTML = "";
       document.getElementById("replaceFrom").value = "";
       document.getElementById("replaceTo").value = "";
