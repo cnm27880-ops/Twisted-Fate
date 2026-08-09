@@ -430,6 +430,7 @@
         findings.forEach(f => {
           results.push({
             rowKey: mId + "::" + f.index,
+            index: f.index,
             moduleId: mId,
             chapterName: ch.name || "",
             moduleTitle: m.title || "(未命名條目)",
@@ -533,7 +534,13 @@
       statusEl.className = "fix-status fail";
       return;
     }
-    if(!confirm(`確定要把「${r.moduleTitle}」${r.skillName ? '「' + r.skillName + '」' : ''}的消耗數字從 ${r.valueStr} 改成 ${newValueStr} 嗎？\n（會寫入 Firebase，並記錄到後台修改日誌，可從日誌還原）`)){
+
+    // 消耗量要跟著角色當下的境界浮動，所以純數字寫法（沒有「境界 x」字樣）套用修正時
+    // 一併補上「境界 x 」，改寫成公式寫法；已經是公式寫法的只需要換掉數字本身
+    const insertText = (r.mode === "plain" ? "境界 x " : "") + newValueStr;
+    const newSnippet = r.snippet.slice(0, start - r.index) + insertText + r.snippet.slice(end - r.index);
+
+    if(!confirm(`確定要把「${r.moduleTitle}」${r.skillName ? '「' + r.skillName + '」' : ''}的消耗描述套用修正嗎？\n\n原本：${r.snippet}\n修改為：${newSnippet}\n\n（會寫入 Firebase，並記錄到後台修改日誌，可從日誌還原）`)){
       return;
     }
 
@@ -542,7 +549,7 @@
     statusEl.textContent = "套用中…";
     statusEl.className = "fix-status";
 
-    const newContent = content.slice(0, start) + newValueStr + content.slice(end);
+    const newContent = content.slice(0, start) + insertText + content.slice(end);
     const oldData = { ...mod };
     const newData = { ...mod, content: newContent };
 
