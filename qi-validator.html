@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>靈氣消耗檢查器．逆命後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper: #F2E9D6; --paper-2: #EBDFC5; --paper-3: #E0D0A9;
+    --ink: #1D1712; --ink-dim: #453A2A; --ink-faint2: #6E5F45;
+    --vermillion: #9C2B22; --vermillion-bright: #B5372B;
+    --gold: #8C6B27; --gold-deep: #5F470F;
+    --jade: #2D5A4C;
+    --border: rgba(95, 71, 15, 0.25);
+    --danger: #9C2B22;
+  }
+  *{box-sizing:border-box;}
+
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family: "LXGW WenKai TC", serif; min-height:100vh; position: relative; padding-bottom: 100px; }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.5; mix-blend-mode:multiply;
+  }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:40px 30px; }
+
+  h1{ font-family:"Noto Serif TC",serif; font-size:34px; letter-spacing:3px; color:var(--ink); margin:0 0 6px; font-weight:900;}
+  .sub{ color:var(--ink-faint2); font-size:14px; margin:0 0 28px; letter-spacing: 1px; line-height:1.8; }
+
+  .login-box{ max-width:380px; margin:120px auto; background:var(--paper-2); border:1px solid var(--border); padding:40px 35px; border-radius:2px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .login-box h2{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); margin:0 0 25px; text-align:center; letter-spacing:2px;}
+
+  label{ display:block; font-size:14px; font-weight:700; color:var(--ink-dim); margin:16px 0 8px; letter-spacing:1px;}
+  input, select{
+    width:100%; background:var(--paper); border:1px solid var(--border); color:var(--ink);
+    padding:12px 14px; font-size:15px; font-family:"LXGW WenKai TC",serif; border-radius:2px; outline:none; transition: border-color 0.3s;
+  }
+  input:focus, select:focus{ border-color:var(--gold); box-shadow: 0 0 8px rgba(140, 107, 39, 0.2);}
+
+  button{
+    font-family:"Noto Serif TC",serif; font-size:14px; font-weight:900; letter-spacing: 2px;
+    padding:8px 16px; border-radius:2px; cursor:pointer; border:1px solid var(--border);
+    background:var(--paper-3); color:var(--ink); transition:all .2s;
+  }
+  button:hover{ background: var(--gold); border-color:var(--gold); color:#fff; }
+  button.primary{ background:var(--vermillion); border-color:var(--vermillion); color:#F5E9DD; }
+  button.primary:hover{ background:var(--vermillion-bright); border-color:var(--vermillion-bright);}
+  button.danger{ color:var(--danger); background: transparent; border-color: transparent;}
+  button.danger:hover{ background: rgba(156, 43, 34, 0.1); border-color: var(--danger);}
+  .full { display: block; width: 100%; margin-top: 25px; padding: 12px 0; text-align: center; }
+  .error { color: var(--danger); font-size: 14px; margin-top: 12px; min-height: 16px; text-align: center; font-weight: bold; }
+
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px; border-bottom: 2px solid var(--gold); padding-bottom: 20px; flex-wrap:wrap; gap:14px;}
+  .topbar-actions{ display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
+  .userinfo{ font-size:13px; color:var(--ink-faint2); margin-right:6px; }
+
+  .state-msg{ text-align:center; color:var(--ink-faint2); font-size:16px; padding:60px 20px; letter-spacing:1px; }
+  .state-msg.error{ color:var(--danger); font-weight:700; }
+  .state-detail{ display:inline-block; margin-top:8px; font-size:13px; font-weight:400; color:var(--ink-faint2); }
+
+  /* 章節篩選 */
+  .filter-panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 16px 18px; margin-bottom: 20px; }
+  .filter-row{ display:flex; align-items:center; flex-wrap:wrap; gap: 10px 14px; margin-bottom: 12px; }
+  .filter-row:last-child{ margin-bottom:0; }
+  .filter-label{ font-weight:700; color:var(--ink-dim); font-size:14px; flex-shrink:0; }
+  .chapter-pill{
+    font-family:"LXGW WenKai TC",serif; font-size:13px; font-weight:700; color:var(--ink-dim);
+    background:var(--paper); border:1px solid var(--border); border-radius:20px; padding:6px 14px 6px 10px;
+    cursor:pointer; user-select:none; display:flex; align-items:center; gap:6px;
+  }
+  .chapter-pill input{ width:auto; margin:0; }
+  .chapter-pill.checked{ border-color:var(--gold); background:var(--paper-3); color:var(--ink); }
+  .toggle-row label{ display:flex; align-items:center; gap:6px; font-size:14px; font-weight:400; color:var(--ink-dim); cursor:pointer; margin:0; }
+  .toggle-row input[type="checkbox"]{ width:auto; padding:0; }
+
+  /* 摘要列 */
+  .summary-bar{ display:flex; flex-wrap:wrap; gap: 10px 26px; background: var(--paper-3); border-radius:4px; padding: 14px 18px; margin-bottom: 22px; font-size:14px; }
+  .summary-item{ display:flex; align-items:baseline; gap:6px; }
+  .summary-num{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:var(--vermillion); }
+  .summary-num.ok{ color:var(--jade); }
+  .summary-num.neutral{ color:var(--ink-dim); }
+
+  h2.section-title{ font-family:"Noto Serif TC",serif; font-size:19px; letter-spacing:1px; color:var(--ink); margin: 30px 0 12px; padding-bottom:8px; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:10px; }
+  .section-count{ font-size:13px; font-weight:400; color:var(--ink-faint2); }
+
+  /* 結果列表 */
+  .result-table{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .result-head, .result-row{
+    display:grid; grid-template-columns: 1.3fr 1.1fr 0.55fr 2.4fr 1.3fr 0.6fr;
+    gap: 10px; align-items:center; padding: 12px 14px; border-bottom: 1px solid var(--border);
+  }
+  .result-table.unrec .result-head, .result-table.unrec .result-row{
+    grid-template-columns: 1.3fr 3fr 1.4fr 0.6fr;
+  }
+  .result-head{ background: var(--paper-3); font-weight:700; font-size:13px; color:var(--ink-dim); letter-spacing:1px; }
+  .result-row{ font-size:14px; background:var(--paper-2); transition: background .2s, opacity .2s; }
+  .result-row:last-child{ border-bottom:none; }
+  .result-row:hover{ background: var(--paper); }
+  .result-row.checked{ opacity:.5; }
+  .cell-title{ font-weight:700; }
+  .cell-level{ font-family:"Noto Serif TC",serif; font-weight:900; color:var(--gold-deep); }
+  .cell-snippet{ font-size:13px; color:var(--ink-dim); background: rgba(0,0,0,0.03); padding:6px 8px; border-left:2px solid var(--gold); white-space:pre-wrap; line-height:1.6; word-break:break-word; }
+  .cell-verdict{ font-size:12px; }
+  .verdict-detail{ display:block; font-size:11px; color:var(--ink-faint2); margin-top:3px; font-weight:400; }
+  .badge{ display:inline-block; padding:3px 9px; border-radius:3px; font-weight:700; letter-spacing:.5px; }
+  .badge.problem{ background: rgba(156,43,34,0.12); color:var(--vermillion-bright); border:1px solid rgba(156,43,34,0.3); }
+  .badge.unrec{ background: rgba(95,71,15,0.12); color:var(--gold-deep); border:1px solid rgba(95,71,15,0.3); }
+  .badge.ok{ background: rgba(45,90,76,0.12); color:var(--jade); border:1px solid rgba(45,90,76,0.3); }
+  .cell-check{ text-align:center; }
+  .cell-check input{ width:18px; height:18px; margin:0; cursor:pointer; }
+  .empty-msg{ padding: 30px; text-align:center; color:var(--ink-faint2); font-size:14px; }
+
+  @media (max-width: 900px){
+    .result-head{ display:none; }
+    .result-row, .result-table.unrec .result-row{ grid-template-columns: 1fr; gap:4px; padding:14px; }
+    .result-row > div::before{ content: attr(data-label); display:block; font-size:11px; font-weight:700; color:var(--ink-faint2); margin-bottom:2px; }
+    .cell-check{ text-align:left; }
+  }
+
+  @media (max-width: 700px){
+    .wrap{ padding: 22px 14px; }
+    h1{ font-size: 24px; }
+    .login-box{ margin: 60px auto; padding: 30px 22px; }
+    .topbar{ flex-direction: column; align-items: flex-start; }
+    .topbar-actions{ width:100%; justify-content:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap" style="display:none;">
+  <div class="login-box">
+    <h2>管理者登入</h2>
+    <label>帳號 (Email)</label>
+    <input type="email" id="loginEmail" placeholder="name@example.com">
+    <label>密碼 (Password)</label>
+    <input type="password" id="loginPassword">
+    <button class="primary full" id="loginBtn">登入樞紐</button>
+    <div class="error" id="loginError"></div>
+  </div>
+</div>
+
+<div id="appView" class="wrap" style="display:none;">
+  <div class="topbar">
+    <div>
+      <h1>靈氣消耗檢查器</h1>
+      <div class="sub">
+        掃描各章節技能敘述中的靈氣消耗片段，依候率公式（候率倍數 = 10<sup>等級</sup>）驗算是否合理，列出疑似套用錯誤或漏套的條目供人工核對。<br>
+        本工具僅讀取資料，不會寫入或修改任何 Firebase 資料。
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="userinfo" id="userEmail"></div>
+      <button onclick="location.href='admin.html'">← 返回後台</button>
+      <button id="logoutBtn" class="danger">登出</button>
+    </div>
+  </div>
+
+  <div id="mainContainer">
+    <div class="state-msg">載入資料中…</div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
+    authDomain: "twisted-fate-trpg.firebaseapp.com",
+    databaseURL: "https://twisted-fate-trpg-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "twisted-fate-trpg",
+    storageBucket: "twisted-fate-trpg.firebasestorage.app",
+    messagingSenderId: "804781497200",
+    appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app); // 本頁全程只使用 onValue 讀取，絕不呼叫 set/update/remove
+
+  let chapters = {};
+  let modules = {};
+  let chOk = false, modOk = false;
+
+  let selectedChapters = null; // null = 尚未依預設挑選過
+  let showOkRows = false;
+  let onlyUnchecked = false;
+  const manualChecked = new Map(); // rowKey -> boolean，純前端狀態，重新整理頁面即重置
+
+  onAuthStateChanged(auth, user => {
+    if(user){
+      document.getElementById("loginView").style.display = "none";
+      document.getElementById("appView").style.display = "block";
+      document.getElementById("userEmail").textContent = "管理員：" + user.email;
+      initApp();
+    } else {
+      document.getElementById("loginView").style.display = "block";
+      document.getElementById("appView").style.display = "none";
+    }
+  });
+
+  document.getElementById("loginBtn").onclick = () => {
+    signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
+      .catch(() => document.getElementById("loginError").textContent = "登入失敗");
+  };
+  const handleEnterKey = (e) => { if(e.key === "Enter") document.getElementById("loginBtn").click(); };
+  document.getElementById("loginEmail").addEventListener("keypress", handleEnterKey);
+  document.getElementById("loginPassword").addEventListener("keypress", handleEnterKey);
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+  function initApp(){
+    const mainContainer = document.getElementById("mainContainer");
+    const showError = (err) => {
+      mainContainer.innerHTML = '<div class="state-msg error">連線失敗，請重新整理頁面再試。'
+        + (err && err.message ? '<br><span class="state-detail">' + escapeHtml(err.message) + '</span>' : '')
+        + '</div>';
+    };
+    const maybeRender = () => { if(chOk && modOk) renderApp(); };
+    onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chOk = true; maybeRender(); }, showError);
+    onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modOk = true; maybeRender(); }, showError);
+    setTimeout(() => {
+      if(!(chOk && modOk) && mainContainer.querySelector('.state-msg:not(.error)')) {
+        mainContainer.innerHTML = '<div class="state-msg">載入較慢，請確認網路連線…</div>';
+      }
+    }, 10000);
+  }
+
+  function escapeHtml(s){ return (s || "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
+
+  // ========== 候率公式驗算（全部使用 BigInt，避免 10^15 量級的浮點誤差） ==========
+  // 正確公式：候率倍數 = 10 的 N 次方（N 為技能標註等級）；消耗數字應等於「候率倍數 × 合理原始值(1~30)」
+  const RAW_MIN = 1n, RAW_MAX = 30n;
+
+  function classifyValue(valueBigInt, level){
+    const multiplier = 10n ** BigInt(level);
+    const min = multiplier * RAW_MIN;
+    const max = multiplier * RAW_MAX;
+    let status;
+    if(valueBigInt < min) status = "unmultiplied";
+    else if(valueBigInt > max) status = "wrong";
+    else if(valueBigInt % multiplier === 0n) status = "ok";
+    else status = "wrong";
+    return { multiplier, min, max, status, quotient: valueBigInt / multiplier, remainder: valueBigInt % multiplier };
+  }
+
+  // ========== 內容掃描：抓「技能名稱（N級）」標頭 + 「消耗／花費…氣」片段 ==========
+  // 消耗片段兩種寫法統一用同一個正則、依捕獲群組分辨：
+  //   群組 A：以「靈氣消耗／灵气消耗」開頭，後面數字前不需要再出現一次「氣」字
+  //   群組 B：以「消耗／花費」開頭，後面數字後方需要出現「靈氣／氣」字樣才算數
+  // 每個分支底下再分「境界 x N」公式寫法 與 純數字寫法 兩種
+  const CONSUME_RE = new RegExp(
+    "(?:(靈氣消耗|灵气消耗)\\s*[:：]?\\s*(?:境界\\s*[x×X\\*]\\s*(\\d+)|(\\d+))\\s*(?:點|点)?)" +
+    "|(?:(消耗|花費)\\s*[:：]?\\s*(?:境界\\s*[x×X\\*]\\s*(\\d+)|(\\d+))\\s*(?:點|点)?\\s*(?:靈氣|灵气|氣|气))",
+    "g"
+  );
+  const HEADER_RE = /[•●◆\-*]?\s*([^\n（(：:]{1,24}?)[（(]\s*(\d{1,2})\s*[級级]\s*[）)]/g;
+  const BROAD_RE = /(消耗|花費|靈氣消耗|灵气消耗)[^\n]{0,40}?(?:靈氣|灵气|氣|气)/g;
+
+  function extractHeaders(content){
+    const headers = [];
+    HEADER_RE.lastIndex = 0;
+    let m;
+    while((m = HEADER_RE.exec(content))){
+      headers.push({ index: m.index, name: m[1].trim(), level: parseInt(m[2], 10) });
+      if(m.index === HEADER_RE.lastIndex) HEADER_RE.lastIndex++;
+    }
+    return headers;
+  }
+
+  function findOwner(headers, idx){
+    let owner = null;
+    for(let i = 0; i < headers.length; i++){
+      if(headers[i].index <= idx) owner = headers[i]; else break;
+    }
+    return owner;
+  }
+
+  function scanModuleContent(content){
+    const findings = []; // { index, length, snippet, mode, valueStr, owner, kind, reason }
+    const headers = extractHeaders(content);
+    const matchedSpans = [];
+
+    CONSUME_RE.lastIndex = 0;
+    let m;
+    while((m = CONSUME_RE.exec(content))){
+      const snippet = m[0];
+      const idx = m.index;
+      matchedSpans.push([idx, idx + snippet.length]);
+
+      const formulaVal = m[2] || m[5];
+      const plainVal = m[3] || m[6];
+      const mode = formulaVal ? "formula" : "plain";
+      const valueStr = formulaVal || plainVal;
+      const owner = findOwner(headers, idx);
+
+      const finding = { index: idx, snippet, mode, valueStr, owner };
+
+      if(!owner){
+        finding.kind = "unrecognized";
+        finding.reason = "找不到對應的等級標記（技能名稱／N級）";
+      } else if(!(owner.level >= 1 && owner.level <= 15)){
+        finding.kind = "unrecognized";
+        finding.reason = `標註等級（${owner.level}級）超出 1~15 範圍`;
+      } else {
+        const cls = classifyValue(BigInt(valueStr), owner.level);
+        finding.kind = cls.status; // ok | unmultiplied | wrong
+        finding.cls = cls;
+      }
+      findings.push(finding);
+      if(m.index === CONSUME_RE.lastIndex) CONSUME_RE.lastIndex++;
+    }
+
+    // 用寬鬆正則抓出所有「看起來像消耗描述」的片段，扣掉已經被精確正則吃掉的範圍，
+    // 剩下的代表格式抓不到、需要人工檢查的漏網之魚
+    BROAD_RE.lastIndex = 0;
+    while((m = BROAD_RE.exec(content))){
+      const idx = m.index, end = idx + m[0].length;
+      const overlapped = matchedSpans.some(([s, e]) => idx < e && end > s);
+      if(!overlapped){
+        const owner = findOwner(headers, idx);
+        findings.push({
+          index: idx, snippet: m[0], mode: "unknown", valueStr: null, owner,
+          kind: "unrecognized", reason: "片段格式無法用既有正則辨識出消耗數字"
+        });
+      }
+      if(m.index === BROAD_RE.lastIndex) BROAD_RE.lastIndex++;
+    }
+
+    findings.sort((a, b) => a.index - b.index);
+    return findings;
+  }
+
+  function scanAll(chapterIds){
+    const results = [];
+    const chOrder = Object.entries(chapters).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+    const modByChapter = new Map(chOrder.map(([id]) => [id, []]));
+    Object.entries(modules).forEach(([mId, m]) => {
+      if(!chapterIds.has(m.chapterId)) return;
+      if(!modByChapter.has(m.chapterId)) modByChapter.set(m.chapterId, []);
+      modByChapter.get(m.chapterId).push([mId, m]);
+    });
+    chOrder.forEach(([chId, ch]) => {
+      const mods = (modByChapter.get(chId) || []).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+      mods.forEach(([mId, m]) => {
+        const findings = scanModuleContent(m.content || "");
+        findings.forEach(f => {
+          results.push({
+            rowKey: mId + "::" + f.index,
+            chapterName: ch.name || "",
+            moduleTitle: m.title || "(未命名條目)",
+            skillName: f.owner ? f.owner.name : "",
+            level: f.owner ? f.owner.level : null,
+            snippet: f.snippet,
+            mode: f.mode,
+            kind: f.kind,
+            reason: f.reason || "",
+            cls: f.cls || null
+          });
+        });
+      });
+    });
+    return results;
+  }
+
+  // ========== 畫面渲染 ==========
+  function verdictLabel(r){
+    if(r.kind === "unmultiplied") return { badgeClass:"problem", text:"疑似完全未套用候率" };
+    if(r.kind === "wrong") return { badgeClass:"problem", text:"疑似候率套用錯誤" };
+    if(r.kind === "ok") return { badgeClass:"ok", text:"判定正常" };
+    return { badgeClass:"unrec", text:"無法自動判讀" };
+  }
+
+  function verdictDetail(r){
+    if(!r.cls) return "";
+    const raw = r.cls.remainder === 0n ? String(r.cls.quotient) : `≈${r.cls.quotient} 餘 ${r.cls.remainder}`;
+    return `候率倍數 10^${r.level} = ${r.cls.multiplier.toString()}；合理範圍 ${r.cls.min.toString()} ~ ${r.cls.max.toString()}；換算原始值 ${raw}`;
+  }
+
+  function renderChapterFilter(container){
+    const chOrder = Object.entries(chapters).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+    if(selectedChapters === null){
+      // 首次載入預設勾選章節名稱含「道途」或「職業」的章節（對應目前想優先核對的 c3/c4）；找不到則預設全選
+      selectedChapters = new Set(chOrder.filter(([id, ch]) => /道途|職業/.test(ch.name || "")).map(([id]) => id));
+      if(selectedChapters.size === 0) selectedChapters = new Set(chOrder.map(([id]) => id));
+    }
+    const pills = chOrder.map(([chId, ch]) => {
+      const checked = selectedChapters.has(chId);
+      return `<label class="chapter-pill${checked ? ' checked' : ''}">
+        <input type="checkbox" data-ch="${chId}" ${checked ? 'checked' : ''}> ${escapeHtml(ch.name || chId)}
+      </label>`;
+    }).join("");
+
+    const panel = document.createElement("div");
+    panel.className = "filter-panel";
+    panel.innerHTML = `
+      <div class="filter-row">
+        <span class="filter-label">掃描章節：</span>
+        ${pills || '<span style="color:var(--ink-faint2);font-size:13px;">目前沒有任何章節</span>'}
+      </div>
+      <div class="filter-row toggle-row">
+        <label><input type="checkbox" id="toggle-showok" ${showOkRows ? 'checked' : ''}> 顯示已判定正常的項目</label>
+        <label><input type="checkbox" id="toggle-onlyunchecked" ${onlyUnchecked ? 'checked' : ''}> 只顯示尚未人工核對</label>
+      </div>
+    `;
+    container.appendChild(panel);
+
+    panel.querySelectorAll('.chapter-pill input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener("change", () => {
+        const chId = cb.getAttribute("data-ch");
+        if(cb.checked) selectedChapters.add(chId); else selectedChapters.delete(chId);
+        renderApp();
+      });
+    });
+    panel.querySelector("#toggle-showok").addEventListener("change", (e) => { showOkRows = e.target.checked; renderApp(); });
+    panel.querySelector("#toggle-onlyunchecked").addEventListener("change", (e) => { onlyUnchecked = e.target.checked; renderApp(); });
+  }
+
+  function buildRow(r, columns){
+    const checked = manualChecked.get(r.rowKey) || false;
+    if(onlyUnchecked && checked) return null;
+
+    const row = document.createElement("div");
+    row.className = "result-row" + (checked ? " checked" : "");
+
+    if(columns === "found"){
+      const v = verdictLabel(r);
+      const detail = verdictDetail(r);
+      row.innerHTML = `
+        <div data-label="模組標題">${escapeHtml(r.moduleTitle)}</div>
+        <div data-label="技能名稱" class="cell-title">${escapeHtml(r.skillName) || '<span style="color:var(--ink-faint2);">（未知）</span>'}</div>
+        <div data-label="標註等級" class="cell-level">${r.level != null ? r.level + '級' : '—'}</div>
+        <div data-label="原始片段" class="cell-snippet">${escapeHtml(r.snippet)}</div>
+        <div data-label="判定" class="cell-verdict"><span class="badge ${v.badgeClass}">${v.text}</span>${detail ? `<span class="verdict-detail">${escapeHtml(detail)}</span>` : ''}</div>
+        <div data-label="已人工核對" class="cell-check"><input type="checkbox" data-rowkey="${r.rowKey}" ${checked ? 'checked' : ''}></div>
+      `;
+    } else {
+      row.innerHTML = `
+        <div data-label="模組標題">${escapeHtml(r.moduleTitle)}</div>
+        <div data-label="原始片段" class="cell-snippet">${escapeHtml(r.snippet)}</div>
+        <div data-label="原因" class="cell-verdict">${escapeHtml(r.reason)}${r.skillName ? `<span class="verdict-detail">鄰近技能：${escapeHtml(r.skillName)}${r.level != null ? '（' + r.level + '級）' : ''}</span>` : ''}</div>
+        <div data-label="已人工核對" class="cell-check"><input type="checkbox" data-rowkey="${r.rowKey}" ${checked ? 'checked' : ''}></div>
+      `;
+    }
+    row.querySelector('input[type="checkbox"]').addEventListener("change", (e) => {
+      manualChecked.set(r.rowKey, e.target.checked);
+      row.classList.toggle("checked", e.target.checked);
+    });
+    return row;
+  }
+
+  function renderResultTable(container, title, rows, columns, emptyText){
+    const section = document.createElement("div");
+    const visibleCount = rows.filter(r => !(onlyUnchecked && manualChecked.get(r.rowKey))).length;
+    section.innerHTML = `<h2 class="section-title">${title} <span class="section-count">(${visibleCount} 筆)</span></h2>`;
+    const table = document.createElement("div");
+    table.className = "result-table" + (columns === "unrec" ? " unrec" : "");
+
+    if(columns === "found"){
+      table.innerHTML = `<div class="result-head">
+        <div>模組標題</div><div>技能名稱</div><div>標註等級</div><div>原始消耗片段</div><div>系統判定</div><div>核對</div>
+      </div>`;
+    } else {
+      table.innerHTML = `<div class="result-head"><div>模組標題</div><div>原始片段</div><div>原因</div><div>核對</div></div>`;
+    }
+
+    let any = false;
+    rows.forEach(r => {
+      const row = buildRow(r, columns);
+      if(row){ table.appendChild(row); any = true; }
+    });
+    if(!any){
+      const empty = document.createElement("div");
+      empty.className = "empty-msg";
+      empty.textContent = emptyText;
+      table.appendChild(empty);
+    }
+    section.appendChild(table);
+    container.appendChild(section);
+  }
+
+  function renderApp(){
+    const container = document.getElementById("mainContainer");
+    container.innerHTML = "";
+
+    renderChapterFilter(container);
+
+    if(!selectedChapters || selectedChapters.size === 0){
+      container.innerHTML += '<div class="state-msg">請至少勾選一個章節以開始掃描。</div>';
+      return;
+    }
+
+    const all = scanAll(selectedChapters);
+    const problems = all.filter(r => r.kind === "unmultiplied" || r.kind === "wrong");
+    const unrecognized = all.filter(r => r.kind === "unrecognized");
+    const okRows = all.filter(r => r.kind === "ok");
+
+    const summary = document.createElement("div");
+    summary.className = "summary-bar";
+    summary.innerHTML = `
+      <div class="summary-item"><span class="summary-num neutral">${all.length}</span> 筆消耗片段（掃描到）</div>
+      <div class="summary-item"><span class="summary-num">${problems.length}</span> 筆疑似候率有誤</div>
+      <div class="summary-item"><span class="summary-num">${unrecognized.length}</span> 筆無法自動判讀</div>
+      <div class="summary-item"><span class="summary-num ok">${okRows.length}</span> 筆判定正常</div>
+    `;
+    container.appendChild(summary);
+
+    renderResultTable(container, "疑似候率有問題", problems, "found", "目前勾選的章節中沒有找到疑似候率錯誤的項目。");
+    renderResultTable(container, "無法自動判讀，需人工檢查", unrecognized, "unrec", "沒有無法辨識的片段。");
+    if(showOkRows){
+      renderResultTable(container, "判定正常", okRows, "found", "沒有判定正常的項目。");
+    }
+  }
+</script>
+</body>
+</html>
