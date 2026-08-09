@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中英比對小幫手．逆命後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper: #F2E9D6; --paper-2: #EBDFC5; --paper-3: #E0D0A9;
+    --ink: #1D1712; --ink-dim: #453A2A; --ink-faint2: #6E5F45;
+    --vermillion: #9C2B22; --vermillion-bright: #B5372B;
+    --gold: #8C6B27; --gold-deep: #5F470F;
+    --jade: #2D5A4C;
+    --border: rgba(95, 71, 15, 0.25);
+    --danger: #9C2B22;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family: "LXGW WenKai TC", serif; min-height:100vh; position: relative; padding-bottom: 100px; }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.5; mix-blend-mode:multiply;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; padding:40px 30px; }
+  h1{ font-family:"Noto Serif TC",serif; font-size:32px; letter-spacing:3px; color:var(--ink); margin:0 0 6px; font-weight:900;}
+  .sub{ color:var(--ink-faint2); font-size:14px; margin:0 0 28px; letter-spacing: 1px; line-height:1.8; }
+
+  .login-box{ max-width:380px; margin:120px auto; background:var(--paper-2); border:1px solid var(--border); padding:40px 35px; border-radius:2px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .login-box h2{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); margin:0 0 25px; text-align:center; letter-spacing:2px;}
+  label{ display:block; font-size:14px; font-weight:700; color:var(--ink-dim); margin:16px 0 8px; letter-spacing:1px;}
+  input, textarea, select{
+    width:100%; background:var(--paper); border:1px solid var(--border); color:var(--ink);
+    padding:12px 14px; font-size:15px; font-family:"LXGW WenKai TC",serif; border-radius:2px; outline:none; transition: border-color 0.3s;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:var(--gold); box-shadow: 0 0 8px rgba(140, 107, 39, 0.2);}
+  textarea{ resize:vertical; line-height:1.7; }
+
+  button{
+    font-family:"Noto Serif TC",serif; font-size:14px; font-weight:900; letter-spacing: 2px;
+    padding:8px 16px; border-radius:2px; cursor:pointer; border:1px solid var(--border);
+    background:var(--paper-3); color:var(--ink); transition:all .2s;
+  }
+  button:hover{ background: var(--gold); border-color:var(--gold); color:#fff; }
+  button.primary{ background:var(--vermillion); border-color:var(--vermillion); color:#F5E9DD; }
+  button.primary:hover{ background:var(--vermillion-bright); border-color:var(--vermillion-bright);}
+  button.danger{ color:var(--danger); background: transparent; border-color: transparent;}
+  button:disabled{ opacity:.5; cursor:not-allowed; }
+  .full { display: block; width: 100%; margin-top: 25px; padding: 12px 0; text-align: center; }
+  .error { color: var(--danger); font-size: 14px; margin-top: 12px; min-height: 16px; text-align: center; font-weight: bold; }
+
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px; border-bottom: 2px solid var(--gold); padding-bottom: 20px; flex-wrap:wrap; gap:14px;}
+  .topbar-actions{ display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
+  .userinfo{ font-size:13px; color:var(--ink-faint2); margin-right:6px; }
+
+  .panel{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; padding: 18px 20px; margin-bottom: 22px; }
+  .panel-title{ font-weight:700; color:var(--ink-dim); margin-bottom:12px; letter-spacing:1px; font-family:"Noto Serif TC",serif; font-size:16px; }
+  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center; }
+
+  .preview-cols{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+  .preview-box{ background: var(--paper); border: 1px dashed var(--border); border-radius: 4px; padding: 12px 14px; font-size:13px; line-height:1.8; white-space:pre-wrap; max-height: 320px; overflow-y:auto; }
+  .preview-box.missing{ color: var(--ink-faint2); font-style: italic; display:flex; align-items:center; justify-content:center; text-align:center; }
+  .preview-label{ font-size:12px; font-weight:700; color:var(--ink-faint2); letter-spacing:1px; margin-bottom:6px; }
+
+  #promptOutput{ min-height: 260px; font-family: ui-monospace, monospace; font-size:12.5px; white-space:pre-wrap; }
+  .copy-feedback{ font-size:13px; color: var(--jade); font-weight:700; opacity:0; transition: opacity .3s; }
+  .copy-feedback.show{ opacity:1; }
+
+  #jsonReplyInput{ min-height: 160px; font-family: ui-monospace, monospace; font-size:13px; }
+
+  .summary-bar{ display:flex; flex-wrap:wrap; gap: 10px 26px; background: var(--paper-3); border-radius:4px; padding: 12px 16px; margin-bottom: 16px; font-size:14px; }
+  .summary-item{ display:flex; align-items:baseline; gap:6px; }
+  .summary-num{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:17px; }
+
+  .result-table{ background: var(--paper-2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .result-head, .result-row{
+    display:grid; grid-template-columns: 0.55fr 1.6fr 1.5fr 1.5fr 1.5fr 0.5fr;
+    gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); font-size:13.5px;
+  }
+  .result-head{ background: var(--paper-3); font-weight:700; font-size:12.5px; color:var(--ink-dim); letter-spacing:1px; align-items:center; }
+  .result-row{ background:var(--paper-2); transition: background .2s, opacity .2s; }
+  .result-row:last-child{ border-bottom:none; }
+  .result-row:hover{ background: var(--paper); }
+  .result-row.checked{ opacity:.5; }
+  .cell-evidence{ background: rgba(0,0,0,0.03); padding:6px 8px; border-left:2px solid var(--gold); white-space:pre-wrap; word-break:break-word; line-height:1.6; }
+  .cell-check{ text-align:center; }
+  .cell-check input{ width:18px; height:18px; margin:0; cursor:pointer; }
+  .badge{ display:inline-block; padding:3px 9px; border-radius:3px; font-weight:700; font-size:12px; letter-spacing:.5px; }
+  .badge.high{ background: rgba(156,43,34,0.15); color:var(--vermillion-bright); border:1px solid rgba(156,43,34,0.35); }
+  .badge.medium{ background: rgba(140,107,39,0.15); color:var(--gold-deep); border:1px solid rgba(140,107,39,0.35); }
+  .badge.low{ background: rgba(69,58,42,0.1); color:var(--ink-dim); border:1px solid rgba(69,58,42,0.3); }
+  .empty-msg{ padding: 30px; text-align:center; color:var(--ink-faint2); font-size:14px; }
+
+  @media (max-width: 900px){
+    .preview-cols{ grid-template-columns: 1fr; }
+    .result-head{ display:none; }
+    .result-row{ grid-template-columns: 1fr; gap:6px; }
+    .result-row > div::before{ content: attr(data-label); display:block; font-size:11px; font-weight:700; color:var(--ink-faint2); margin-bottom:2px; }
+    .cell-check{ text-align:left; }
+  }
+  @media (max-width: 700px){
+    .wrap{ padding: 22px 14px; }
+    h1{ font-size: 22px; }
+    .login-box{ margin: 60px auto; padding: 30px 22px; }
+    .topbar{ flex-direction: column; align-items: flex-start; }
+    .topbar-actions{ width:100%; justify-content:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap" style="display:none;">
+  <div class="login-box">
+    <h2>管理者登入</h2>
+    <label>帳號 (Email)</label>
+    <input type="email" id="loginEmail" placeholder="name@example.com">
+    <label>密碼 (Password)</label>
+    <input type="password" id="loginPassword">
+    <button class="primary full" id="loginBtn">登入樞紐</button>
+    <div class="error" id="loginError"></div>
+  </div>
+</div>
+
+<div id="appView" class="wrap" style="display:none;">
+  <div class="topbar">
+    <div>
+      <h1>中英比對小幫手</h1>
+      <div class="sub">
+        組出中英對照的比對文字，手動貼到 Claude.ai 網頁版問，再把回覆的 JSON 貼回這裡解析成表格。<br>
+        全程零 API 金鑰、零費用；本頁只讀取 Firebase 的 modules／en_reference，不會寫入任何資料。
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="userinfo" id="userEmail"></div>
+      <button onclick="location.href='admin.html'">← 返回後台</button>
+      <button id="logoutBtn" class="danger">登出</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">1. 選擇要比對的條目</div>
+    <label>模組</label>
+    <select id="moduleSelect"><option value="">請選擇…</option></select>
+
+    <div class="preview-cols">
+      <div>
+        <div class="preview-label">中文譯文（modules.content）</div>
+        <div class="preview-box" id="zhPreview"></div>
+      </div>
+      <div>
+        <div class="preview-label">英文原文（en_reference.en_content）</div>
+        <div class="preview-box" id="enPreview"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="primary" id="btnGenerate" disabled>產生比對文字</button>
+    </div>
+  </div>
+
+  <div class="panel" id="promptPanel" style="display:none;">
+    <div class="panel-title">2. 複製比對文字，貼到 Claude.ai 網頁版</div>
+    <textarea id="promptOutput" readonly></textarea>
+    <div class="btn-row">
+      <button id="btnCopy">一鍵複製</button>
+      <span class="copy-feedback" id="copyFeedback">已複製！</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">3. 貼上 AI 回覆的 JSON</div>
+    <textarea id="jsonReplyInput" placeholder='[{"severity":"high","issue":"...","en_evidence":"...","zh_evidence":"...","suggestion":"..."}]'></textarea>
+    <div class="btn-row">
+      <button class="primary" id="btnParseReply">解析</button>
+    </div>
+    <div class="error" id="replyError"></div>
+  </div>
+
+  <div id="resultContainer"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
+    authDomain: "twisted-fate-trpg.firebaseapp.com",
+    databaseURL: "https://twisted-fate-trpg-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "twisted-fate-trpg",
+    storageBucket: "twisted-fate-trpg.firebasestorage.app",
+    messagingSenderId: "804781497200",
+    appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app); // 本頁全程只使用 onValue 讀取，絕不呼叫 set/update/remove
+
+  let chapters = {};
+  let modules = {};
+  let enReference = {};
+  let chOk = false, modOk = false, enOk = false;
+  const manualChecked = new Map(); // 純前端狀態：AI 回覆表格每列的「已核對」勾選
+
+  onAuthStateChanged(auth, user => {
+    if(user){
+      document.getElementById("loginView").style.display = "none";
+      document.getElementById("appView").style.display = "block";
+      document.getElementById("userEmail").textContent = "管理員：" + user.email;
+      onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chOk = true; maybeBuildSelect(); }, () => {});
+      onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modOk = true; maybeBuildSelect(); }, () => {});
+      onValue(ref(db, "en_reference"), snap => { enReference = snap.val() || {}; enOk = true; maybeBuildSelect(); }, () => {});
+    } else {
+      document.getElementById("loginView").style.display = "block";
+      document.getElementById("appView").style.display = "none";
+    }
+  });
+
+  document.getElementById("loginBtn").onclick = () => {
+    signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value)
+      .catch(() => document.getElementById("loginError").textContent = "登入失敗");
+  };
+  const handleEnterKey = (e) => { if(e.key === "Enter") document.getElementById("loginBtn").click(); };
+  document.getElementById("loginEmail").addEventListener("keypress", handleEnterKey);
+  document.getElementById("loginPassword").addEventListener("keypress", handleEnterKey);
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+  function escapeHtml(s){ return (s || "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
+
+  let selectBuilt = false;
+  function maybeBuildSelect(){
+    if(!(chOk && modOk && enOk) || selectBuilt) return;
+    selectBuilt = true;
+    const select = document.getElementById("moduleSelect");
+    const chOrder = Object.entries(chapters).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+    chOrder.forEach(([chId, ch]) => {
+      const mods = Object.entries(modules)
+        .filter(([id, m]) => m.chapterId === chId)
+        .sort((a,b) => (a[1].order||0) - (b[1].order||0));
+      if(mods.length === 0) return;
+      const group = document.createElement("optgroup");
+      group.label = ch.name || chId;
+      mods.forEach(([mId, m]) => {
+        const opt = document.createElement("option");
+        opt.value = mId;
+        opt.textContent = (m.title || "(未命名條目)") + (enReference[mId] ? "" : "（尚無英文對照）");
+        group.appendChild(opt);
+      });
+      select.appendChild(group);
+    });
+  }
+
+  let currentModule = null;
+
+  document.getElementById("moduleSelect").addEventListener("change", (e) => {
+    const mId = e.target.value;
+    const zhBox = document.getElementById("zhPreview");
+    const enBox = document.getElementById("enPreview");
+    const genBtn = document.getElementById("btnGenerate");
+    document.getElementById("promptPanel").style.display = "none";
+
+    if(!mId){
+      currentModule = null;
+      zhBox.textContent = ""; enBox.textContent = "";
+      genBtn.disabled = true;
+      return;
+    }
+
+    const m = modules[mId];
+    const enEntry = enReference[mId];
+    currentModule = { id: mId, title: m.title || "", content: m.content || "", enContent: enEntry ? enEntry.en_content : null };
+
+    zhBox.classList.remove("missing");
+    zhBox.textContent = currentModule.content || "（此條目沒有內容）";
+
+    if(currentModule.enContent){
+      enBox.classList.remove("missing");
+      enBox.textContent = currentModule.enContent;
+      genBtn.disabled = false;
+    } else {
+      enBox.classList.add("missing");
+      enBox.textContent = "此模組尚無英文對照資料";
+      genBtn.disabled = true;
+    }
+  });
+
+  const PROMPT_TEMPLATE = `你是一個TRPG規則書中英對照校對助手。你的任務是比對「英文原文規則」與「中文譯文規則」，只找出**會實際影響遊戲機制/規則判定**的落差，包括：
+
+1. 數值錯誤（如骰子數、加值、DC、消耗量、距離、時間等任何數字跟原文不符）
+2. 規則條件被遺漏或增加
+3. 效果被誤譯導致機制改變
+4. 整段能力/規則被完全遺漏
+5. 明顯不合理的數值（疑似打字錯誤）
+
+不要回報純文筆、語氣、敘事風格差異，中文本來就是改寫過的，不是逐句翻譯。只要規則機制/數值/條件實質正確，用詞不同不算問題。
+
+請以JSON陣列格式回覆，每個問題一個物件，包含：severity（high/medium/low）、issue（問題描述）、en_evidence（英文原文相關字句）、zh_evidence（中文對應字句）、suggestion（建議）。
+如果沒有問題，回覆空陣列 []。只輸出JSON，不要有其他文字。
+
+【模組名稱】：{title}
+
+【英文原文】
+{en_content}
+
+【中文譯文】
+{content}`;
+
+  document.getElementById("btnGenerate").onclick = () => {
+    if(!currentModule || !currentModule.enContent) return;
+    // 用 split/join 而非 String.replace，避免內容中若含有 "$&" "$1" 等字元被當成特殊取代語法誤解讀
+    const prompt = PROMPT_TEMPLATE
+      .split("{title}").join(currentModule.title)
+      .split("{en_content}").join(currentModule.enContent)
+      .split("{content}").join(currentModule.content);
+    document.getElementById("promptOutput").value = prompt;
+    document.getElementById("promptPanel").style.display = "block";
+    document.getElementById("promptPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
+
+  document.getElementById("btnCopy").onclick = async () => {
+    const text = document.getElementById("promptOutput").value;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch(e) {
+      // 舊瀏覽器/非安全環境下 clipboard API 可能不可用，退回選取文字讓使用者手動複製
+      const ta = document.getElementById("promptOutput");
+      ta.select();
+      document.execCommand("copy");
+    }
+    const fb = document.getElementById("copyFeedback");
+    fb.classList.add("show");
+    setTimeout(() => fb.classList.remove("show"), 1800);
+  };
+
+  function stripCodeFence(text){
+    const trimmed = text.trim();
+    const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+    return fenceMatch ? fenceMatch[1] : trimmed;
+  }
+
+  let parsedIssues = [];
+
+  document.getElementById("btnParseReply").onclick = () => {
+    const errEl = document.getElementById("replyError");
+    errEl.textContent = "";
+    const raw = document.getElementById("jsonReplyInput").value;
+    if(!raw.trim()){ errEl.textContent = "請先貼上 AI 回覆的內容"; return; }
+
+    let data;
+    try {
+      data = JSON.parse(stripCodeFence(raw));
+    } catch(e) {
+      errEl.textContent = "JSON 解析失敗，請確認貼上的內容是純 JSON（可以包含 ```json 圍籬）：" + e.message;
+      return;
+    }
+    if(!Array.isArray(data)){
+      errEl.textContent = "格式錯誤：預期是一個 JSON 陣列（例如 [] 或 [{...}, {...}]）";
+      return;
+    }
+
+    manualChecked.clear();
+    parsedIssues = data.map(item => ({
+      severity: (item && item.severity) ? String(item.severity).toLowerCase() : "low",
+      issue: item && item.issue ? String(item.issue) : "",
+      en_evidence: item && item.en_evidence ? String(item.en_evidence) : "",
+      zh_evidence: item && item.zh_evidence ? String(item.zh_evidence) : "",
+      suggestion: item && item.suggestion ? String(item.suggestion) : "",
+    }));
+
+    renderResults();
+  };
+
+  function renderResults(){
+    const container = document.getElementById("resultContainer");
+    container.innerHTML = "";
+
+    if(parsedIssues.length === 0){
+      container.innerHTML = '<div class="panel"><div class="empty-msg">目前解析結果沒有任何問題（空陣列），或尚未解析過。</div></div>';
+      return;
+    }
+
+    const counts = { high: 0, medium: 0, low: 0 };
+    parsedIssues.forEach(i => { if(counts[i.severity] != null) counts[i.severity]++; });
+
+    const summary = document.createElement("div");
+    summary.className = "summary-bar";
+    summary.innerHTML = `
+      <div class="summary-item"><span class="summary-num" style="color:var(--vermillion-bright);">${counts.high}</span> 高</div>
+      <div class="summary-item"><span class="summary-num" style="color:var(--gold-deep);">${counts.medium}</span> 中</div>
+      <div class="summary-item"><span class="summary-num" style="color:var(--ink-dim);">${counts.low}</span> 低</div>
+      <div class="summary-item"><span class="summary-num">${parsedIssues.length}</span> 共計</div>
+    `;
+    container.appendChild(summary);
+
+    const table = document.createElement("div");
+    table.className = "result-table";
+    table.innerHTML = `<div class="result-head">
+      <div>嚴重度</div><div>問題描述</div><div>英文原文</div><div>中文譯文</div><div>建議</div><div>核對</div>
+    </div>`;
+
+    parsedIssues.forEach((issue, idx) => {
+      const checked = manualChecked.get(idx) || false;
+      const row = document.createElement("div");
+      row.className = "result-row" + (checked ? " checked" : "");
+      const sevClass = ["high","medium","low"].includes(issue.severity) ? issue.severity : "low";
+      const sevLabel = { high: "高", medium: "中", low: "低" }[sevClass];
+      row.innerHTML = `
+        <div data-label="嚴重度"><span class="badge ${sevClass}">${sevLabel}</span></div>
+        <div data-label="問題描述">${escapeHtml(issue.issue) || '—'}</div>
+        <div data-label="英文原文" class="cell-evidence">${escapeHtml(issue.en_evidence) || '—'}</div>
+        <div data-label="中文譯文" class="cell-evidence">${escapeHtml(issue.zh_evidence) || '—'}</div>
+        <div data-label="建議">${escapeHtml(issue.suggestion) || '—'}</div>
+        <div data-label="已核對" class="cell-check"><input type="checkbox" ${checked ? 'checked' : ''}></div>
+      `;
+      row.querySelector('input[type="checkbox"]').addEventListener("change", (e) => {
+        manualChecked.set(idx, e.target.checked);
+        row.classList.toggle("checked", e.target.checked);
+      });
+      table.appendChild(row);
+    });
+
+    container.appendChild(table);
+  }
+</script>
+</body>
+</html>
