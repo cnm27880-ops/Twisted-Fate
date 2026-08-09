@@ -97,6 +97,9 @@
   .result-table.unrec .result-head, .result-table.unrec .result-row{
     grid-template-columns: 1.3fr 3fr 1.4fr 0.6fr;
   }
+  .result-table.problem .result-head, .result-table.problem .result-row{
+    grid-template-columns: 1.1fr 0.9fr 0.45fr 1.7fr 1fr 0.85fr 0.7fr 0.5fr;
+  }
   .result-head{ background: var(--paper-3); font-weight:700; font-size:13px; color:var(--ink-dim); letter-spacing:1px; }
   .result-row{ font-size:14px; background:var(--paper-2); transition: background .2s, opacity .2s; }
   .result-row:last-child{ border-bottom:none; }
@@ -113,13 +116,20 @@
   .badge.ok{ background: rgba(45,90,76,0.12); color:var(--jade); border:1px solid rgba(45,90,76,0.3); }
   .cell-check{ text-align:center; }
   .cell-check input{ width:18px; height:18px; margin:0; cursor:pointer; }
+  .cell-fix input{ width:100%; font-size:13px; padding:6px 8px; text-align:right; font-family:ui-monospace,monospace; }
+  .cell-fix-btn button{ font-size:12px; padding:6px 8px; letter-spacing:0; width:100%; }
+  .fix-status{ display:block; font-size:11px; margin-top:4px; font-weight:700; }
+  .fix-status.success{ color:var(--jade); }
+  .fix-status.fail{ color:var(--danger); }
   .empty-msg{ padding: 30px; text-align:center; color:var(--ink-faint2); font-size:14px; }
+  .warn-box{ background: rgba(156,43,34,0.08); border:1px solid rgba(156,43,34,0.3); color:var(--vermillion-bright); font-size:13px; font-weight:700; border-radius:4px; padding:12px 16px; margin-bottom:20px; line-height:1.8; }
 
   @media (max-width: 900px){
     .result-head{ display:none; }
-    .result-row, .result-table.unrec .result-row{ grid-template-columns: 1fr; gap:4px; padding:14px; }
+    .result-row, .result-table.unrec .result-row, .result-table.problem .result-row{ grid-template-columns: 1fr; gap:4px; padding:14px; }
     .result-row > div::before{ content: attr(data-label); display:block; font-size:11px; font-weight:700; color:var(--ink-faint2); margin-bottom:2px; }
     .cell-check{ text-align:left; }
+    .cell-fix input{ text-align:left; }
   }
 
   @media (max-width: 700px){
@@ -150,8 +160,7 @@
     <div>
       <h1>靈氣消耗檢查器</h1>
       <div class="sub">
-        掃描各章節技能敘述中的靈氣消耗片段，依候率公式（候率倍數 = 10<sup>等級</sup>）驗算是否合理，列出疑似套用錯誤或漏套的條目供人工核對。<br>
-        本工具僅讀取資料，不會寫入或修改任何 Firebase 資料。
+        掃描各章節技能敘述中的靈氣消耗片段，依候率公式（候率倍數 = 10<sup>等級</sup>）驗算是否合理，列出疑似套用錯誤或漏套的條目供人工核對，並提供建議修正值可一鍵套用。
       </div>
     </div>
     <div class="topbar-actions">
@@ -159,6 +168,11 @@
       <button onclick="location.href='admin.html'">← 返回後台</button>
       <button id="logoutBtn" class="danger">登出</button>
     </div>
+  </div>
+
+  <div class="warn-box">
+    掃描本身只讀取資料。只有在「疑似候率有問題」清單裡按下「套用修正」時才會寫入 Firebase，且只會覆寫該筆 <code>modules/&lt;id&gt;/content</code> 裡對應的那個數字（不動其他文字或欄位）。<br>
+    套用前會先重新比對內容是否被更動過，套用後也會記一筆修改日誌，可從後台「修改日誌」還原。建議修正值都可以在套用前自行改成你認為正確的數字。
   </div>
 
   <div id="mainContainer">
@@ -169,7 +183,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -182,7 +196,10 @@
   };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = getDatabase(app); // 本頁全程只使用 onValue 讀取，絕不呼叫 set/update/remove
+  const db = getDatabase(app);
+  // 本頁預設只用 onValue 讀取；只有使用者主動按下「套用修正」時才會呼叫 set()，
+  // 而且只會覆寫「modules/<id>/content」這個欄位（用比對過的精確字元範圍替換數字），
+  // 絕不會動到 chapters／isDraft／title 等其他欄位或其他 collection，且每次都會寫一筆修改日誌供後台還原。
 
   let chapters = {};
   let modules = {};
@@ -249,15 +266,32 @@
     return { multiplier, min, max, status, quotient: valueBigInt / multiplier, remainder: valueBigInt % multiplier };
   }
 
+  // 依判定結果推算「建議修正值」，只是給人工核對用的起始猜測，套用前使用者仍可在欄位裡手動改掉
+  //   unmultiplied：多半是漏乘，原始值大概率就是目前寫的這個數字本身
+  //   wrong：數字量級大致對，但不是候率倍數的整數倍，取四捨五入後最接近的整數倍
+  function computeSuggestion(valueBigInt, cls){
+    if(cls.status !== "unmultiplied" && cls.status !== "wrong") return null;
+    let raw;
+    if(cls.status === "unmultiplied"){
+      raw = valueBigInt;
+    } else {
+      raw = (cls.remainder * 2n >= cls.multiplier) ? cls.quotient + 1n : cls.quotient;
+    }
+    if(raw < 1n) raw = 1n;
+    return { raw, value: raw * cls.multiplier };
+  }
+
   // ========== 內容掃描：抓「技能名稱（N級）」標頭 + 「消耗／花費…氣」片段 ==========
   // 消耗片段兩種寫法統一用同一個正則、依捕獲群組分辨：
   //   群組 A：以「靈氣消耗／灵气消耗」開頭，後面數字前不需要再出現一次「氣」字
   //   群組 B：以「消耗／花費」開頭，後面數字後方需要出現「靈氣／氣」字樣才算數
   // 每個分支底下再分「境界 x N」公式寫法 與 純數字寫法 兩種
+  // 加上 "d" flag 取得每個捕獲群組在原字串中的精確字元範圍（match.indices），
+  // 之後套用修正時才能只覆寫數字本身、不動到前後文字
   const CONSUME_RE = new RegExp(
     "(?:(靈氣消耗|灵气消耗)\\s*[:：]?\\s*(?:境界\\s*[x×X\\*]\\s*(\\d+)|(\\d+))\\s*(?:點|点)?)" +
     "|(?:(消耗|花費)\\s*[:：]?\\s*(?:境界\\s*[x×X\\*]\\s*(\\d+)|(\\d+))\\s*(?:點|点)?\\s*(?:靈氣|灵气|氣|气))",
-    "g"
+    "gd"
   );
   const HEADER_RE = /[•●◆\-*]?\s*([^\n（(：:]{1,24}?)[（(]\s*(\d{1,2})\s*[級级]\s*[）)]/g;
   const BROAD_RE = /(消耗|花費|靈氣消耗|灵气消耗)[^\n]{0,40}?(?:靈氣|灵气|氣|气)/g;
@@ -297,9 +331,10 @@
       const plainVal = m[3] || m[6];
       const mode = formulaVal ? "formula" : "plain";
       const valueStr = formulaVal || plainVal;
+      const numRange = m.indices[2] || m.indices[3] || m.indices[5] || m.indices[6];
       const owner = findOwner(headers, idx);
 
-      const finding = { index: idx, snippet, mode, valueStr, owner };
+      const finding = { index: idx, snippet, mode, valueStr, numRange, owner };
 
       if(!owner){
         finding.kind = "unrecognized";
@@ -308,9 +343,11 @@
         finding.kind = "unrecognized";
         finding.reason = `標註等級（${owner.level}級）超出 1~15 範圍`;
       } else {
-        const cls = classifyValue(BigInt(valueStr), owner.level);
+        const valueBig = BigInt(valueStr);
+        const cls = classifyValue(valueBig, owner.level);
         finding.kind = cls.status; // ok | unmultiplied | wrong
         finding.cls = cls;
+        finding.suggestion = computeSuggestion(valueBig, cls);
       }
       findings.push(finding);
       if(m.index === CONSUME_RE.lastIndex) CONSUME_RE.lastIndex++;
@@ -352,15 +389,19 @@
         findings.forEach(f => {
           results.push({
             rowKey: mId + "::" + f.index,
+            moduleId: mId,
             chapterName: ch.name || "",
             moduleTitle: m.title || "(未命名條目)",
             skillName: f.owner ? f.owner.name : "",
             level: f.owner ? f.owner.level : null,
             snippet: f.snippet,
+            valueStr: f.valueStr,
+            numRange: f.numRange || null,
             mode: f.mode,
             kind: f.kind,
             reason: f.reason || "",
-            cls: f.cls || null
+            cls: f.cls || null,
+            suggestion: f.suggestion || null
           });
         });
       });
@@ -421,6 +462,59 @@
     panel.querySelector("#toggle-onlyunchecked").addEventListener("change", (e) => { onlyUnchecked = e.target.checked; renderApp(); });
   }
 
+  // 套用建議修正：只覆寫 modules/<id>/content 裡對應的數字字元範圍，套用前重新核對該範圍內容沒有被更動過
+  async function applyFix(r, newValueStr, statusEl, applyBtn, inputEl){
+    if(!/^\d+$/.test(newValueStr)){
+      statusEl.textContent = "修正值必須是正整數";
+      statusEl.className = "fix-status fail";
+      return;
+    }
+    const mod = modules[r.moduleId];
+    if(!mod){
+      statusEl.textContent = "找不到此模組（可能已被刪除或搬移），請重新整理頁面";
+      statusEl.className = "fix-status fail";
+      return;
+    }
+    const content = mod.content || "";
+    const [start, end] = r.numRange;
+    if(content.slice(start, end) !== r.valueStr){
+      statusEl.textContent = "此片段自掃描後內容已變動，為安全起見未套用，請重新整理頁面後再試";
+      statusEl.className = "fix-status fail";
+      return;
+    }
+    if(!confirm(`確定要把「${r.moduleTitle}」${r.skillName ? '「' + r.skillName + '」' : ''}的消耗數字從 ${r.valueStr} 改成 ${newValueStr} 嗎？\n（會寫入 Firebase，並記錄到後台修改日誌，可從日誌還原）`)){
+      return;
+    }
+
+    applyBtn.disabled = true;
+    inputEl.disabled = true;
+    statusEl.textContent = "套用中…";
+    statusEl.className = "fix-status";
+
+    const newContent = content.slice(0, start) + newValueStr + content.slice(end);
+    const oldData = { ...mod };
+    const newData = { ...mod, content: newContent };
+
+    try {
+      await set(ref(db, "modules/" + r.moduleId), newData);
+      await push(ref(db, "logs"), {
+        time: Date.now(),
+        user: auth.currentUser.email,
+        action: "候率修正",
+        title: mod.title || "",
+        oldData: JSON.stringify(oldData),
+      });
+      statusEl.textContent = "✓ 已套用（清單將自動重新整理）";
+      statusEl.className = "fix-status success";
+      // 不手動改 DOM：Firebase 寫入成功後 onValue 會推回最新資料，renderApp() 自然重繪整份清單
+    } catch(err) {
+      statusEl.textContent = "寫入失敗：" + err.message;
+      statusEl.className = "fix-status fail";
+      applyBtn.disabled = false;
+      inputEl.disabled = false;
+    }
+  }
+
   function buildRow(r, columns){
     const checked = manualChecked.get(r.rowKey) || false;
     if(onlyUnchecked && checked) return null;
@@ -428,7 +522,25 @@
     const row = document.createElement("div");
     row.className = "result-row" + (checked ? " checked" : "");
 
-    if(columns === "found"){
+    if(columns === "problem"){
+      const v = verdictLabel(r);
+      const detail = verdictDetail(r);
+      const suggestedStr = r.suggestion ? r.suggestion.value.toString() : "";
+      row.innerHTML = `
+        <div data-label="模組標題">${escapeHtml(r.moduleTitle)}</div>
+        <div data-label="技能名稱" class="cell-title">${escapeHtml(r.skillName) || '<span style="color:var(--ink-faint2);">（未知）</span>'}</div>
+        <div data-label="標註等級" class="cell-level">${r.level != null ? r.level + '級' : '—'}</div>
+        <div data-label="原始片段" class="cell-snippet">${escapeHtml(r.snippet)}</div>
+        <div data-label="判定" class="cell-verdict"><span class="badge ${v.badgeClass}">${v.text}</span>${detail ? `<span class="verdict-detail">${escapeHtml(detail)}</span>` : ''}</div>
+        <div data-label="建議修正值" class="cell-fix"><input type="text" inputmode="numeric" value="${escapeHtml(suggestedStr)}"></div>
+        <div data-label="套用" class="cell-fix-btn"><button type="button">套用修正</button><span class="fix-status"></span></div>
+        <div data-label="已人工核對" class="cell-check"><input type="checkbox" class="ack-check" data-rowkey="${r.rowKey}" ${checked ? 'checked' : ''}></div>
+      `;
+      const fixInput = row.querySelector('.cell-fix input');
+      const applyBtn = row.querySelector('.cell-fix-btn button');
+      const statusEl = row.querySelector('.fix-status');
+      applyBtn.addEventListener("click", () => applyFix(r, fixInput.value.trim(), statusEl, applyBtn, fixInput));
+    } else if(columns === "found"){
       const v = verdictLabel(r);
       const detail = verdictDetail(r);
       row.innerHTML = `
@@ -437,17 +549,17 @@
         <div data-label="標註等級" class="cell-level">${r.level != null ? r.level + '級' : '—'}</div>
         <div data-label="原始片段" class="cell-snippet">${escapeHtml(r.snippet)}</div>
         <div data-label="判定" class="cell-verdict"><span class="badge ${v.badgeClass}">${v.text}</span>${detail ? `<span class="verdict-detail">${escapeHtml(detail)}</span>` : ''}</div>
-        <div data-label="已人工核對" class="cell-check"><input type="checkbox" data-rowkey="${r.rowKey}" ${checked ? 'checked' : ''}></div>
+        <div data-label="已人工核對" class="cell-check"><input type="checkbox" class="ack-check" data-rowkey="${r.rowKey}" ${checked ? 'checked' : ''}></div>
       `;
     } else {
       row.innerHTML = `
         <div data-label="模組標題">${escapeHtml(r.moduleTitle)}</div>
         <div data-label="原始片段" class="cell-snippet">${escapeHtml(r.snippet)}</div>
         <div data-label="原因" class="cell-verdict">${escapeHtml(r.reason)}${r.skillName ? `<span class="verdict-detail">鄰近技能：${escapeHtml(r.skillName)}${r.level != null ? '（' + r.level + '級）' : ''}</span>` : ''}</div>
-        <div data-label="已人工核對" class="cell-check"><input type="checkbox" data-rowkey="${r.rowKey}" ${checked ? 'checked' : ''}></div>
+        <div data-label="已人工核對" class="cell-check"><input type="checkbox" class="ack-check" data-rowkey="${r.rowKey}" ${checked ? 'checked' : ''}></div>
       `;
     }
-    row.querySelector('input[type="checkbox"]').addEventListener("change", (e) => {
+    row.querySelector('.ack-check').addEventListener("change", (e) => {
       manualChecked.set(r.rowKey, e.target.checked);
       row.classList.toggle("checked", e.target.checked);
     });
@@ -459,9 +571,13 @@
     const visibleCount = rows.filter(r => !(onlyUnchecked && manualChecked.get(r.rowKey))).length;
     section.innerHTML = `<h2 class="section-title">${title} <span class="section-count">(${visibleCount} 筆)</span></h2>`;
     const table = document.createElement("div");
-    table.className = "result-table" + (columns === "unrec" ? " unrec" : "");
+    table.className = "result-table" + (columns === "unrec" ? " unrec" : columns === "problem" ? " problem" : "");
 
-    if(columns === "found"){
+    if(columns === "problem"){
+      table.innerHTML = `<div class="result-head">
+        <div>模組標題</div><div>技能名稱</div><div>標註等級</div><div>原始消耗片段</div><div>系統判定</div><div>建議修正值</div><div>套用</div><div>核對</div>
+      </div>`;
+    } else if(columns === "found"){
       table.innerHTML = `<div class="result-head">
         <div>模組標題</div><div>技能名稱</div><div>標註等級</div><div>原始消耗片段</div><div>系統判定</div><div>核對</div>
       </div>`;
@@ -510,7 +626,7 @@
     `;
     container.appendChild(summary);
 
-    renderResultTable(container, "疑似候率有問題", problems, "found", "目前勾選的章節中沒有找到疑似候率錯誤的項目。");
+    renderResultTable(container, "疑似候率有問題", problems, "problem", "目前勾選的章節中沒有找到疑似候率錯誤的項目。");
     renderResultTable(container, "無法自動判讀，需人工檢查", unrecognized, "unrec", "沒有無法辨識的片段。");
     if(showOkRows){
       renderResultTable(container, "判定正常", okRows, "found", "沒有判定正常的項目。");
