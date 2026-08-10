@@ -118,6 +118,23 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     z-index: 2;
   }
   
+  /* ===== 繁簡切換 ===== */
+  .script-switch{
+    display:flex; justify-content:center; gap:0; margin:14px 22px 0;
+    border:1px solid var(--border); border-radius:20px; overflow:hidden; flex-shrink:0;
+  }
+  .script-switch button{
+    flex:1; border:none; background:var(--paper); color:var(--ink-faint2);
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:13px; letter-spacing:1px;
+    padding:6px 10px; cursor:pointer; transition:background .2s, color .2s;
+  }
+  .script-switch button + button{ border-left:1px solid var(--border); }
+  .script-switch button.active{ background:var(--vermillion); color:#F5E9DD; }
+  .script-switch button:not(.active):hover{ background:var(--paper-3); color:var(--ink); }
+
+  .mobile-header .script-switch{ margin:0; width:auto; flex-shrink:0; }
+  .mobile-header .script-switch button{ padding:5px 12px; font-size:12px; }
+
   .search-box{
     display: none; /* 暫時封印神識探查功能！未來需要時刪除此行即可 */
     margin:16px 22px 6px; background:var(--paper); border:1px solid var(--border); border-radius:2px;
@@ -353,7 +370,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   }
 </style>
 </head>
-<body>
+<body lang="zh-TW">
 
 <div class="watermark">命</div>
 
@@ -364,6 +381,10 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
     </div>
     <div class="mobile-title">逆命規則書</div>
+  </div>
+  <div class="script-switch ignore-opencc" role="group" aria-label="繁簡切換">
+    <button type="button" data-mode="trad">繁</button>
+    <button type="button" data-mode="simp">簡</button>
   </div>
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -377,6 +398,10 @@ button, .tree-head, .search-box, input, [data-clickable], a {
         <!-- 記得確認 src 的檔名跟你放進資料夾的圖片名稱一模一樣喔 -->
         <img src="logo.png" alt="逆命" class="title-main-img">
         <div class="title-seal">逆</div>
+      </div>
+      <div class="script-switch ignore-opencc" role="group" aria-label="繁簡切換">
+        <button type="button" data-mode="trad">繁體</button>
+        <button type="button" data-mode="simp">簡體</button>
       </div>
     </div>
     <input type="text" class="search-box" id="searchBox" placeholder="神識探查……">
@@ -397,6 +422,9 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   // 比舊的 compat 全量包輕巧許多（本頁不需要 auth）
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  // 繁簡轉換：只需要「繁體(台灣)→簡體」單一方向，用瘦身過的 t2cn 版本（僅 100KB 上下），
+  // 比含四方向辭典的 full 版（1MB+）省下不少載入流量
+  import OpenCC from "https://cdn.jsdelivr.net/npm/opencc-js@1.4.1/dist/esm/t2cn.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -409,6 +437,35 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   };
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+
+  // ===== 繁簡切換 =====
+  // 資料庫內容一律以繁體儲存，簡體只是「顯示層」轉換：用 HTMLConverter 直接走訪
+  // <body lang="zh-TW"> 底下所有文字節點做即時轉換，不必另外維護一份簡體資料，
+  // 也不用逐一修改每個 render 函式裡的字串（.script-switch 本身標了 ignore-opencc 略過）
+  const SCRIPT_MODE_KEY = "tf_script_mode_v1";
+  const scriptConverter = OpenCC.Converter({ from: "tw", to: "cn" });
+  const scriptHtmlConverter = OpenCC.HTMLConverter(scriptConverter, document.body, "zh-TW", "zh-CN");
+  let scriptMode = localStorage.getItem(SCRIPT_MODE_KEY) === "simp" ? "simp" : "trad";
+
+  function applyScriptMode(){
+    if(scriptMode === "simp") scriptHtmlConverter.convert();
+    else scriptHtmlConverter.restore();
+    document.querySelectorAll(".script-switch button[data-mode]").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-mode") === scriptMode);
+    });
+  }
+
+  document.querySelectorAll(".script-switch button[data-mode]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-mode");
+      if(mode === scriptMode) return;
+      scriptMode = mode;
+      localStorage.setItem(SCRIPT_MODE_KEY, scriptMode);
+      applyScriptMode();
+    });
+  });
+
+  applyScriptMode();
 
   let chapters = {};
   let modules = {};
@@ -525,6 +582,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
     if(valid.length===0){
       pinnedSectionEl.classList.add("empty");
       pinnedListEl.innerHTML = "";
+      applyScriptMode();
       return;
     }
     pinnedSectionEl.classList.remove("empty");
@@ -543,6 +601,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       </div>`;
     }).join("");
     pinnedListEl.scrollTop = scrollTop;
+    applyScriptMode();
   }
 
   // 釘選清單用事件代理，不必每次 renderPinned() 後重新綁定
@@ -620,6 +679,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   function renderDetail(){
     if(!selectedModuleId || !modules[selectedModuleId]){
       detailCol.innerHTML = `<div class="detail-empty"><div class="glyph">卷</div>從左側選擇一則規則查看</div>`;
+      applyScriptMode();
       return;
     }
     const m = modules[selectedModuleId];
@@ -646,6 +706,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
         </div>
       </div>
     `;
+    applyScriptMode();
   }
 
   // 上一條／下一條按鈕用事件代理，不必每次 renderDetail() 後重新綁定
@@ -744,6 +805,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
       treeEl.appendChild(chapterNode);
     });
     treeEl.scrollTop = scrollTop;
+    applyScriptMode();
   }
 
   // 側欄樹狀導覽用事件代理，不必每次 renderTree() 後重新綁定（重新整理過的樹會重建所有節點，
@@ -780,9 +842,11 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 
   // 載入狀態：資料到齊前先在側欄顯示「載入中」，連線失敗則顯示提示
   treeEl.innerHTML = '<div class="tree-state">載入規則中…</div>';
+  applyScriptMode();
   let chLoaded = false, modLoaded = false;
   const showTreeError = () => {
     treeEl.innerHTML = '<div class="tree-state error">連線失敗，請重新整理頁面再試。</div>';
+    applyScriptMode();
   };
   // 章節與條目都到齊才第一次繪製，避免先閃出沒有條目的空樹
   const renderIfReady = () => {
@@ -806,6 +870,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   setTimeout(() => {
     if(!(chLoaded && modLoaded) && !treeEl.querySelector('.tree-state.error')){
       treeEl.innerHTML = '<div class="tree-state">載入較慢，請確認網路連線…</div>';
+      applyScriptMode();
     }
   }, 10000);
 
