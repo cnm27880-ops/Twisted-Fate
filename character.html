@@ -282,20 +282,25 @@
   @media(max-width: 900px) { .stats-container { grid-template-columns: repeat(3, 1fr); } }
 
   .stat-card {
-    background: #25201C; border: 1px solid var(--ink-dim); cursor: pointer;
+    background: #25201C; border: 1px solid var(--gold-deep); cursor: pointer;
     border-radius: 4px; padding: 16px 10px; text-align: center; position: relative;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.8), inset 0 0 8px rgba(140,107,39,0.2), 0 4px 8px rgba(0,0,0,0.05);
     transition: all 0.2s ease;
   }
   .stat-card:hover { border-color: var(--gold-deep); }
   .stat-card.proficient {
     border-color: var(--gold); box-shadow: inset 0 0 25px rgba(212,175,55,0.15), 0 0 8px rgba(212,175,55,0.2);
   }
+  /* 熟練標記：菱形，未選中黯淡、選中時散發微弱金光 */
+  .stat-card::before {
+    content: ""; position: absolute; top: -7px; left: 50%; width: 13px; height: 13px;
+    background: linear-gradient(155deg, #6B5F49, #362D1C); border: 1px solid rgba(212,175,55,.4);
+    transform: translateX(-50%) rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,.4);
+    opacity: .5; transition: opacity .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
+  }
   .stat-card.proficient::before {
-    content: "熟練"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-    color: #F8EDD1; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
-    background: linear-gradient(155deg, #A87F32, #6B4E16); border: 1px solid #F0DCA4;
-    box-shadow: 0 2px 6px rgba(0,0,0,.4); text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    background: linear-gradient(155deg, #F0DCA4, #A87F32); border-color: #F8EDD1; opacity: 1;
+    box-shadow: 0 0 10px 2px rgba(212,175,55,.65), 0 2px 4px rgba(0,0,0,.4);
   }
   .stat-header { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 15px; color: var(--paper-3); margin-bottom: 8px; }
   .stat-card.proficient .stat-header { color: var(--gold); text-shadow: 0 0 8px rgba(212,175,55,0.4); }
@@ -324,26 +329,43 @@
     flex: 1; height: 160px; z-index: 1; position: relative;
     background: linear-gradient(150deg, var(--paper-2) 0%, var(--paper-3) 130%);
     border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    display: flex; flex-direction: column; justify-content: center;
+    display: flex; align-items: center;
   }
-  .wing-left { border-radius: 8px 0 0 8px; border-right: none; padding: 10px 50px 10px 20px; align-items: flex-start; text-align: left; }
-  .wing-right { border-radius: 0 8px 8px 0; border-left: none; padding: 10px 20px 10px 50px; align-items: flex-end; text-align: right; }
-  .taiji-core { z-index: 2; margin: 0 -40px; flex-shrink: 0; } 
-  
+  .wing-left { border-radius: 8px 0 0 8px; border-right: none; padding: 10px 50px 10px 20px; justify-content: flex-start; }
+  .wing-right { border-radius: 0 8px 8px 0; border-left: none; padding: 10px 20px 10px 50px; justify-content: flex-end; }
+  .taiji-core { z-index: 2; margin: 0 -40px; flex-shrink: 0; }
+
   .wing-left::before { content:""; position:absolute; top:0; bottom:0; left:0; width:4px; background:linear-gradient(180deg, transparent, var(--vermillion), transparent); }
   .wing-right::before { content:""; position:absolute; top:0; bottom:0; right:0; width:4px; background:linear-gradient(180deg, transparent, var(--jade), transparent); }
 
-  .res-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  /* 生命值／靈氣池：字樣與數字各自置中在自己的金邊方框內 */
+  .res-box {
+    position: relative; border: 1px solid var(--gold-deep); border-radius: 6px;
+    background: rgba(0,0,0,0.035); box-shadow: inset 0 0 10px rgba(140,107,39,0.08);
+    padding: 12px 24px; display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .res-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px; }
   .res-title.hp { color: var(--vermillion-bright); }
   .res-title.qi { color: var(--jade); }
-  .res-inputs { display: flex; align-items: baseline; gap: 6px; width: 100%; font-family: "Noto Serif TC", serif; font-weight: 700; margin-bottom: 8px; }
-  .wing-left .res-inputs  { justify-content: flex-start; }
-  .wing-right .res-inputs { justify-content: flex-end; }
-  .res-inputs input { width: 90px; font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none; border-bottom: 2px solid var(--border); color: var(--ink); }
+  .res-inputs { display: flex; align-items: baseline; justify-content: center; gap: 6px; font-family: "Noto Serif TC", serif; font-weight: 700; }
+  .res-inputs input { width: 80px; font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none; border-bottom: 2px solid var(--border); color: var(--ink); }
   .res-inputs input:focus { outline: none; border-color: var(--gold); }
   .res-inputs span { color: var(--ink-faint2); font-size: 20px; margin: 0 2px; }
-  .res-sub { font-size: 12px; color: var(--ink-faint2); display: flex; align-items: center; gap: 8px; }
-  .res-mini { width: 56px; background: var(--paper); border: 1px solid var(--border); border-radius: 4px; padding: 2px 5px; font-family: inherit; font-size: 12px; text-align: center; color: var(--ink); }
+
+  /* 臨時生命：改成疊在方框角上的護盾徽章，不再佔一整行 */
+  .res-temp-badge {
+    position: absolute; top: -14px; right: -14px; z-index: 1;
+    display: flex; align-items: center; gap: 3px;
+    background: linear-gradient(155deg,#3B4A57,#1C262E); border: 1px solid #7FA6C2; border-radius: 20px;
+    padding: 3px 9px 3px 7px; box-shadow: 0 3px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(200,225,240,.15);
+  }
+  .res-temp-badge svg { width: 13px; height: 13px; fill: #BFE0F2; flex-shrink: 0; }
+  .res-temp-badge input {
+    width: 30px; background: transparent; border: none; color: #EAF6FF;
+    font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 13px; text-align: center; padding: 0;
+  }
+  .res-temp-badge input:focus { outline: none; }
+  .res-temp-badge input::placeholder { color: rgba(234,246,255,.45); }
 
   /* ===== 太極陰陽魚環 ===== */
   .taiji-core { position: relative; width: 240px; height: 240px; }
@@ -387,8 +409,7 @@
 
   @media(max-width: 860px) {
     .resources-container { flex-direction: column; gap: 18px; }
-    .wing { width: 100%; max-width: 420px; height: auto; padding: 20px 24px; border-radius: 8px; align-items: center; text-align: center; border: 1px solid var(--border); }
-    .wing-left .res-inputs, .wing-right .res-inputs { justify-content: center; }
+    .wing { width: 100%; max-width: 420px; height: auto; padding: 20px 24px; border-radius: 8px; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--border); }
     .taiji-core { order: -1; margin: 0; }
   }
   .karma-input { width: 100%; font-size: 42px !important; font-weight: 900; text-align: center; background: transparent; border: none; color: var(--karma-color, var(--ink)); font-family: "Noto Serif TC", serif; text-shadow: 0 2px 6px var(--karma-glow, transparent); line-height: 1.1; padding: 0; }
@@ -497,6 +518,12 @@
   .btn-icon { background: transparent; border: none; color: var(--ink-faint2); cursor: pointer; padding: 4px; }
   .btn-icon:hover { color: var(--vermillion-bright); }
   .item-delete { position: absolute; top: 12px; right: 12px; }
+
+  .note-cards { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .note-card { background: var(--paper-2); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 6px; padding: 16px; position: relative; }
+  .note-title { width: calc(100% - 30px); font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 18px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--ink); margin-bottom: 10px; }
+  .note-body { width: 100%; background: transparent; border: none; resize: none; overflow: hidden; min-height: 70px; font-family: inherit; font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .note-delete { position: absolute; top: 12px; right: 12px; }
 
   .save-status{ position:fixed; bottom:20px; right:20px; font-size:13px; font-weight:700; color:#fff; background:var(--jade); padding:8px 16px; border-radius:20px; opacity:0; transition:opacity .3s, background .3s; pointer-events:none; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
   .save-status.show{ opacity:1; }
@@ -673,7 +700,7 @@
       ac: 10, speed: 30, hp: { current: 10, max: 10 }, hpTemp: 0, qi: { current: 10, max: 10 }, qiBase: 0,
       languages: "", skills: "", notes: "",
       quickActions: [], spellGroups: [{ groupName: "主要功法", spells: [] }],
-      notes_race: "", notes_path: "", notes_job: "", itemsList: [], backgroundText: "",
+      notes_race: "", notes_path: "", notes_job: "", itemsList: [], notesList: [], backgroundText: "",
       updatedAt: Date.now(), updatedBy: ownerName || ""
     });
   }
@@ -716,6 +743,10 @@
       name: (i && i.name) ? String(i.name) : "",
       type: (i && i.type) ? String(i.type) : "",
       desc: (i && i.desc) ? String(i.desc) : ""
+    }));
+    c.notesList = toArray(c.notesList).map(n => ({
+      title: (n && n.title) ? String(n.title) : "",
+      body: (n && n.body) ? String(n.body) : ""
     }));
     return c;
   }
@@ -813,11 +844,35 @@
     const out = []; let cur = { title: "", lines: [] };
     const flush = () => { if(cur.title || cur.lines.some(l => l.trim())) out.push(cur); };
     for(const line of lines){
-      const m = line.trim().match(/^【(.+?)】\s*(.*)$/);
+      const t = line.trim();
+      const m = t.match(/^[【《](.+?)[】》]\s*(.*)$/) || t.match(/^[◆★▲]\s*(.+?)\s*$/);
       if(m){ flush(); cur = { title: m[1].trim(), lines: m[2] ? [m[2]] : [] }; }
       else cur.lines.push(line);
     }
     flush(); return out;
+  }
+
+  // 整段若全是「條列項目：說明」格式，拆成一條一個能力，讓沒有【】分段的種族/道途條目也能分塊顯示
+  function kvBulletsOnly(lines){
+    const items = []; let sawContent = false;
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line) continue;
+      sawContent = true;
+      const b = line.match(/^[•·・\-–—*▪◦]\s*(.+)$/);
+      if(!b) return null;
+      const kv = b[1].match(/^(.{1,18}?)\s*[:：]\s*(.+)$/);
+      if(!kv) return null;
+      items.push({ key: kv[1].trim(), value: kv[2].trim() });
+    }
+    return sawContent && items.length > 1 ? items : null;
+  }
+
+  function rbAbilityCardHtml(title, bodyHtml, accent){
+    return `<div class="rb-card" style="--rb-accent:${accent}">
+        <div class="rb-head">${escapeHtml(title)}</div>
+        <div class="rb-body">${bodyHtml || '<p class="rb-p" style="color:var(--ink-faint2)">（無內容）</p>'}</div>
+      </div>`;
   }
 
   function rbInline(text){
@@ -856,18 +911,24 @@
     }
 
     const sections = parseRuleSections(m.content).filter(s => s.title && !RB_SKIP_TITLE.test(s.title));
-    if(sections.length === 0){
+    let accentIdx = 0; const nextAccent = () => RB_ACCENTS[accentIdx++ % RB_ACCENTS.length];
+    let cards = "";
+    if(sections.length > 0){
+      // 每個段落若整段都是「項目：說明」條列，拆成一條一塊；否則整段當一塊（與職業頁一致的拆分規則）
+      cards = sections.map(s => {
+        const kv = kvBulletsOnly(s.lines);
+        if(kv) return kv.map(item => rbAbilityCardHtml(item.key, `<p class="rb-p">${rbInline(item.value)}</p>`, nextAccent())).join("");
+        return rbAbilityCardHtml(s.title, rbSectionBody(s.lines), nextAccent());
+      }).join("");
+    } else {
+      // 沒有【】分段：若整篇是條列式能力清單，照樣拆成個別色塊
+      const kv = kvBulletsOnly(String(m.content).replace(/\r/g, "").split("\n"));
+      if(kv) cards = kv.map(item => rbAbilityCardHtml(item.key, `<p class="rb-p">${rbInline(item.value)}</p>`, nextAccent())).join("");
+    }
+    if(!cards){
       return `<div class="rb-toolbar"><button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示完整原文</button></div>
         <div class="rb-hint">這個條目沒有【】分段，無法拆成重點色塊，請直接看原文。</div>`;
     }
-    const cards = sections.map((s, i) => {
-      const accent = RB_ACCENTS[i % RB_ACCENTS.length];
-      const body = rbSectionBody(s.lines);
-      return `<div class="rb-card" style="--rb-accent:${accent}">
-        <div class="rb-head">${escapeHtml(s.title)}</div>
-        <div class="rb-body">${body || '<p class="rb-p" style="color:var(--ink-faint2)">（無內容）</p>'}</div>
-      </div>`;
-    }).join("");
     return `<div class="rb-toolbar">
         <span class="rb-source">摘自規則書：${escapeHtml(m.title || value)} · 已略過敘述性段落</span>
         <button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示完整原文</button>
@@ -1080,7 +1141,7 @@
   const RING_R = 100;
   const RING_C = 2 * Math.PI * RING_R;
   const ARC_SPAN = 168;
-  const HP_START = -84, QI_START = 96; 
+  const HP_START = -39, QI_START = 141;   // 分界線在 135°／315°，恢復舊版的斜切傾斜感
   const ARC_LEN = RING_C * ARC_SPAN / 360;
   function ringLen(res){ return (pct(res) / 100) * ARC_LEN; }
 
@@ -1263,16 +1324,21 @@
       <div class="resources-container">
         <!-- 左翼：生命值 -->
         <div class="wing wing-left">
-          <div class="res-title hp">生命值 <span class="res-unit">HP</span></div>
-          <div class="res-inputs"><input data-f="hp.current" type="number" value="${num(char.hp.current)}" ${dis}><span>/</span><input data-f="hp.max" type="number" value="${num(char.hp.max)}" ${dis}></div>
-          <div class="res-sub"><span>臨時生命</span><input data-f="hpTemp" type="number" placeholder="0" class="res-mini" value="${num(char.hpTemp) || ""}" ${dis}></div>
+          <div class="res-box">
+            <div class="res-title hp">生命值 <span class="res-unit">HP</span></div>
+            <div class="res-inputs"><input data-f="hp.current" type="number" value="${num(char.hp.current)}" ${dis}><span>/</span><input data-f="hp.max" type="number" value="${num(char.hp.max)}" ${dis}></div>
+            <div class="res-temp-badge" title="臨時生命">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L20 5.5 V11 C20 16 16.5 20 12 22 C7.5 20 4 16 4 11 V5.5 Z"/></svg>
+              <input data-f="hpTemp" type="number" placeholder="0" value="${num(char.hpTemp) || ""}" ${dis}>
+            </div>
+          </div>
         </div>
         <!-- 中央：太極陰陽魚環。HP從上順時針，QI從下順時針 -->
         <div class="taiji-core" style="${getKarmaStyle(char.karma)}">
           <svg class="taiji-rings" viewBox="0 0 240 240" aria-hidden="true">
             <defs>
-              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="120" y1="20" x2="120" y2="220"><stop offset="0" stop-color="#E0664C"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#5E1610"/></linearGradient>
-              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="120" y1="220" x2="120" y2="20"><stop offset="0" stop-color="#63B78E"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#0F2E23"/></linearGradient>
+              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="34" y1="206" x2="206" y2="34"><stop offset="0" stop-color="#5E1610"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#E0664C"/></linearGradient>
+              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="206" y1="34" x2="34" y2="206"><stop offset="0" stop-color="#0F2E23"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#63B78E"/></linearGradient>
               <linearGradient id="glossGrad" gradientUnits="userSpaceOnUse" x1="120" y1="10" x2="120" y2="230"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient>
             </defs>
             <g class="bagua-ring">${baguaHtml()}</g>
@@ -1299,9 +1365,10 @@
         </div>
         <!-- 右翼：靈氣池 -->
         <div class="wing wing-right">
-          <div class="res-title qi">靈氣池 <span class="res-unit">QI</span></div>
-          <div class="res-inputs"><input data-f="qi.current" type="number" value="${num(char.qi.current)}" ${dis}><span>/</span><input data-f="qi.max" type="number" value="${num(char.qi.max)}" ${dis}></div>
-          <div class="res-sub"><span>靈根修練度</span><input data-f="qiBase" type="number" class="res-mini" value="${num(char.qiBase)}" ${dis}></div>
+          <div class="res-box">
+            <div class="res-title qi">靈氣池 <span class="res-unit">QI</span></div>
+            <div class="res-inputs"><input data-f="qi.current" type="number" value="${num(char.qi.current)}" ${dis}><span>/</span><input data-f="qi.max" type="number" value="${num(char.qi.max)}" ${dis}></div>
+          </div>
         </div>
       </div>
 
@@ -1312,6 +1379,7 @@
         <button class="tab-btn" data-tab="tab-job">【職業】</button>
         <button class="tab-btn" data-tab="tab-spells">【功法總錄】</button>
         <button class="tab-btn" data-tab="tab-inventory">【儲物袋】</button>
+        <button class="tab-btn" data-tab="tab-notes">【筆記】</button>
       </div>
 
       <!-- Tab: 基礎資料 -->
@@ -1322,6 +1390,7 @@
           <div class="mini-box"><div class="mini-label">熟練加值 PB</div><input data-f="pb" type="number" value="${num(char.pb)}" ${dis}></div>
           <div class="mini-box"><div class="mini-label">步行速度</div><input data-f="speed" type="number" value="${num(char.speed)}" ${dis}></div>
           <div class="mini-box"><div class="mini-label">靈根</div><input data-f="root" value="${attr(char.root)}" placeholder="例：金木火" ${dis}></div>
+          <div class="mini-box"><div class="mini-label">靈根修練度</div><input data-f="qiBase" type="number" value="${num(char.qiBase)}" ${dis}></div>
         </div>
 
         <section class="block">
@@ -1366,8 +1435,6 @@
         <section class="block">
           <div class="block-title">【${attr(char.job || '未選擇')}】職業專長</div>
           <div id="rbBox-job">${rulebookBlocksHtml("職業", char.job, rbRawOpen["職業"])}</div>
-          <label class="field-label" style="margin-top:18px;">自訂職業筆記</label>
-          <textarea class="nm-textarea" data-f="notes_job" rows="4" placeholder="填寫工作收入、特殊工坊等設定..." ${dis}>${attr(char.notes_job)}</textarea>
         </section>
       </div>
 
@@ -1376,6 +1443,9 @@
 
       <!-- Tab: 物品 -->
       <div class="tab-panel" id="tab-inventory"><div id="itemHost">${itemsHtml(char, editable)}</div></div>
+
+      <!-- Tab: 筆記 -->
+      <div class="tab-panel" id="tab-notes"><div id="noteHost">${notesHtml(char, editable)}</div></div>
     `;
 
     if(!sheetEl.querySelector("#" + activeTab)) activeTab = "tab-main";
@@ -1480,6 +1550,21 @@
       ${editable ? `<div style="margin-top:20px; text-align:center;"><button class="btn jade-btn" data-action="add-item">＋ 新增法寶/物品</button></div>` : ""}`;
   }
 
+  function notesHtml(char, editable){
+    const nList = char.notesList || []; const dis = editable ? "" : "disabled";
+    return `
+      <div class="note-cards">
+        ${nList.map((note, idx) => `
+          <div class="note-card">
+            ${editable ? `<button class="btn-icon note-delete" data-action="del-note" data-idx="${idx}">✕</button>` : ""}
+            <input class="note-title" data-note="${idx}" data-prop="title" value="${attr(note.title)}" placeholder="筆記分類名稱（例如：人物關係、任務線索）" ${dis}>
+            <textarea class="note-body" data-note="${idx}" data-prop="body" placeholder="這一類想記的東西……" ${dis}>${attr(note.body)}</textarea>
+          </div>`).join("")}
+        ${nList.length === 0 ? `<div class="qa-empty">還沒有任何筆記分類</div>` : ""}
+      </div>
+      ${editable ? `<div style="margin-top:20px; text-align:center;"><button class="btn gold-btn" data-action="add-note">＋ 新增筆記分類</button></div>` : ""}`;
+  }
+
   function rulebookInputHtml(field, value, result, dis){
     const listId = "dl-" + field;
     let opts = result.ready ? result.options.map(o => `<option value="${attr(o)}">`).join("") : "";
@@ -1499,6 +1584,14 @@
     const host = document.getElementById("itemHost");
     if(host) {
       host.innerHTML = itemsHtml(char, isOwner(char));
+      resizeAllTextareas();
+    }
+  }
+  function refreshNotes(){
+    const char = currentChar(); if(!char) return;
+    const host = document.getElementById("noteHost");
+    if(host) {
+      host.innerHTML = notesHtml(char, isOwner(char));
       resizeAllTextareas();
     }
   }
@@ -1585,6 +1678,9 @@
     }
     if(el.dataset.item != null){
       const it = char.itemsList[parseInt(el.dataset.item, 10)]; if(it) it[el.dataset.prop] = el.value; markDirty(); return;
+    }
+    if(el.dataset.note != null){
+      const n = char.notesList[parseInt(el.dataset.note, 10)]; if(n) n[el.dataset.prop] = el.value; markDirty(); return;
     }
   });
 
@@ -1673,6 +1769,9 @@
 
     if(action === "add-item"){ char.itemsList.push({name:"", type:"", desc:""}); refreshItems(); markDirty(); return; }
     if(action === "del-item"){ char.itemsList.splice(parseInt(btn.dataset.idx, 10), 1); refreshItems(); markDirty(); return; }
+
+    if(action === "add-note"){ char.notesList.push({title:"", body:""}); refreshNotes(); markDirty(); return; }
+    if(action === "del-note"){ char.notesList.splice(parseInt(btn.dataset.idx, 10), 1); refreshNotes(); markDirty(); return; }
   });
 
   onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chaptersLoaded = true; rulebookAt = Date.now(); saveRulebookCache(); refreshRulebookViews(); }, err => console.error("chapters sync error", err));
