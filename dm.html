@@ -77,6 +77,8 @@
   .btn:hover{ background:var(--paper-3); border-color:var(--gold); }
   .btn.gold{ border-color:var(--gold); color:var(--gold-deep); }
   .btn.jade{ border-color:var(--jade); color:var(--jade); }
+  .btn.danger{ border-color:var(--vermillion); color:var(--vermillion-bright); }
+  .btn.danger:hover{ background:rgba(156,43,34,.1); border-color:var(--vermillion-bright); }
   .btn-icon{ background:transparent; border:none; color:var(--ink-faint2); cursor:pointer; padding:4px; font-size:14px; }
   .btn-icon:hover{ color:var(--vermillion-bright); }
 
@@ -884,16 +886,31 @@
           <thead><tr><th style="width:40%;">玉簡 ID</th><th>備註</th><th style="width:20%;">職權</th><th style="width:40px;"></th></tr></thead>
           <tbody>
             ${entries.length === 0 ? `<tr><td colspan="4" class="empty-row">尚無管理員</td></tr>` :
-              entries.map(([uid,a]) => `
+              entries.map(([uid,a]) => {
+                const isMe = !!(discordUser && uid === discordUser.id);
+                return `
               <tr>
-                <td style="font-size:13px;">${escapeHtml(uid)} ${discordUser && uid===discordUser.id ? `<b style="color:var(--jade);">（你）</b>` : ""}</td>
+                <td style="font-size:13px;">${escapeHtml(uid)} ${isMe ? `<b style="color:var(--jade);">（你）</b>` : ""}</td>
                 <td>${escapeHtml(a.name || "－")}</td>
                 <td><b style="color:${a.role==="DM"?"var(--vermillion-bright)":"var(--gold-deep)"};">${a.role==="DM"?"宗主 DM":"長老"}</b></td>
-                <td>${discordUser && uid===discordUser.id ? "" : `<button class="btn-icon" data-action="revoke" data-id="${escapeHtml(uid)}" title="撤銷">✕</button>`}</td>
-              </tr>`).join("")}
+                <td><button class="btn-icon" data-action="revoke" data-id="${escapeHtml(uid)}"
+                  title="${isMe ? "移除我自己的權限" : "撤銷此人的權限"}">✕</button></td>
+              </tr>`; }).join("")}
           </tbody>
         </table>
-      </div>`;
+      </div>
+
+      ${discordUser && admins[discordUser.id] ? `
+      <div class="admin-panel" style="margin-top:22px; border-color:rgba(156,43,34,.35);">
+        <div style="font-weight:700; margin-bottom:6px; color:var(--vermillion-bright);">結束測試 / 交還權限</div>
+        <div style="font-size:13px; color:var(--ink-faint2); line-height:1.8; margin-bottom:12px;">
+          可隨時移除自己的權限，回到唯讀的弟子身分。
+          ${entries.length === 1
+            ? "目前你是唯一的管理員，移除後這裡會回到「尚未設定任何管理員」狀態，畫面上會重新出現「將我設為宗主」按鈕，隨時可以再取回權限。"
+            : "移除後若要再取得權限，需請其他宗主重新授權給你。"}
+        </div>
+        <button class="btn danger" data-action="revoke-self">移除我自己的權限</button>
+      </div>` : ""}`;
   }
 
   // ===== 事件綁定 =====
@@ -997,9 +1014,23 @@
           renderAll(true);
           return;
         }
-        if(action === "revoke"){
-          if(!confirm("確定撤銷此人的管理權限？")) return;
-          await writeNow("admins/" + btn.dataset.id, null);
+        if(action === "revoke" || action === "revoke-self"){
+          const uid = action === "revoke-self" ? (discordUser && discordUser.id) : btn.dataset.id;
+          if(!uid) return;
+          const isMe = !!(discordUser && uid === discordUser.id);
+          if(isMe){
+            const isLast = Object.keys(admins).length <= 1;
+            const msg = isLast
+              ? "確定移除自己的權限？\n\n你是目前唯一的管理員，移除後宗門大殿會回到「尚未設定任何管理員」狀態，"
+                + "畫面上會重新出現「將我設為宗主」按鈕，你隨時可以再取回權限。"
+              : "確定移除自己的權限？\n\n移除後你將變回唯讀的弟子身分，"
+                + "若要再取得權限，需請其他宗主重新授權給你。";
+            if(!confirm(msg)) return;
+          } else {
+            if(!confirm("確定撤銷此人的管理權限？")) return;
+          }
+          await writeNow("admins/" + uid, null);
+          if(isMe) activeTab = "tab-warehouse"; // 權限管理分頁即將消失，先切回庫房避免停在空白分頁
           renderAll(true);
           return;
         }
