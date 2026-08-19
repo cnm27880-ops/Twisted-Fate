@@ -121,12 +121,11 @@
     color:#FBF0D2; border-color:var(--gold); transform:translateY(-1px);
     box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
   }
-  .nav-link.current{ color:#1D1712; background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; }
 
   /* ===== 主容器 ===== */
   .layout { max-width: 1200px; margin: 0 auto; padding: 30px 20px 100px; position: relative; z-index: 1; }
 
-  /* ===== 宗門總覽摘要（唯讀，資料來自宗門大殿） ===== */
+  /* ===== 宗門總覽摘要 ===== */
   .clan-summary{ margin-bottom:26px; }
   .clan-summary:empty{ display:none; }
   .cs-box{
@@ -154,12 +153,6 @@
   }
   .cs-label{ font-size:11px; color:#E8CA82; letter-spacing:1.5px; margin-bottom:3px; }
   .cs-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:21px; color:#F8EDD1; }
-  .cs-realms{
-    margin-top:12px; padding-top:12px; border-top:1px solid rgba(232,202,130,.25);
-    font-size:12.5px; color:#E8CA82; line-height:2; position:relative; z-index:1;
-  }
-  .cs-realms b{ color:#F8EDD1; font-family:"Noto Serif TC",serif; font-size:14px; }
-  .cs-realms span{ display:inline-block; margin-right:14px; }
 
   .readonly-banner{
     display:flex; align-items:center; gap:8px;
@@ -176,7 +169,6 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 0 40px rgba(140,107,39,0.1);
     display: flex; align-items: center; gap: 30px;
   }
-  /* 「道」字浮水印剛好襯在立繪框後面，當作陣法底紋 */
   .char-header-block::after {
     content: "道"; position: absolute; right: 107px; top: 50%;
     transform: translate(50%, -50%);
@@ -189,9 +181,9 @@
   }
   .ch-nameline { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
   .ch-field { min-width: 0; }
-  .ch-sep { color: rgba(232,202,130,.4); font-size: 20px; padding-bottom: 8px; letter-spacing: -2px; user-select: none; }
+  
   .char-name-input {
-    width: 100%; max-width: 320px; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 40px;
+    width: 100%; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 40px;
     color: #F8EDD1; background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.15);
     padding: 2px 0 9px; line-height: 1.3; height: auto; text-shadow: 0 2px 6px rgba(0,0,0,0.8);
   }
@@ -199,11 +191,10 @@
   .char-title-input {
     font-family: "LXGW WenKai TC", serif; font-size: 19px; color: #E8CA82; font-weight: 700;
     background: transparent; border: none; border-bottom: 1px dashed rgba(232,202,130,0.45);
-    padding: 4px 2px; width: 100%; max-width: 230px; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    padding: 4px 2px; width: 100%; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
   }
   .char-title-input:focus { outline: none; border-bottom-color: #E8CA82; }
 
-  /* ===== 立繪框（雙層暗金細線 + 四角雲紋） ===== */
   .ch-portrait { flex: 0 0 auto; position: relative; z-index: 1; }
   .portrait-frame {
     position: relative; width: 158px; height: 208px; border-radius: 3px;
@@ -227,18 +218,13 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
     width: 100%; height: 100%; text-align: center; font-size: 11.5px; line-height: 1.7; color: #C9A98F; padding: 10px;
   }
-  .pf-empty {
-    width: 100%; height: 100%; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 10px;
-  }
+  .pf-empty { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
   .pf-glyph { font-family: "Zhi Mang Xing", cursive; font-size: 62px; line-height: 1; color: rgba(232,202,130,.30); }
   .pf-hint { font-size: 11.5px; letter-spacing: 1.5px; color: rgba(232,202,130,.62); }
   .portrait-frame[data-action]:hover .pf-hint { color: #F3E3BC; }
 
-  /* 四角雲紋：細金線鏤空 */
   .pf-corner { position: absolute; width: 26px; height: 26px; pointer-events: none; }
-  .pf-corner svg { width: 100%; height: 100%; fill: none; stroke: rgba(212,175,55,.72); stroke-width: 1.3;
-    stroke-linecap: round; stroke-linejoin: round; }
+  .pf-corner svg { width: 100%; height: 100%; fill: none; stroke: rgba(212,175,55,.72); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
   .pf-corner.tl { top: -3px; left: -3px; }
   .pf-corner.tr { top: -3px; right: -3px; transform: scaleX(-1); }
   .pf-corner.br { bottom: -3px; right: -3px; transform: scale(-1); }
@@ -258,7 +244,7 @@
     .char-header-block::after { right: 50%; top: 34%; font-size: 210px; }
     .ch-portrait { display: flex; justify-content: center; }
   }
-  .h-label { color: #E8CA82; font-size: 12px; font-weight: 700; letter-spacing: 2px; display: block; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .h-label { color: #E8CA82; font-size: 12px; font-weight: 700; letter-spacing: 2px; display: block; text-shadow: 0 1px 2px rgba(0,0,0,0.5); margin-bottom: 4px; }
 
   .header-tags { display: flex; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
   .h-tag {
@@ -266,8 +252,7 @@
     padding: 6px 14px; border-radius: 4px; font-size: 14px; font-weight: 700;
     color: var(--paper-2); display: flex; align-items: center; gap: 8px;
   }
-  .h-tag select { background: transparent; border: none; color: #F8EDD1; font-family: inherit; font-size: 14px; font-weight: 700; appearance: none; cursor: pointer; outline: none; }
-  .h-tag select option { background: var(--ink); color: var(--paper); }
+  
   .h-refresh{
     background: rgba(0,0,0,0.4); border: 1px solid var(--gold-deep); box-shadow: inset 0 0 8px rgba(140,107,39,0.2);
     color:#E8CA82; border-radius:4px; width:34px; height:34px; font-size:17px; line-height:1;
@@ -277,38 +262,46 @@
   .h-refresh.spinning{ animation:rbSpin .9s linear infinite; color:var(--gold); }
   @keyframes rbSpin{ to{ transform:rotate(360deg); } }
 
-  /* ===== 六大根基 (深色墨玉風格) ===== */
+  /* 自訂 Datalist 標籤輸入框 (解決原生選單藍色反白) */
+  .tag-input {
+    background: rgba(0,0,0,0.25); border: 1px dashed rgba(232,202,130,0.3); border-radius: 3px;
+    color: #F8EDD1; font-family: inherit; font-size: 14px; font-weight: 700;
+    width: 90px; padding: 2px 6px; text-align: center; transition: all 0.2s;
+  }
+  .tag-input:focus { outline: none; border: 1px solid var(--gold); background: rgba(0,0,0,0.6); }
+  .tag-input::-webkit-calendar-picker-indicator { display: none !important; opacity: 0; }
+
+  /* ===== 六大根基 (深色墨玉風格 - 取消打勾) ===== */
   .stats-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 30px; }
   @media(max-width: 900px) { .stats-container { grid-template-columns: repeat(3, 1fr); } }
 
   .stat-card {
-    background: #25201C; border: 1px solid var(--ink-dim);
+    background: #25201C; border: 1px solid var(--ink-dim); cursor: pointer;
     border-radius: 4px; padding: 16px 10px; text-align: center; position: relative;
     box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
   }
-  .stat-card::before {
-    content: "◆"; position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
-    color: #E8C878; font-size: 11px; line-height: 1; padding: 2px 6px; border-radius: 3px;
-    background: linear-gradient(155deg, #35291A, #1B1509);
-    border: 1px solid var(--gold); box-shadow: 0 1px 4px rgba(0,0,0,.28);
-    text-shadow: 0 0 6px rgba(232,200,120,.6);
+  .stat-card:hover { border-color: var(--gold-deep); }
+  .stat-card.proficient {
+    border-color: var(--gold); box-shadow: inset 0 0 25px rgba(212,175,55,0.15), 0 0 8px rgba(212,175,55,0.2);
   }
-  .stat-card.proficient { border-color: var(--vermillion); box-shadow: inset 0 0 20px rgba(156,43,34,0.4), 0 0 8px rgba(156,43,34,0.2); }
-  .stat-card.proficient::before { color: #F0B3A6; border-color: var(--vermillion-bright); text-shadow: 0 0 6px rgba(181,55,43,.7); }
-
-  .stat-header { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 15px; color: var(--paper-3); margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 6px; }
-  .stat-prof-check { cursor: pointer; width: 14px; height: 14px; accent-color: var(--vermillion); }
+  .stat-card.proficient::before {
+    content: "熟練"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    color: #F8EDD1; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
+    background: linear-gradient(155deg, #A87F32, #6B4E16); border: 1px solid #F0DCA4;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4); text-shadow: 0 1px 2px rgba(0,0,0,.5);
+  }
+  .stat-header { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 15px; color: var(--paper-3); margin-bottom: 8px; }
+  .stat-card.proficient .stat-header { color: var(--gold); text-shadow: 0 0 8px rgba(212,175,55,0.4); }
+  
   input[type=number]{ appearance: textfield; -moz-appearance: textfield; }
-  input[type=number]::-webkit-outer-spin-button,
-  input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
 
-  .stat-header .stat-name{ font-family:"Noto Serif TC",serif; }
   .stat-value {
     display: block; font-family: "Noto Serif TC", serif; font-size: 34px; font-weight: 900; color: #E8CA82;
-    width: 100%; text-align: center; background: transparent; border: none; padding: 0; margin: 0;
-    line-height: 1.15;
+    width: 100%; text-align: center; background: transparent; border: none; padding: 0; margin: 0; line-height: 1.15;
   }
-  .stat-value:focus { outline: none; color: var(--vermillion-bright); }
+  .stat-value:focus { outline: none; color: #fff; }
   .stat-mod {
     display: inline-flex; align-items: center; justify-content: center;
     background: var(--paper); color: var(--ink); border: 1px solid var(--gold-deep);
@@ -316,119 +309,54 @@
     width: 44px; padding: 3px 0; border-radius: 4px; margin: 10px auto 0;
   }
 
-  /* ===== 資源區：中央太極環 + 左右斜切抱合翼 ===== */
+  /* ===== 資源區：中央太極環 + 左右疊加翼 ===== */
   .resources-container {
-    display: grid; grid-template-columns: minmax(0,1fr) 240px minmax(0,1fr); align-items: center;
-    max-width: 1000px; margin: 0 auto 30px;
+    display: flex; justify-content: center; align-items: center;
+    max-width: 960px; margin: 0 auto 40px; position: relative;
   }
-
-  /* 翼板：靠內的那一側切出凹角，順著太極環的弧線抱進去。
-     clip-path 會把 border 一起裁掉，所以外層當「金屬邊」、內層縮 1px 當紙面。 */
-  /* 內緣是順著太極環挖出來的圓弧凹槽，圓就嵌在缺口裡。
-     凹槽圓心再往上／下錯開一點：左翼的槽偏下、右翼的槽偏上，
-     於是左翼上緣長下緣短、右翼上緣短下緣長，剛好在兩條弧的缺口處讓開。
-     外層當金屬細邊、內層縮 1px 當紙面，所以兩層的遮罩要各自補正 1px。 */
   .wing {
-    position: relative; z-index: 1;
-    --notch-r: 127px;      /* 凹槽半徑：太極環外緣約 116，留 11px 的縫 */
-    --notch-x: 62px;       /* 圓心離本翼內緣的距離，越小咬得越深 */
-    --notch-dy: 22px;      /* 圓心上下錯開量：左翼偏下、右翼偏上 */
-  }
-  .wing-left  { margin-right: -58px; }
-  .wing-right { margin-left: -58px; }
-
-  .wing-left::before, .wing-left .wing-inner {
-    -webkit-mask-image: var(--notch-l); mask-image: var(--notch-l);
-  }
-  .wing-right::before, .wing-right .wing-inner {
-    -webkit-mask-image: var(--notch-r-img); mask-image: var(--notch-r-img);
-  }
-  .wing-left {
-    --notch-l: radial-gradient(circle at calc(100% + var(--notch-x)) calc(50% + var(--notch-dy)),
-                transparent calc(var(--notch-r) - 1px), #000 var(--notch-r));
-  }
-  .wing-left .wing-inner {
-    --notch-l: radial-gradient(circle at calc(100% + var(--notch-x) + 1px) calc(50% + var(--notch-dy)),
-                transparent calc(var(--notch-r) - 2px), #000 calc(var(--notch-r) - 1px));
-  }
-  .wing-right {
-    --notch-r-img: radial-gradient(circle at calc(0px - var(--notch-x)) calc(50% - var(--notch-dy)),
-                transparent calc(var(--notch-r) - 1px), #000 var(--notch-r));
-  }
-  .wing-right .wing-inner {
-    --notch-r-img: radial-gradient(circle at calc(0px - var(--notch-x) - 1px) calc(50% - var(--notch-dy)),
-                transparent calc(var(--notch-r) - 2px), #000 calc(var(--notch-r) - 1px));
-  }
-
-  .wing::before {
-    content: ""; position: absolute; inset: 0;
-    background: linear-gradient(120deg, rgba(140,107,39,.55), rgba(95,71,15,.28));
-  }
-  .wing-inner {
-    position: relative;
+    flex: 1; height: 160px; z-index: 1; position: relative;
     background: linear-gradient(150deg, var(--paper-2) 0%, var(--paper-3) 130%);
-    padding: 20px 26px; margin: 1px; height: 200px;
-    display: flex; flex-direction: column; justify-content: center; gap: 10px;
+    border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex; flex-direction: column; justify-content: center;
   }
-  .wing-left .wing-inner  { padding-right: 92px; align-items: flex-start; text-align: left; }
-  .wing-right .wing-inner { padding-left: 92px;  align-items: flex-end;  text-align: right; }
-  .wing-left .wing-inner::before, .wing-right .wing-inner::before {
-    content: ""; position: absolute; top: 0; bottom: 0; width: 4px;
-  }
-  .wing-left .wing-inner::before  { left: 0;  background: linear-gradient(180deg, transparent, var(--vermillion), transparent); }
-  .wing-right .wing-inner::before { right: 0; background: linear-gradient(180deg, transparent, var(--jade), transparent); }
+  .wing-left { border-radius: 8px 0 0 8px; border-right: none; padding: 10px 50px 10px 20px; align-items: flex-start; text-align: left; }
+  .wing-right { border-radius: 0 8px 8px 0; border-left: none; padding: 10px 20px 10px 50px; align-items: flex-end; text-align: right; }
+  .taiji-core { z-index: 2; margin: 0 -40px; flex-shrink: 0; } 
+  
+  .wing-left::before { content:""; position:absolute; top:0; bottom:0; left:0; width:4px; background:linear-gradient(180deg, transparent, var(--vermillion), transparent); }
+  .wing-right::before { content:""; position:absolute; top:0; bottom:0; right:0; width:4px; background:linear-gradient(180deg, transparent, var(--jade), transparent); }
 
-  .res-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .res-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .res-title.hp { color: var(--vermillion-bright); }
   .res-title.qi { color: var(--jade); }
-  .res-inputs { display: flex; align-items: baseline; gap: 6px; width: 100%; font-family: "Noto Serif TC", serif; font-weight: 700; }
+  .res-inputs { display: flex; align-items: baseline; gap: 6px; width: 100%; font-family: "Noto Serif TC", serif; font-weight: 700; margin-bottom: 8px; }
   .wing-left .res-inputs  { justify-content: flex-start; }
   .wing-right .res-inputs { justify-content: flex-end; }
-  .res-inputs input {
-    flex: 1 1 0; min-width: 0; max-width: 170px; width: auto;
-    font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none;
-    border-bottom: 2px solid var(--border); color: var(--ink); transition: border-color 0.2s;
-  }
+  .res-inputs input { width: 90px; font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none; border-bottom: 2px solid var(--border); color: var(--ink); }
   .res-inputs input:focus { outline: none; border-color: var(--gold); }
-  .res-inputs span { flex: 0 0 auto; color: var(--ink-faint2); font-size: 20px; margin: 0 2px; }
-  .res-unit{ font-size: 12px; letter-spacing: 2px; opacity: .7; font-family: "Noto Serif TC", serif; }
-  .res-mini, .res-temp{
-    width: 56px; background: var(--paper); border: 1px solid var(--border); border-radius: 4px;
-    padding: 2px 5px; font-family: inherit; font-size: 12px; color: var(--ink); text-align: center;
-  }
-  .res-mini:focus, .res-temp:focus{ outline: none; border-color: var(--gold); }
-  .res-sub input{ font-size: 12px; }
-
-  .res-sub { font-size: 12px; color: var(--ink-faint2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .wing-right .res-sub { justify-content: flex-end; }
+  .res-inputs span { color: var(--ink-faint2); font-size: 20px; margin: 0 2px; }
+  .res-sub { font-size: 12px; color: var(--ink-faint2); display: flex; align-items: center; gap: 8px; }
+  .res-mini { width: 56px; background: var(--paper); border: 1px solid var(--border); border-radius: 4px; padding: 2px 5px; font-family: inherit; font-size: 12px; text-align: center; color: var(--ink); }
 
   /* ===== 太極陰陽魚環 ===== */
-  .taiji-core { position: relative; width: 240px; height: 240px; z-index: 2; }
+  .taiji-core { position: relative; width: 240px; height: 240px; }
   .taiji-rings { position: absolute; inset: 0; width: 100%; height: 100%; }
   .bagua-ring { fill: var(--gold-deep); opacity: .38; transform-origin: 120px 120px; animation: baguaSpin 90s linear infinite; }
   @keyframes baguaSpin { to { transform: rotate(360deg); } }
 
-  /* 弧道做成三層：外圈凹槽 → 未填滿的底色 → 漸層實體，末端再加一顆光珠 */
   .ring-groove { fill: none; stroke-width: 20; stroke-linecap: round; stroke: rgba(59,44,20,.15); }
   .ring-rail { fill: none; stroke: var(--gold-deep); stroke-width: 1; stroke-linecap: round; opacity: .42; }
-  .ring-gloss {
-    fill: none; stroke: url(#glossGrad); stroke-width: 3.4; stroke-linecap: round;
-    transition: stroke-dasharray .5s cubic-bezier(.4,0,.2,1), stroke-dashoffset .5s cubic-bezier(.4,0,.2,1), opacity .3s;
-  }
+  .ring-gloss { fill: none; stroke: url(#glossGrad); stroke-width: 3.4; stroke-linecap: round; transition: stroke-dasharray .5s ease, opacity .3s; }
   .ring-track { fill: none; stroke-width: 13; stroke-linecap: round; }
   .ring-track.hp { stroke: rgba(156,43,34,.13); }
   .ring-track.qi { stroke: rgba(45,90,76,.13); }
-  .ring-fill { fill: none; stroke-width: 13; stroke-linecap: round;
-    transition: stroke-dasharray .5s cubic-bezier(.4,0,.2,1), stroke-dashoffset .5s cubic-bezier(.4,0,.2,1), opacity .3s; }
+  .ring-fill { fill: none; stroke-width: 13; stroke-linecap: round; transition: stroke-dasharray .5s ease, opacity .3s; }
   .ring-fill.hp { stroke: url(#hpGrad); filter: drop-shadow(0 0 6px rgba(181,55,43,.55)); }
   .ring-fill.qi { stroke: url(#qiGrad); filter: drop-shadow(0 0 6px rgba(64,145,108,.55)); }
-
   .ring-tick { stroke: var(--gold-deep); stroke-width: 1.4; opacity: .55; stroke-linecap: round; }
   .ring-stud { fill: var(--gold); opacity: .85; }
-  .ring-bead {
-    stroke: rgba(255,255,255,.72); stroke-width: 1.2;
-    transition: cx .5s cubic-bezier(.4,0,.2,1), cy .5s cubic-bezier(.4,0,.2,1), opacity .3s;
-  }
+  .ring-bead { stroke: rgba(255,255,255,.72); stroke-width: 1.2; transition: cx .5s ease, cy .5s ease, opacity .3s; }
   .ring-bead.hp { fill: #F0836A; filter: drop-shadow(0 0 6px rgba(224,102,76,.95)); }
   .ring-bead.qi { fill: #7FD2A8; filter: drop-shadow(0 0 6px rgba(99,183,142,.95)); }
 
@@ -441,8 +369,7 @@
     display: flex; align-items: center; justify-content: center;
     transition: border-color .5s ease, box-shadow .5s ease;
   }
-  .karma-plate .yy { position: absolute; inset: -14%; width: 128%; height: 128%; opacity: .2;
-    transform-origin: 50% 50%; animation: baguaSpin 150s linear infinite reverse; }
+  .karma-plate .yy { position: absolute; inset: -14%; width: 128%; height: 128%; opacity: .2; transform-origin: 50% 50%; animation: baguaSpin 150s linear infinite reverse; }
   .yy-dark { fill: var(--karma-color, var(--ink-dim)); }
   .yy-dot-a { fill: var(--paper); }
   .yy-dot-b { fill: var(--karma-color, var(--ink-dim)); }
@@ -450,35 +377,20 @@
   .karma-body { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
   .karma-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 13px; color: var(--ink-dim); letter-spacing: 5px; text-indent: 5px; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .bagua-ring, .karma-plate .yy { animation: none; }
-  }
+  @media (prefers-reduced-motion: reduce) { .bagua-ring, .karma-plate .yy { animation: none; } }
 
   @media(max-width: 860px) {
-    .resources-container { grid-template-columns: 1fr; justify-items: center; gap: 18px; }
-    .wing { width: 100%; max-width: 420px; min-width: 0; }
-    .wing-left, .wing-right { margin: 0; }
-    .wing-left::before, .wing-left .wing-inner,
-    .wing-right::before, .wing-right .wing-inner { -webkit-mask-image: none; mask-image: none; }
-    .wing-left .wing-inner, .wing-right .wing-inner { padding: 20px 24px; height: auto; align-items: center; text-align: center; }
-    .wing-left .res-inputs, .wing-right .res-inputs, .wing-right .res-sub { justify-content: center; }
-    .wing::before { border-radius: 8px; }
-    .wing-inner { border-radius: 8px; }
-    .taiji-core { order: -1; }
+    .resources-container { flex-direction: column; gap: 18px; }
+    .wing { width: 100%; max-width: 420px; height: auto; padding: 20px 24px; border-radius: 8px; align-items: center; text-align: center; border: 1px solid var(--border); }
+    .wing-left .res-inputs, .wing-right .res-inputs { justify-content: center; }
+    .taiji-core { order: -1; margin: 0; }
   }
-  .karma-input {
-    width: 100%; max-width: 124px; font-size: 38px; font-weight: 900; text-align: center; background: transparent; border: none;
-    color: var(--karma-color, var(--ink)); font-family: "Noto Serif TC", serif; text-shadow: 0 2px 6px var(--karma-glow, transparent);
-    line-height: 1.1; padding: 0;
-  }
+  .karma-input { width: 100%; font-size: 42px !important; font-weight: 900; text-align: center; background: transparent; border: none; color: var(--karma-color, var(--ink)); font-family: "Noto Serif TC", serif; text-shadow: 0 2px 6px var(--karma-glow, transparent); line-height: 1.1; padding: 0; }
   .karma-input:focus{ outline: none; }
-  .karma-sub{
-    margin-top: 2px; font-size: 11px; font-weight: 700; letter-spacing: 2px;
-    color: var(--karma-color, var(--ink-faint2)); opacity: .85; white-space: nowrap;
-  }
+  .karma-sub{ margin-top: 2px; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--karma-color, var(--ink-faint2)); opacity: .85; white-space: nowrap; }
 
-  /* ===== 綜合資訊小方塊 (置中調整) ===== */
-  .mini-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 30px; }
+  /* ===== 綜合資訊小方塊 ===== */
+  .mini-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-bottom: 30px; }
   .mini-box { background: var(--paper-2); border: 1px solid var(--border); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; }
   .mini-label { font-size: 12px; color: var(--ink-faint2); font-weight: 700; margin-bottom: 6px; }
   .mini-box input { background: transparent; border: none; font-size: 18px; font-weight: 900; color: var(--ink); width: 100%; text-align: center; font-family: "Noto Serif TC", serif; }
@@ -488,11 +400,7 @@
   /* ===== 標籤頁切換 ===== */
   .tabs { display: flex; gap: 8px; border-bottom: 3px solid var(--gold-deep); margin-bottom: 24px; overflow-x: auto; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    background: var(--paper-2); border: 1px solid var(--border); border-bottom: none;
-    border-radius: 8px 8px 0 0; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 16px;
-    color: var(--ink-faint2); padding: 12px 24px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
-  }
+  .tab-btn { background: var(--paper-2); border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 16px; color: var(--ink-faint2); padding: 12px 24px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
   .tab-btn.active { background: var(--gold-deep); color: var(--paper); border-color: var(--gold-deep); }
   .tab-panel { display: none; animation: fadeIn 0.3s; }
   .tab-panel.active { display: block; }
@@ -500,43 +408,75 @@
 
   /* ===== 區塊與輸入元件 ===== */
   section.block { margin-bottom: 36px; }
-  .block-title {
-    font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 22px; color: var(--ink);
-    margin-bottom: 16px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 8px;
-  }
+  .block-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 22px; color: var(--ink); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
   .block-title::before { content: ""; display: block; width: 6px; height: 22px; background: var(--vermillion); border-radius: 3px; flex-shrink: 0; }
   .block-sub{ font-size: 13px; font-weight: 400; color: var(--ink-faint2); letter-spacing: 1px; }
   .table-scroll{ overflow-x: auto; }
 
   .field-group { margin-bottom: 16px; }
   .field-label { display: block; font-size: 13px; font-weight: 700; color: var(--ink-faint2); margin-bottom: 6px; }
-  .nm-input, .nm-textarea {
-    width: 100%; background: var(--paper); border: 1px solid var(--border); border-radius: 6px;
-    padding: 10px 12px; font-family: inherit; font-size: 15px; color: var(--ink); line-height: 1.6;
-  }
+  .nm-input, .nm-textarea { width: 100%; background: var(--paper); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; font-family: inherit; font-size: 15px; color: var(--ink); line-height: 1.6; }
   .nm-input:focus, .nm-textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 2px rgba(140,107,39,0.1); }
-  .nm-textarea { resize: vertical; min-height: 100px; }
+  
+  /* 隱藏滾動條，靠 JS 讓文字框無限延伸 */
+  .nm-textarea { overflow: hidden; resize: none; min-height: 80px; }
 
-  /* ===== 表格設計 (武功秘笈感) ===== */
-  .manual-table-wrap { background: var(--paper-2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-  .manual-table-header {
-    background: var(--ink); color: var(--gold); padding: 12px 16px;
-    font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 16px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .manual-table-header input { background: transparent; border: none; color: var(--gold); font-family: inherit; font-weight: inherit; font-size: inherit; width: 300px; }
-  .manual-table-header input:focus { outline: none; border-bottom: 1px solid var(--gold); }
+  /* ===== 規則書重點色塊（Masonry 瀑布流排版解決不均勻問題） ===== */
+  .rb-toolbar{ display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .rb-source{ font-size:12px; color:var(--ink-faint2); letter-spacing:.5px; }
+  .rb-toggle{ margin-left:auto; font-size:12px; padding:5px 12px; }
+  .rb-hint{ background:var(--paper-2); border:1px dashed var(--border); border-radius:6px; padding:18px; color:var(--ink-faint2); font-size:14px; text-align:center; }
+  .rb-wrap{ column-count: 2; column-gap: 16px; }
+  @media(max-width: 800px) { .rb-wrap { column-count: 1; } }
+  .rb-card{ background:var(--paper-2); border:1px solid var(--border); border-left:5px solid var(--rb-accent,var(--gold-deep)); border-radius:8px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,.05); break-inside: avoid; margin-bottom: 16px; display: inline-block; width: 100%; }
+  .rb-raw-card{ column-span: all; }
+  .rb-head{ display:flex; align-items:center; gap:9px; padding:10px 16px; background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%); border-bottom:2px solid var(--rb-accent,var(--gold-deep)); font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:1.5px; color:#F8EDD1; }
+  .rb-head::before{ content:""; width:9px; height:9px; flex-shrink:0; transform:rotate(45deg); background:var(--rb-accent,var(--gold)); box-shadow:0 0 8px var(--rb-accent,var(--gold)); }
+  .rb-body{ padding:14px 18px; font-size:14.5px; line-height:1.95; color:var(--ink-dim); }
+  .rb-p{ margin:0 0 8px; }
+  .rb-p:last-child{ margin-bottom:0; }
+  .rb-list{ margin:0; padding:0; list-style:none; }
+  .rb-list li{ position:relative; padding-left:15px; margin-bottom:5px; }
+  .rb-list li:last-child{ margin-bottom:0; }
+  .rb-list li::before{ content:""; position:absolute; left:2px; top:.75em; width:5px; height:5px; transform:rotate(45deg); background:var(--rb-accent,var(--gold-deep)); opacity:.75; }
+  .rb-key{ color:var(--rb-accent,var(--gold-deep)); font-weight:700; }
+  .rb-term{ color:var(--gold-deep); font-weight:700; }
+  .rb-num{ color:var(--vermillion); font-weight:700; font-family:"Noto Serif TC",serif; }
+  .rb-warn{ color:var(--vermillion-bright); font-weight:700; }
+  .rb-raw{ white-space:pre-wrap; }
 
+  /* ===== 快捷動作卡 ===== */
+  .qa-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
+  .qa-card{ position:relative; overflow:hidden; background:var(--paper-2); border:1px solid var(--border); border-radius:8px; box-shadow:0 3px 10px rgba(0,0,0,.05); transition:transform .18s ease, box-shadow .18s ease; }
+  .qa-card:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.10); }
+  .qa-card::after{ content:"招"; position:absolute; right:-10px; bottom:-34px; pointer-events:none; font-family:"Zhi Mang Xing",cursive; font-size:120px; color:var(--gold); opacity:.07; }
+  .qa-card.just-added{ animation:qaPop .45s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes qaPop{ from{ opacity:0; transform:translateY(-8px) scale(.97); } to{ opacity:1; transform:none; } }
+  .qa-head{ display:flex; align-items:center; gap:8px; padding:10px 12px; background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%); border-bottom:2px solid var(--gold-deep); }
+  .qa-name{ flex:1; min-width:0; background:transparent; border:none; border-bottom:1px solid rgba(232,202,130,.22); color:#F8EDD1; font-family:"Noto Serif TC",serif; font-weight:900; font-size:17px; padding:2px 0; }
+  .qa-name:focus{ outline:none; border-bottom-color:var(--gold); }
+  .qa-name::placeholder{ color:rgba(232,202,130,.38); font-weight:400; }
+  .qa-cost{ flex-shrink:0; font-size:11.5px; font-weight:700; letter-spacing:.5px; color:#E8CA82; border:1px solid var(--gold-deep); background:rgba(0,0,0,.35); border-radius:999px; padding:3px 10px; }
+  .qa-cost.empty{ display:none; }
+  .qa-del{ flex-shrink:0; background:transparent; border:none; color:rgba(232,202,130,.55); cursor:pointer; font-size:14px; padding:2px 4px; line-height:1; }
+  .qa-del:hover{ color:var(--vermillion-bright); }
+  .qa-body{ position:relative; z-index:1; padding:12px 14px 10px; display:grid; gap:8px; }
+  .qa-field{ display:flex; align-items:center; gap:10px; }
+  .qa-field > span{ flex:0 0 72px; font-size:11.5px; font-weight:700; letter-spacing:1px; color:var(--ink-faint2); }
+  .qa-field input{ flex:1; min-width:0; background:var(--paper); border:1px solid var(--border); border-radius:5px; padding:6px 9px; font-family:inherit; font-size:14px; color:var(--ink); }
+  .qa-field input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.10); }
+  .qa-use{ position:relative; z-index:1; display:block; width:calc(100% - 28px); margin:0 14px 14px; background:linear-gradient(135deg,#2D5A4C,#1b4332); color:#DCEDE4; border:1px solid rgba(255,255,255,.14); border-radius:5px; cursor:pointer; font-family:"Noto Serif TC",serif; font-weight:900; font-size:13.5px; letter-spacing:3px; padding:8px 0; box-shadow:0 2px 8px rgba(27,67,50,.28); transition:filter .18s, box-shadow .18s, transform .12s; }
+  .qa-use:hover{ filter:brightness(1.16); box-shadow:0 4px 14px rgba(27,67,50,.4); }
+  .qa-use:active{ transform:translateY(1px); }
+  .qa-empty{ background:var(--paper-2); border:1px dashed var(--border); border-radius:8px; padding:30px; text-align:center; color:var(--ink-faint2); font-size:14px; }
+  
+  /* 表格 */
   table.sheet-table { width: 100%; border-collapse: collapse; }
-  table.sheet-table th {
-    background: rgba(0,0,0,0.03); text-align: left; font-family: "Noto Serif TC", serif; font-weight: 700;
-    color: var(--ink-dim); font-size: 13px; padding: 10px 12px; border-bottom: 2px solid var(--border);
-  }
+  table.sheet-table th { background: rgba(0,0,0,0.03); text-align: left; font-family: "Noto Serif TC", serif; font-weight: 700; color: var(--ink-dim); font-size: 13px; padding: 10px 12px; border-bottom: 2px solid var(--border); }
   table.sheet-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
   table.sheet-table input { width: 100%; background: transparent; border: none; color: var(--ink); font-family: inherit; font-size: 14px; padding: 4px; }
   table.sheet-table input:focus { background: var(--paper); outline: none; border-radius: 4px; }
 
-  /* ===== 物品卡片 ===== */
   .item-cards { display: grid; grid-template-columns: 1fr; gap: 16px; }
   .item-card { background: var(--paper-2); border: 1px solid var(--border); border-left: 4px solid var(--jade); border-radius: 6px; padding: 16px; position: relative; }
   .item-header { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; }
@@ -550,105 +490,6 @@
   .save-status{ position:fixed; bottom:20px; right:20px; font-size:13px; font-weight:700; color:#fff; background:var(--jade); padding:8px 16px; border-radius:20px; opacity:0; transition:opacity .3s, background .3s; pointer-events:none; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
   .save-status.show{ opacity:1; }
   .save-status.error{ background:var(--vermillion-bright); }
-
-  .sync-error-hint{ font-size:12px; color:var(--vermillion-bright); padding:4px 10px; max-width:260px; }
-
-  /* ===== 規則書重點色塊（結構化顯示，不再貼整篇原文） ===== */
-  .rb-toolbar{ display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
-  .rb-source{ font-size:12px; color:var(--ink-faint2); letter-spacing:.5px; }
-  .rb-toggle{ margin-left:auto; font-size:12px; padding:5px 12px; }
-  .rb-hint{
-    background:var(--paper-2); border:1px dashed var(--border); border-radius:6px;
-    padding:18px; color:var(--ink-faint2); font-size:14px; text-align:center;
-  }
-  .rb-wrap{ display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px; align-items:start; }
-  .rb-card{
-    background:var(--paper-2); border:1px solid var(--border); border-left:5px solid var(--rb-accent,var(--gold-deep));
-    border-radius:8px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,.05);
-  }
-  .rb-raw-card{ grid-column:1 / -1; }
-  .rb-head{
-    display:flex; align-items:center; gap:9px; padding:10px 16px;
-    background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
-    border-bottom:2px solid var(--rb-accent,var(--gold-deep));
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:1.5px; color:#F8EDD1;
-  }
-  .rb-head::before{
-    content:""; width:9px; height:9px; flex-shrink:0; transform:rotate(45deg);
-    background:var(--rb-accent,var(--gold)); box-shadow:0 0 8px var(--rb-accent,var(--gold));
-  }
-  .rb-body{ padding:14px 18px; font-size:14.5px; line-height:1.95; color:var(--ink-dim); }
-  .rb-p{ margin:0 0 8px; }
-  .rb-p:last-child{ margin-bottom:0; }
-  .rb-list{ margin:0; padding:0; list-style:none; }
-  .rb-list li{ position:relative; padding-left:15px; margin-bottom:5px; }
-  .rb-list li:last-child{ margin-bottom:0; }
-  .rb-list li::before{
-    content:""; position:absolute; left:2px; top:.75em; width:5px; height:5px;
-    transform:rotate(45deg); background:var(--rb-accent,var(--gold-deep)); opacity:.75;
-  }
-  .rb-key{ color:var(--rb-accent,var(--gold-deep)); font-weight:700; }
-  .rb-term{ color:var(--gold-deep); font-weight:700; }
-  .rb-num{ color:var(--vermillion); font-weight:700; font-family:"Noto Serif TC",serif; }
-  .rb-warn{ color:var(--vermillion-bright); font-weight:700; }
-  .rb-raw{ white-space:pre-wrap; }
-
-  /* ===== 快捷動作卡（原本是四欄純表格，改成招式玉牌） ===== */
-  .qa-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
-  .qa-card{
-    position:relative; overflow:hidden; background:var(--paper-2);
-    border:1px solid var(--border); border-radius:8px;
-    box-shadow:0 3px 10px rgba(0,0,0,.05); transition:transform .18s ease, box-shadow .18s ease;
-  }
-  .qa-card:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.10); }
-  .qa-card::after{
-    content:"招"; position:absolute; right:-10px; bottom:-34px; pointer-events:none;
-    font-family:"Zhi Mang Xing",cursive; font-size:120px; color:var(--gold); opacity:.07;
-  }
-  .qa-card.just-added{ animation:qaPop .45s cubic-bezier(.2,.9,.3,1.2); }
-  @keyframes qaPop{ from{ opacity:0; transform:translateY(-8px) scale(.97); } to{ opacity:1; transform:none; } }
-  .qa-head{
-    display:flex; align-items:center; gap:8px; padding:10px 12px;
-    background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
-    border-bottom:2px solid var(--gold-deep);
-  }
-  .qa-name{
-    flex:1; min-width:0; background:transparent; border:none; border-bottom:1px solid rgba(232,202,130,.22);
-    color:#F8EDD1; font-family:"Noto Serif TC",serif; font-weight:900; font-size:17px; padding:2px 0;
-  }
-  .qa-name:focus{ outline:none; border-bottom-color:var(--gold); }
-  .qa-name::placeholder{ color:rgba(232,202,130,.38); font-weight:400; }
-  .qa-cost{
-    flex-shrink:0; font-size:11.5px; font-weight:700; letter-spacing:.5px; color:#E8CA82;
-    border:1px solid var(--gold-deep); background:rgba(0,0,0,.35); border-radius:999px; padding:3px 10px;
-  }
-  .qa-cost.empty{ display:none; }
-  .qa-del{
-    flex-shrink:0; background:transparent; border:none; color:rgba(232,202,130,.55);
-    cursor:pointer; font-size:14px; padding:2px 4px; line-height:1;
-  }
-  .qa-del:hover{ color:var(--vermillion-bright); }
-  .qa-body{ position:relative; z-index:1; padding:12px 14px 10px; display:grid; gap:8px; }
-  .qa-field{ display:flex; align-items:center; gap:10px; }
-  .qa-field > span{ flex:0 0 72px; font-size:11.5px; font-weight:700; letter-spacing:1px; color:var(--ink-faint2); }
-  .qa-field input{
-    flex:1; min-width:0; background:var(--paper); border:1px solid var(--border); border-radius:5px;
-    padding:6px 9px; font-family:inherit; font-size:14px; color:var(--ink);
-  }
-  .qa-field input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.10); }
-  .qa-use{
-    position:relative; z-index:1; display:block; width:calc(100% - 28px); margin:0 14px 14px;
-    background:linear-gradient(135deg,#2D5A4C,#1b4332); color:#DCEDE4;
-    border:1px solid rgba(255,255,255,.14); border-radius:5px; cursor:pointer;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:13.5px; letter-spacing:3px; padding:8px 0;
-    box-shadow:0 2px 8px rgba(27,67,50,.28); transition:filter .18s, box-shadow .18s, transform .12s;
-  }
-  .qa-use:hover{ filter:brightness(1.16); box-shadow:0 4px 14px rgba(27,67,50,.4); }
-  .qa-use:active{ transform:translateY(1px); }
-  .qa-empty{
-    background:var(--paper-2); border:1px dashed var(--border); border-radius:8px;
-    padding:30px; text-align:center; color:var(--ink-faint2); font-size:14px;
-  }
 </style>
 </head>
 <body>
@@ -731,9 +572,6 @@
   const sheetEl = document.getElementById("sheet");
   let discordUser = null;
 
-  // ============================================================
-  // Discord 登入
-  // ============================================================
   function discordLogin(){
     if(!DISCORD_CLIENT_ID || DISCORD_CLIENT_ID === "YOUR_DISCORD_CLIENT_ID"){
       alert("尚未設定 Discord 登入。"); return;
@@ -747,10 +585,10 @@
   }
 
   function discordLogout(){
-    if(dirty) doSave();                 // 先把還沒寫回去的改動送出
+    if(dirty) doSave();
     sessionStorage.removeItem(DISCORD_TOKEN_KEY);
     discordUser = null;
-    draft = null; draftId = null; dirty = false;   // 清掉草稿，否則畫面會留著沒存的內容
+    draft = null; draftId = null; dirty = false;
     renderAuth(); renderCharLists(); renderSheet();
   }
 
@@ -789,16 +627,6 @@
   document.getElementById("discordLoginBtn").addEventListener("click", discordLogin);
   document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
 
-  // ============================================================
-  // 狀態
-  //
-  // draft 是「目前正在編輯的角色卡本地副本」。所有輸入都只改 draft，
-  // 存檔時整份寫回 Firebase；遠端推送回來時，只有在本地沒有未存變更的
-  // 情況下才會覆蓋 draft。這樣可以同時解決三個舊問題：
-  //   1. 存檔回音造成整頁重畫（畫面閃一下）
-  //   2. 用 update() 合併陣列，刪掉的最後一列會被舊資料補回來（要按兩次才刪掉）
-  //   3. 遠端快照直接換掉 allChars，把剛剛打的字洗掉
-  // ============================================================
   let allChars = {};
   let currentCharId = null;
   let draft = null, draftId = null;
@@ -823,7 +651,7 @@
   function blankCharacter(ownerId, ownerName){
     return normalizeChar({
       ownerId, ownerName, name: "未命名角色", player: ownerName || "", title: "",
-      race: "", path: "", job: "", root: "", realm: "", karma: 0, portrait: "",
+      race: "", path: "", job: "", root: "", realm: "", karma: 0, portrait: "", pb: 0,
       ac: 10, speed: 30, hp: { current: 0, max: 0 }, hpTemp: 0, qi: { current: 0, max: 0 }, qiBase: 0,
       languages: "", skills: "", notes: "",
       quickActions: [], spellGroups: [{ groupName: "主要功法", spells: [] }],
@@ -838,8 +666,6 @@
     return out;
   }
 
-  // 把資料庫拿回來的角色卡補齊成固定形狀：欄位一致才能拿來跟本地草稿比對，
-  // 也才不會在存檔時把 undefined 丟進 Firebase（set() 會直接報錯）。
   function normalizeChar(raw){
     const c = clone(raw) || {};
     const str = k => { c[k] = c[k] == null ? "" : String(c[k]); };
@@ -847,7 +673,7 @@
      "languages","skills","notes","notes_race","notes_path","notes_job","backgroundText","updatedBy",
      "portrait"].forEach(str);
     c.karma = num(c.karma); c.ac = num(c.ac); c.speed = num(c.speed); c.hpTemp = num(c.hpTemp);
-    c.qiBase = num(c.qiBase); c.updatedAt = num(c.updatedAt);
+    c.qiBase = num(c.qiBase); c.updatedAt = num(c.updatedAt); c.pb = num(c.pb);
     c.stats = Object.assign({ pot:10, con:10, int:10, per:10, luk:10, cha:10 }, c.stats || {});
     ATTRS.forEach(a => c.stats[a.id] = num(c.stats[a.id]));
     const saves = {}; ATTRS.forEach(a => saves[a.id] = !!(c.saves && c.saves[a.id])); c.saves = saves;
@@ -866,14 +692,11 @@
     }));
     delete c.spells;
     c.itemsList = (Array.isArray(c.itemsList) ? c.itemsList : []).map(i => ({
-      name: (i && i.name) ? String(i.name) : "",
-      type: (i && i.type) ? String(i.type) : "",
-      desc: (i && i.desc) ? String(i.desc) : ""
+      name: (i && i.name) ? String(i.name) : "", type: (i && i.type) ? String(i.type) : "", desc: (i && i.desc) ? String(i.desc) : ""
     }));
     return c;
   }
 
-  // 鍵排序後再序列化，用來判斷「遠端資料跟本地草稿是不是同一份」。
   function stable(v){
     if(Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
     if(v && typeof v === "object") return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + stable(v[k])).join(",") + "}";
@@ -886,7 +709,6 @@
     return allChars[currentCharId] ? normalizeChar(allChars[currentCharId]) : null;
   }
   function isOwner(char){ return !!(discordUser && char && char.ownerId === discordUser.id); }
-  function canEditCurrent(){ return isOwner(currentChar()); }
 
   function adoptDraft(){
     const c = currentCharId ? allChars[currentCharId] : null;
@@ -894,11 +716,10 @@
     draftId = currentCharId;
     dirty = false;
   }
-
   function markDirty(){ dirty = true; scheduleSave(); }
 
   // ============================================================
-  // 規則書資料：先用 localStorage 的快取即時上畫面，再等 Firebase 更新
+  // 規則書資料
   // ============================================================
   let chapters = {}, modules = {};
   let chaptersLoaded = false, modulesLoaded = false;
@@ -917,7 +738,7 @@
   }
   function saveRulebookCache(){
     try{ localStorage.setItem(RB_CACHE_KEY, JSON.stringify({ ts: rulebookAt, chapters, modules })); }
-    catch(e){ /* 超過容量就算了，只是快取 */ }
+    catch(e){ }
   }
   loadRulebookCache();
 
@@ -942,22 +763,16 @@
     const btn = sheetEl.querySelector('[data-action="reload-rulebook"]');
     if(!btn) return;
     btn.classList.toggle("spinning", rulebookBusy);
-    btn.title = rulebookBusy ? "讀取中……"
-      : (rulebookAt ? "重新讀取規則書（上次：" + new Date(rulebookAt).toLocaleTimeString() + "）" : "重新讀取規則書");
+    btn.title = rulebookBusy ? "讀取中……" : (rulebookAt ? "重新讀取規則書（上次：" + new Date(rulebookAt).toLocaleTimeString() + "）" : "重新讀取規則書");
   }
 
-  function rulebookChapterIds(category){
-    return Object.entries(chapters).filter(([,c]) => (c.name || "").includes(category)).map(([id]) => id);
-  }
+  function rulebookChapterIds(category){ return Object.entries(chapters).filter(([,c]) => (c.name || "").includes(category)).map(([id]) => id); }
 
   function getRulebookOptions(chapterNameContains){
     if(!(chaptersLoaded && modulesLoaded)) return { ready:false, found:false, options:[] };
     const chapterIds = rulebookChapterIds(chapterNameContains);
     if(chapterIds.length === 0) return { ready:true, found:false, options:[] };
-    const titles = Object.values(modules)
-      .filter(m => chapterIds.includes(m.chapterId))
-      .sort((a,b) => (a.order||0) - (b.order||0))
-      .map(m => (m.title || "").split(/[:：\-－]/)[0].trim());
+    const titles = Object.values(modules).filter(m => chapterIds.includes(m.chapterId)).sort((a,b) => (a.order||0) - (b.order||0)).map(m => (m.title || "").split(/[:：\-－]/)[0].trim());
     return { ready:true, found:true, options:[...new Set(titles)].filter(Boolean) };
   }
 
@@ -967,59 +782,44 @@
     return Object.values(modules).find(m => cIds.includes(m.chapterId) && (m.title||"").startsWith(titleExact)) || null;
   }
 
-  // ---- 規則書內容 → 結構化色塊 ----
-  // 規則書條目是一整篇純文字，開頭通常是引言與世界觀敘述，之後才是
-  // 【起始熟練】【即時能力】這類真正會用到的機制。這裡只留下有標題的段落，
-  // 並把純敘述性的段落濾掉，每段各自成為一塊色塊。
   const RB_SKIP_TITLE = /^(簡介|介紹|概述|概論|說明|背景|世界觀|外觀|外貌|描述|風俗|文化|歷史|故事|典故|前言|導言|序言|序|設定|定位|理念|概念|形象|扮演|角色扮演|範例對白|台詞)/;
   const RB_ACCENTS = ["#9C2B22","#8C6B27","#2D5A4C","#4A3B78","#7A4A20","#2F5878","#7C3A52"];
 
   function parseRuleSections(raw){
-    const lines = String(raw || "").replace(/\r/g, "").split("\n");
-    const out = [];
-    let cur = { title: "", lines: [] };
+    const lines = String(raw || "").replace(/
+/g, "").split("
+");
+    const out = []; let cur = { title: "", lines: [] };
     const flush = () => { if(cur.title || cur.lines.some(l => l.trim())) out.push(cur); };
     for(const line of lines){
       const m = line.trim().match(/^【(.+?)】\s*(.*)$/);
       if(m){ flush(); cur = { title: m[1].trim(), lines: m[2] ? [m[2]] : [] }; }
       else cur.lines.push(line);
     }
-    flush();
-    return out;
+    flush(); return out;
   }
 
   function rbInline(text){
-    return escapeHtml(text)
-      .replace(/【(.*?)】/g, '<b class="rb-term">【$1】</b>')
-      .replace(/!!(.*?)!!/g, '<span class="rb-warn">⚠ $1</span>')
-      .replace(/__(.*?)__/g, '<u>$1</u>')
-      .replace(/~~(.*?)~~/g, '<s>$1</s>')
-      .replace(/\b(DC\s?\d+)/gi, '<b class="rb-num">$1</b>')
-      .replace(/(\d*d\d+(?:\s?[+\-]\s?\d+)?)/gi, '<b class="rb-num">$1</b>')
-      .replace(/([+\-]\d+(?:\.\d+)?%?)/g, '<b class="rb-num">$1</b>');
+    return escapeHtml(text).replace(/【(.*?)】/g, '<b class="rb-term">【$1】</b>').replace(/!!(.*?)!!/g, '<span class="rb-warn">⚠ $1</span>').replace(/__(.*?)__/g, '<u>$1</u>').replace(/~~(.*?)~~/g, '<s>$1</s>').replace(/(DC\s?\d+)/gi, '<b class="rb-num">$1</b>').replace(/(\d*d\d+(?:\s?[+\-]\s?\d+)?)/gi, '<b class="rb-num">$1</b>').replace(/([+\-]\d+(?:\.\d+)?%?)/g, '<b class="rb-num">$1</b>');
   }
 
   function rbSectionBody(lines){
-    const html = [];
-    let bullets = [];
+    const html = []; let bullets = [];
     const flushBullets = () => {
       if(!bullets.length) return;
       html.push('<ul class="rb-list">' + bullets.map(b => {
         const m = b.match(/^(.{1,14}?)\s*[:：]\s*(.+)$/);
         return "<li>" + (m ? '<b class="rb-key">' + rbInline(m[1]) + "</b>" + rbInline("：" + m[2]) : rbInline(b)) + "</li>";
-      }).join("") + "</ul>");
-      bullets = [];
+      }).join("") + "</ul>"); bullets = [];
     };
     for(const rawLine of lines){
       const line = rawLine.trim();
       if(!line){ flushBullets(); continue; }
       const b = line.match(/^[•·・\-–—*▪◦]\s*(.+)$/);
       if(b){ bullets.push(b[1]); continue; }
-      flushBullets();
-      html.push('<p class="rb-p">' + rbInline(line) + "</p>");
+      flushBullets(); html.push('<p class="rb-p">' + rbInline(line) + "</p>");
     }
-    flushBullets();
-    return html.join("");
+    flushBullets(); return html.join("");
   }
 
   function rulebookBlocksHtml(category, value, showRaw){
@@ -1055,37 +855,29 @@
   }
 
   const rbRawOpen = { "種族": false, "道途": false, "職業": false };
-  const RB_PANELS = [
-    { cat:"種族", field:"race", box:"rbBox-race" },
-    { cat:"道途", field:"path", box:"rbBox-path" },
-    { cat:"職業", field:"job",  box:"rbBox-job"  }
-  ];
+  const RB_PANELS = [{ cat:"種族", field:"race", box:"rbBox-race" },{ cat:"道途", field:"path", box:"rbBox-path" },{ cat:"職業", field:"job", box:"rbBox-job" }];
 
-  // 規則書資料晚一步到齊時，只換掉三個規則書區塊與四個下拉選單，
-  // 不重畫整張角色卡（重畫會打斷正在打字的欄位、畫面也會閃）。
   function refreshRulebookViews(){
     paintRulebookBtn();
-    const char = currentChar();
-    if(!char) return;
+    const char = currentChar(); if(!char) return;
     RB_PANELS.forEach(p => {
       const box = document.getElementById(p.box);
       if(box) box.innerHTML = rulebookBlocksHtml(p.cat, char[p.field], rbRawOpen[p.cat]);
     });
     [["realm","境界"],["race","種族"],["path","道途"],["job","職業"]].forEach(([field, cat]) => {
-      const sel = sheetEl.querySelector(`select[data-f="${field}"]`);
-      if(!sel || sel === document.activeElement) return;
-      const value = char[field];
-      const fresh = rulebookSelectHtml(field, value, getRulebookOptions(cat), sel.disabled ? "disabled" : "");
-      const tmp = document.createElement("div"); tmp.innerHTML = fresh;
-      if(tmp.firstElementChild.innerHTML !== sel.innerHTML){
-        sel.innerHTML = tmp.firstElementChild.innerHTML;
-        sel.value = value || "";
+      const el = sheetEl.querySelector(`input[data-f="${field}"]`);
+      if(!el || el === document.activeElement) return;
+      const listId = "dl-" + field;
+      const datalist = document.getElementById(listId);
+      if(datalist) {
+        const result = getRulebookOptions(cat);
+        datalist.innerHTML = result.ready ? result.options.map(o => `<option value="${attr(o)}">`).join("") : "";
       }
     });
   }
 
   // ============================================================
-  // 角色卡清單
+  // 角色卡清單 & 宗門大殿
   // ============================================================
   const charsRef = ref(db, "characters");
   onValue(charsRef, snap => {
@@ -1093,35 +885,25 @@
     allChars = snap.val() || {};
     renderCharLists();
 
-    if(currentCharId && !allChars[currentCharId]){   // 角色卡被刪掉了
+    if(currentCharId && !allChars[currentCharId]){
       currentCharId = null; draft = null; draftId = null; dirty = false;
       renderCharLists(); renderSheet();
       return;
     }
-    // 本地還有沒存完的修改就先別覆蓋，免得剛打的字被自己的存檔回音洗掉
     if(dirty || saving) return;
     const remote = currentCharId ? normalizeChar(allChars[currentCharId]) : null;
-    if(draftId === currentCharId && draft && remote && stable(remote) === stable(draft)) return; // 只是自己存檔的回音
-    adoptDraft();
-    renderSheet();
-  }, err => {
-    console.error("characters sync error", err);
-    charsSyncError = err;
-    renderCharLists();
-  });
+    if(draftId === currentCharId && draft && remote && stable(remote) === stable(draft)) return; 
+    adoptDraft(); renderSheet();
+  }, err => { charsSyncError = err; renderCharLists(); });
 
   function renderCharLists(){
     const select = document.getElementById("charSelect");
-
     if(charsSyncError){
       select.innerHTML = `<option value="">連線失敗：${escapeHtml(charsSyncError.message || String(charsSyncError))}</option>`;
-      select.disabled = true;
-      select.title = "很可能是 Firebase 權限規則或匿名登入沒有開放，請檢查 Firebase 主控台";
-      updateDeleteBtn();
-      return;
+      select.disabled = true; select.title = "很可能是 Firebase 權限規則或匿名登入沒有開放，請檢查 Firebase 主控台";
+      updateDeleteBtn(); return;
     }
-    select.disabled = false;
-    select.title = "";
+    select.disabled = false; select.title = "";
     select.innerHTML = '<option value="">-- 選擇角色卡 --</option>';
 
     const label = c => (c.name || "未命名角色") + (c.realm ? "（" + c.realm + "）" : "");
@@ -1133,14 +915,12 @@
         select.appendChild(group);
       }
     }
-
     const others = Object.entries(allChars).filter(([,c]) => !discordUser || c.ownerId !== discordUser.id);
     if(others.length > 0){
       const group = document.createElement("optgroup"); group.label = "宗門其他角色";
       others.forEach(([id,c]) => group.innerHTML += `<option value="${id}">${escapeHtml(label(c))} (${escapeHtml(c.player||"未知")})</option>`);
       select.appendChild(group);
     }
-
     select.value = currentCharId || "";
     updateDeleteBtn();
   }
@@ -1155,11 +935,9 @@
   }
 
   document.getElementById("charSelect").addEventListener("change", async (e) => {
-    if(dirty) await doSave();            // 切換前先把還沒存的改動寫回去
+    if(dirty) await doSave();
     currentCharId = e.target.value || null;
-    adoptDraft();
-    renderSheet();
-    updateDeleteBtn();
+    adoptDraft(); renderSheet(); updateDeleteBtn();
   });
 
   document.getElementById("btnNewChar").addEventListener("click", async () => {
@@ -1170,14 +948,10 @@
       await set(newRef, fresh);
       allChars[newRef.key] = fresh;
       currentCharId = newRef.key;
-      adoptDraft();
-      renderCharLists(); renderSheet();
+      adoptDraft(); renderCharLists(); renderSheet();
     }catch(e){
       console.error("create character error", e);
-      alert("建立角色卡失敗：" + (e && e.message ? e.message : e)
-        + "\n\n很可能是 Firebase Realtime Database 規則或匿名登入沒有開放寫入權限，"
-        + "請到 Firebase 主控台檢查 Authentication → Sign-in method（匿名登入是否開啟）"
-        + "與 Realtime Database → Rules 後再試一次。");
+      alert("建立角色卡失敗：" + (e && e.message ? e.message : e));
     }
   });
 
@@ -1185,29 +959,22 @@
     const char = currentChar();
     if(!char || !isOwner(char)) return;
     const name = char.name || "未命名角色";
-    if(!confirm(`確定要刪除角色卡「${name}」嗎？\n\n這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`)) return;
+    if(!confirm(`確定要刪除角色卡「${name}」嗎？
+
+這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`)) return;
     const id = currentCharId;
     try{
       clearTimeout(saveTimer); dirty = false;
       await remove(ref(db, "characters/" + id));
-      delete allChars[id];
-      currentCharId = null; draft = null; draftId = null;
+      delete allChars[id]; currentCharId = null; draft = null; draftId = null;
       renderCharLists(); renderSheet();
       flashSaveStatus(`已刪除「${name}」`, false);
-    }catch(e){
-      console.error("delete character error", e);
-      flashSaveStatus("刪除失敗：" + (e && e.message ? e.message : e), true);
-    }
+    }catch(e){ flashSaveStatus("刪除失敗：" + (e && e.message ? e.message : e), true); }
   });
 
-  // ============================================================
-  // 宗門總覽摘要（唯讀，資料來自宗門大殿）
-  // ============================================================
   let clanWarehouse = {}, clanStones = {}, clanTreasury = {}, clanRoster = {}, clanLibrary = {};
-
   function watchClan(path, assign){
-    onValue(ref(db, path), snap => { assign(snap.val() || {}); renderClanSummary(); },
-      err => console.warn(path + " summary sync error", err));
+    onValue(ref(db, path), snap => { assign(snap.val() || {}); renderClanSummary(); }, err => console.warn(path + " summary sync error", err));
   }
   watchClan("warehouse", v => clanWarehouse = v);
   watchClan("stones",    v => clanStones = v);
@@ -1217,32 +984,16 @@
 
   function renderClanSummary(){
     const box = document.getElementById("clanSummary");
-    const items = Object.values(clanWarehouse);
-    const members = Object.values(clanRoster);
+    const items = Object.values(clanWarehouse); const members = Object.values(clanRoster);
     const stoneTotal = ["low","mid","high","extreme"].reduce((s,k) => s + num(clanStones[k]), 0);
-
-    if(items.length === 0 && members.length === 0 && stoneTotal === 0
-       && Object.keys(clanTreasury).length === 0 && Object.keys(clanLibrary).length === 0){
-      box.innerHTML = "";
-      return;
-    }
-
+    if(items.length === 0 && members.length === 0 && stoneTotal === 0 && Object.keys(clanTreasury).length === 0 && Object.keys(clanLibrary).length === 0){ box.innerHTML = ""; return; }
     const catCount = c => items.filter(i => (i.category || "丹藥") === c).length;
     const realmGroups = {};
-    members.forEach(m => {
-      const g = ((m.realm || "").trim() || "未記錄").slice(0, 2);
-      realmGroups[g] = (realmGroups[g] || 0) + 1;
-    });
-    const realmText = Object.entries(realmGroups).sort((a,b) => b[1]-a[1])
-      .map(([g,n]) => `<span>${escapeHtml(g)} <b>${n}</b></span>`).join("");
-
+    members.forEach(m => { const g = ((m.realm || "").trim() || "未記錄").slice(0, 2); realmGroups[g] = (realmGroups[g] || 0) + 1; });
+    const realmText = Object.entries(realmGroups).sort((a,b) => b[1]-a[1]).map(([g,n]) => `<span>${escapeHtml(g)} <b>${n}</b></span>`).join("");
     box.innerHTML = `
       <div class="cs-box">
-        <div class="cs-head">
-          <span class="cs-title">宗門總覽</span>
-          <span class="cs-sub">庫房物資　·　藏經閣　·　弟子境界分布</span>
-          <a class="cs-more" href="dm.html">前往宗門大殿 →</a>
-        </div>
+        <div class="cs-head"><span class="cs-title">宗門總覽</span><span class="cs-sub">庫房物資　·　藏經閣　·　弟子境界分布</span><a class="cs-more" href="dm.html">前往宗門大殿 →</a></div>
         <div class="cs-grid">
           <div class="cs-cell"><div class="cs-label">靈石總計</div><div class="cs-value">${stoneTotal.toLocaleString()}</div></div>
           <div class="cs-cell"><div class="cs-label">丹藥</div><div class="cs-value">${catCount("丹藥")}</div></div>
@@ -1277,8 +1028,6 @@
     const id = currentCharId;
     saving = true; dirty = false;
     try{
-      // 用 set() 整份覆寫：update() 是「合併」，刪掉陣列最後一列時舊資料會被留下來，
-      // 造成使用者按了刪除卻好像沒反應、要再按一次的狀況。
       await set(ref(db, "characters/" + id), char);
       allChars[id] = clone(char);
       flashSaveStatus("已自動儲存", false);
@@ -1286,43 +1035,29 @@
       console.error("save error", e);
       dirty = true;
       flashSaveStatus("儲存失敗：" + (e && e.message ? e.message : e), true);
-    }finally{
-      saving = false;
-    }
+    }finally{ saving = false; }
   }
   window.addEventListener("beforeunload", () => { if(dirty) doSave(); });
 
   function flashSaveStatus(msg, isError){
     const el = document.getElementById("saveStatus");
-    el.textContent = msg;
-    el.classList.toggle("error", !!isError);
-    el.classList.add("show");
-    clearTimeout(flashSaveStatus._t);
-    flashSaveStatus._t = setTimeout(()=>el.classList.remove("show"), isError ? 5000 : 1200);
+    el.textContent = msg; el.classList.toggle("error", !!isError); el.classList.add("show");
+    clearTimeout(flashSaveStatus._t); flashSaveStatus._t = setTimeout(()=>el.classList.remove("show"), isError ? 5000 : 1200);
   }
 
-  // 業力：正業力＝業障（紫），負業力＝功德（金）
   function getKarmaStyle(k){
     k = num(k);
     if(k > 0) return "--karma-color: #7C3AED; --karma-ring: #7C3AED; --karma-glow: rgba(124,58,237,0.38);";
     if(k < 0) return "--karma-color: #C8A035; --karma-ring: #C8A035; --karma-glow: rgba(200,160,53,0.40);";
     return "--karma-color: var(--ink-dim); --karma-ring: rgba(69,58,42,.42); --karma-glow: transparent;";
   }
-  function karmaLabel(k){
-    k = num(k);
-    return k > 0 ? "業障纏身" : (k < 0 ? "功德加身" : "清淨無染");
-  }
+  function karmaLabel(k){ k = num(k); return k > 0 ? "業障纏身" : (k < 0 ? "功德加身" : "清淨無染"); }
 
-  // ===== 太極環：外圈左上為生命弧、右下為靈氣弧 =====
-  // SVG 的 stroke 從三點鐘方向順時針起算，整圈轉 135°後起點落在左下角。
-  // 生命弧由起點順時針畫（覆蓋左上半圈）；靈氣弧靠 stroke-dashoffset 把虛線
-  // 往回挪，等於從同一點逆時針畫（覆蓋右下半圈），兩條弧在左下與右上咬合。
-  // 兩條弧各佔 168°，在左下與右上各留 12° 缺口：頭尾很靠近但不相接，
-  // 收在一起像兩個彼此勾著的鉤子。
+  // ===== 太極環 =====
   const RING_R = 100;
   const RING_C = 2 * Math.PI * RING_R;
   const ARC_SPAN = 168;
-  const HP_START = 141, QI_START = 129;   // 分界線在 135°／315°，各往內縮 6°
+  const HP_START = -84, QI_START = 96; 
   const ARC_LEN = RING_C * ARC_SPAN / 360;
   function ringLen(res){ return (pct(res) / 100) * ARC_LEN; }
 
@@ -1331,38 +1066,25 @@
     return { x: 120 + radius * Math.cos(t), y: 120 + radius * Math.sin(t) };
   }
 
-  // 弧道外側的刻度（各 1/4、1/2、3/4）與四個端點的小金釘
   function ringMarksHtml(){
     let out = "";
-    [[HP_START, 1], [QI_START, -1]].forEach(([start, dir]) => {
+    [[HP_START, 1], [QI_START, 1]].forEach(([start, dir]) => {
       [0.25, 0.5, 0.75].forEach(f => {
         const a = polar(start + dir * ARC_SPAN * f, 91);
         const b = polar(start + dir * ARC_SPAN * f, 109);
         out += `<line class="ring-tick" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"/>`;
       });
     });
-    // 兩個缺口（135°／315°）的正外側各放一顆小金釘，框住缺口但不填滿它
-    [135, 315].forEach(a => {
+    [-90, 90].forEach(a => {
       const c = polar(a, 116);
-      out += `<rect class="ring-stud" x="${(c.x-3.2).toFixed(1)}" y="${(c.y-3.2).toFixed(1)}" width="6.4" height="6.4"
-               transform="rotate(45 ${c.x.toFixed(1)} ${c.y.toFixed(1)})"/>`;
+      out += `<rect class="ring-stud" x="${(c.x-3.2).toFixed(1)}" y="${(c.y-3.2).toFixed(1)}" width="6.4" height="6.4" transform="rotate(45 ${c.x.toFixed(1)} ${c.y.toFixed(1)})"/>`;
     });
     return out;
   }
 
-  // 虛線的「實線 + 空白」總長必須剛好等於圓周長，dashoffset 才會沿著圓繞回來；
-  // 空白如果比圓還長，整條路徑都會落在空白裡，那條弧就完全畫不出來。
   function ringDash(len){ return len.toFixed(2) + " " + Math.max(0, RING_C - len).toFixed(2); }
-
-  // 高光弧畫在稍微外面一點的半徑上，虛線長度要按半徑比例換算，
-  // 否則兩條弧的長度對不齊。
-  const GLOSS_R = 103.4;
-  const GLOSS_C = 2 * Math.PI * GLOSS_R;
-  function glossDash(len){
-    const l = len * GLOSS_R / RING_R;
-    return l.toFixed(2) + " " + Math.max(0, GLOSS_C - l).toFixed(2);
-  }
-  function glossOffset(len){ return (len * GLOSS_R / RING_R).toFixed(2); }
+  const GLOSS_R = 103.4; const GLOSS_C = 2 * Math.PI * GLOSS_R;
+  function glossDash(len){ const l = len * GLOSS_R / RING_R; return l.toFixed(2) + " " + Math.max(0, GLOSS_C - l).toFixed(2); }
 
   function setRing(kind, res){
     const isHp = kind === "hp";
@@ -1370,26 +1092,17 @@
     if(!el) return;
     const len = ringLen(res);
     el.setAttribute("stroke-dasharray", ringDash(len));
-    if(!isHp) el.setAttribute("stroke-dashoffset", len.toFixed(2));   // 靈氣弧從同一點反方向長
     el.style.opacity = len > 0.6 ? 1 : 0;
-
     const gloss = sheetEl.querySelector(".ring-gloss." + kind);
-    if(gloss){
-      gloss.setAttribute("stroke-dasharray", glossDash(len));
-      if(!isHp) gloss.setAttribute("stroke-dashoffset", glossOffset(len));
-      gloss.style.opacity = len > 0.6 ? 1 : 0;
-    }
-
+    if(gloss){ gloss.setAttribute("stroke-dasharray", glossDash(len)); gloss.style.opacity = len > 0.6 ? 1 : 0; }
     const bead = sheetEl.querySelector(".ring-bead." + kind);
     if(bead){
-      const tip = polar((isHp ? HP_START : QI_START) + (isHp ? 1 : -1) * ARC_SPAN * (pct(res) / 100), RING_R);
-      bead.setAttribute("cx", tip.x.toFixed(2));
-      bead.setAttribute("cy", tip.y.toFixed(2));
+      const tip = polar((isHp ? HP_START : QI_START) + ARC_SPAN * (pct(res) / 100), RING_R);
+      bead.setAttribute("cx", tip.x.toFixed(2)); bead.setAttribute("cy", tip.y.toFixed(2));
       bead.style.opacity = len > 0.6 ? 1 : 0;
     }
   }
 
-  // 乾兌離震巽坎艮坤（由上方順時針排），1 為陽爻、0 為陰爻
   const BAGUA = ["111","110","101","100","011","010","001","000"];
   function baguaHtml(){
     const R = 80, cx = 120, cy = 120;
@@ -1398,18 +1111,13 @@
       const x = (cx + R * Math.cos(a)).toFixed(1), y = (cy + R * Math.sin(a)).toFixed(1);
       const bars = tri.split("").map((b, j) => {
         const by = (-6 + j * 5).toFixed(1);
-        return b === "1"
-          ? `<rect x="-8" y="${by}" width="16" height="2" rx="1"/>`
-          : `<rect x="-8" y="${by}" width="6.2" height="2" rx="1"/><rect x="1.8" y="${by}" width="6.2" height="2" rx="1"/>`;
+        return b === "1" ? `<rect x="-8" y="${by}" width="16" height="2" rx="1"/>` : `<rect x="-8" y="${by}" width="6.2" height="2" rx="1"/><rect x="1.8" y="${by}" width="6.2" height="2" rx="1"/>`;
       }).join("");
       return `<g transform="translate(${x} ${y}) rotate(${i * 45})">${bars}</g>`;
     }).join("");
   }
 
   // ===== 立繪（法相）=====
-  // 圖片直接存在角色卡上，所以要壓到夠小：每次自動存檔都會把整張卡寫回資料庫。
-  // 立繪是跟角色卡一起寫回資料庫的，每次自動存檔都會整份重傳，
-  // 所以只留到顯示尺寸（158×208）的兩倍畫質就好，別留原圖等級的大小。
   const PORTRAIT_MAX_BYTES = 120000;
   const CLOUD_SVG = `<svg viewBox="0 0 30 30" aria-hidden="true"><path d="M1.2 28.8 L1.2 8.4 Q1.2 1.2 8.4 1.2 L28.8 1.2" /><path d="M7 23.5 Q7 15 13.4 15 Q18.6 15 18.6 19.2 Q18.6 22.4 15.6 22.4 Q13.4 22.4 13.4 20.4" /></svg>`;
 
@@ -1418,8 +1126,7 @@
     const corners = ["tl","tr","br","bl"].map(c => `<span class="pf-corner ${c}">${CLOUD_SVG}</span>`).join("");
     return `
       <div class="ch-portrait">
-        <div class="portrait-frame${src ? " has-img" : ""}" ${editable ? 'data-action="portrait-pick" role="button" tabindex="0"' : ""}
-             title="${editable ? "點擊上傳立繪（會自動壓縮）" : "角色立繪"}">
+        <div class="portrait-frame${src ? " has-img" : ""}" ${editable ? 'data-action="portrait-pick" role="button" tabindex="0"' : ""} title="${editable ? "點擊上傳立繪（會自動壓縮）" : "角色立繪"}">
           ${corners}
           <div class="pf-inner">
             ${src
@@ -1436,77 +1143,55 @@
   }
 
   const portraitInput = document.createElement("input");
-  portraitInput.type = "file";
-  portraitInput.accept = "image/*";
-  portraitInput.style.display = "none";
-  document.body.appendChild(portraitInput);
+  portraitInput.type = "file"; portraitInput.accept = "image/*"; portraitInput.style.display = "none"; document.body.appendChild(portraitInput);
 
   portraitInput.addEventListener("change", async () => {
     const file = portraitInput.files && portraitInput.files[0];
-    portraitInput.value = "";
-    if(!file) return;
-    const char = currentChar();
-    if(!char || !isOwner(char)) return;
+    portraitInput.value = ""; if(!file) return;
+    const char = currentChar(); if(!char || !isOwner(char)) return;
     try{
       flashSaveStatus("處理立繪中……", false);
       char.portrait = await shrinkImage(file);
-      refreshPortrait();
-      markDirty();
-      flashSaveStatus("立繪已更新", false);
+      refreshPortrait(); markDirty(); flashSaveStatus("立繪已更新", false);
     }catch(e){
-      console.error("portrait error", e);
-      flashSaveStatus("立繪處理失敗：" + (e && e.message ? e.message : e), true);
+      console.error("portrait error", e); flashSaveStatus("立繪處理失敗：" + (e && e.message ? e.message : e), true);
     }
   });
 
-  // 縮到直式框用得到的尺寸再轉 JPEG，必要時降畫質直到夠小
   function shrinkImage(file){
     return new Promise((resolve, reject) => {
-      const fr = new FileReader();
-      fr.onerror = () => reject(new Error("讀不到這個檔案"));
+      const fr = new FileReader(); fr.onerror = () => reject(new Error("讀不到這個檔案"));
       fr.onload = () => {
-        const img = new Image();
-        img.onerror = () => reject(new Error("這不是能讀取的圖片格式"));
+        const img = new Image(); img.onerror = () => reject(new Error("這不是能讀取的圖片格式"));
         img.onload = () => {
           const scale = Math.min(1, 360 / img.naturalWidth, 470 / img.naturalHeight);
-          const w = Math.max(1, Math.round(img.naturalWidth * scale));
-          const h = Math.max(1, Math.round(img.naturalHeight * scale));
-          const canvas = document.createElement("canvas");
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext("2d");
-          ctx.fillStyle = "#191410";               // 透明底轉 JPEG 會變黑，先鋪成框內的深色
-          ctx.fillRect(0, 0, w, h);
-          ctx.drawImage(img, 0, 0, w, h);
+          const w = Math.max(1, Math.round(img.naturalWidth * scale)); const h = Math.max(1, Math.round(img.naturalHeight * scale));
+          const canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext("2d"); ctx.fillStyle = "#191410"; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
           let q = 0.80, out = canvas.toDataURL("image/jpeg", q);
           while(out.length > PORTRAIT_MAX_BYTES && q > 0.35){ q -= 0.10; out = canvas.toDataURL("image/jpeg", q); }
           if(out.length > PORTRAIT_MAX_BYTES) return reject(new Error("這張圖太大了，請先裁小一點再試"));
           resolve(out);
         };
         img.src = fr.result;
-      };
-      fr.readAsDataURL(file);
+      }; fr.readAsDataURL(file);
     });
   }
 
   function refreshPortrait(){
     const char = currentChar(); if(!char) return;
-    const host = sheetEl.querySelector(".ch-portrait");
-    if(!host) return;
-    const tmp = document.createElement("div");
-    tmp.innerHTML = portraitHtml(char, isOwner(char));
-    host.replaceWith(tmp.firstElementChild);
+    const host = sheetEl.querySelector(".ch-portrait"); if(!host) return;
+    const tmp = document.createElement("div"); tmp.innerHTML = portraitHtml(char, isOwner(char)); host.replaceWith(tmp.firstElementChild);
   }
 
-  // 靈氣池動輒上萬，數字太長就自動縮字級，免得被輸入框切掉
   function fitNumberInput(el, base){
     const len = String(el.value == null ? "" : el.value).length;
-    const size = len <= 4 ? base : len <= 5 ? base * 0.84 : len <= 6 ? base * 0.72
-      : len <= 8 ? base * 0.60 : base * 0.48;
+    const size = len <= 4 ? base : len <= 5 ? base * 0.84 : len <= 6 ? base * 0.72 : len <= 8 ? base * 0.60 : base * 0.48;
     el.style.fontSize = Math.round(size) + "px";
   }
   function fitAllNumbers(root){
     (root || sheetEl).querySelectorAll(".res-inputs input").forEach(el => fitNumberInput(el, 28));
-    (root || sheetEl).querySelectorAll(".karma-input").forEach(el => fitNumberInput(el, 38));
+    (root || sheetEl).querySelectorAll(".karma-input").forEach(el => fitNumberInput(el, 42));
   }
 
   // ============================================================
@@ -1516,161 +1201,77 @@
     const char = currentChar();
 
     if(!char){
-      document.body.style.setProperty("--path-tint-alpha", "0");
-      document.getElementById("watermark").textContent = "卡";
-      sheetEl.innerHTML = `
-        <div style="text-align:center; padding:100px 20px; color:var(--ink-faint2);">
-          <div style="font-family:'Zhi Mang Xing',cursive; font-size:80px; color:var(--border); margin-bottom:20px;">卡</div>
-          <h2>請從上方選擇或建立角色卡</h2>
-          <p>${discordUser ? "按右上角「＋ 新增」開一張新的角色卡。" : "需先登入 Discord 才能進行編輯。"}</p>
-        </div>`;
-      updateDeleteBtn();
-      return;
+      document.body.style.setProperty("--path-tint-alpha", "0"); document.getElementById("watermark").textContent = "卡";
+      sheetEl.innerHTML = `<div style="text-align:center; padding:100px 20px; color:var(--ink-faint2);"><div style="font-family:'Zhi Mang Xing',cursive; font-size:80px; color:var(--border); margin-bottom:20px;">卡</div><h2>請從上方選擇或建立角色卡</h2><p>${discordUser ? "按右上角「＋ 新增」開一張新的角色卡。" : "需先登入 Discord 才能進行編輯。"}</p></div>`;
+      updateDeleteBtn(); return;
     }
 
-    applyPathTint(char);
-    document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
-
-    const editable = isOwner(char);
-    const dis = editable ? "" : "disabled";
+    applyPathTint(char); document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
+    const editable = isOwner(char); const dis = editable ? "" : "disabled";
 
     sheetEl.innerHTML = `
       ${!editable ? `<div class="readonly-banner">唯讀模式：您正在檢視「${escapeHtml(char.name)}」的角色卡。</div>` : ""}
-
       <div class="char-header-block">
         <div class="ch-left">
           <div class="ch-nameline">
-            <div class="ch-field">
-              <label class="h-label">角色尊名</label>
-              <input class="char-name-input" data-f="name" value="${attr(char.name)}" placeholder="未命名角色" ${dis}>
-            </div>
-            <span class="ch-sep">──</span>
-            <div class="ch-field">
-              <label class="h-label">稱號</label>
-              <input class="char-title-input" data-f="title" value="${attr(char.title)}" placeholder="例如：百毒不侵" ${dis}>
-            </div>
+            <div class="ch-field"><label class="h-label">角色尊名</label><input class="char-name-input" data-f="name" value="${attr(char.name)}" placeholder="未命名角色" ${dis}></div>
+            <div class="ch-field" style="margin-bottom:4px;"><label class="h-label">稱號</label><input class="char-title-input" data-f="title" value="${attr(char.title)}" placeholder="例如：百毒不侵" ${dis}></div>
           </div>
-
           <div class="header-tags">
-            <div class="h-tag">境界 ${rulebookSelectHtml("realm", char.realm, getRulebookOptions("境界"), dis)}</div>
-            <div class="h-tag">種族 ${rulebookSelectHtml("race", char.race, getRulebookOptions("種族"), dis)}</div>
-            <div class="h-tag">道途 ${rulebookSelectHtml("path", char.path, getRulebookOptions("道途"), dis)}</div>
-            <div class="h-tag">職業 ${rulebookSelectHtml("job", char.job, getRulebookOptions("職業"), dis)}</div>
+            <div class="h-tag">境界 ${rulebookInputHtml("realm", char.realm, getRulebookOptions("境界"), dis)}</div>
+            <div class="h-tag">種族 ${rulebookInputHtml("race", char.race, getRulebookOptions("種族"), dis)}</div>
+            <div class="h-tag">道途 ${rulebookInputHtml("path", char.path, getRulebookOptions("道途"), dis)}</div>
+            <div class="h-tag">職業 ${rulebookInputHtml("job", char.job, getRulebookOptions("職業"), dis)}</div>
             <button class="h-refresh" data-action="reload-rulebook" title="重新讀取規則書">↻</button>
           </div>
         </div>
-
         ${portraitHtml(char, editable)}
       </div>
 
-      <div class="stats-container">
-        ${ATTRS.map(a => statCardHtml(a, char, dis)).join("")}
-      </div>
+      <div class="stats-container">${ATTRS.map(a => statCardHtml(a, char, dis)).join("")}</div>
 
       <div class="resources-container">
-        <!-- 左翼：生命值，右緣斜切抱住太極環 -->
+        <!-- 左翼：生命值 -->
         <div class="wing wing-left">
-          <div class="wing-inner">
-            <div class="res-title hp">生命值 <span class="res-unit">HP</span></div>
-            <div class="res-inputs">
-              <input data-f="hp.current" type="number" value="${num(char.hp.current)}" ${dis}><span>/</span>
-              <input data-f="hp.max" type="number" value="${num(char.hp.max)}" ${dis}>
-            </div>
-            <div class="res-sub"><span>臨時生命</span><input data-f="hpTemp" type="number" placeholder="0" class="res-temp" value="${num(char.hpTemp) || ""}" ${dis}></div>
-          </div>
+          <div class="res-title hp">生命值 <span class="res-unit">HP</span></div>
+          <div class="res-inputs"><input data-f="hp.current" type="number" value="${num(char.hp.current)}" ${dis}><span>/</span><input data-f="hp.max" type="number" value="${num(char.hp.max)}" ${dis}></div>
+          <div class="res-sub"><span>臨時生命</span><input data-f="hpTemp" type="number" placeholder="0" class="res-mini" value="${num(char.hpTemp) || ""}" ${dis}></div>
         </div>
-
-        <!-- 中央：太極陰陽魚環。外圈左上為生命弧、右下為靈氣弧，逆向咬合 -->
+        <!-- 中央：太極陰陽魚環。HP從上順時針，QI從下順時針 -->
         <div class="taiji-core" style="${getKarmaStyle(char.karma)}">
           <svg class="taiji-rings" viewBox="0 0 240 240" aria-hidden="true">
             <defs>
-              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="34" y1="206" x2="206" y2="34">
-                <stop offset="0" stop-color="#5E1610"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#E0664C"/>
-              </linearGradient>
-              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="206" y1="34" x2="34" y2="206">
-                <stop offset="0" stop-color="#0F2E23"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#63B78E"/>
-              </linearGradient>
-              <linearGradient id="glossGrad" gradientUnits="userSpaceOnUse" x1="120" y1="10" x2="120" y2="230">
-                <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
-                <stop offset=".55" stop-color="#fff" stop-opacity=".22"/>
-                <stop offset="1" stop-color="#fff" stop-opacity=".08"/>
-              </linearGradient>
+              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="120" y1="20" x2="120" y2="220"><stop offset="0" stop-color="#E0664C"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#5E1610"/></linearGradient>
+              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="120" y1="220" x2="120" y2="20"><stop offset="0" stop-color="#63B78E"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#0F2E23"/></linearGradient>
+              <linearGradient id="glossGrad" gradientUnits="userSpaceOnUse" x1="120" y1="10" x2="120" y2="230"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient>
             </defs>
             <g class="bagua-ring">${baguaHtml()}</g>
             <g class="ring-marks">${ringMarksHtml()}</g>
-
-            <circle class="ring-groove hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)"
-              stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
-            <circle class="ring-groove qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)"
-              stroke-dasharray="${ringDash(ARC_LEN)}" stroke-dashoffset="${ARC_LEN.toFixed(2)}"></circle>
-            <circle class="ring-rail out hp" cx="120" cy="120" r="110" transform="rotate(${HP_START} 120 120)"
-              stroke-dasharray="${(ARC_LEN*1.1).toFixed(2)} ${(2*Math.PI*110 - ARC_LEN*1.1).toFixed(2)}"></circle>
-            <circle class="ring-rail out qi" cx="120" cy="120" r="110" transform="rotate(${QI_START} 120 120)"
-              stroke-dasharray="${(ARC_LEN*1.1).toFixed(2)} ${(2*Math.PI*110 - ARC_LEN*1.1).toFixed(2)}"
-              stroke-dashoffset="${(ARC_LEN*1.1).toFixed(2)}"></circle>
-            <circle class="ring-rail in hp" cx="120" cy="120" r="90" transform="rotate(${HP_START} 120 120)"
-              stroke-dasharray="${(ARC_LEN*0.9).toFixed(2)} ${(2*Math.PI*90 - ARC_LEN*0.9).toFixed(2)}"></circle>
-            <circle class="ring-rail in qi" cx="120" cy="120" r="90" transform="rotate(${QI_START} 120 120)"
-              stroke-dasharray="${(ARC_LEN*0.9).toFixed(2)} ${(2*Math.PI*90 - ARC_LEN*0.9).toFixed(2)}"
-              stroke-dashoffset="${(ARC_LEN*0.9).toFixed(2)}"></circle>
-
-            <circle class="ring-track hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)"
-              stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
-            <circle class="ring-track qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)"
-              stroke-dasharray="${ringDash(ARC_LEN)}" stroke-dashoffset="${ARC_LEN.toFixed(2)}"></circle>
-
-            <circle class="ring-fill hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)"
-              stroke-dasharray="${ringDash(ringLen(char.hp))}"
-              style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
-            <circle class="ring-fill qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)"
-              stroke-dasharray="${ringDash(ringLen(char.qi))}"
-              stroke-dashoffset="${ringLen(char.qi).toFixed(2)}"
-              style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
-
-            <circle class="ring-gloss hp" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${HP_START} 120 120)"
-              stroke-dasharray="${glossDash(ringLen(char.hp))}"
-              style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
-            <circle class="ring-gloss qi" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${QI_START} 120 120)"
-              stroke-dasharray="${glossDash(ringLen(char.qi))}"
-              stroke-dashoffset="${glossOffset(ringLen(char.qi))}"
-              style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
-
-            <circle class="ring-bead hp" r="4.6"
-              cx="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).x.toFixed(2)}"
-              cy="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).y.toFixed(2)}"
-              style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
-            <circle class="ring-bead qi" r="4.6"
-              cx="${polar(QI_START - ARC_SPAN * pct(char.qi) / 100, RING_R).x.toFixed(2)}"
-              cy="${polar(QI_START - ARC_SPAN * pct(char.qi) / 100, RING_R).y.toFixed(2)}"
-              style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-groove hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)" stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
+            <circle class="ring-groove qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
+            <circle class="ring-rail out hp" cx="120" cy="120" r="110" transform="rotate(${HP_START} 120 120)" stroke-dasharray="${(ARC_LEN*1.1).toFixed(2)} ${(2*Math.PI*110 - ARC_LEN*1.1).toFixed(2)}"></circle>
+            <circle class="ring-rail out qi" cx="120" cy="120" r="110" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${(ARC_LEN*1.1).toFixed(2)} ${(2*Math.PI*110 - ARC_LEN*1.1).toFixed(2)}"></circle>
+            <circle class="ring-rail in hp" cx="120" cy="120" r="90" transform="rotate(${HP_START} 120 120)" stroke-dasharray="${(ARC_LEN*0.9).toFixed(2)} ${(2*Math.PI*90 - ARC_LEN*0.9).toFixed(2)}"></circle>
+            <circle class="ring-rail in qi" cx="120" cy="120" r="90" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${(ARC_LEN*0.9).toFixed(2)} ${(2*Math.PI*90 - ARC_LEN*0.9).toFixed(2)}"></circle>
+            <circle class="ring-track hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)" stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
+            <circle class="ring-track qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
+            <circle class="ring-fill hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)" stroke-dasharray="${ringDash(ringLen(char.hp))}" style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-fill qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${ringDash(ringLen(char.qi))}" style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-gloss hp" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${HP_START} 120 120)" stroke-dasharray="${glossDash(ringLen(char.hp))}" style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-gloss qi" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${glossDash(ringLen(char.qi))}" style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-bead hp" r="4.6" cx="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).x.toFixed(2)}" cy="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).y.toFixed(2)}" style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-bead qi" r="4.6" cx="${polar(QI_START + ARC_SPAN * pct(char.qi) / 100, RING_R).x.toFixed(2)}" cy="${polar(QI_START + ARC_SPAN * pct(char.qi) / 100, RING_R).y.toFixed(2)}" style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
           </svg>
           <div class="karma-plate">
-            <svg class="yy" viewBox="0 0 240 240" aria-hidden="true">
-              <path class="yy-dark" d="M120,54 A66,66 0 0,1 120,186 A33,33 0 0,1 120,120 A33,33 0 0,0 120,54 Z"></path>
-              <circle class="yy-dot-a" cx="120" cy="87" r="10"></circle>
-              <circle class="yy-dot-b" cx="120" cy="153" r="10"></circle>
-              <circle class="yy-edge" cx="120" cy="120" r="66"></circle>
-            </svg>
-            <div class="karma-body">
-              <div class="karma-title">業力</div>
-              <input class="karma-input" data-f="karma" type="number" value="${num(char.karma)}" ${dis}>
-              <div class="karma-sub">${karmaLabel(char.karma)}</div>
-            </div>
+            <svg class="yy" viewBox="0 0 240 240" aria-hidden="true"><path class="yy-dark" d="M120,54 A66,66 0 0,1 120,186 A33,33 0 0,1 120,120 A33,33 0 0,0 120,54 Z"></path><circle class="yy-dot-a" cx="120" cy="87" r="10"></circle><circle class="yy-dot-b" cx="120" cy="153" r="10"></circle><circle class="yy-edge" cx="120" cy="120" r="66"></circle></svg>
+            <div class="karma-body"><div class="karma-title">業力</div><input class="karma-input" data-f="karma" type="number" value="${num(char.karma)}" ${dis}><div class="karma-sub">${karmaLabel(char.karma)}</div></div>
           </div>
         </div>
-
-        <!-- 右翼：靈氣池，左緣對稱斜切 -->
+        <!-- 右翼：靈氣池 -->
         <div class="wing wing-right">
-          <div class="wing-inner">
-            <div class="res-title qi">靈氣池 <span class="res-unit">QI</span></div>
-            <div class="res-inputs">
-              <input data-f="qi.current" type="number" value="${num(char.qi.current)}" ${dis}><span>/</span>
-              <input data-f="qi.max" type="number" value="${num(char.qi.max)}" ${dis}>
-            </div>
-            <div class="res-sub">
-              <span>靈根基礎修練速度</span><input data-f="qiBase" type="number" class="res-mini" value="${num(char.qiBase)}" ${dis}>
-            </div>
-          </div>
+          <div class="res-title qi">靈氣池 <span class="res-unit">QI</span></div>
+          <div class="res-inputs"><input data-f="qi.current" type="number" value="${num(char.qi.current)}" ${dis}><span>/</span><input data-f="qi.max" type="number" value="${num(char.qi.max)}" ${dis}></div>
+          <div class="res-sub"><span>靈根修練度</span><input data-f="qiBase" type="number" class="res-mini" value="${num(char.qiBase)}" ${dis}></div>
         </div>
       </div>
 
@@ -1688,6 +1289,7 @@
         <div class="mini-stats">
           <div class="mini-box"><div class="mini-label">護甲值 AC</div><input data-f="ac" type="number" value="${num(char.ac)}" ${dis}></div>
           <div class="mini-box"><div class="mini-label">先攻 (神識調整)</div><div class="mini-static" id="initValue">${fmtMod(mod(char.stats.per))}</div></div>
+          <div class="mini-box"><div class="mini-label">熟練加值 PB</div><input data-f="pb" type="number" value="${num(char.pb)}" ${dis}></div>
           <div class="mini-box"><div class="mini-label">步行速度</div><input data-f="speed" type="number" value="${num(char.speed)}" ${dis}></div>
           <div class="mini-box"><div class="mini-label">靈根</div><input data-f="root" value="${attr(char.root)}" placeholder="例：金木火" ${dis}></div>
         </div>
@@ -1699,15 +1301,13 @@
         </section>
 
         <section class="block">
-          <div class="block-title">快捷速查　<span class="block-sub">武器 · 常用動作</span>
-            ${editable ? `<button class="btn gold-btn" data-action="add-row" data-table="quickActions" data-cols="4" style="margin-left:auto;">＋ 新增動作</button>` : ""}
-          </div>
+          <div class="block-title">快捷速查　<span class="block-sub">武器 · 常用動作</span>${editable ? `<button class="btn gold-btn" data-action="add-row" data-table="quickActions" data-cols="4" style="margin-left:auto;">＋ 新增動作</button>` : ""}</div>
           <div id="qaHost">${quickActionsHtml(char, editable)}</div>
         </section>
 
         <section class="block">
           <div class="block-title">身世與背景</div>
-          <textarea class="nm-textarea" data-f="backgroundText" rows="6" placeholder="過往、動機、宗門關係……" ${dis}>${attr(char.backgroundText)}</textarea>
+          <textarea class="nm-textarea" data-f="backgroundText" placeholder="過往、動機、宗門關係……" ${dis}>${attr(char.backgroundText)}</textarea>
         </section>
       </div>
 
@@ -1751,9 +1351,15 @@
     if(!sheetEl.querySelector("#" + activeTab)) activeTab = "tab-main";
     sheetEl.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === activeTab));
     sheetEl.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
-    fitAllNumbers();
-    paintRulebookBtn();
-    updateDeleteBtn();
+    
+    // 初始化自適應文字框高度
+    sheetEl.querySelectorAll('textarea').forEach(el => {
+      const resize = () => { el.style.height = 'auto'; el.style.height = (el.scrollHeight) + 'px'; };
+      el.addEventListener('input', resize);
+      setTimeout(resize, 0); 
+    });
+    
+    fitAllNumbers(); paintRulebookBtn(); updateDeleteBtn();
   }
 
   function applyPathTint(char){
@@ -1765,34 +1371,24 @@
   function statCardHtml(a, char, dis){
     const val = num(char.stats[a.id]);
     const isProf = char.saves[a.id] ? "proficient" : "";
-    const checked = char.saves[a.id] ? "checked" : "";
     return `
       <div class="stat-card ${isProf}" data-stat="${a.id}">
-        <div class="stat-header">
-          <span class="stat-name">${a.name}</span>
-          <input type="checkbox" class="stat-prof-check" data-f="saves.${a.id}" title="豁免熟練" ${checked} ${dis}>
-        </div>
+        <div class="stat-header"><span class="stat-name">${a.name}</span></div>
         <input class="stat-value" data-f="stats.${a.id}" type="number" value="${val}" ${dis}>
         <div class="stat-mod">${fmtMod(mod(val))}</div>
       </div>`;
   }
 
-  // ---- 快捷動作：卡片式（原本是四欄純表格，太素） ----
   function qaCostText(row){
-    const raw = String(row[2] || "").trim();
-    if(!raw) return "";
-    const n = parseInt(raw, 10);
-    return Number.isFinite(n) && n > 0 ? `耗氣 ${n}` : raw;
+    const raw = String(row[2] || "").trim(); if(!raw) return "";
+    const n = parseInt(raw, 10); return Number.isFinite(n) && n > 0 ? `耗氣 ${n}` : raw;
   }
 
   function quickActionsHtml(char, editable){
     const rows = char.quickActions || [];
-    if(rows.length === 0){
-      return `<div class="qa-empty">${editable ? "還沒有登錄任何招式。按上方「＋ 新增動作」開一張。" : "尚未登錄常用動作。"}</div>`;
-    }
+    if(rows.length === 0){ return `<div class="qa-empty">${editable ? "還沒有登錄任何招式。按上方「＋ 新增動作」開一張。" : "尚未登錄常用動作。"}</div>`; }
     return `<div class="qa-grid">${rows.map((row, i) => {
-      const dis = editable ? "" : "disabled";
-      const cost = qaCostText(row);
+      const dis = editable ? "" : "disabled"; const cost = qaCostText(row);
       return `
       <div class="qa-card" data-qa="${i}">
         <div class="qa-head">
@@ -1801,12 +1397,9 @@
           ${editable ? `<button class="qa-del" data-action="del-row" data-table="quickActions" data-row="${i}" title="刪除這個動作">✕</button>` : ""}
         </div>
         <div class="qa-body">
-          <label class="qa-field"><span>判定／豁免</span>
-            <input value="${attr(row[1])}" placeholder="例：命中 +5／體質豁免 DC13" data-table="quickActions" data-row="${i}" data-col="1" ${dis}></label>
-          <label class="qa-field"><span>耗氣／類型</span>
-            <input value="${attr(row[2])}" placeholder="填數字可直接扣氣" data-table="quickActions" data-row="${i}" data-col="2" ${dis}></label>
-          <label class="qa-field"><span>傷害／效果</span>
-            <input value="${attr(row[3])}" placeholder="例：2d6 火焰傷害" data-table="quickActions" data-row="${i}" data-col="3" ${dis}></label>
+          <label class="qa-field"><span>判定／豁免</span><input value="${attr(row[1])}" placeholder="例：命中 +5／體質豁免 DC13" data-table="quickActions" data-row="${i}" data-col="1" ${dis}></label>
+          <label class="qa-field"><span>耗氣／類型</span><input value="${attr(row[2])}" placeholder="填數字可直接扣氣" data-table="quickActions" data-row="${i}" data-col="2" ${dis}></label>
+          <label class="qa-field"><span>傷害／效果</span><input value="${attr(row[3])}" placeholder="例：2d6 火焰傷害" data-table="quickActions" data-row="${i}" data-col="3" ${dis}></label>
         </div>
         ${editable ? `<button class="qa-use" data-action="use-qa" data-row="${i}">運功施展</button>` : ""}
       </div>`;
@@ -1814,8 +1407,7 @@
   }
 
   function spellsHtml(char, editable){
-    const groups = char.spellGroups || [];
-    const dis = editable ? "" : "disabled";
+    const groups = char.spellGroups || []; const dis = editable ? "" : "disabled";
     return `
       ${groups.map((group, gIdx) => `
         <div class="manual-table-wrap">
@@ -1838,18 +1430,14 @@
   }
 
   function spellRowHtml(gIdx, rIdx, row, editable){
-    row = padRow(row, 5);
-    let tds = "";
-    for(let c=0; c<5; c++){
-      tds += `<td><input value="${attr(row[c])}" data-sg="${gIdx}" data-sr="${rIdx}" data-sc="${c}" ${editable?"":"disabled"}></td>`;
-    }
+    row = padRow(row, 5); let tds = "";
+    for(let c=0; c<5; c++){ tds += `<td><input value="${attr(row[c])}" data-sg="${gIdx}" data-sr="${rIdx}" data-sc="${c}" ${editable?"":"disabled"}></td>`; }
     if(editable) tds += `<td><button class="btn-icon" data-action="del-spellrow" data-gidx="${gIdx}" data-ridx="${rIdx}">✕</button></td>`;
     return `<tr>${tds}</tr>`;
   }
 
   function itemsHtml(char, editable){
-    const iList = char.itemsList || [];
-    const dis = editable ? "" : "disabled";
+    const iList = char.itemsList || []; const dis = editable ? "" : "disabled";
     return `
       <div class="item-cards">
         ${iList.map((item, idx) => `
@@ -1866,28 +1454,23 @@
       ${editable ? `<div style="margin-top:20px; text-align:center;"><button class="btn jade-btn" data-action="add-item">＋ 新增法寶/物品</button></div>` : ""}`;
   }
 
-  function rulebookSelectHtml(field, value, result, dis){
-    let opts = `<option value="">-- 無 --</option>`;
-    if(result.ready) opts += result.options.map(o => `<option value="${attr(o)}" ${value===o?"selected":""}>${escapeHtml(o)}</option>`).join("");
-    if(value && !result.options.includes(value)) opts += `<option value="${attr(value)}" selected>${escapeHtml(value)}</option>`;
-    return `<select data-f="${field}" ${dis}>${opts}</select>`;
+  function rulebookInputHtml(field, value, result, dis){
+    const listId = "dl-" + field;
+    let opts = result.ready ? result.options.map(o => `<option value="${attr(o)}">`).join("") : "";
+    return `<input class="tag-input" data-f="${field}" list="${listId}" value="${attr(value)}" placeholder="手動填寫" ${dis} autocomplete="off"><datalist id="${listId}">${opts}</datalist>`;
   }
 
-  // ---- 局部重繪：只換掉需要更新的區塊，避免整張卡重畫造成畫面閃動 ----
   function refreshQuickActions(){
     const char = currentChar(); if(!char) return;
-    const host = document.getElementById("qaHost");
-    if(host) host.innerHTML = quickActionsHtml(char, isOwner(char));
+    const host = document.getElementById("qaHost"); if(host) host.innerHTML = quickActionsHtml(char, isOwner(char));
   }
   function refreshSpells(){
     const char = currentChar(); if(!char) return;
-    const host = document.getElementById("spellHost");
-    if(host) host.innerHTML = spellsHtml(char, isOwner(char));
+    const host = document.getElementById("spellHost"); if(host) host.innerHTML = spellsHtml(char, isOwner(char));
   }
   function refreshItems(){
     const char = currentChar(); if(!char) return;
-    const host = document.getElementById("itemHost");
-    if(host) host.innerHTML = itemsHtml(char, isOwner(char));
+    const host = document.getElementById("itemHost"); if(host) host.innerHTML = itemsHtml(char, isOwner(char));
   }
   function refreshQiViews(char){
     setRing("qi", char.qi);
@@ -1899,17 +1482,15 @@
   }
 
   // ============================================================
-  // 事件：一次綁在 #sheet 上，局部重繪後不需要重新綁定
+  // 事件：一次綁在 #sheet 上
   // ============================================================
   sheetEl.addEventListener("input", (e) => {
-    const el = e.target;
-    const char = currentChar();
+    const el = e.target; const char = currentChar();
     if(!char || !isOwner(char) || el.disabled) return;
 
     if(el.dataset.f){
       const field = el.dataset.f;
-      const val = el.type === "checkbox" ? el.checked
-        : (el.type === "number" ? (parseFloat(el.value) || 0) : el.value);
+      const val = el.type === "checkbox" ? el.checked : (el.type === "number" ? (parseFloat(el.value) || 0) : el.value);
       setPath(char, field, val);
 
       if(field.startsWith("stats.")){
@@ -1920,10 +1501,6 @@
           if(initEl) initEl.textContent = fmtMod(mod(val));
         }
       }
-      if(field.startsWith("saves.")){
-        const card = el.closest(".stat-card");
-        if(card) card.classList.toggle("proficient", !!val);
-      }
       if(field === "karma"){
         const core = el.closest(".taiji-core");
         if(core){
@@ -1931,37 +1508,20 @@
           const sub = core.querySelector(".karma-sub");
           if(sub) sub.textContent = karmaLabel(val);
         }
-        fitNumberInput(el, 38);
+        fitNumberInput(el, 42);
       }
-      if(field === "hp.current" || field === "hp.max"){
-        setRing("hp", char.hp);
-        fitNumberInput(el, 28);
-      }
-      if(field === "qi.current" || field === "qi.max"){
-        setRing("qi", char.qi);
-        fitNumberInput(el, 28);
-      }
-      if(field === "name"){
-        document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
-      }
+      if(field === "hp.current" || field === "hp.max"){ setRing("hp", char.hp); fitNumberInput(el, 28); }
+      if(field === "qi.current" || field === "qi.max"){ setRing("qi", char.qi); fitNumberInput(el, 28); }
+      if(field === "name"){ document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡"; }
       if(field === "path"){
         applyPathTint(char);
-        const box = document.getElementById("rbBox-path");
-        if(box) box.innerHTML = rulebookBlocksHtml("道途", char.path, rbRawOpen["道途"]);
-        const t = sheetEl.querySelector('#tab-path .block-title');
-        if(t) t.textContent = `【${char.path || "未選擇"}】道途能力`;
+        const box = document.getElementById("rbBox-path"); if(box) box.innerHTML = rulebookBlocksHtml("道途", char.path, rbRawOpen["道途"]);
       }
       if(field === "race"){
-        const box = document.getElementById("rbBox-race");
-        if(box) box.innerHTML = rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"]);
-        const t = sheetEl.querySelector('#tab-race .block-title');
-        if(t) t.textContent = `【${char.race || "未選擇"}】種族特質`;
+        const box = document.getElementById("rbBox-race"); if(box) box.innerHTML = rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"]);
       }
       if(field === "job"){
-        const box = document.getElementById("rbBox-job");
-        if(box) box.innerHTML = rulebookBlocksHtml("職業", char.job, rbRawOpen["職業"]);
-        const t = sheetEl.querySelector('#tab-job .block-title');
-        if(t) t.textContent = `【${char.job || "未選擇"}】職業專長`;
+        const box = document.getElementById("rbBox-job"); if(box) box.innerHTML = rulebookBlocksHtml("職業", char.job, rbRawOpen["職業"]);
       }
       markDirty(); return;
     }
@@ -1974,35 +1534,35 @@
       if(table === "quickActions" && col === 2){
         const pill = sheetEl.querySelector(`[data-qa-cost="${row}"]`);
         if(pill){
-          const text = qaCostText(char[table][row]);
-          pill.textContent = text;
-          pill.classList.toggle("empty", !text);
+          const text = qaCostText(char[table][row]); pill.textContent = text; pill.classList.toggle("empty", !text);
         }
       }
       markDirty(); return;
     }
 
-    if(el.dataset.sgname != null){
-      const g = char.spellGroups[parseInt(el.dataset.sgname, 10)];
-      if(g) g.groupName = el.value;
-      markDirty(); return;
-    }
-
+    if(el.dataset.sgname != null){ const g = char.spellGroups[parseInt(el.dataset.sgname, 10)]; if(g) g.groupName = el.value; markDirty(); return; }
     if(el.dataset.sg != null){
-      const g = char.spellGroups[parseInt(el.dataset.sg, 10)];
-      const r = g && g.spells[parseInt(el.dataset.sr, 10)];
-      if(r) r[parseInt(el.dataset.sc, 10)] = el.value;
-      markDirty(); return;
+      const g = char.spellGroups[parseInt(el.dataset.sg, 10)]; const r = g && g.spells[parseInt(el.dataset.sr, 10)];
+      if(r) r[parseInt(el.dataset.sc, 10)] = el.value; markDirty(); return;
     }
-
     if(el.dataset.item != null){
-      const it = char.itemsList[parseInt(el.dataset.item, 10)];
-      if(it) it[el.dataset.prop] = el.value;
-      markDirty(); return;
+      const it = char.itemsList[parseInt(el.dataset.item, 10)]; if(it) it[el.dataset.prop] = el.value; markDirty(); return;
     }
   });
 
   sheetEl.addEventListener("click", (e) => {
+    const char = currentChar();
+    const editable = isOwner(char);
+    
+    // Stat card toggle
+    const statCard = e.target.closest(".stat-card");
+    if(statCard && editable){
+      const statId = statCard.dataset.stat;
+      char.saves[statId] = !char.saves[statId];
+      statCard.classList.toggle("proficient", char.saves[statId]);
+      markDirty(); return;
+    }
+
     const tabBtn = e.target.closest(".tab-btn");
     if(tabBtn){
       activeTab = tabBtn.dataset.tab;
@@ -2015,36 +1575,26 @@
     if(!btn) return;
     const action = btn.dataset.action;
 
-    // 這兩個動作不需要編輯權限
     if(action === "reload-rulebook"){ reloadRulebook(); return; }
     if(action === "rb-raw"){
-      const cat = btn.dataset.cat;
-      rbRawOpen[cat] = !rbRawOpen[cat];
-      const char = currentChar(); if(!char) return;
-      const panel = RB_PANELS.find(p => p.cat === cat);
+      const cat = btn.dataset.cat; rbRawOpen[cat] = !rbRawOpen[cat];
+      if(!char) return; const panel = RB_PANELS.find(p => p.cat === cat);
       const box = panel && document.getElementById(panel.box);
       if(box) box.innerHTML = rulebookBlocksHtml(cat, char[panel.field], rbRawOpen[cat]);
       return;
     }
 
-    const char = currentChar();
-    if(!char || !isOwner(char)) return;
+    if(!char || !editable) return;
 
     if(action === "portrait-pick"){ portraitInput.click(); return; }
     if(action === "portrait-url"){
       const url = prompt("貼上立繪圖片網址（http/https）：", String(char.portrait || "").startsWith("data:") ? "" : (char.portrait || ""));
-      if(url === null) return;
-      const clean = url.trim();
+      if(url === null) return; const clean = url.trim();
       if(clean && !/^https?:\/\//i.test(clean)){ flashSaveStatus("請貼上 http 或 https 開頭的網址", true); return; }
-      char.portrait = clean;
-      refreshPortrait(); markDirty();
-      return;
+      char.portrait = clean; refreshPortrait(); markDirty(); return;
     }
     if(action === "portrait-clear"){
-      if(!confirm("要移除這張立繪嗎？")) return;
-      char.portrait = "";
-      refreshPortrait(); markDirty();
-      return;
+      if(!confirm("要移除這張立繪嗎？")) return; char.portrait = ""; refreshPortrait(); markDirty(); return;
     }
 
     if(action === "use-qa"){
@@ -2052,35 +1602,24 @@
       const cost = parseInt(row[2], 10) || 0;
       if(cost > 0){
         char.qi.current = Math.max(0, num(char.qi.current) - cost);
-        refreshQiViews(char);
-        flashSaveStatus(`${row[0] || "招式"} 施展：靈氣 −${cost}`, false);
-        markDirty();
-      }else{
-        flashSaveStatus("這個動作沒有填數字的耗氣值", true);
-      }
+        refreshQiViews(char); flashSaveStatus(`${row[0] || "招式"} 施展：靈氣 −${cost}`, false); markDirty();
+      }else{ flashSaveStatus("這個動作沒有填數字的耗氣值", true); }
       return;
     }
     if(action === "add-row"){
-      const t = btn.dataset.table;
-      if(!Array.isArray(char[t])) char[t] = [];
-      char[t].push(padRow([], parseInt(btn.dataset.cols, 10) || 4));
-      refreshQuickActions();
-      const cards = sheetEl.querySelectorAll(".qa-card");
-      const last = cards[cards.length - 1];
+      const t = btn.dataset.table; if(!Array.isArray(char[t])) char[t] = [];
+      char[t].push(padRow([], parseInt(btn.dataset.cols, 10) || 4)); refreshQuickActions();
+      const cards = sheetEl.querySelectorAll(".qa-card"); const last = cards[cards.length - 1];
       if(last){ last.classList.add("just-added"); const n = last.querySelector(".qa-name"); if(n) n.focus(); }
       markDirty(); return;
     }
-    if(action === "del-row"){
-      char[btn.dataset.table].splice(parseInt(btn.dataset.row, 10), 1);
-      refreshQuickActions(); markDirty(); return;
-    }
+    if(action === "del-row"){ char[btn.dataset.table].splice(parseInt(btn.dataset.row, 10), 1); refreshQuickActions(); markDirty(); return; }
 
     if(action === "add-spellgroup"){ char.spellGroups.push({ groupName:"新功法表", spells:[] }); refreshSpells(); markDirty(); return; }
     if(action === "del-spellgroup"){
       const g = char.spellGroups[parseInt(btn.dataset.gidx, 10)];
       if(g && (g.spells.length > 0 || g.groupName) && !confirm(`確定刪除功法表「${g.groupName || "未命名"}」？裡面的 ${g.spells.length} 招也會一起刪除。`)) return;
-      char.spellGroups.splice(parseInt(btn.dataset.gidx, 10), 1);
-      refreshSpells(); markDirty(); return;
+      char.spellGroups.splice(parseInt(btn.dataset.gidx, 10), 1); refreshSpells(); markDirty(); return;
     }
     if(action === "add-spellrow"){
       const g = char.spellGroups[parseInt(btn.dataset.gidx, 10)];
@@ -2097,15 +1636,8 @@
     if(action === "del-item"){ char.itemsList.splice(parseInt(btn.dataset.idx, 10), 1); refreshItems(); markDirty(); return; }
   });
 
-  // 規則書訂閱放在最後才註冊：確保回呼會用到的常數都已經初始化
-  onValue(ref(db, "chapters"), snap => {
-    chapters = snap.val() || {}; chaptersLoaded = true; rulebookAt = Date.now();
-    saveRulebookCache(); refreshRulebookViews();
-  }, err => console.error("chapters sync error", err));
-  onValue(ref(db, "modules"), snap => {
-    modules = snap.val() || {}; modulesLoaded = true; rulebookAt = Date.now();
-    saveRulebookCache(); refreshRulebookViews();
-  }, err => console.error("modules sync error", err));
+  onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chaptersLoaded = true; rulebookAt = Date.now(); saveRulebookCache(); refreshRulebookViews(); }, err => console.error("chapters sync error", err));
+  onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modulesLoaded = true; rulebookAt = Date.now(); saveRulebookCache(); refreshRulebookViews(); }, err => console.error("modules sync error", err));
 
   renderSheet();
   initDiscordAuth();
