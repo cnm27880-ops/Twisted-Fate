@@ -401,8 +401,6 @@
 
   .res-sub { font-size: 12px; color: var(--ink-faint2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .wing-right .res-sub { justify-content: flex-end; }
-  .res-est { display: inline-flex; align-items: center; gap: 4px; }
-  .res-est b { color: var(--ink); }
 
   /* ===== 太極陰陽魚環 ===== */
   .taiji-core { position: relative; width: 240px; height: 240px; z-index: 2; }
@@ -822,31 +820,6 @@
   function pct(res){ const cur = num(res && res.current), max = num(res && res.max); return max<=0 ? 0 : Math.max(0, Math.min(100, (cur/max)*100)); }
   function attr(s){ return escapeHtml(s==null?"":String(s)); }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-  // 境界寫法有「煉氣六層」「築基後期」這類中文寫法，只抓阿拉伯數字的話一律會算成 0，
-  // 靈氣估算就永遠少一截。這裡把中文數字與初期／中期／後期／圓滿一併解析。
-  const CN_DIGIT = { "零":0, "一":1, "二":2, "兩":2, "三":3, "四":4, "五":5, "六":6, "七":7, "八":8, "九":9 };
-  const REALM_STAGE = [["圓滿",4], ["巔峰",4], ["後期",3], ["中期",2], ["初期",1], ["前期",1]];
-
-  function cnToNumber(text){
-    if(text === "十") return 10;
-    if(text.length === 1) return CN_DIGIT[text] || 0;
-    if(text[0] === "十") return 10 + (CN_DIGIT[text[1]] || 0);
-    const i = text.indexOf("十");
-    if(i > 0) return (CN_DIGIT[text[0]] || 0) * 10 + (CN_DIGIT[text[i+1]] || 0);
-    return CN_DIGIT[text[0]] || 0;
-  }
-
-  function parseRealmLevel(realmText){
-    const t = String(realmText || "");
-    const ascii = t.match(/\d+/);
-    if(ascii) return parseInt(ascii[0], 10);
-    const cn = t.match(/([零一二兩三四五六七八九十]+)\s*[層重階段]/);
-    if(cn) return cnToNumber(cn[1]);
-    const stage = REALM_STAGE.find(([k]) => t.includes(k));
-    return stage ? stage[1] : 0;
-  }
-  function estimateQiMax(char){ return num(char.qiBase) + (parseRealmLevel(char.realm) * 10) + (mod(char.stats.per) * 5); }
-
   function blankCharacter(ownerId, ownerName){
     return normalizeChar({
       ownerId, ownerName, name: "未命名角色", player: ownerName || "", title: "",
@@ -1695,8 +1668,7 @@
               <input data-f="qi.max" type="number" value="${num(char.qi.max)}" ${dis}>
             </div>
             <div class="res-sub">
-              <span>靈根基礎</span><input data-f="qiBase" type="number" class="res-mini" value="${num(char.qiBase)}" ${dis}>
-              <span class="res-est">估算 <b id="qiEstimate">${estimateQiMax(char)}</b>${editable?`<button class="btn-icon" data-action="apply-qi-max" title="套用估算值">↵</button>`:""}</span>
+              <span>靈根基礎修練速度</span><input data-f="qiBase" type="number" class="res-mini" value="${num(char.qiBase)}" ${dis}>
             </div>
           </div>
         </div>
@@ -1919,8 +1891,6 @@
   }
   function refreshQiViews(char){
     setRing("qi", char.qi);
-    const est = document.getElementById("qiEstimate");
-    if(est) est.textContent = estimateQiMax(char);
     sheetEl.querySelectorAll('input[data-f="qi.current"], input[data-f="qi.max"]').forEach(el => {
       const field = el.dataset.f.split(".")[1];
       if(el !== document.activeElement) el.value = num(char.qi[field]);
@@ -1948,8 +1918,6 @@
         if(field === "stats.per"){
           const initEl = document.getElementById("initValue");
           if(initEl) initEl.textContent = fmtMod(mod(val));
-          const est = document.getElementById("qiEstimate");
-          if(est) est.textContent = estimateQiMax(char);
         }
       }
       if(field.startsWith("saves.")){
@@ -1973,9 +1941,6 @@
         setRing("qi", char.qi);
         fitNumberInput(el, 28);
       }
-      if(field === "qiBase"){
-        const est = document.getElementById("qiEstimate"); if(est) est.textContent = estimateQiMax(char);
-      }
       if(field === "name"){
         document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
       }
@@ -1997,9 +1962,6 @@
         if(box) box.innerHTML = rulebookBlocksHtml("職業", char.job, rbRawOpen["職業"]);
         const t = sheetEl.querySelector('#tab-job .block-title');
         if(t) t.textContent = `【${char.job || "未選擇"}】職業專長`;
-      }
-      if(field === "realm"){
-        const est = document.getElementById("qiEstimate"); if(est) est.textContent = estimateQiMax(char);
       }
       markDirty(); return;
     }
@@ -2098,14 +2060,6 @@
       }
       return;
     }
-    if(action === "apply-qi-max"){
-      char.qi.max = estimateQiMax(char);
-      const el = sheetEl.querySelector('input[data-f="qi.max"]');
-      if(el){ el.value = char.qi.max; fitNumberInput(el, 28); }
-      refreshQiViews(char);
-      markDirty(); return;
-    }
-
     if(action === "add-row"){
       const t = btn.dataset.table;
       if(!Array.isArray(char[t])) char[t] = [];
