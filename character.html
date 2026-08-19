@@ -355,14 +355,14 @@
   .res-title.hp { color: var(--vermillion-bright); }
   .res-title.qi { color: var(--jade); }
   .res-inputs { display: flex; align-items: baseline; justify-content: center; gap: 6px; font-family: "Noto Serif TC", serif; font-weight: 700; }
-  .res-inputs input { width: 80px; font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none; border-bottom: 2px solid var(--border); color: var(--ink); }
+  /* 寬度由 fitNumberInput 依位數動態設定，避免五、六位數的靈氣值被裁掉 */
+  .res-inputs input { width: 80px; min-width: 70px; font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none; border-bottom: 2px solid var(--border); color: var(--ink); }
   .res-inputs input:focus { outline: none; border-color: var(--gold); }
   .res-inputs span { color: var(--ink-faint2); font-size: 20px; margin: 0 2px; }
 
-  /* 臨時生命：改成貼在右上角的護盾徽章，不再佔一整行 */
+  /* 臨時生命：護盾徽章排在標題列裡，不疊在字上面 */
   .res-temp-badge {
-    position: absolute; top: 0; right: -6px; z-index: 1;
-    display: flex; align-items: center; gap: 3px;
+    flex-shrink: 0; display: flex; align-items: center; gap: 3px;
     background: linear-gradient(155deg,#3B4A57,#1C262E); border: 1px solid #7FA6C2; border-radius: 20px;
     padding: 3px 9px 3px 7px; box-shadow: 0 3px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(200,225,240,.15);
   }
@@ -1330,6 +1330,10 @@
     const len = String(el.value == null ? "" : el.value).length;
     const size = len <= 4 ? base : len <= 5 ? base * 0.84 : len <= 6 ? base * 0.72 : len <= 8 ? base * 0.60 : base * 0.48;
     el.style.fontSize = Math.round(size) + "px";
+    // 生命／靈氣的數字：欄寬跟著位數與縮後字級走，數字才不會被裁掉
+    if(el.parentElement && el.parentElement.classList.contains("res-inputs")){
+      el.style.width = Math.max(70, Math.ceil(len * size * 0.66) + 14) + "px";
+    }
   }
   function fitAllNumbers(root){
     (root || sheetEl).querySelectorAll(".res-inputs input").forEach(el => fitNumberInput(el, 28));
@@ -1383,12 +1387,13 @@
         <!-- 左翼：生命值 -->
         <div class="wing wing-left">
           <div class="res-box">
-            <div class="res-title hp">生命值 <span class="res-unit">HP</span></div>
-            <div class="res-inputs"><input data-f="hp.current" type="number" value="${num(char.hp.current)}" ${dis}><span>/</span><input data-f="hp.max" type="number" value="${num(char.hp.max)}" ${dis}></div>
-            <div class="res-temp-badge" title="臨時生命">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L20 5.5 V11 C20 16 16.5 20 12 22 C7.5 20 4 16 4 11 V5.5 Z"/></svg>
-              <input data-f="hpTemp" type="number" placeholder="0" value="${num(char.hpTemp) || ""}" ${dis}>
+            <div class="res-title hp">生命值 <span class="res-unit">HP</span>
+              <span class="res-temp-badge" title="臨時生命">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L20 5.5 V11 C20 16 16.5 20 12 22 C7.5 20 4 16 4 11 V5.5 Z"/></svg>
+                <input data-f="hpTemp" type="number" placeholder="0" value="${num(char.hpTemp) || ""}" ${dis}>
+              </span>
             </div>
+            <div class="res-inputs"><input data-f="hp.current" type="number" value="${num(char.hp.current)}" ${dis}><span>/</span><input data-f="hp.max" type="number" value="${num(char.hp.max)}" ${dis}></div>
           </div>
         </div>
         <!-- 中央：太極陰陽魚環。HP從上順時針，QI從下順時針 -->
