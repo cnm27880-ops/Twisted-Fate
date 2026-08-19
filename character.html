@@ -852,20 +852,22 @@
     flush(); return out;
   }
 
-  // 整段若全是「條列項目：說明」格式，拆成一條一個能力，讓沒有【】分段的種族/道途條目也能分塊顯示
+  // 整篇若（略過開頭敘述性文字後）全是「條列項目：說明」格式，拆成一條一個能力，
+  // 讓完全沒有【】分段的種族/道途條目也能分塊顯示。只在「找不到任何段落標題」時使用，
+  // 避免把一個已命名能力底下的屬性條列（例如「消耗／效果」）誤拆成互不相干的卡片。
   function kvBulletsOnly(lines){
-    const items = []; let sawContent = false;
-    for(const raw of lines){
-      const line = raw.trim();
-      if(!line) continue;
-      sawContent = true;
-      const b = line.match(/^[•·・\-–—*▪◦]\s*(.+)$/);
+    const trimmed = lines.map(l => l.trim()).filter(l => l !== "");
+    let i = 0;
+    while(i < trimmed.length && !/^[•·・\-–—*▪◦]\s*/.test(trimmed[i])) i++;
+    const items = [];
+    for(; i < trimmed.length; i++){
+      const b = trimmed[i].match(/^[•·・\-–—*▪◦]\s*(.+)$/);
       if(!b) return null;
       const kv = b[1].match(/^(.{1,18}?)\s*[:：]\s*(.+)$/);
       if(!kv) return null;
       items.push({ key: kv[1].trim(), value: kv[2].trim() });
     }
-    return sawContent && items.length > 1 ? items : null;
+    return items.length > 1 ? items : null;
   }
 
   function rbAbilityCardHtml(title, bodyHtml, accent){
@@ -914,14 +916,11 @@
     let accentIdx = 0; const nextAccent = () => RB_ACCENTS[accentIdx++ % RB_ACCENTS.length];
     let cards = "";
     if(sections.length > 0){
-      // 每個段落若整段都是「項目：說明」條列，拆成一條一塊；否則整段當一塊（與職業頁一致的拆分規則）
-      cards = sections.map(s => {
-        const kv = kvBulletsOnly(s.lines);
-        if(kv) return kv.map(item => rbAbilityCardHtml(item.key, `<p class="rb-p">${rbInline(item.value)}</p>`, nextAccent())).join("");
-        return rbAbilityCardHtml(s.title, rbSectionBody(s.lines), nextAccent());
-      }).join("");
+      // 每個段落已經有自己的標題（能力名稱），維持一段一塊；段落內的條列（如「消耗／效果」）
+      // 是同一個能力底下的屬性，不能再拆開，否則會失去能力名稱的脈絡
+      cards = sections.map(s => rbAbilityCardHtml(s.title, rbSectionBody(s.lines), nextAccent())).join("");
     } else {
-      // 沒有【】分段：若整篇是條列式能力清單，照樣拆成個別色塊
+      // 完全沒有【】分段：若整篇（略過開頭敘述文字後）是條列式能力清單，拆成個別色塊
       const kv = kvBulletsOnly(String(m.content).replace(/\r/g, "").split("\n"));
       if(kv) cards = kv.map(item => rbAbilityCardHtml(item.key, `<p class="rb-p">${rbInline(item.value)}</p>`, nextAccent())).join("");
     }
@@ -1159,7 +1158,7 @@
         out += `<line class="ring-tick" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"/>`;
       });
     });
-    [-90, 90].forEach(a => {
+    [135, 315].forEach(a => {
       const c = polar(a, 116);
       out += `<rect class="ring-stud" x="${(c.x-3.2).toFixed(1)}" y="${(c.y-3.2).toFixed(1)}" width="6.4" height="6.4" transform="rotate(45 ${c.x.toFixed(1)} ${c.y.toFixed(1)})"/>`;
     });
