@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>逆命．藏經閣</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F2E9D6; --paper-2: #EBDFC5; --paper-3: #E0D0A9;
+    --ink: #1D1712; --ink-dim: #453A2A; --ink-faint2: #6E5F45;
+    --vermillion: #9C2B22; --vermillion-bright: #B5372B;
+    --gold: #8C6B27; --gold-deep: #5F470F; --jade: #2D5A4C;
+    --border: rgba(95, 71, 15, 0.22);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"LXGW WenKai TC","Noto Serif TC",serif; min-height:100vh; position:relative;
+  }
+  h1,h2,h3{ font-family:"Noto Serif TC",serif; }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.5; mix-blend-mode:multiply;
+  }
+  .watermark{
+    position:fixed; top:-10px; right:-60px; z-index:0; pointer-events:none; user-select:none;
+    font-family:"Zhi Mang Xing",cursive; font-size:420px; line-height:1;
+    color:var(--ink); opacity:.035; transform:rotate(-8deg); filter:blur(3px);
+  }
+
+  .top-nav{
+    position:sticky; top:0; z-index:100; background:var(--paper-2); border-bottom:2px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:10px 24px; box-shadow:0 2px 10px rgba(0,0,0,.05); flex-wrap:wrap;
+  }
+  .nav-brand{ display:flex; align-items:center; gap:12px; }
+  .nav-brand img{ height:36px; mix-blend-mode:multiply; }
+  .nav-seal{
+    width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(155deg, var(--vermillion-bright), var(--vermillion));
+    border:1px solid rgba(255,255,255,.25); border-radius:3px;
+    font-family:"Ma Shan Zheng",cursive; color:#F5E4D3; font-size:13px;
+  }
+  .nav-links{ display:flex; gap:6px; }
+  .nav-link{
+    text-decoration:none; color:var(--ink-dim); font-size:13px; font-weight:700;
+    padding:6px 12px; border:1px solid var(--border); border-radius:4px; background:var(--paper);
+  }
+  .nav-link:hover{ background:var(--paper-3); border-color:var(--gold); }
+  .auth-box{ display:flex; align-items:center; gap:12px; }
+  .btn-discord{
+    display:flex; align-items:center; gap:6px; background:#5865F2; color:#fff; border:none;
+    border-radius:4px; padding:6px 12px; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .btn-discord svg{ width:16px; height:16px; fill:#fff; }
+  .auth-avatar{ width:32px; height:32px; border-radius:50%; border:2px solid var(--gold); }
+  .auth-name{ font-weight:700; font-size:13px; color:var(--ink); }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:5px; background:var(--paper);
+    border:1px solid var(--border); border-radius:4px; color:var(--ink-dim);
+    font-family:inherit; font-weight:700; font-size:12.5px; padding:6px 12px; cursor:pointer;
+  }
+  .btn:hover{ background:var(--paper-3); border-color:var(--gold); }
+  .btn.gold{ border-color:var(--gold); color:var(--gold-deep); }
+  .btn.danger{ border-color:var(--vermillion); color:var(--vermillion-bright); }
+  .btn-icon{ background:transparent; border:none; color:var(--ink-faint2); cursor:pointer; padding:4px; font-size:15px; }
+  .btn-icon:hover{ color:var(--vermillion-bright); }
+
+  .layout{ max-width:1280px; margin:0 auto; padding:30px 20px 100px; position:relative; z-index:1; }
+
+  .hall-header{
+    background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
+    border:2px solid var(--gold); border-radius:8px; padding:26px 36px; color:var(--paper);
+    margin-bottom:24px; position:relative; overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.15), inset 0 0 40px rgba(140,107,39,.1);
+  }
+  .hall-header::after{
+    content:"經"; position:absolute; right:-16px; top:-46px;
+    font-family:"Zhi Mang Xing",cursive; font-size:230px; color:var(--gold); opacity:.15; pointer-events:none;
+  }
+  .hall-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:36px; color:#F8EDD1; text-shadow:0 2px 6px rgba(0,0,0,.8); position:relative; z-index:1; }
+  .hall-sub{ margin-top:6px; font-size:14px; color:#E8CA82; letter-spacing:1px; position:relative; z-index:1; line-height:1.8; }
+
+  .toolbar{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:20px;
+  }
+  .search-input, .filter-select{
+    background:var(--paper); border:1px solid var(--border); border-radius:6px;
+    padding:8px 12px; font-family:inherit; font-size:14px; color:var(--ink);
+  }
+  .search-input{ flex:1; min-width:200px; }
+  .search-input:focus, .filter-select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
+  .toolbar-spacer{ flex:1; }
+
+  .learn-toggle{
+    display:flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--border);
+    border-radius:20px; padding:6px 14px; cursor:pointer; font-size:13px; font-weight:700; color:var(--ink-dim);
+  }
+  .learn-toggle.on{ background:var(--jade); border-color:var(--jade); color:#F2E9D6; }
+  .learn-toggle input{ accent-color:var(--vermillion); width:15px; height:15px; cursor:pointer; }
+
+  /* ===== 功法卡片 ===== */
+  .art-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px; }
+  .art-card{
+    background:var(--paper-2); border:1px solid var(--border); border-radius:8px; overflow:hidden;
+    box-shadow:0 4px 10px rgba(0,0,0,.04); cursor:pointer; transition:transform .15s, box-shadow .15s;
+    display:flex; flex-direction:column;
+  }
+  .art-card:hover{ transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,.1); }
+  .art-card.locked{ opacity:.55; }
+  .art-head{ background:linear-gradient(135deg,var(--ink),#2A2520); padding:14px 16px; position:relative; }
+  .art-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; color:#F8EDD1; text-shadow:0 1px 4px rgba(0,0,0,.8); }
+  .art-owner{ font-size:11.5px; color:#E8CA82; margin-top:3px; }
+  .art-rank{
+    position:absolute; top:12px; right:12px; padding:3px 10px; border-radius:3px;
+    font-size:11.5px; font-weight:900; letter-spacing:1px; background:var(--gold-deep); color:#F8EDD1;
+  }
+  .art-body{ padding:14px 16px; flex:1; display:flex; flex-direction:column; }
+  .art-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .tag{
+    font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:3px;
+    background:var(--paper-3); color:var(--ink-dim); border:1px solid var(--border);
+  }
+  .tag.path{ background:rgba(45,90,76,.12); color:var(--jade); border-color:rgba(45,90,76,.3); }
+  .tag.deny{ background:rgba(156,43,34,.1); color:var(--vermillion-bright); border-color:rgba(156,43,34,.3); }
+  .tag.job{ background:rgba(140,107,39,.12); color:var(--gold-deep); border-color:rgba(140,107,39,.3); }
+  .art-intro{ font-size:13px; line-height:1.8; color:var(--ink-dim); flex:1;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .art-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; color:var(--ink-faint2); }
+  .learn-flag{ font-weight:900; font-size:12px; }
+  .learn-flag.yes{ color:var(--jade); }
+  .learn-flag.no{ color:var(--vermillion-bright); }
+
+  /* ===== 詳細檢視 ===== */
+  .overlay{
+    position:fixed; inset:0; background:rgba(29,23,18,.72); backdrop-filter:blur(3px);
+    z-index:300; display:none; overflow-y:auto; padding:30px 16px;
+  }
+  .overlay.open{ display:block; }
+  .detail{
+    max-width:900px; margin:0 auto; background:var(--paper); border:2px solid var(--gold);
+    border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4);
+  }
+  .detail-head{ background:linear-gradient(135deg,var(--ink),#2A2520); padding:24px 30px; position:relative; }
+  .detail-name{
+    width:100%; background:transparent; border:none; color:#F8EDD1;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:30px; padding:0;
+    text-shadow:0 2px 6px rgba(0,0,0,.8);
+  }
+  .detail-name:focus{ outline:none; border-bottom:2px solid var(--gold); }
+  .detail-close{ position:absolute; top:16px; right:18px; color:rgba(245,233,221,.7); font-size:22px; background:none; border:none; cursor:pointer; }
+  .detail-close:hover{ color:#fff; }
+  .detail-body{ padding:24px 30px 30px; }
+  .sec-title{
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:19px; color:var(--ink);
+    margin:26px 0 14px; display:flex; align-items:center; gap:9px;
+    border-bottom:2px solid var(--border); padding-bottom:7px;
+  }
+  .sec-title:first-child{ margin-top:0; }
+  .sec-title::before{ content:""; display:block; width:5px; height:19px; background:var(--vermillion); border-radius:3px; }
+  .sec-title .spacer{ flex:1; }
+
+  .field-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:13px; }
+  .fld label{ display:block; font-size:11.5px; font-weight:700; color:var(--gold-deep); letter-spacing:1px; margin-bottom:4px; }
+  .fld input, .fld select, .fld textarea{
+    width:100%; background:var(--paper-2); border:1px solid var(--border); border-radius:5px;
+    padding:8px 10px; font-family:inherit; font-size:14px; color:var(--ink); line-height:1.7; resize:vertical;
+  }
+  .fld input:focus, .fld select:focus, .fld textarea:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
+  .fld input:disabled, .fld select:disabled, .fld textarea:disabled{ background:var(--paper-2); color:var(--ink-dim); opacity:1; }
+  .fld.wide{ grid-column:1/-1; }
+
+  .limit-row{ display:flex; gap:8px; align-items:flex-start; }
+  .limit-row select{ max-width:110px; flex-shrink:0; }
+  .chip-box{
+    flex:1; display:flex; gap:6px; flex-wrap:wrap; background:var(--paper-2); border:1px solid var(--border);
+    border-radius:5px; padding:7px 9px; min-height:38px;
+  }
+  .chip{
+    font-size:12.5px; font-weight:700; padding:3px 9px; border-radius:3px; cursor:pointer;
+    background:var(--paper-3); color:var(--ink-faint2); border:1px solid var(--border); user-select:none;
+  }
+  .chip.on{ background:var(--jade); color:#F2E9D6; border-color:var(--jade); }
+  .chip.on.deny{ background:var(--vermillion); border-color:var(--vermillion); color:#F5E9DD; }
+  .chip.readonly{ cursor:default; }
+
+  .entry{
+    background:var(--paper-2); border:1px solid var(--border); border-left:4px solid var(--gold);
+    border-radius:6px; padding:14px 16px; margin-bottom:14px; position:relative;
+  }
+  .entry.active{ border-left-color:var(--vermillion); }
+  .entry-head{ display:flex; gap:10px; align-items:center; margin-bottom:11px; }
+  .entry-idx{
+    flex-shrink:0; font-family:"Noto Serif TC",serif; font-weight:900; font-size:13px;
+    background:var(--ink); color:var(--gold); padding:3px 10px; border-radius:3px; letter-spacing:1px;
+  }
+  .entry-name{
+    flex:1; background:transparent; border:none; border-bottom:1px solid var(--border);
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:17px; color:var(--ink); padding:3px 2px;
+  }
+  .entry-name:focus{ outline:none; border-bottom-color:var(--gold); }
+  .entry-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:11px; }
+
+  .notice{
+    background:rgba(156,43,34,.08); border:1px solid rgba(156,43,34,.28); color:var(--vermillion-bright);
+    font-size:13px; font-weight:700; padding:10px 16px; border-radius:6px; margin-bottom:20px; line-height:1.7;
+  }
+  .notice.info{ background:rgba(45,90,76,.08); border-color:rgba(45,90,76,.3); color:var(--jade); }
+
+  .save-status{
+    position:fixed; bottom:20px; right:20px; font-size:13px; font-weight:700; color:#fff; background:var(--jade);
+    padding:8px 16px; border-radius:20px; opacity:0; transition:opacity .3s, background .3s;
+    pointer-events:none; z-index:400; box-shadow:0 4px 12px rgba(0,0,0,.15);
+  }
+  .save-status.show{ opacity:1; }
+  .save-status.error{ background:var(--vermillion-bright); }
+
+  @media(max-width:700px){
+    .layout{ padding:20px 14px 80px; }
+    .hall-title{ font-size:26px; }
+    .detail-body{ padding:18px 16px 24px; }
+    .detail-head{ padding:18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="watermark">經</div>
+
+<nav class="top-nav">
+  <div class="nav-brand">
+    <div class="nav-seal">逆</div>
+    <img src="logo.png" alt="逆命" onerror="this.style.display='none'">
+    <strong style="font-family:'Noto Serif TC',serif; font-size:18px; letter-spacing:2px; color:var(--ink);">藏經閣</strong>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">規則書</a>
+    <a class="nav-link" href="character.html">角色卡</a>
+    <a class="nav-link" href="dm.html">宗門大殿</a>
+  </div>
+  <div class="auth-box">
+    <div class="auth-logged-out">
+      <button class="btn-discord" id="discordLoginBtn">
+        <svg viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+        Discord 登入
+      </button>
+    </div>
+    <div class="auth-logged-in" id="authLoggedIn" style="display:none; align-items:center; gap:10px;">
+      <img class="auth-avatar" id="authAvatar" src="" alt="">
+      <span class="auth-name" id="authName">—</span>
+      <button class="btn" id="discordLogoutBtn" style="padding:4px 8px; font-size:11px;">登出</button>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <div class="hall-header">
+    <div class="hall-title">藏經閣</div>
+    <div class="hall-sub">宗門共筆功法典藏　·　同道途／同職業者可互相參習<br>
+      任何弟子皆可上傳自己的功法供人閱覽；僅上傳者本人與宗主／長老可修訂。</div>
+  </div>
+  <div id="mainArea"><div class="notice info">連線中……</div></div>
+</div>
+
+<div class="overlay" id="overlay"><div class="detail" id="detail"></div></div>
+<div class="save-status" id="saveStatus">已自動儲存</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, set, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
+    authDomain: "twisted-fate-trpg.firebaseapp.com",
+    databaseURL: "https://twisted-fate-trpg-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "twisted-fate-trpg",
+    storageBucket: "twisted-fate-trpg.firebasestorage.app",
+    messagingSenderId: "804781497200",
+    appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  signInAnonymously(auth).catch(err => console.warn("匿名登入失敗", err));
+
+  const DISCORD_CLIENT_ID = "1539477128242798612";
+  const REDIRECT_URI = window.location.origin + window.location.pathname;
+  const DISCORD_TOKEN_KEY = "tf_discord_token";
+
+  // ===== 選項（依功法通用模板） =====
+  const RANKS = ["凡品","黃品","玄品","地品","天品","仙品","神品"];
+  const CORE_ATTRS = ["根骨","神識","抗性","機緣","悟性","魅力"];
+  const MEDIA = ["無","劍","刀","法器","符籙","毒物","樂器","徒手","其他"];
+  const DIFFICULTIES = ["簡單（悟性10）","普通（悟性15）","困難（悟性20）","極難（悟性25）","傳說（悟性30）"];
+  const CAST_TYPES = ["動作","附贈動作","反應","移動","傳奇動作","神話動作","巢穴動作"];
+  // 限定語意：模板中「限定道途：劍修」是白名單，「邪修、毒修、佛修、巫修不可學！」是黑名單，兩種都要能表達
+  const LIMIT_MODES = [
+    { v:"none",  label:"不限" },
+    { v:"allow", label:"限定" },
+    { v:"deny",  label:"排除" }
+  ];
+
+  // ===== 狀態 =====
+  let discordUser = null;
+  let arts = {};      // 功法
+  let admins = {};
+  let chars = {};
+  let chapters = {}, modules = {};
+  let loaded = { arts:false, admins:false, chars:false, chapters:false, modules:false };
+  let syncError = null;
+  let openId = null;
+  let search = "", filterRank = "全部", onlyLearnable = false, activeCharId = "";
+  let lastLocalWriteAt = 0;
+
+  // ===== Discord =====
+  function discordLogin(){
+    const url = new URL("https://discord.com/oauth2/authorize");
+    url.searchParams.set("client_id", DISCORD_CLIENT_ID);
+    url.searchParams.set("redirect_uri", REDIRECT_URI);
+    url.searchParams.set("response_type", "token");
+    url.searchParams.set("scope", "identify");
+    window.location.href = url.toString();
+  }
+  function discordLogout(){
+    sessionStorage.removeItem(DISCORD_TOKEN_KEY);
+    discordUser = null; activeCharId = "";
+    renderAuth(); render(true);
+  }
+  async function fetchDiscordUser(token){
+    const res = await fetch("https://discord.com/api/users/@me", { headers:{ Authorization:"Bearer " + token } });
+    if(!res.ok) throw new Error("discord auth failed");
+    const u = await res.json();
+    const avatarUrl = u.avatar
+      ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=64`
+      : `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(u.id) >> 22n) % 6n)}.png`;
+    return { id:u.id, name:u.global_name || u.username, avatarUrl };
+  }
+  async function initDiscordAuth(){
+    if(window.location.hash.includes("access_token")){
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const token = params.get("access_token");
+      if(token){ sessionStorage.setItem(DISCORD_TOKEN_KEY, token); history.replaceState(null, "", REDIRECT_URI); }
+    }
+    const token = sessionStorage.getItem(DISCORD_TOKEN_KEY);
+    if(token){
+      try{ discordUser = await fetchDiscordUser(token); }
+      catch(e){ sessionStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
+    }
+    renderAuth(); render(true);
+  }
+  function renderAuth(){
+    document.querySelector(".auth-logged-out").style.display = discordUser ? "none" : "block";
+    const li = document.getElementById("authLoggedIn");
+    li.style.display = discordUser ? "flex" : "none";
+    if(discordUser){
+      document.getElementById("authAvatar").src = discordUser.avatarUrl;
+      document.getElementById("authName").textContent = discordUser.name;
+    }
+  }
+  document.getElementById("discordLoginBtn").addEventListener("click", discordLogin);
+  document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
+
+  // ===== 資料 =====
+  function watch(path, onData, key){
+    onValue(ref(db, path), snap => {
+      onData(snap.val() || {});
+      if(key) loaded[key] = true;
+      syncError = null;
+      render();
+    }, err => { console.error(path, err); syncError = err; render(true); });
+  }
+  watch("library",    v => arts = v,     "arts");
+  watch("admins",     v => admins = v,   "admins");
+  watch("characters", v => chars = v,    "chars");
+  watch("chapters",   v => chapters = v, "chapters");
+  watch("modules",    v => modules = v,  "modules");
+
+  // 道途／職業選項一律取自規則書，避免與規則書脫節
+  function rulebookOptions(chapterNameContains){
+    if(!(loaded.chapters && loaded.modules)) return [];
+    const ids = Object.entries(chapters).filter(([,c]) => (c.name||"").includes(chapterNameContains)).map(([id])=>id);
+    if(ids.length === 0) return [];
+    return [...new Set(Object.values(modules)
+      .filter(m => ids.includes(m.chapterId))
+      .sort((a,b) => (a.order||0)-(b.order||0))
+      .map(m => (m.title||"").split(/[:：\-－]/)[0].trim())
+      .filter(Boolean))];
+  }
+  const pathOptions = () => rulebookOptions("道途");
+  const jobOptions  = () => rulebookOptions("職業");
+
+  function isAdmin(){
+    if(!discordUser) return false;
+    const a = admins[discordUser.id];
+    return !!a && (a.role === "DM" || a.role === "Elder");
+  }
+  function canEditArt(art){
+    if(!discordUser || !art) return false;
+    return art.ownerId === discordUser.id || isAdmin();
+  }
+
+  // ===== 學習資格判定 =====
+  // mode: none=不限 / allow=只有名單內可學 / deny=名單內不可學
+  function passLimit(mode, list, value){
+    if(mode !== "allow" && mode !== "deny") return true;
+    const arr = Array.isArray(list) ? list : [];
+    if(arr.length === 0) return true;
+    const hit = value ? arr.includes(value) : false;
+    return mode === "allow" ? hit : !hit;
+  }
+  function canLearn(art, char){
+    if(!char) return null;
+    return passLimit(art.pathMode, art.paths, char.path)
+        && passLimit(art.jobMode,  art.jobs,  char.job);
+  }
+  function myChars(){
+    if(!discordUser) return [];
+    return Object.entries(chars).filter(([,c]) => c.ownerId === discordUser.id);
+  }
+  function activeChar(){ return activeCharId ? chars[activeCharId] : null; }
+
+  // ===== 工具 =====
+  function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  const attr = escapeHtml;
+  function nl2br(s){ return escapeHtml(s).replace(/\n/g, "<br>"); }
+
+  let saveTimer = null, pending = [];
+  function scheduleSave(path, value){
+    pending.push([path, value]);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushSaves, 500);
+  }
+  async function flushSaves(){
+    const batch = pending; pending = [];
+    lastLocalWriteAt = Date.now();
+    try{
+      for(const [p,v] of batch) await set(ref(db, p), v);
+      flash("已自動儲存", false);
+    }catch(e){ console.error(e); flash("儲存失敗：" + (e.message||e), true); }
+  }
+  async function writeNow(path, value){
+    lastLocalWriteAt = Date.now();
+    try{
+      if(value === null) await remove(ref(db, path)); else await set(ref(db, path), value);
+      flash("已儲存", false); return true;
+    }catch(e){ console.error(e); flash("寫入失敗：" + (e.message||e), true); return false; }
+  }
+  function flash(msg, isError){
+    const el = document.getElementById("saveStatus");
+    el.textContent = msg; el.classList.toggle("error", !!isError); el.classList.add("show");
+    clearTimeout(flash._t);
+    flash._t = setTimeout(()=>el.classList.remove("show"), isError ? 5000 : 1200);
+  }
+
+  function blankArt(){
+    return {
+      ownerId: discordUser ? discordUser.id : "",
+      ownerName: discordUser ? discordUser.name : "",
+      name: "未命名功法", rank: "", coreAttr: "", medium: "", intro: "",
+      pathMode: "none", paths: [], jobMode: "none", jobs: [],
+      raceLimit: "", minRealm: "", prereq: "", difficulty: "",
+      meditation: "",
+      passives: [], actives: [],
+      updatedAt: Date.now()
+    };
+  }
+
+  // ===== 主列表 =====
+  function render(force){
+    const area = document.getElementById("mainArea");
+    if(syncError){
+      area.innerHTML = `<div class="notice">連線失敗：${escapeHtml(syncError.message || String(syncError))}<br>
+        請確認 Firebase 匿名登入已啟用，且 Realtime Database 規則允許讀寫。</div>`;
+      return;
+    }
+    if(!(loaded.arts && loaded.admins && loaded.chars)){
+      area.innerHTML = `<div class="notice info">連線中……</div>`;
+      return;
+    }
+    if(!force && (Date.now() - lastLocalWriteAt < 2500 || area.contains(document.activeElement))) return;
+
+    const mine = myChars();
+    // 只要使用者有角色卡就預設選第一張，讓每張功法卡都能直接標示「我能不能學」，
+    // 不必先去勾「只看我能學的」才看得到判定結果
+    if(!activeCharId && mine.length > 0) activeCharId = mine[0][0];
+    const char = activeChar();
+
+    let list = Object.entries(arts);
+    if(search){
+      const q = search.toLowerCase();
+      list = list.filter(([,a]) => [a.name, a.intro, a.rank, a.coreAttr, a.medium, a.ownerName,
+        (a.paths||[]).join(" "), (a.jobs||[]).join(" ")].join(" ").toLowerCase().includes(q));
+    }
+    if(filterRank !== "全部") list = list.filter(([,a]) => a.rank === filterRank);
+    if(onlyLearnable && char) list = list.filter(([,a]) => canLearn(a, char) === true);
+    list.sort((a,b) => RANKS.indexOf(b[1].rank||"") - RANKS.indexOf(a[1].rank||"")
+      || (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
+
+    area.innerHTML = `
+      ${!discordUser ? `<div class="notice">訪客可自由閱覽全部功法。登入 Discord 後即可上傳自己的功法。</div>` : ""}
+      <div class="toolbar">
+        <input class="search-input" id="searchBox" placeholder="搜尋功法名稱、簡介、品階、媒介……" value="${attr(search)}">
+        <select class="filter-select" id="rankFilter">
+          <option value="全部">全部品階</option>
+          ${RANKS.map(r => `<option value="${r}" ${filterRank===r?"selected":""}>${r}</option>`).join("")}
+        </select>
+        ${mine.length > 0 ? `
+          <label class="learn-toggle ${onlyLearnable?"on":""}">
+            <input type="checkbox" id="learnToggle" ${onlyLearnable?"checked":""}>
+            只看我能學的
+          </label>
+          <select class="filter-select" id="charPicker">
+            ${mine.map(([id,c]) => `<option value="${id}" ${activeCharId===id?"selected":""}>${escapeHtml(c.name||"未命名角色")}</option>`).join("")}
+          </select>` : ""}
+        <div class="toolbar-spacer"></div>
+        ${discordUser ? `<button class="btn gold" data-action="new-art">＋ 上傳功法</button>` : ""}
+      </div>
+
+      ${char && onlyLearnable ? `<div class="notice info" style="font-weight:400;">
+        依「${escapeHtml(char.name||"角色")}」的道途<b>${escapeHtml(char.path||"未設定")}</b>、職業<b>${escapeHtml(char.job||"未設定")}</b>篩選。
+        境界門檻僅顯示不強制過濾，請自行對照規則書確認是否達標。</div>` : ""}
+
+      ${list.length === 0
+        ? `<div class="notice info" style="font-weight:400;">${Object.keys(arts).length === 0 ? "藏經閣尚無藏書，成為第一位上傳功法的弟子吧。" : "沒有符合條件的功法。"}</div>`
+        : `<div class="art-grid">${list.map(([id,a]) => cardHtml(id, a, char)).join("")}</div>`}
+    `;
+
+    const sb = area.querySelector("#searchBox");
+    if(sb) sb.oninput = () => {
+      search = sb.value; const pos = sb.selectionStart;
+      render(true);
+      const again = document.querySelector("#searchBox");
+      if(again){ again.focus(); again.setSelectionRange(pos, pos); }
+    };
+    const rf = area.querySelector("#rankFilter");
+    if(rf) rf.onchange = () => { filterRank = rf.value; render(true); };
+    const lt = area.querySelector("#learnToggle");
+    if(lt) lt.onchange = () => { onlyLearnable = lt.checked; render(true); };
+    const cp = area.querySelector("#charPicker");
+    if(cp) cp.onchange = () => { activeCharId = cp.value; render(true); };
+
+    area.querySelectorAll("[data-open]").forEach(el => el.onclick = () => openDetail(el.dataset.open));
+    area.querySelectorAll('[data-action="new-art"]').forEach(b => b.onclick = async () => {
+      const r = push(ref(db, "library"));
+      if(await writeNow("library/" + r.key, blankArt())) openDetail(r.key);
+    });
+  }
+
+  function limitTagsHtml(a){
+    const out = [];
+    const pm = a.pathMode, jm = a.jobMode;
+    if(pm === "allow" && (a.paths||[]).length) out.push(`<span class="tag path">限 ${a.paths.join("／")}</span>`);
+    if(pm === "deny"  && (a.paths||[]).length) out.push(`<span class="tag deny">${a.paths.join("／")} 不可學</span>`);
+    if(jm === "allow" && (a.jobs||[]).length)  out.push(`<span class="tag job">限 ${a.jobs.join("／")}</span>`);
+    if(jm === "deny"  && (a.jobs||[]).length)  out.push(`<span class="tag deny">${a.jobs.join("／")} 不可學</span>`);
+    if(out.length === 0) out.push(`<span class="tag">不限道途職業</span>`);
+    return out.join("");
+  }
+
+  function cardHtml(id, a, char){
+    const learn = canLearn(a, char);
+    return `
+      <div class="art-card ${learn === false ? "locked" : ""}" data-open="${id}">
+        <div class="art-head">
+          ${a.rank ? `<span class="art-rank">${escapeHtml(a.rank)}</span>` : ""}
+          <div class="art-name">${escapeHtml(a.name || "未命名功法")}</div>
+          <div class="art-owner">${escapeHtml(a.ownerName || "佚名")} 提供</div>
+        </div>
+        <div class="art-body">
+          <div class="art-tags">
+            ${limitTagsHtml(a)}
+            ${a.coreAttr ? `<span class="tag">核心 ${escapeHtml(a.coreAttr)}</span>` : ""}
+            ${a.medium && a.medium !== "無" ? `<span class="tag">${escapeHtml(a.medium)}</span>` : ""}
+          </div>
+          <div class="art-intro">${escapeHtml(a.intro || "（尚無簡介）")}</div>
+          <div class="art-foot">
+            <span>${a.minRealm ? "門檻 " + escapeHtml(a.minRealm) : "無境界門檻"}</span>
+            <span>被動 ${(a.passives||[]).length}　招式 ${(a.actives||[]).length}</span>
+          </div>
+          ${learn === null ? "" : `<div class="art-foot" style="border:none; padding-top:4px; margin-top:2px;">
+            <span class="learn-flag ${learn?"yes":"no"}">${learn ? "◆ 你可以參習此功法" : "◇ 道途／職業不符"}</span></div>`}
+        </div>
+      </div>`;
+  }
+
+  // ===== 詳細檢視 / 編輯 =====
+  function openDetail(id){ openId = id; renderDetail(); document.getElementById("overlay").classList.add("open"); }
+  function closeDetail(){ openId = null; document.getElementById("overlay").classList.remove("open"); render(true); }
+  document.getElementById("overlay").addEventListener("click", e => { if(e.target.id === "overlay") closeDetail(); });
+
+  function chipBoxHtml(kind, selected, options, mode, editable){
+    const sel = Array.isArray(selected) ? selected : [];
+    const denyStyle = mode === "deny" ? " deny" : "";
+    if(options.length === 0 && sel.length === 0){
+      return `<div class="chip-box"><span style="font-size:12px;color:var(--ink-faint2);">（規則書尚未載入對應章節）</span></div>`;
+    }
+    const all = [...new Set([...options, ...sel])];
+    return `<div class="chip-box">${all.map(o => `
+      <span class="chip${sel.includes(o) ? " on" + denyStyle : ""}${editable ? "" : " readonly"}"
+        ${editable ? `data-chip="${kind}" data-val="${attr(o)}"` : ""}>${escapeHtml(o)}</span>`).join("")}</div>`;
+  }
+
+  function renderDetail(){
+    const box = document.getElementById("detail");
+    const a = arts[openId];
+    if(!a){ closeDetail(); return; }
+    const editable = canEditArt(a);
+    const dis = editable ? "" : "disabled";
+    const passives = a.passives || [];
+    const actives = a.actives || [];
+
+    box.innerHTML = `
+      <div class="detail-head">
+        <button class="detail-close" data-act="close">✕</button>
+        <input class="detail-name" data-f="name" value="${attr(a.name)}" placeholder="功法名稱" ${dis}>
+        <div style="color:#E8CA82; font-size:12.5px; margin-top:6px;">
+          ${escapeHtml(a.ownerName || "佚名")} 提供
+          ${editable ? `　<span style="color:#8ac;">・你可以編輯這篇功法</span>` : `　<span style="opacity:.7;">・唯讀</span>`}
+        </div>
+      </div>
+      <div class="detail-body">
+        <div class="sec-title">基本資料</div>
+        <div class="field-grid">
+          <div class="fld"><label>功法品階</label>
+            <select data-f="rank" ${dis}><option value="">－</option>
+              ${RANKS.map(r => `<option value="${r}" ${a.rank===r?"selected":""}>${r}</option>`).join("")}</select></div>
+          <div class="fld"><label>核心屬性</label>
+            <select data-f="coreAttr" ${dis}><option value="">－</option>
+              ${CORE_ATTRS.map(r => `<option value="${r}" ${a.coreAttr===r?"selected":""}>${r}</option>`).join("")}</select></div>
+          <div class="fld"><label>適用媒介</label>
+            <select data-f="medium" ${dis}><option value="">－</option>
+              ${MEDIA.map(r => `<option value="${r}" ${a.medium===r?"selected":""}>${r}</option>`).join("")}</select></div>
+          <div class="fld wide"><label>功法簡介</label>
+            <textarea rows="3" data-f="intro" placeholder="功法的來歷與意境……" ${dis}>${attr(a.intro)}</textarea></div>
+        </div>
+
+        <div class="sec-title">道途 / 職業限定</div>
+        <div class="fld" style="margin-bottom:12px;">
+          <label>限定道途</label>
+          <div class="limit-row">
+            <select data-f="pathMode" ${dis}>
+              ${LIMIT_MODES.map(m => `<option value="${m.v}" ${(a.pathMode||"none")===m.v?"selected":""}>${m.label}</option>`).join("")}
+            </select>
+            ${chipBoxHtml("paths", a.paths, pathOptions(), a.pathMode, editable)}
+          </div>
+        </div>
+        <div class="fld">
+          <label>限定職業</label>
+          <div class="limit-row">
+            <select data-f="jobMode" ${dis}>
+              ${LIMIT_MODES.map(m => `<option value="${m.v}" ${(a.jobMode||"none")===m.v?"selected":""}>${m.label}</option>`).join("")}
+            </select>
+            ${chipBoxHtml("jobs", a.jobs, jobOptions(), a.jobMode, editable)}
+          </div>
+        </div>
+        <div style="font-size:12px; color:var(--ink-faint2); margin-top:8px; line-height:1.8;">
+          「限定」＝只有選取者可學；「排除」＝選取者不可學（例如：邪修、毒修、佛修、巫修不可學）；「不限」＝所有人皆可學。
+        </div>
+
+        <div class="sec-title">學習限制</div>
+        <div class="field-grid">
+          <div class="fld"><label>限制種族</label><input data-f="raceLimit" value="${attr(a.raceLimit)}" placeholder="無則留空" ${dis}></div>
+          <div class="fld"><label>最低境界</label><input data-f="minRealm" value="${attr(a.minRealm)}" placeholder="例：築基初期" ${dis}></div>
+          <div class="fld"><label>前置功法</label><input data-f="prereq" value="${attr(a.prereq)}" placeholder="無則留空" ${dis}></div>
+          <div class="fld"><label>學習難度</label>
+            <select data-f="difficulty" ${dis}><option value="">－</option>
+              ${DIFFICULTIES.map(d => `<option value="${d}" ${a.difficulty===d?"selected":""}>${d}</option>`).join("")}</select></div>
+        </div>
+
+        <div class="sec-title">心法內功</div>
+        <div class="fld" style="margin-bottom:16px;"><label>打坐收益</label>
+          <input data-f="meditation" value="${attr(a.meditation)}" placeholder="例：（境界－1）×1000 點靈氣／次" ${dis}></div>
+
+        <div class="sec-title">被動效果
+          <span class="spacer"></span>
+          ${editable ? `<button class="btn gold" data-act="add-passive">＋ 新增被動</button>` : ""}
+        </div>
+        ${passives.length === 0 ? `<div style="color:var(--ink-faint2); font-size:13px; margin-bottom:14px;">尚無被動效果</div>` :
+          passives.map((p,i) => `
+          <div class="entry">
+            <div class="entry-head">
+              <span class="entry-idx">被動 ${i+1}</span>
+              <input class="entry-name" data-p="${i}" data-prop="name" value="${attr(p.name)}" placeholder="被動效果名稱" ${dis}>
+              ${editable ? `<button class="btn-icon" data-act="del-passive" data-idx="${i}">✕</button>` : ""}
+            </div>
+            <div class="entry-grid">
+              <div class="fld" style="grid-column:1/-1;"><label>簡介</label>
+                <textarea rows="2" data-p="${i}" data-prop="intro" ${dis}>${attr(p.intro)}</textarea></div>
+              <div class="fld" style="grid-column:1/-1;"><label>效果</label>
+                <textarea rows="2" data-p="${i}" data-prop="effect" ${dis}>${attr(p.effect)}</textarea></div>
+              <div class="fld"><label>觸發</label>
+                <textarea rows="2" data-p="${i}" data-prop="trigger" ${dis}>${attr(p.trigger)}</textarea></div>
+              <div class="fld"><label>限制</label>
+                <textarea rows="2" data-p="${i}" data-prop="limit" ${dis}>${attr(p.limit)}</textarea></div>
+            </div>
+          </div>`).join("")}
+
+        <div class="sec-title">主動招式
+          <span class="spacer"></span>
+          ${editable ? `<button class="btn gold" data-act="add-active">＋ 新增招式</button>` : ""}
+        </div>
+        ${actives.length === 0 ? `<div style="color:var(--ink-faint2); font-size:13px; margin-bottom:14px;">尚無主動招式</div>` :
+          actives.map((s,i) => `
+          <div class="entry active">
+            <div class="entry-head">
+              <span class="entry-idx">招式 ${i+1}</span>
+              <input class="entry-name" data-s="${i}" data-prop="name" value="${attr(s.name)}" placeholder="招式名稱" ${dis}>
+              ${editable ? `<button class="btn-icon" data-act="del-active" data-idx="${i}">✕</button>` : ""}
+            </div>
+            <div class="entry-grid">
+              <div class="fld" style="grid-column:1/-1;"><label>簡介</label>
+                <textarea rows="2" data-s="${i}" data-prop="intro" ${dis}>${attr(s.intro)}</textarea></div>
+              <div class="fld"><label>境界</label><input data-s="${i}" data-prop="realm" value="${attr(s.realm)}" placeholder="例：築基初期" ${dis}></div>
+              <div class="fld"><label>消耗靈氣</label><input data-s="${i}" data-prop="cost" value="${attr(s.cost)}" placeholder="例：500" ${dis}></div>
+              <div class="fld"><label>施放</label>
+                <select data-s="${i}" data-prop="castType" ${dis}><option value="">－</option>
+                  ${CAST_TYPES.map(c => `<option value="${c}" ${s.castType===c?"selected":""}>${c}</option>`).join("")}</select></div>
+              <div class="fld"><label>距離</label><input data-s="${i}" data-prop="range" value="${attr(s.range)}" placeholder="例：5尺內" ${dis}></div>
+              <div class="fld"><label>目標</label><input data-s="${i}" data-prop="target" value="${attr(s.target)}" placeholder="例：單體" ${dis}></div>
+              <div class="fld"><label>命中</label><input data-s="${i}" data-prop="hit" value="${attr(s.hit)}" placeholder="例：1D20＋根骨修正值＋1" ${dis}></div>
+              <div class="fld" style="grid-column:1/-1;"><label>傷害</label>
+                <input data-s="${i}" data-prop="damage" value="${attr(s.damage)}" placeholder="例：3D6揮砍" ${dis}></div>
+              <div class="fld" style="grid-column:1/-1;"><label>附加效果</label>
+                <textarea rows="2" data-s="${i}" data-prop="extra" ${dis}>${attr(s.extra)}</textarea></div>
+            </div>
+          </div>`).join("")}
+
+        ${editable ? `<div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border); text-align:right;">
+          <button class="btn danger" data-act="del-art">刪除整篇功法</button></div>` : ""}
+      </div>`;
+
+    wireDetail(box, a, editable);
+  }
+
+  function wireDetail(box, a, editable){
+    box.querySelectorAll('[data-act="close"]').forEach(b => b.onclick = closeDetail);
+    if(!editable) return;
+
+    const path = "library/" + openId;
+
+    box.querySelectorAll("[data-f]").forEach(el => {
+      const f = el.dataset.f;
+      const handler = () => {
+        a[f] = el.value;
+        scheduleSave(`${path}/${f}`, el.value);
+        // 切換限定模式時，晶片的顏色語意（綠＝可學／紅＝不可學）要跟著變
+        if(f === "pathMode" || f === "jobMode") renderDetail();
+      };
+      if(el.tagName === "SELECT") el.onchange = handler; else el.oninput = handler;
+    });
+
+    box.querySelectorAll("[data-chip]").forEach(chip => {
+      chip.onclick = () => {
+        const kind = chip.dataset.chip, val = chip.dataset.val;
+        const cur = Array.isArray(a[kind]) ? a[kind].slice() : [];
+        const i = cur.indexOf(val);
+        if(i >= 0) cur.splice(i, 1); else cur.push(val);
+        a[kind] = cur;
+        writeNow(`${path}/${kind}`, cur).then(renderDetail);
+      };
+    });
+
+    box.querySelectorAll("[data-p]").forEach(el => {
+      const i = parseInt(el.dataset.p, 10), prop = el.dataset.prop;
+      el.oninput = () => {
+        a.passives = a.passives || [];
+        a.passives[i] = a.passives[i] || {};
+        a.passives[i][prop] = el.value;
+        scheduleSave(`${path}/passives/${i}/${prop}`, el.value);
+      };
+    });
+    box.querySelectorAll("[data-s]").forEach(el => {
+      const i = parseInt(el.dataset.s, 10), prop = el.dataset.prop;
+      const handler = () => {
+        a.actives = a.actives || [];
+        a.actives[i] = a.actives[i] || {};
+        a.actives[i][prop] = el.value;
+        scheduleSave(`${path}/actives/${i}/${prop}`, el.value);
+      };
+      if(el.tagName === "SELECT") el.onchange = handler; else el.oninput = handler;
+    });
+
+    box.querySelectorAll("[data-act]").forEach(btn => {
+      const act = btn.dataset.act;
+      if(act === "close") return;
+      btn.onclick = async () => {
+        if(act === "add-passive"){
+          a.passives = a.passives || [];
+          a.passives.push({ name:"", intro:"", effect:"", trigger:"", limit:"" });
+          await writeNow(`${path}/passives`, a.passives); renderDetail();
+        }
+        if(act === "del-passive"){
+          a.passives.splice(parseInt(btn.dataset.idx,10), 1);
+          await writeNow(`${path}/passives`, a.passives.length ? a.passives : null); renderDetail();
+        }
+        if(act === "add-active"){
+          a.actives = a.actives || [];
+          a.actives.push({ name:"", intro:"", realm:"", cost:"", castType:"", range:"", target:"", hit:"", damage:"", extra:"" });
+          await writeNow(`${path}/actives`, a.actives); renderDetail();
+        }
+        if(act === "del-active"){
+          a.actives.splice(parseInt(btn.dataset.idx,10), 1);
+          await writeNow(`${path}/actives`, a.actives.length ? a.actives : null); renderDetail();
+        }
+        if(act === "del-art"){
+          if(!confirm(`確定刪除功法「${a.name || "未命名"}」？此動作無法復原。`)) return;
+          await writeNow(path, null);
+          closeDetail();
+        }
+      };
+    });
+  }
+
+  initDiscordAuth();
+</script>
+</body>
+</html>
