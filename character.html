@@ -319,6 +319,14 @@
     font-size: 15px; font-weight: 900; font-family: "Noto Serif TC", serif;
     width: 44px; padding: 3px 0; border-radius: 4px; margin: 10px auto 0;
   }
+  /* 豁免值：熟練勾起來時會多算一次熟練加值，所以獨立顯示一行 */
+  .stat-save {
+    margin-top: 7px; font-size: 11.5px; letter-spacing: 1px; color: rgba(232,202,130,.55);
+    transition: color .25s ease;
+  }
+  .stat-save b { font-family: "Noto Serif TC", serif; font-size: 13px; font-weight: 900; }
+  .stat-card.proficient .stat-save { color: #E8CA82; }
+  .stat-card.proficient .stat-save b { text-shadow: 0 0 8px rgba(212,175,55,.45); }
 
   /* ===== 資源區：中央太極環 + 左右疊加翼 ===== */
   .resources-container {
@@ -338,11 +346,10 @@
   .wing-left::before { content:""; position:absolute; top:0; bottom:0; left:0; width:4px; background:linear-gradient(180deg, transparent, var(--vermillion), transparent); }
   .wing-right::before { content:""; position:absolute; top:0; bottom:0; right:0; width:4px; background:linear-gradient(180deg, transparent, var(--jade), transparent); }
 
-  /* 生命值／靈氣池：字樣與數字各自置中在自己的金邊方框內 */
+  /* 生命值／靈氣池：字樣與數字各自置中，不另外加框 */
   .res-box {
-    position: relative; border: 1px solid var(--gold-deep); border-radius: 6px;
-    background: rgba(0,0,0,0.035); box-shadow: inset 0 0 10px rgba(140,107,39,0.08);
-    padding: 12px 24px; display: flex; flex-direction: column; align-items: center; text-align: center;
+    position: relative; padding: 12px 24px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
   }
   .res-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px; }
   .res-title.hp { color: var(--vermillion-bright); }
@@ -352,9 +359,9 @@
   .res-inputs input:focus { outline: none; border-color: var(--gold); }
   .res-inputs span { color: var(--ink-faint2); font-size: 20px; margin: 0 2px; }
 
-  /* 臨時生命：改成疊在方框角上的護盾徽章，不再佔一整行 */
+  /* 臨時生命：改成貼在右上角的護盾徽章，不再佔一整行 */
   .res-temp-badge {
-    position: absolute; top: -14px; right: -14px; z-index: 1;
+    position: absolute; top: 0; right: -6px; z-index: 1;
     display: flex; align-items: center; gap: 3px;
     background: linear-gradient(155deg,#3B4A57,#1C262E); border: 1px solid #7FA6C2; border-radius: 20px;
     padding: 3px 9px 3px 7px; box-shadow: 0 3px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(200,225,240,.15);
@@ -457,6 +464,21 @@
   @media(max-width: 800px) { .rb-wrap { column-count: 1; } }
   .rb-card{ background:var(--paper-2); border:1px solid var(--border); border-left:5px solid var(--rb-accent,var(--gold-deep)); border-radius:8px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,.05); break-inside: avoid; margin-bottom: 16px; display: inline-block; width: 100%; }
   .rb-raw-card{ column-span: all; }
+  /* 群組標題（原本的【】段落名），橫跨整個瀑布流，底下才是一個個能力卡 */
+  .rb-group{
+    column-span: all; display: flex; align-items: center; gap: 10px;
+    font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 15px; letter-spacing: 2px;
+    color: var(--gold-deep); margin: 4px 0 14px; padding-bottom: 7px;
+    border-bottom: 1px solid var(--border);
+  }
+  .rb-group::before{ content:""; width: 7px; height: 7px; flex-shrink: 0; transform: rotate(45deg); background: var(--gold); }
+  .rb-group-n{ font-family: inherit; font-weight: 400; font-size: 11.5px; letter-spacing: 1px; color: var(--ink-faint2); }
+  .rb-lead .rb-body{ font-size: 13.5px; color: var(--ink-faint2); }
+  .rb-lv{
+    margin-left: auto; flex-shrink: 0; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    color: #F3E3BC; background: rgba(0,0,0,.42); border: 1px solid var(--gold-deep);
+    border-radius: 999px; padding: 2px 9px;
+  }
   .rb-head{ display:flex; align-items:center; gap:9px; padding:10px 16px; background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%); border-bottom:2px solid var(--rb-accent,var(--gold-deep)); font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:1.5px; color:#F8EDD1; }
   .rb-head::before{ content:""; width:9px; height:9px; flex-shrink:0; transform:rotate(45deg); background:var(--rb-accent,var(--gold)); box-shadow:0 0 8px var(--rb-accent,var(--gold)); }
   .rb-body{ padding:14px 18px; font-size:14.5px; line-height:1.95; color:var(--ink-dim); }
@@ -852,27 +874,59 @@
     flush(); return out;
   }
 
-  // 整篇若（略過開頭敘述性文字後）全是「條列項目：說明」格式，拆成一條一個能力，
-  // 讓完全沒有【】分段的種族/道途條目也能分塊顯示。只在「找不到任何段落標題」時使用，
-  // 避免把一個已命名能力底下的屬性條列（例如「消耗／效果」）誤拆成互不相干的卡片。
-  function kvBulletsOnly(lines){
-    const trimmed = lines.map(l => l.trim()).filter(l => l !== "");
-    let i = 0;
-    while(i < trimmed.length && !/^[•·・\-–—*▪◦]\s*/.test(trimmed[i])) i++;
-    const items = [];
-    for(; i < trimmed.length; i++){
-      const b = trimmed[i].match(/^[•·・\-–—*▪◦]\s*(.+)$/);
-      if(!b) return null;
-      const kv = b[1].match(/^(.{1,18}?)\s*[:：]\s*(.+)$/);
-      if(!kv) return null;
-      items.push({ key: kv[1].trim(), value: kv[2].trim() });
+  const RB_BULLET = /^[+＋•·・\-–—*▪◦]\s*(.+)$/;
+  // 「毒素免疫（1級）：」這種帶等級的能力名稱
+  const RB_LEVEL_HEAD = /^(.{1,24}?)\s*[（(]\s*(\d+)\s*級\s*[)）]\s*[:：]?\s*(.*)$/;
+
+  // 拆法一：帶等級標記的能力清單。沒有等級標記的條列（如「10-14：基礎毒幕」）
+  // 視為上一條能力底下的細項，不會被拆成獨立卡片。
+  function splitLeveledAbilities(lines){
+    const abilities = []; const preamble = []; let cur = null;
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line){ if(cur) cur.lines.push(""); else preamble.push(raw); continue; }
+      const b = line.match(RB_BULLET);
+      const m = b && b[1].match(RB_LEVEL_HEAD);
+      if(m){
+        cur = { title: m[1].trim(), level: m[2], lines: m[3] ? [m[3]] : [] };
+        abilities.push(cur);
+      } else if(cur){
+        cur.lines.push(b ? "• " + b[1] : raw);
+      } else preamble.push(raw);
     }
-    return items.length > 1 ? items : null;
+    return abilities.length >= 2 ? { abilities, preamble } : null;
   }
 
-  function rbAbilityCardHtml(title, bodyHtml, accent){
+  // 拆法二：用「短標題自成一行、下面接說明」寫的能力（種族特性常見）
+  function isPlainHeading(line){
+    if(!line || RB_BULLET.test(line)) return false;
+    if(/[:：。，、；！？!?,.]/.test(line)) return false;
+    return Array.from(line).length <= 12;
+  }
+  function splitPlainHeadings(lines){
+    const abilities = []; const preamble = []; let cur = null;
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line){ if(cur) cur.lines.push(""); else preamble.push(raw); continue; }
+      if(isPlainHeading(line)){ cur = { title: line, lines: [] }; abilities.push(cur); }
+      else if(cur) cur.lines.push(raw);
+      else preamble.push(raw);
+    }
+    // 每個標題底下都要真的有內容，否則多半是誤判
+    if(abilities.length < 2 || abilities.some(a => !a.lines.some(l => l.trim()))) return null;
+    return { abilities, preamble };
+  }
+
+  // 只有「帶等級的能力」與「短標題＋說明」會被拆成一塊一塊。
+  // 單行的「項目：說明」條列（如 引氣入體 的消耗／效果、基礎資訊的護甲／武器）
+  // 是同一件事底下的屬性，維持在同一張卡裡用條列呈現才讀得懂。
+  function rbSplitGroup(lines){
+    return splitLeveledAbilities(lines) || splitPlainHeadings(lines);
+  }
+
+  function rbAbilityCardHtml(title, bodyHtml, accent, level){
     return `<div class="rb-card" style="--rb-accent:${accent}">
-        <div class="rb-head">${escapeHtml(title)}</div>
+        <div class="rb-head">${escapeHtml(title)}${level ? `<span class="rb-lv">${escapeHtml(level)}級</span>` : ""}</div>
         <div class="rb-body">${bodyHtml || '<p class="rb-p" style="color:var(--ink-faint2)">（無內容）</p>'}</div>
       </div>`;
   }
@@ -893,7 +947,7 @@
     for(const rawLine of lines){
       const line = rawLine.trim();
       if(!line){ flushBullets(); continue; }
-      const b = line.match(/^[•·・\-–—*▪◦]\s*(.+)$/);
+      const b = line.match(RB_BULLET);
       if(b){ bullets.push(b[1]); continue; }
       flushBullets(); html.push('<p class="rb-p">' + rbInline(line) + "</p>");
     }
@@ -912,21 +966,26 @@
         <div class="rb-body rb-raw">${rbInline(m.content)}</div></div>`;
     }
 
-    const sections = parseRuleSections(m.content).filter(s => s.title && !RB_SKIP_TITLE.test(s.title));
     let accentIdx = 0; const nextAccent = () => RB_ACCENTS[accentIdx++ % RB_ACCENTS.length];
-    let cards = "";
-    if(sections.length > 0){
-      // 每個段落已經有自己的標題（能力名稱），維持一段一塊；段落內的條列（如「消耗／效果」）
-      // 是同一個能力底下的屬性，不能再拆開，否則會失去能力名稱的脈絡
-      cards = sections.map(s => rbAbilityCardHtml(s.title, rbSectionBody(s.lines), nextAccent())).join("");
-    } else {
-      // 完全沒有【】分段：若整篇（略過開頭敘述文字後）是條列式能力清單，拆成個別色塊
-      const kv = kvBulletsOnly(String(m.content).replace(/\r/g, "").split("\n"));
-      if(kv) cards = kv.map(item => rbAbilityCardHtml(item.key, `<p class="rb-p">${rbInline(item.value)}</p>`, nextAccent())).join("");
-    }
+
+    // 段落標題（【】）只是「群組」，真正要一塊一塊列出來的是群組底下的每個能力
+    const sections = parseRuleSections(m.content).filter(s => s.title && !RB_SKIP_TITLE.test(s.title));
+    const groups = sections.length > 0
+      ? sections
+      : [{ title: "", lines: String(m.content).replace(/\r/g, "").split("\n") }];
+
+    const cards = groups.map(g => {
+      const split = rbSplitGroup(g.lines);
+      if(!split) return rbAbilityCardHtml(g.title || (m.title || value), rbSectionBody(g.lines), nextAccent());
+      const pre = rbSectionBody(split.preamble);
+      return (g.title ? `<div class="rb-group">${escapeHtml(g.title)}<span class="rb-group-n">${split.abilities.length} 項</span></div>` : "")
+        + (pre ? `<div class="rb-card rb-lead" style="--rb-accent:var(--gold-deep)"><div class="rb-body">${pre}</div></div>` : "")
+        + split.abilities.map(ab => rbAbilityCardHtml(ab.title, rbSectionBody(ab.lines), nextAccent(), ab.level)).join("");
+    }).join("");
+
     if(!cards){
       return `<div class="rb-toolbar"><button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示完整原文</button></div>
-        <div class="rb-hint">這個條目沒有【】分段，無法拆成重點色塊，請直接看原文。</div>`;
+        <div class="rb-hint">這個條目沒有可辨識的分段，請直接看原文。</div>`;
     }
     return `<div class="rb-toolbar">
         <span class="rb-source">摘自規則書：${escapeHtml(m.title || value)} · 已略過敘述性段落</span>
@@ -1463,6 +1522,9 @@
     document.body.style.setProperty("--path-tint-alpha", rgb ? "0.15" : "0");
   }
 
+  // 豁免值＝屬性調整值，若該屬性有勾熟練（菱形亮起）再加上熟練加值 PB
+  function saveBonus(char, id){ return mod(char.stats[id]) + (char.saves[id] ? num(char.pb) : 0); }
+
   function statCardHtml(a, char, dis){
     const val = num(char.stats[a.id]);
     const isProf = char.saves[a.id] ? "proficient" : "";
@@ -1471,8 +1533,21 @@
         <div class="stat-header"><span class="stat-name">${a.name}</span></div>
         <input class="stat-value" data-f="stats.${a.id}" type="number" value="${val}" ${dis}>
         <div class="stat-mod">${fmtMod(mod(val))}</div>
+        <div class="stat-save" title="豁免＝屬性調整值${char.saves[a.id] ? " ＋ 熟練加值" : ""}">豁免 <b>${fmtMod(saveBonus(char, a.id))}</b></div>
       </div>`;
   }
+
+  // 重畫某張屬性卡的調整值與豁免值（屬性數值、熟練勾選、PB 變動時都要跟著更新）
+  function paintStatCard(char, id){
+    const card = sheetEl.querySelector(`.stat-card[data-stat="${id}"]`); if(!card) return;
+    const modEl = card.querySelector(".stat-mod"); if(modEl) modEl.textContent = fmtMod(mod(char.stats[id]));
+    const saveEl = card.querySelector(".stat-save");
+    if(saveEl){
+      saveEl.innerHTML = `豁免 <b>${fmtMod(saveBonus(char, id))}</b>`;
+      saveEl.title = "豁免＝屬性調整值" + (char.saves[id] ? " ＋ 熟練加值" : "");
+    }
+  }
+  function paintAllStatCards(char){ ATTRS.forEach(a => paintStatCard(char, a.id)); }
 
   function qaCostText(row){
     const raw = String(row[2] || "").trim(); if(!raw) return "";
@@ -1624,13 +1699,14 @@
       setPath(char, field, val);
 
       if(field.startsWith("stats.")){
-        const card = el.closest(".stat-card");
-        if(card) card.querySelector(".stat-mod").textContent = fmtMod(mod(val));
+        paintStatCard(char, field.slice(6));
         if(field === "stats.per"){
           const initEl = document.getElementById("initValue");
           if(initEl) initEl.textContent = fmtMod(mod(val));
         }
       }
+      // 熟練加值一改，所有有勾熟練的豁免值都要跟著變
+      if(field === "pb") paintAllStatCards(char);
       if(field === "karma"){
         const core = el.closest(".taiji-core");
         if(core){
@@ -1693,6 +1769,7 @@
       const statId = statCard.dataset.stat;
       char.saves[statId] = !char.saves[statId];
       statCard.classList.toggle("proficient", char.saves[statId]);
+      paintStatCard(char, statId);
       markDirty(); return;
     }
 
