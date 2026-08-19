@@ -215,6 +215,51 @@
   .realm-detail{ font-size:12px; color:var(--ink-faint2); line-height:1.9; }
   .realm-detail span{ display:inline-block; margin-right:10px; }
 
+  /* ===== 簡報分析 ===== */
+  .report-section{ margin-bottom:34px; }
+  .report-section-title{
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px; color:var(--gold-deep);
+    letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; gap:8px;
+  }
+  .report-section-title .n{ color:var(--ink-faint2); font-weight:400; font-size:12px; }
+  .kpi-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:8px; }
+  .kpi-card{
+    background:linear-gradient(135deg,var(--ink) 0%,#2A2520 100%); border:1px solid var(--gold-deep);
+    border-radius:8px; padding:14px 16px; box-shadow:inset 0 0 20px rgba(140,107,39,.1);
+  }
+  .kpi-label{ font-size:11px; color:#E8CA82; letter-spacing:1.5px; margin-bottom:6px; }
+  .kpi-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:26px; color:#F8EDD1; }
+  .kpi-sub{ font-size:11px; color:rgba(232,202,130,.75); margin-top:4px; }
+  .dist-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+  .dist-card{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+  .dist-card-title{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; color:var(--ink); }
+  .dist-row{ display:flex; align-items:center; gap:8px; margin-bottom:7px; font-size:12.5px; }
+  .dist-row .dr-name{ width:64px; flex-shrink:0; color:var(--ink-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dist-row .dr-track{ flex:1; height:8px; background:var(--paper-3); border-radius:4px; overflow:hidden; border:1px solid var(--border); }
+  .dist-row .dr-bar{ height:100%; background:linear-gradient(90deg,var(--gold-deep),var(--gold)); }
+  .dist-row .dr-count{ width:26px; text-align:right; flex-shrink:0; font-weight:700; color:var(--ink); }
+  .dist-empty{ font-size:12.5px; color:var(--ink-faint2); }
+  .gauge-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+  .gauge-card{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:16px; }
+  .gauge-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .gauge-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:14px; }
+  .gauge-title.hp{ color:var(--vermillion-bright); } .gauge-title.qi{ color:var(--jade); }
+  .gauge-pct{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; color:var(--ink); }
+  .gauge-track{ height:10px; background:var(--paper-3); border-radius:5px; overflow:hidden; border:1px solid rgba(0,0,0,.1); margin-bottom:8px; }
+  .gauge-fill{ height:100%; }
+  .gauge-fill.hp{ background:linear-gradient(90deg,#9C2B22,#ff4d4d); }
+  .gauge-fill.qi{ background:linear-gradient(90deg,#1b4332,#40916c); }
+  .gauge-note{ font-size:11.5px; color:var(--ink-faint2); }
+  .karma-split{ display:flex; height:18px; border-radius:9px; overflow:hidden; border:1px solid var(--border); margin-bottom:10px; }
+  .karma-split div{ height:100%; }
+  .karma-split .ks-bad{ background:#7C3AED; } .karma-split .ks-good{ background:#C8A035; } .karma-split .ks-neutral{ background:var(--paper-3); }
+  .karma-legend{ display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-faint2); }
+  .karma-legend b{ font-weight:900; }
+  .karma-legend .dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; }
+  .low-list{ margin-top:14px; }
+  .low-list-title{ font-size:12px; font-weight:700; color:var(--vermillion-bright); margin-bottom:6px; }
+  .low-list-row{ display:flex; justify-content:space-between; font-size:12.5px; padding:5px 10px; background:rgba(156,43,34,.05); border-radius:4px; margin-bottom:4px; }
+
   .filter-row{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
   .search-input{
     flex:1; min-width:200px; background:var(--paper); border:1px solid var(--border); border-radius:6px;
@@ -460,7 +505,7 @@
       document.getElementById("authName").textContent = discordUser.name;
       const badge = document.getElementById("roleBadge");
       const r = myRole();
-      badge.textContent = r === "DM" ? "宗主 DM" : (r === "Elder" ? "長老" : "弟子（唯讀）");
+      badge.textContent = r === "DM" ? "天道" : (r === "Elder" ? "長老" : "弟子（唯讀）");
       badge.className = "role-badge " + (r === "DM" ? "dm" : (r === "Elder" ? "elder" : "guest"));
     }
   }
@@ -568,12 +613,14 @@
         <button class="tab-btn" data-tab="tab-warehouse">【宗門庫房】</button>
         <button class="tab-btn" data-tab="tab-treasury">【多寶閣】</button>
         <button class="tab-btn" data-tab="tab-roster">【弟子花名冊】</button>
+        <button class="tab-btn" data-tab="tab-report">【簡報分析】</button>
         <button class="tab-btn" data-tab="tab-combat">【戰鬥統計】</button>
         ${isDM() ? `<button class="tab-btn" data-tab="tab-admin">【權限管理】</button>` : ""}
       </div>
       <div class="tab-panel" id="tab-warehouse">${warehouseHtml(editable)}</div>
       <div class="tab-panel" id="tab-treasury">${treasuryHtml(editable)}</div>
       <div class="tab-panel" id="tab-roster">${rosterHtml(editable)}</div>
+      <div class="tab-panel" id="tab-report">${reportHtml()}</div>
       <div class="tab-panel" id="tab-combat">${combatHtml()}</div>
       ${isDM() ? `<div class="tab-panel" id="tab-admin">${adminHtml()}</div>` : ""}
     `;
@@ -607,14 +654,14 @@
 
   function adminNoticeHtml(){
     if(!discordUser){
-      return `<div class="notice">目前為訪客唯讀模式。登入 Discord 後，若你的身分已被宗主授權，即可編輯庫房與花名冊。</div>`;
+      return `<div class="notice">目前為訪客唯讀模式。登入 Discord 後，若你的身分已被天道授權，即可編輯庫房與花名冊。</div>`;
     }
     if(Object.keys(admins).length === 0){
-      return `<div class="notice">尚未設定任何管理員。第一位設定者將成為宗主（DM），可再授權其他長老。
-        <div style="margin-top:8px;"><button class="btn gold" data-action="claim-dm">將我設為宗主（DM）</button></div></div>`;
+      return `<div class="notice">尚未設定任何管理員。第一位設定者將成為天道，可再授權其他長老。
+        <div style="margin-top:8px;"><button class="btn gold" data-action="claim-dm">將我設為天道</button></div></div>`;
     }
     if(!canEdit()){
-      return `<div class="notice">你目前是「弟子」身分，僅能檢視。若需編輯權限，請將下方玉簡 ID 交給宗主授權：
+      return `<div class="notice">你目前是「弟子」身分，僅能檢視。若需編輯權限，請將下方玉簡 ID 交給天道授權：
         <div class="uid-box" data-action="copy-uid">${escapeHtml(discordUser.id)}</div></div>`;
     }
     return "";
@@ -853,6 +900,116 @@
         </table>`;
   }
 
+  // ===== 簡報分析 =====
+  function countBy(list, fn){
+    const out = {};
+    list.forEach(item => { const k = (fn(item) || "").trim() || "未記錄"; out[k] = (out[k] || 0) + 1; });
+    return out;
+  }
+  function distributionRows(counts){
+    const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+    if(entries.length === 0) return `<div class="dist-empty">尚無資料</div>`;
+    const max = Math.max(1, ...entries.map(([,v]) => v));
+    return entries.map(([k,v]) => `
+      <div class="dist-row">
+        <span class="dr-name" title="${escapeHtml(k)}">${escapeHtml(k)}</span>
+        <span class="dr-track"><span class="dr-bar" style="width:${(v/max*100).toFixed(1)}%"></span></span>
+        <span class="dr-count">${v}</span>
+      </div>`).join("");
+  }
+
+  function reportHtml(){
+    const rosterList = Object.values(roster);
+    const charList = Object.values(chars);
+    const totalDisciples = rosterList.length;
+    const totalChars = charList.length;
+
+    const rankCounts = {}; RANKS.forEach(r => rankCounts[r] = 0);
+    rosterList.forEach(m => { const r = m.rank || "記名"; rankCounts[r] = (rankCounts[r] || 0) + 1; });
+
+    const pathCounts = countBy(rosterList, m => m.path);
+    const jobCounts = countBy(rosterList, m => m.job);
+    const rootCounts = countBy(rosterList, m => m.root);
+    const masterCounts = countBy(rosterList.filter(m => m.master), m => m.master);
+
+    const pct = (cur, mx) => { const c = num(cur), m = num(mx); return m <= 0 ? null : Math.max(0, Math.min(100, c/m*100)); };
+    const hpPcts = charList.map(c => pct(c.hp && c.hp.current, c.hp && c.hp.max)).filter(v => v != null);
+    const qiPcts = charList.map(c => pct(c.qi && c.qi.current, c.qi && c.qi.max)).filter(v => v != null);
+    const avg = arr => arr.length ? arr.reduce((s,v) => s+v, 0) / arr.length : 0;
+    const avgHp = avg(hpPcts), avgQi = avg(qiPcts);
+    const avgAc = avg(charList.map(c => num(c.ac)).filter(v => v > 0));
+
+    const karmaBad = charList.filter(c => num(c.karma) > 0).length;
+    const karmaGood = charList.filter(c => num(c.karma) < 0).length;
+    const karmaNeutral = Math.max(0, totalChars - karmaBad - karmaGood);
+
+    const lowHp = charList
+      .map(c => ({ c, p: pct(c.hp && c.hp.current, c.hp && c.hp.max) }))
+      .filter(x => x.p != null && x.p <= 30)
+      .sort((a,b) => a.p - b.p);
+
+    return `
+      <div class="report-section">
+        <div class="report-section-title">宗門總覽</div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">在冊弟子</div><div class="kpi-value">${totalDisciples}</div></div>
+          <div class="kpi-card"><div class="kpi-label">已建角色卡</div><div class="kpi-value">${totalChars}</div><div class="kpi-sub">${totalDisciples > 0 ? (totalChars/totalDisciples*100).toFixed(0) + "% 建卡率" : "－"}</div></div>
+          <div class="kpi-card"><div class="kpi-label">管理員人數</div><div class="kpi-value">${Object.keys(admins).length}</div></div>
+          <div class="kpi-card"><div class="kpi-label">全團平均護甲 AC</div><div class="kpi-value">${avgAc ? avgAc.toFixed(1) : "－"}</div></div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">階級分布<span class="n">共 ${totalDisciples} 人</span></div>
+        <div class="dist-card">${distributionRows(rankCounts)}</div>
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">道途／職業／靈根 分布</div>
+        <div class="dist-grid">
+          <div class="dist-card"><div class="dist-card-title">道途</div>${distributionRows(pathCounts)}</div>
+          <div class="dist-card"><div class="dist-card-title">職業</div>${distributionRows(jobCounts)}</div>
+          <div class="dist-card"><div class="dist-card-title">靈根</div>${distributionRows(rootCounts)}</div>
+          ${Object.keys(masterCounts).length ? `<div class="dist-card"><div class="dist-card-title">師承分布</div>${distributionRows(masterCounts)}</div>` : ""}
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">戰鬥狀態摘要<span class="n">依 ${totalChars} 張角色卡計算</span></div>
+        ${totalChars === 0 ? `<div class="dist-empty">尚無角色卡資料</div>` : `
+        <div class="gauge-grid">
+          <div class="gauge-card">
+            <div class="gauge-head"><span class="gauge-title hp">全團平均生命值</span><span class="gauge-pct">${avgHp.toFixed(0)}%</span></div>
+            <div class="gauge-track"><div class="gauge-fill hp" style="width:${avgHp.toFixed(1)}%"></div></div>
+            <div class="gauge-note">${hpPcts.length}／${totalChars} 張卡已填寫生命上限</div>
+          </div>
+          <div class="gauge-card">
+            <div class="gauge-head"><span class="gauge-title qi">全團平均靈氣值</span><span class="gauge-pct">${avgQi.toFixed(0)}%</span></div>
+            <div class="gauge-track"><div class="gauge-fill qi" style="width:${avgQi.toFixed(1)}%"></div></div>
+            <div class="gauge-note">${qiPcts.length}／${totalChars} 張卡已填寫靈氣上限</div>
+          </div>
+          <div class="gauge-card">
+            <div class="gauge-head"><span class="gauge-title">業力分布</span></div>
+            <div class="karma-split">
+              ${karmaBad > 0 ? `<div class="ks-bad" style="width:${(karmaBad/totalChars*100).toFixed(1)}%"></div>` : ""}
+              ${karmaNeutral > 0 ? `<div class="ks-neutral" style="width:${(karmaNeutral/totalChars*100).toFixed(1)}%"></div>` : ""}
+              ${karmaGood > 0 ? `<div class="ks-good" style="width:${(karmaGood/totalChars*100).toFixed(1)}%"></div>` : ""}
+            </div>
+            <div class="karma-legend">
+              <span><span class="dot" style="background:#7C3AED;"></span>業障纏身 <b>${karmaBad}</b></span>
+              <span><span class="dot" style="background:var(--paper-3);border:1px solid var(--border);"></span>清淨無染 <b>${karmaNeutral}</b></span>
+              <span><span class="dot" style="background:#C8A035;"></span>功德加身 <b>${karmaGood}</b></span>
+            </div>
+          </div>
+        </div>
+        ${lowHp.length ? `<div class="low-list">
+          <div class="low-list-title">⚠ 生命值偏低（≤30%）</div>
+          ${lowHp.map(({c}) => `<div class="low-list-row"><span>${escapeHtml(c.name || "未命名角色")}</span><span>${num(c.hp && c.hp.current)} / ${num(c.hp && c.hp.max)}</span></div>`).join("")}
+        </div>` : ""}
+        `}
+      </div>`;
+  }
+
   // ===== 戰鬥統計 =====
   function combatHtml(){
     const list = Object.entries(chars).sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
@@ -898,14 +1055,14 @@
         <div style="font-weight:700; margin-bottom:6px;">授權新的管理者</div>
         <div style="font-size:13px; color:var(--ink-faint2); line-height:1.8; margin-bottom:12px;">
           請對方登入本頁後，複製畫面上顯示的「玉簡 ID」交給你，貼在下方即可授權。<br>
-          <b>長老</b>可編輯庫房、花名冊與多寶閣；<b>宗主</b>另外可管理權限。
+          <b>長老</b>可編輯庫房、花名冊與多寶閣；<b>天道</b>另外可管理權限。
         </div>
         <div class="filter-row">
           <input class="search-input" id="newAdminId" placeholder="貼上 Discord 使用者 ID（純數字）">
           <input class="search-input" id="newAdminName" placeholder="備註名稱" style="max-width:180px;">
           <select class="search-input" id="newAdminRole" style="max-width:120px;">
             <option value="Elder">長老</option>
-            <option value="DM">宗主 DM</option>
+            <option value="DM">天道</option>
           </select>
           <button class="btn gold" data-action="grant">授權</button>
         </div>
@@ -921,7 +1078,7 @@
               <tr>
                 <td style="font-size:13px;">${escapeHtml(uid)} ${isMe ? `<b style="color:var(--jade);">（你）</b>` : ""}</td>
                 <td>${escapeHtml(a.name || "－")}</td>
-                <td><b style="color:${a.role==="DM"?"var(--vermillion-bright)":"var(--gold-deep)"};">${a.role==="DM"?"宗主 DM":"長老"}</b></td>
+                <td><b style="color:${a.role==="DM"?"var(--vermillion-bright)":"var(--gold-deep)"};">${a.role==="DM"?"天道":"長老"}</b></td>
                 <td><button class="btn-icon" data-action="revoke" data-id="${escapeHtml(uid)}"
                   title="${isMe ? "移除我自己的權限" : "撤銷此人的權限"}">✕</button></td>
               </tr>`; }).join("")}
@@ -937,8 +1094,8 @@
         <div style="font-size:13px; color:var(--ink-faint2); line-height:1.8; margin-bottom:12px;">
           可隨時移除自己的權限，回到唯讀的弟子身分。
           ${entries.length === 1
-            ? "目前你是唯一的管理員，移除後這裡會回到「尚未設定任何管理員」狀態，畫面上會重新出現「將我設為宗主」按鈕，隨時可以再取回權限。"
-            : "移除後若要再取得權限，需請其他宗主重新授權給你。"}
+            ? "目前你是唯一的管理員，移除後這裡會回到「尚未設定任何管理員」狀態，畫面上會重新出現「將我設為天道」按鈕，隨時可以再取回權限。"
+            : "移除後若要再取得權限，需請其他天道重新授權給你。"}
         </div>
         <button class="btn danger" data-action="revoke-self">移除我自己的權限</button>
       </div>` : ""}`;
@@ -1149,13 +1306,13 @@
         }
         if(action === "claim-dm"){
           if(!discordUser) return;
-          if(Object.keys(admins).length > 0){ flash("已有管理員，無法自行取得宗主權限", true); return; }
+          if(Object.keys(admins).length > 0){ flash("已有管理員，無法自行取得天道權限", true); return; }
           await writeNow("admins/" + discordUser.id, { role:"DM", name: discordUser.name });
           renderAll(true);
           return;
         }
         if(action === "import-roster" || action === "import-warehouse"){
-          if(!isDM()){ flash("只有宗主（DM）可以匯入基礎資料", true); return; }
+          if(!isDM()){ flash("只有天道可以匯入基礎資料", true); return; }
           await importSeed(action === "import-roster" ? "roster" : "warehouse", btn);
           return;
         }
@@ -1176,9 +1333,9 @@
             const isLast = Object.keys(admins).length <= 1;
             const msg = isLast
               ? "確定移除自己的權限？\n\n你是目前唯一的管理員，移除後宗門大殿會回到「尚未設定任何管理員」狀態，"
-                + "畫面上會重新出現「將我設為宗主」按鈕，你隨時可以再取回權限。"
+                + "畫面上會重新出現「將我設為天道」按鈕，你隨時可以再取回權限。"
               : "確定移除自己的權限？\n\n移除後你將變回唯讀的弟子身分，"
-                + "若要再取得權限，需請其他宗主重新授權給你。";
+                + "若要再取得權限，需請其他天道重新授權給你。";
             if(!confirm(msg)) return;
           } else {
             if(!confirm("確定撤銷此人的管理權限？")) return;
