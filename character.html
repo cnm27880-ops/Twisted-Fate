@@ -90,8 +90,50 @@
   }
   .btn:hover{ background:var(--paper-3); border-color:var(--gold); }
 
+  .nav-links{ display:flex; gap:6px; flex-wrap:wrap; }
+  .nav-link{
+    text-decoration:none; color:var(--ink-dim); font-size:13px; font-weight:700;
+    padding:6px 12px; border:1px solid var(--border); border-radius:4px; background:var(--paper);
+  }
+  .nav-link:hover{ background:var(--paper-3); border-color:var(--gold); }
+
   /* ===== 主容器 ===== */
   .layout { max-width: 1200px; margin: 0 auto; padding: 30px 20px 100px; position: relative; z-index: 1; }
+
+  /* ===== 宗門總覽摘要（唯讀，資料來自宗門大殿） ===== */
+  .clan-summary{ margin-bottom:26px; }
+  .clan-summary:empty{ display:none; }
+  .cs-box{
+    background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
+    border:2px solid var(--gold); border-radius:8px; padding:20px 26px; color:var(--paper);
+    position:relative; overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.15), inset 0 0 40px rgba(140,107,39,.1);
+  }
+  .cs-box::after{
+    content:"藏"; position:absolute; right:-14px; top:-44px;
+    font-family:"Zhi Mang Xing",cursive; font-size:200px; color:var(--gold); opacity:.13; pointer-events:none;
+  }
+  .cs-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; position:relative; z-index:1; flex-wrap:wrap; }
+  .cs-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:#F8EDD1; text-shadow:0 2px 5px rgba(0,0,0,.7); }
+  .cs-sub{ font-size:12px; color:#E8CA82; letter-spacing:1px; }
+  .cs-more{
+    margin-left:auto; font-size:12px; font-weight:700; color:#E8CA82; text-decoration:none;
+    border:1px solid var(--gold-deep); border-radius:4px; padding:4px 12px; background:rgba(0,0,0,.3);
+  }
+  .cs-more:hover{ background:rgba(0,0,0,.5); color:#F8EDD1; }
+  .cs-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; position:relative; z-index:1; }
+  .cs-cell{
+    background:rgba(0,0,0,.4); border:1px solid var(--gold-deep); box-shadow:inset 0 0 8px rgba(140,107,39,.2);
+    padding:9px 14px; border-radius:4px; text-align:center;
+  }
+  .cs-label{ font-size:11px; color:#E8CA82; letter-spacing:1.5px; margin-bottom:3px; }
+  .cs-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:21px; color:#F8EDD1; }
+  .cs-realms{
+    margin-top:12px; padding-top:12px; border-top:1px solid rgba(232,202,130,.25);
+    font-size:12.5px; color:#E8CA82; line-height:2; position:relative; z-index:1;
+  }
+  .cs-realms b{ color:#F8EDD1; font-family:"Noto Serif TC",serif; font-size:14px; }
+  .cs-realms span{ display:inline-block; margin-right:14px; }
 
   .readonly-banner{
     display:flex; align-items:center; gap:8px;
@@ -289,6 +331,12 @@
     <strong style="font-family:'Noto Serif TC',serif; font-size:18px; letter-spacing:2px; color:var(--ink);">角色卡系統</strong>
   </div>
 
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">規則書</a>
+    <a class="nav-link" href="library.html">藏經閣</a>
+    <a class="nav-link" href="dm.html">宗門大殿</a>
+  </div>
+
   <div class="char-select-wrap">
     <select id="charSelect" class="btn" style="appearance:auto; padding:6px 24px 6px 12px;">
       <option value="">-- 選擇角色卡 --</option>
@@ -312,6 +360,8 @@
 </nav>
 
 <div class="layout">
+  <div class="clan-summary" id="clanSummary"></div>
+
   <div id="sheet">
     <div style="text-align:center; padding:100px 20px; color:var(--ink-faint2);">
       <div style="font-family:'Zhi Mang Xing',cursive; font-size:80px; color:var(--border); margin-bottom:20px;">卡</div>
@@ -488,6 +538,64 @@
 
     select.value = currentCharId || "";
     select.onchange = (e) => { currentCharId = e.target.value; renderSheet(); };
+  }
+
+  // ============================================================
+  // 宗門總覽摘要（唯讀）：資料由宗門大殿 dm.html 維護，這裡只呈現統計
+  // ============================================================
+  let clanWarehouse = {}, clanStones = {}, clanTreasury = {}, clanRoster = {}, clanLibrary = {};
+
+  function watchClan(path, assign){
+    onValue(ref(db, path), snap => { assign(snap.val() || {}); renderClanSummary(); },
+      err => console.warn(path + " summary sync error", err));
+  }
+  watchClan("warehouse", v => clanWarehouse = v);
+  watchClan("stones",    v => clanStones = v);
+  watchClan("treasury",  v => clanTreasury = v);
+  watchClan("roster",    v => clanRoster = v);
+  watchClan("library",   v => clanLibrary = v);
+
+  function renderClanSummary(){
+    const box = document.getElementById("clanSummary");
+    const items = Object.values(clanWarehouse);
+    const members = Object.values(clanRoster);
+    const stoneTotal = ["low","mid","high","extreme"].reduce((s,k) => s + (Number(clanStones[k])||0), 0);
+
+    // 完全沒有任何宗門資料時就不顯示，免得角色卡上方掛一塊空的區塊
+    if(items.length === 0 && members.length === 0 && stoneTotal === 0
+       && Object.keys(clanTreasury).length === 0 && Object.keys(clanLibrary).length === 0){
+      box.innerHTML = "";
+      return;
+    }
+
+    const catCount = c => items.filter(i => (i.category || "丹藥") === c).length;
+    const realmGroups = {};
+    members.forEach(m => {
+      const g = ((m.realm || "").trim() || "未記錄").slice(0, 2);
+      realmGroups[g] = (realmGroups[g] || 0) + 1;
+    });
+    const realmText = Object.entries(realmGroups).sort((a,b) => b[1]-a[1])
+      .map(([g,n]) => `<span>${escapeHtml(g)} <b>${n}</b></span>`).join("");
+
+    box.innerHTML = `
+      <div class="cs-box">
+        <div class="cs-head">
+          <span class="cs-title">宗門總覽</span>
+          <span class="cs-sub">庫房物資　·　藏經閣　·　弟子境界分布</span>
+          <a class="cs-more" href="dm.html">前往宗門大殿 →</a>
+        </div>
+        <div class="cs-grid">
+          <div class="cs-cell"><div class="cs-label">靈石總計</div><div class="cs-value">${stoneTotal.toLocaleString()}</div></div>
+          <div class="cs-cell"><div class="cs-label">丹藥</div><div class="cs-value">${catCount("丹藥")}</div></div>
+          <div class="cs-cell"><div class="cs-label">法器</div><div class="cs-value">${catCount("法器")}</div></div>
+          <div class="cs-cell"><div class="cs-label">材料</div><div class="cs-value">${catCount("材料")}</div></div>
+          <div class="cs-cell"><div class="cs-label">符咒</div><div class="cs-value">${catCount("符咒")}</div></div>
+          <div class="cs-cell"><div class="cs-label">多寶閣</div><div class="cs-value">${Object.keys(clanTreasury).length}</div></div>
+          <div class="cs-cell"><div class="cs-label">藏經閣功法</div><div class="cs-value">${Object.keys(clanLibrary).length}</div></div>
+          <div class="cs-cell"><div class="cs-label">宗門弟子</div><div class="cs-value">${members.length}</div></div>
+        </div>
+        ${realmText ? `<div class="cs-realms">境界分布　${realmText}</div>` : ""}
+      </div>`;
   }
 
   document.getElementById("btnNewChar").addEventListener("click", async () => {
