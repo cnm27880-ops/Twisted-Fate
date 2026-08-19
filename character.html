@@ -315,9 +315,11 @@
 
   /* 翼板：靠內的那一側切出凹角，順著太極環的弧線抱進去。
      clip-path 會把 border 一起裁掉，所以外層當「金屬邊」、內層縮 1px 當紙面。 */
-  .wing { position: relative; z-index: 1; }
-  .wing-left  { margin-right: -26px; --wing-clip: polygon(0 0, 100% 0, calc(100% - 30px) 50%, 100% 100%, 0 100%); }
-  .wing-right { margin-left: -26px;  --wing-clip: polygon(30px 50%, 0 0, 100% 0, 100% 100%, 0 100%); }
+  /* 內緣是兩條平行的斜線，方向對齊太極中央的分界（左下 ↔ 右上）：
+     左翼上緣長、下緣短，右翼上緣短、下緣長，把中間的圓虛虛夾在中間。 */
+  .wing { position: relative; z-index: 1; --bevel: 150px; }
+  .wing-left  { margin-right: -30px; --wing-clip: polygon(0 0, 100% 0, calc(100% - var(--bevel)) 100%, 0 100%); }
+  .wing-right { margin-left: -30px;  --wing-clip: polygon(var(--bevel) 0, 100% 0, 100% 100%, 0 100%); }
   .wing::before {
     content: ""; position: absolute; inset: 0; clip-path: var(--wing-clip);
     background: linear-gradient(120deg, rgba(140,107,39,.55), rgba(95,71,15,.28));
@@ -325,11 +327,11 @@
   .wing-inner {
     position: relative; clip-path: var(--wing-clip);
     background: linear-gradient(150deg, var(--paper-2) 0%, var(--paper-3) 130%);
-    padding: 22px 26px; margin: 1px;
-    display: flex; flex-direction: column; gap: 12px;
+    padding: 20px 26px; margin: 1px; height: 150px;
+    display: flex; flex-direction: column; justify-content: center; gap: 10px;
   }
-  .wing-left .wing-inner  { padding-right: 48px; align-items: flex-start; text-align: left; }
-  .wing-right .wing-inner { padding-left: 48px;  align-items: flex-end;  text-align: right; }
+  .wing-left .wing-inner  { padding-right: 40px; align-items: flex-start; text-align: left; }
+  .wing-right .wing-inner { padding-left: 40px;  align-items: flex-end;  text-align: right; }
   .wing-left .wing-inner::before, .wing-right .wing-inner::before {
     content: ""; position: absolute; top: 0; bottom: 0; width: 4px;
   }
@@ -368,19 +370,35 @@
   .bagua-ring { fill: var(--gold-deep); opacity: .38; transform-origin: 120px 120px; animation: baguaSpin 90s linear infinite; }
   @keyframes baguaSpin { to { transform: rotate(360deg); } }
 
-  .ring-track { fill: none; stroke-width: 12; stroke-linecap: round; }
-  .ring-track.hp { stroke: rgba(156,43,34,.16); }
-  .ring-track.qi { stroke: rgba(45,90,76,.16); }
-  .ring-fill { fill: none; stroke-width: 12; stroke-linecap: round;
-    transition: stroke-dasharray .45s cubic-bezier(.4,0,.2,1), stroke-dashoffset .45s cubic-bezier(.4,0,.2,1), opacity .3s; }
-  .ring-fill.hp { stroke: #9C2B22; filter: drop-shadow(0 0 5px rgba(181,55,43,.6)); }
-  .ring-fill.qi { stroke: #2D5A4C; filter: drop-shadow(0 0 5px rgba(64,145,108,.6)); }
+  /* 弧道做成三層：外圈凹槽 → 未填滿的底色 → 漸層實體，末端再加一顆光珠 */
+  .ring-groove { fill: none; stroke-width: 20; stroke-linecap: round; stroke: rgba(59,44,20,.15); }
+  .ring-rail { fill: none; stroke: var(--gold-deep); stroke-width: 1; stroke-linecap: round; opacity: .42; }
+  .ring-gloss {
+    fill: none; stroke: url(#glossGrad); stroke-width: 3.4; stroke-linecap: round;
+    transition: stroke-dasharray .5s cubic-bezier(.4,0,.2,1), stroke-dashoffset .5s cubic-bezier(.4,0,.2,1), opacity .3s;
+  }
+  .ring-track { fill: none; stroke-width: 13; stroke-linecap: round; }
+  .ring-track.hp { stroke: rgba(156,43,34,.13); }
+  .ring-track.qi { stroke: rgba(45,90,76,.13); }
+  .ring-fill { fill: none; stroke-width: 13; stroke-linecap: round;
+    transition: stroke-dasharray .5s cubic-bezier(.4,0,.2,1), stroke-dashoffset .5s cubic-bezier(.4,0,.2,1), opacity .3s; }
+  .ring-fill.hp { stroke: url(#hpGrad); filter: drop-shadow(0 0 6px rgba(181,55,43,.55)); }
+  .ring-fill.qi { stroke: url(#qiGrad); filter: drop-shadow(0 0 6px rgba(64,145,108,.55)); }
+
+  .ring-tick { stroke: var(--gold-deep); stroke-width: 1.4; opacity: .55; stroke-linecap: round; }
+  .ring-stud { fill: var(--gold); opacity: .85; }
+  .ring-bead {
+    stroke: rgba(255,255,255,.72); stroke-width: 1.2;
+    transition: cx .5s cubic-bezier(.4,0,.2,1), cy .5s cubic-bezier(.4,0,.2,1), opacity .3s;
+  }
+  .ring-bead.hp { fill: #F0836A; filter: drop-shadow(0 0 6px rgba(224,102,76,.95)); }
+  .ring-bead.qi { fill: #7FD2A8; filter: drop-shadow(0 0 6px rgba(99,183,142,.95)); }
 
   .karma-plate {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
     width: 138px; height: 138px; border-radius: 50%; overflow: hidden;
     background: radial-gradient(circle at 36% 30%, #F7EDD6 0%, var(--paper-2) 52%, var(--paper-3) 100%);
-    border: 1px solid var(--karma-color, var(--ink-dim));
+    border: 1px solid var(--karma-ring, rgba(69,58,42,.42));
     box-shadow: 0 0 20px 3px var(--karma-glow, transparent), inset 0 2px 12px rgba(0,0,0,.10);
     display: flex; align-items: center; justify-content: center;
     transition: border-color .5s ease, box-shadow .5s ease;
@@ -401,8 +419,8 @@
   @media(max-width: 860px) {
     .resources-container { grid-template-columns: 1fr; justify-items: center; gap: 18px; }
     .wing { width: 100%; max-width: 420px; }
-    .wing-left, .wing-right { margin: 0; --wing-clip: none; }
-    .wing-left .wing-inner, .wing-right .wing-inner { padding: 20px 24px; align-items: center; text-align: center; }
+    .wing-left, .wing-right { margin: 0; --wing-clip: none; --bevel: 0px; }
+    .wing-left .wing-inner, .wing-right .wing-inner { padding: 20px 24px; height: auto; align-items: center; text-align: center; }
     .wing-left .res-inputs, .wing-right .res-inputs, .wing-right .res-sub { justify-content: center; }
     .wing::before { border-radius: 8px; }
     .wing-inner { border-radius: 8px; }
@@ -1247,9 +1265,9 @@
   // 業力：正業力＝業障（紫），負業力＝功德（金）
   function getKarmaStyle(k){
     k = num(k);
-    if(k > 0) return "--karma-color: #7C3AED; --karma-glow: rgba(124,58,237,0.38);";
-    if(k < 0) return "--karma-color: #C8A035; --karma-glow: rgba(200,160,53,0.40);";
-    return "--karma-color: var(--ink-dim); --karma-glow: transparent;";
+    if(k > 0) return "--karma-color: #7C3AED; --karma-ring: #7C3AED; --karma-glow: rgba(124,58,237,0.38);";
+    if(k < 0) return "--karma-color: #C8A035; --karma-ring: #C8A035; --karma-glow: rgba(200,160,53,0.40);";
+    return "--karma-color: var(--ink-dim); --karma-ring: rgba(69,58,42,.42); --karma-glow: transparent;";
   }
   function karmaLabel(k){
     k = num(k);
@@ -1260,27 +1278,78 @@
   // SVG 的 stroke 從三點鐘方向順時針起算，整圈轉 135°後起點落在左下角。
   // 生命弧由起點順時針畫（覆蓋左上半圈）；靈氣弧靠 stroke-dashoffset 把虛線
   // 往回挪，等於從同一點逆時針畫（覆蓋右下半圈），兩條弧在左下與右上咬合。
+  // 兩條弧各佔 168°，在左下與右上各留 12° 缺口：頭尾很靠近但不相接，
+  // 收在一起像兩個彼此勾著的鉤子。
   const RING_R = 100;
   const RING_C = 2 * Math.PI * RING_R;
-  const RING_HALF = RING_C / 2;
-  function ringLen(res){ return (pct(res) / 100) * RING_HALF; }
+  const ARC_SPAN = 168;
+  const HP_START = 141, QI_START = 129;   // 分界線在 135°／315°，各往內縮 6°
+  const ARC_LEN = RING_C * ARC_SPAN / 360;
+  function ringLen(res){ return (pct(res) / 100) * ARC_LEN; }
+
+  function polar(deg, radius){
+    const t = deg * Math.PI / 180;
+    return { x: 120 + radius * Math.cos(t), y: 120 + radius * Math.sin(t) };
+  }
+
+  // 弧道外側的刻度（各 1/4、1/2、3/4）與四個端點的小金釘
+  function ringMarksHtml(){
+    let out = "";
+    [[HP_START, 1], [QI_START, -1]].forEach(([start, dir]) => {
+      [0.25, 0.5, 0.75].forEach(f => {
+        const a = polar(start + dir * ARC_SPAN * f, 91);
+        const b = polar(start + dir * ARC_SPAN * f, 109);
+        out += `<line class="ring-tick" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"/>`;
+      });
+    });
+    // 兩個缺口（135°／315°）的正外側各放一顆小金釘，框住缺口但不填滿它
+    [135, 315].forEach(a => {
+      const c = polar(a, 116);
+      out += `<rect class="ring-stud" x="${(c.x-3.2).toFixed(1)}" y="${(c.y-3.2).toFixed(1)}" width="6.4" height="6.4"
+               transform="rotate(45 ${c.x.toFixed(1)} ${c.y.toFixed(1)})"/>`;
+    });
+    return out;
+  }
 
   // 虛線的「實線 + 空白」總長必須剛好等於圓周長，dashoffset 才會沿著圓繞回來；
   // 空白如果比圓還長，整條路徑都會落在空白裡，那條弧就完全畫不出來。
   function ringDash(len){ return len.toFixed(2) + " " + Math.max(0, RING_C - len).toFixed(2); }
 
-  function setRing(sel, res, fromEnd){
-    const el = sheetEl.querySelector(sel);
+  // 高光弧畫在稍微外面一點的半徑上，虛線長度要按半徑比例換算，
+  // 否則兩條弧的長度對不齊。
+  const GLOSS_R = 103.4;
+  const GLOSS_C = 2 * Math.PI * GLOSS_R;
+  function glossDash(len){
+    const l = len * GLOSS_R / RING_R;
+    return l.toFixed(2) + " " + Math.max(0, GLOSS_C - l).toFixed(2);
+  }
+  function glossOffset(len){ return (len * GLOSS_R / RING_R).toFixed(2); }
+
+  function setRing(kind, res){
+    const isHp = kind === "hp";
+    const el = sheetEl.querySelector(".ring-fill." + kind);
     if(!el) return;
     const len = ringLen(res);
     el.setAttribute("stroke-dasharray", ringDash(len));
-    if(fromEnd) el.setAttribute("stroke-dashoffset", len.toFixed(2));
+    if(!isHp) el.setAttribute("stroke-dashoffset", len.toFixed(2));   // 靈氣弧從同一點反方向長
     el.style.opacity = len > 0.6 ? 1 : 0;
+
+    const gloss = sheetEl.querySelector(".ring-gloss." + kind);
+    if(gloss){
+      gloss.setAttribute("stroke-dasharray", glossDash(len));
+      if(!isHp) gloss.setAttribute("stroke-dashoffset", glossOffset(len));
+      gloss.style.opacity = len > 0.6 ? 1 : 0;
+    }
+
+    const bead = sheetEl.querySelector(".ring-bead." + kind);
+    if(bead){
+      const tip = polar((isHp ? HP_START : QI_START) + (isHp ? 1 : -1) * ARC_SPAN * (pct(res) / 100), RING_R);
+      bead.setAttribute("cx", tip.x.toFixed(2));
+      bead.setAttribute("cy", tip.y.toFixed(2));
+      bead.style.opacity = len > 0.6 ? 1 : 0;
+    }
   }
-  function updateRings(char){
-    setRing(".ring-fill.hp", char.hp, false);
-    setRing(".ring-fill.qi", char.qi, true);
-  }
+  function updateRings(char){ setRing("hp", char.hp); setRing("qi", char.qi); }
 
   // 乾兌離震巽坎艮坤（由上方順時針排），1 為陽爻、0 為陰爻
   const BAGUA = ["111","110","101","100","011","010","001","000"];
@@ -1474,17 +1543,65 @@
         <!-- 中央：太極陰陽魚環。外圈左上為生命弧、右下為靈氣弧，逆向咬合 -->
         <div class="taiji-core" style="${getKarmaStyle(char.karma)}">
           <svg class="taiji-rings" viewBox="0 0 240 240" aria-hidden="true">
+            <defs>
+              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="34" y1="206" x2="206" y2="34">
+                <stop offset="0" stop-color="#5E1610"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#E0664C"/>
+              </linearGradient>
+              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="206" y1="34" x2="34" y2="206">
+                <stop offset="0" stop-color="#0F2E23"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#63B78E"/>
+              </linearGradient>
+              <linearGradient id="glossGrad" gradientUnits="userSpaceOnUse" x1="120" y1="10" x2="120" y2="230">
+                <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
+                <stop offset=".55" stop-color="#fff" stop-opacity=".22"/>
+                <stop offset="1" stop-color="#fff" stop-opacity=".08"/>
+              </linearGradient>
+            </defs>
             <g class="bagua-ring">${baguaHtml()}</g>
-            <circle class="ring-track hp" cx="120" cy="120" r="100" transform="rotate(135 120 120)"
-              stroke-dasharray="${ringDash(RING_HALF)}"></circle>
-            <circle class="ring-track qi" cx="120" cy="120" r="100" transform="rotate(135 120 120)"
-              stroke-dasharray="${ringDash(RING_HALF)}" stroke-dashoffset="${RING_HALF.toFixed(2)}"></circle>
-            <circle class="ring-fill hp" cx="120" cy="120" r="100" transform="rotate(135 120 120)"
+            <g class="ring-marks">${ringMarksHtml()}</g>
+
+            <circle class="ring-groove hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)"
+              stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
+            <circle class="ring-groove qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)"
+              stroke-dasharray="${ringDash(ARC_LEN)}" stroke-dashoffset="${ARC_LEN.toFixed(2)}"></circle>
+            <circle class="ring-rail out hp" cx="120" cy="120" r="110" transform="rotate(${HP_START} 120 120)"
+              stroke-dasharray="${(ARC_LEN*1.1).toFixed(2)} ${(2*Math.PI*110 - ARC_LEN*1.1).toFixed(2)}"></circle>
+            <circle class="ring-rail out qi" cx="120" cy="120" r="110" transform="rotate(${QI_START} 120 120)"
+              stroke-dasharray="${(ARC_LEN*1.1).toFixed(2)} ${(2*Math.PI*110 - ARC_LEN*1.1).toFixed(2)}"
+              stroke-dashoffset="${(ARC_LEN*1.1).toFixed(2)}"></circle>
+            <circle class="ring-rail in hp" cx="120" cy="120" r="90" transform="rotate(${HP_START} 120 120)"
+              stroke-dasharray="${(ARC_LEN*0.9).toFixed(2)} ${(2*Math.PI*90 - ARC_LEN*0.9).toFixed(2)}"></circle>
+            <circle class="ring-rail in qi" cx="120" cy="120" r="90" transform="rotate(${QI_START} 120 120)"
+              stroke-dasharray="${(ARC_LEN*0.9).toFixed(2)} ${(2*Math.PI*90 - ARC_LEN*0.9).toFixed(2)}"
+              stroke-dashoffset="${(ARC_LEN*0.9).toFixed(2)}"></circle>
+
+            <circle class="ring-track hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)"
+              stroke-dasharray="${ringDash(ARC_LEN)}"></circle>
+            <circle class="ring-track qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)"
+              stroke-dasharray="${ringDash(ARC_LEN)}" stroke-dashoffset="${ARC_LEN.toFixed(2)}"></circle>
+
+            <circle class="ring-fill hp" cx="120" cy="120" r="100" transform="rotate(${HP_START} 120 120)"
               stroke-dasharray="${ringDash(ringLen(char.hp))}"
               style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
-            <circle class="ring-fill qi" cx="120" cy="120" r="100" transform="rotate(135 120 120)"
+            <circle class="ring-fill qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)"
               stroke-dasharray="${ringDash(ringLen(char.qi))}"
               stroke-dashoffset="${ringLen(char.qi).toFixed(2)}"
+              style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
+
+            <circle class="ring-gloss hp" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${HP_START} 120 120)"
+              stroke-dasharray="${glossDash(ringLen(char.hp))}"
+              style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-gloss qi" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${QI_START} 120 120)"
+              stroke-dasharray="${glossDash(ringLen(char.qi))}"
+              stroke-dashoffset="${glossOffset(ringLen(char.qi))}"
+              style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
+
+            <circle class="ring-bead hp" r="4.6"
+              cx="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).x.toFixed(2)}"
+              cy="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).y.toFixed(2)}"
+              style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
+            <circle class="ring-bead qi" r="4.6"
+              cx="${polar(QI_START - ARC_SPAN * pct(char.qi) / 100, RING_R).x.toFixed(2)}"
+              cy="${polar(QI_START - ARC_SPAN * pct(char.qi) / 100, RING_R).y.toFixed(2)}"
               style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
           </svg>
           <div class="karma-plate">
@@ -1734,7 +1851,7 @@
     if(host) host.innerHTML = itemsHtml(char, isOwner(char));
   }
   function refreshQiViews(char){
-    setRing(".ring-fill.qi", char.qi, true);
+    setRing("qi", char.qi);
     const est = document.getElementById("qiEstimate");
     if(est) est.textContent = estimateQiMax(char);
     sheetEl.querySelectorAll('input[data-f="qi.current"], input[data-f="qi.max"]').forEach(el => {
@@ -1782,11 +1899,11 @@
         fitNumberInput(el, 38);
       }
       if(field === "hp.current" || field === "hp.max"){
-        setRing(".ring-fill.hp", char.hp, false);
+        setRing("hp", char.hp);
         fitNumberInput(el, 28);
       }
       if(field === "qi.current" || field === "qi.max"){
-        setRing(".ring-fill.qi", char.qi, true);
+        setRing("qi", char.qi);
         fitNumberInput(el, 28);
       }
       if(field === "qiBase"){
