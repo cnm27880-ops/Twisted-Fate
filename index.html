@@ -135,6 +135,21 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   .mobile-header .script-switch{ margin:0; width:auto; flex-shrink:0; }
   .mobile-header .script-switch button{ padding:5px 12px; font-size:12px; }
 
+  /* ===== 前往其他頁面（角色卡／藏經閣／宗門大殿） ===== */
+  .nav-links{ display:flex; justify-content:center; gap:5px; margin:14px 18px 0; flex-shrink:0; }
+  .nav-link{
+    flex:1 1 0; min-width:0; white-space:nowrap; text-align:center; text-decoration:none;
+    font-family:"Noto Serif TC",serif; font-size:12.5px; font-weight:700; letter-spacing:.5px;
+    padding:7px 4px; border-radius:4px;
+    color:#E8CA82; background:linear-gradient(155deg,#2B2520 0%,#141009 100%);
+    border:1px solid var(--gold-deep); box-shadow:0 2px 6px rgba(0,0,0,.18), inset 0 1px 0 rgba(232,202,130,.12);
+    transition:color .2s, box-shadow .2s, transform .15s, border-color .2s;
+  }
+  .nav-link:hover{
+    color:#FBF0D2; border-color:var(--gold); transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
+  }
+
   .search-box{
     display: none; /* 暫時封印神識探查功能！未來需要時刪除此行即可 */
     margin:16px 22px 6px; background:var(--paper); border:1px solid var(--border); border-radius:2px;
@@ -403,6 +418,11 @@ button, .tree-head, .search-box, input, [data-clickable], a {
         <button type="button" data-mode="trad">繁體</button>
         <button type="button" data-mode="simp">簡體</button>
       </div>
+      <nav class="nav-links" aria-label="站內導覽">
+        <a class="nav-link" href="character.html">角色卡</a>
+        <a class="nav-link" href="library.html">藏經閣</a>
+        <a class="nav-link" href="dm.html">宗門大殿</a>
+      </nav>
     </div>
     <input type="text" class="search-box" id="searchBox" placeholder="神識探查……">
     <div class="pinned-section empty" id="pinnedSection">

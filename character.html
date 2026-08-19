@@ -89,13 +89,30 @@
     font-family:inherit; font-weight:700; font-size:12.5px; padding:6px 12px; cursor:pointer;
   }
   .btn:hover{ background:var(--paper-3); border-color:var(--gold); }
-
-  .nav-links{ display:flex; gap:6px; flex-wrap:wrap; }
-  .nav-link{
-    text-decoration:none; color:var(--ink-dim); font-size:13px; font-weight:700;
-    padding:6px 12px; border:1px solid var(--border); border-radius:4px; background:var(--paper);
+  .btn.gold-btn{
+    color:#F3E3BC; border-color:var(--gold-deep);
+    background:linear-gradient(155deg,#2B2520 0%,#141009 100%);
+    box-shadow:inset 0 1px 0 rgba(232,202,130,.12);
   }
-  .nav-link:hover{ background:var(--paper-3); border-color:var(--gold); }
+  .btn.gold-btn:hover{ color:#FBF0D2; border-color:var(--gold); background:linear-gradient(155deg,#3A322A 0%,#1B1610 100%); }
+  .btn.jade-btn{ color:var(--jade); border-color:var(--jade); background:rgba(45,90,76,.06); }
+  .btn.jade-btn:hover{ background:rgba(45,90,76,.14); border-color:var(--jade); }
+  .btn.danger-btn{ color:var(--vermillion-bright); border-color:rgba(156,43,34,.4); background:rgba(156,43,34,.06); }
+  .btn.danger-btn:hover{ background:rgba(156,43,34,.14); border-color:var(--vermillion); }
+
+  .nav-links{ display:flex; gap:8px; flex-wrap:wrap; }
+  .nav-link{
+    position:relative; text-decoration:none; font-size:13px; font-weight:700; letter-spacing:2px;
+    font-family:"Noto Serif TC",serif; padding:7px 16px; border-radius:4px;
+    color:#E8CA82; background:linear-gradient(155deg,#2B2520 0%,#141009 100%);
+    border:1px solid var(--gold-deep); box-shadow:0 2px 6px rgba(0,0,0,.18), inset 0 1px 0 rgba(232,202,130,.12);
+    transition:color .2s, box-shadow .2s, transform .15s, border-color .2s;
+  }
+  .nav-link:hover{
+    color:#FBF0D2; border-color:var(--gold); transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
+  }
+  .nav-link.current{ color:#1D1712; background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; }
 
   /* ===== 主容器 ===== */
   .layout { max-width: 1200px; margin: 0 auto; padding: 30px 20px 100px; position: relative; z-index: 1; }
@@ -178,6 +195,14 @@
   }
   .h-tag select { background: transparent; border: none; color: #F8EDD1; font-family: inherit; font-size: 14px; font-weight: 700; appearance: none; cursor: pointer; outline: none; }
   .h-tag select option { background: var(--ink); color: var(--paper); }
+  .h-refresh{
+    background: rgba(0,0,0,0.4); border: 1px solid var(--gold-deep); box-shadow: inset 0 0 8px rgba(140,107,39,0.2);
+    color:#E8CA82; border-radius:4px; width:34px; height:34px; font-size:17px; line-height:1;
+    cursor:pointer; align-self:center; transition:color .2s, border-color .2s, background .2s;
+  }
+  .h-refresh:hover{ color:#FBF0D2; border-color:var(--gold); background:rgba(0,0,0,.6); }
+  .h-refresh.spinning{ animation:rbSpin .9s linear infinite; color:var(--gold); }
+  @keyframes rbSpin{ to{ transform:rotate(360deg); } }
 
   /* ===== 六大根基 (深色墨玉風格) ===== */
   .stats-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 30px; }
@@ -189,17 +214,26 @@
     box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.05);
   }
   .stat-card::before {
-    content: "◆"; position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
-    color: var(--gold-deep); font-size: 10px; background: var(--paper); line-height: 1; padding: 0 4px; border-radius: 2px;
+    content: "◆"; position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+    color: #E8C878; font-size: 11px; line-height: 1; padding: 2px 6px; border-radius: 3px;
+    background: linear-gradient(155deg, #35291A, #1B1509);
+    border: 1px solid var(--gold); box-shadow: 0 1px 4px rgba(0,0,0,.28);
+    text-shadow: 0 0 6px rgba(232,200,120,.6);
   }
   .stat-card.proficient { border-color: var(--vermillion); box-shadow: inset 0 0 20px rgba(156,43,34,0.4), 0 0 8px rgba(156,43,34,0.2); }
-  .stat-card.proficient::before { color: var(--vermillion-bright); }
+  .stat-card.proficient::before { color: #F0B3A6; border-color: var(--vermillion-bright); text-shadow: 0 0 6px rgba(181,55,43,.7); }
 
   .stat-header { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 15px; color: var(--paper-3); margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 6px; }
   .stat-prof-check { cursor: pointer; width: 14px; height: 14px; accent-color: var(--vermillion); }
+  input[type=number]{ appearance: textfield; -moz-appearance: textfield; }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+
+  .stat-header .stat-name{ font-family:"Noto Serif TC",serif; }
   .stat-value {
-    font-family: "Noto Serif TC", serif; font-size: 34px; font-weight: 900; color: #E8CA82;
-    width: 100%; text-align: center; background: transparent; border: none; padding: 0;
+    display: block; font-family: "Noto Serif TC", serif; font-size: 34px; font-weight: 900; color: #E8CA82;
+    width: 100%; text-align: center; background: transparent; border: none; padding: 0; margin: 0;
+    line-height: 1.15;
   }
   .stat-value:focus { outline: none; color: var(--vermillion-bright); }
   .stat-mod {
@@ -222,10 +256,21 @@
   .res-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; }
   .res-title.hp { color: var(--vermillion-bright); }
   .res-title.qi { color: var(--jade); }
-  .res-inputs { display: flex; align-items: baseline; justify-content: center; gap: 4px; font-family: "Noto Serif TC", serif; font-weight: 700; }
-  .res-inputs input { width: 70px; font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none; border-bottom: 2px solid var(--border); color: var(--ink); transition: border-color 0.2s; }
+  .res-inputs { display: flex; align-items: baseline; justify-content: center; gap: 6px; width: 100%; font-family: "Noto Serif TC", serif; font-weight: 700; }
+  .res-inputs input {
+    flex: 1 1 0; min-width: 0; max-width: 170px; width: auto;
+    font-size: 28px; font-weight: 900; text-align: center; background: transparent; border: none;
+    border-bottom: 2px solid var(--border); color: var(--ink); transition: border-color 0.2s;
+  }
   .res-inputs input:focus { outline: none; border-color: var(--gold); }
-  .res-inputs span { color: var(--ink-faint2); font-size: 20px; margin: 0 2px; }
+  .res-inputs span { flex: 0 0 auto; color: var(--ink-faint2); font-size: 20px; margin: 0 2px; }
+  .res-unit{ font-size: 12px; letter-spacing: 2px; opacity: .7; font-family: "Noto Serif TC", serif; }
+  .res-mini, .res-temp{
+    width: 56px; background: var(--paper); border: 1px solid var(--border); border-radius: 4px;
+    padding: 2px 5px; font-family: inherit; font-size: 12px; color: var(--ink); text-align: center;
+  }
+  .res-mini:focus, .res-temp:focus{ outline: none; border-color: var(--gold); }
+  .res-sub input{ font-size: 12px; }
 
   .res-bar-wrap { height: 16px; background: var(--paper-3); border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.08); margin-top: 10px; }
   .res-bar { height: 100%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -242,8 +287,13 @@
   }
   .karma-title { font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 18px; color: var(--ink-dim); letter-spacing: 4px; margin-bottom: 10px; }
   .karma-input {
-    width: 100px; font-size: 42px !important; font-weight: 900; text-align: center; background: transparent; border: none;
+    width: 100%; max-width: 190px; font-size: 42px; font-weight: 900; text-align: center; background: transparent; border: none;
     color: var(--karma-color, var(--ink)); font-family: "Noto Serif TC", serif; text-shadow: 0 2px 5px var(--karma-glow, transparent);
+  }
+  .karma-input:focus{ outline: none; }
+  .karma-sub{
+    margin-top: 8px; font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--karma-color, var(--ink-faint2)); opacity: .85;
   }
 
   /* ===== 綜合資訊小方塊 (置中調整) ===== */
@@ -252,6 +302,7 @@
   .mini-label { font-size: 12px; color: var(--ink-faint2); font-weight: 700; margin-bottom: 6px; }
   .mini-box input { background: transparent; border: none; font-size: 18px; font-weight: 900; color: var(--ink); width: 100%; text-align: center; font-family: "Noto Serif TC", serif; }
   .mini-box input:focus { outline: none; border-bottom: 1px solid var(--gold); }
+  .mini-static { font-size: 18px; font-weight: 900; color: var(--ink); font-family: "Noto Serif TC", serif; padding-top: 2px; }
 
   /* ===== 標籤頁切換 ===== */
   .tabs { display: flex; gap: 8px; border-bottom: 3px solid var(--gold-deep); margin-bottom: 24px; overflow-x: auto; scrollbar-width: none; }
@@ -272,7 +323,9 @@
     font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 22px; color: var(--ink);
     margin-bottom: 16px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 8px;
   }
-  .block-title::before { content: ""; display: block; width: 6px; height: 22px; background: var(--vermillion); border-radius: 3px; }
+  .block-title::before { content: ""; display: block; width: 6px; height: 22px; background: var(--vermillion); border-radius: 3px; flex-shrink: 0; }
+  .block-sub{ font-size: 13px; font-weight: 400; color: var(--ink-faint2); letter-spacing: 1px; }
+  .table-scroll{ overflow-x: auto; }
 
   .field-group { margin-bottom: 16px; }
   .field-label { display: block; font-size: 13px; font-weight: 700; color: var(--ink-faint2); margin-bottom: 6px; }
@@ -318,6 +371,103 @@
   .save-status.error{ background:var(--vermillion-bright); }
 
   .sync-error-hint{ font-size:12px; color:var(--vermillion-bright); padding:4px 10px; max-width:260px; }
+
+  /* ===== 規則書重點色塊（結構化顯示，不再貼整篇原文） ===== */
+  .rb-toolbar{ display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .rb-source{ font-size:12px; color:var(--ink-faint2); letter-spacing:.5px; }
+  .rb-toggle{ margin-left:auto; font-size:12px; padding:5px 12px; }
+  .rb-hint{
+    background:var(--paper-2); border:1px dashed var(--border); border-radius:6px;
+    padding:18px; color:var(--ink-faint2); font-size:14px; text-align:center;
+  }
+  .rb-wrap{ display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px; align-items:start; }
+  .rb-card{
+    background:var(--paper-2); border:1px solid var(--border); border-left:5px solid var(--rb-accent,var(--gold-deep));
+    border-radius:8px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,.05);
+  }
+  .rb-raw-card{ grid-column:1 / -1; }
+  .rb-head{
+    display:flex; align-items:center; gap:9px; padding:10px 16px;
+    background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
+    border-bottom:2px solid var(--rb-accent,var(--gold-deep));
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:1.5px; color:#F8EDD1;
+  }
+  .rb-head::before{
+    content:""; width:9px; height:9px; flex-shrink:0; transform:rotate(45deg);
+    background:var(--rb-accent,var(--gold)); box-shadow:0 0 8px var(--rb-accent,var(--gold));
+  }
+  .rb-body{ padding:14px 18px; font-size:14.5px; line-height:1.95; color:var(--ink-dim); }
+  .rb-p{ margin:0 0 8px; }
+  .rb-p:last-child{ margin-bottom:0; }
+  .rb-list{ margin:0; padding:0; list-style:none; }
+  .rb-list li{ position:relative; padding-left:15px; margin-bottom:5px; }
+  .rb-list li:last-child{ margin-bottom:0; }
+  .rb-list li::before{
+    content:""; position:absolute; left:2px; top:.75em; width:5px; height:5px;
+    transform:rotate(45deg); background:var(--rb-accent,var(--gold-deep)); opacity:.75;
+  }
+  .rb-key{ color:var(--rb-accent,var(--gold-deep)); font-weight:700; }
+  .rb-term{ color:var(--gold-deep); font-weight:700; }
+  .rb-num{ color:var(--vermillion); font-weight:700; font-family:"Noto Serif TC",serif; }
+  .rb-warn{ color:var(--vermillion-bright); font-weight:700; }
+  .rb-raw{ white-space:pre-wrap; }
+
+  /* ===== 快捷動作卡（原本是四欄純表格，改成招式玉牌） ===== */
+  .qa-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
+  .qa-card{
+    position:relative; overflow:hidden; background:var(--paper-2);
+    border:1px solid var(--border); border-radius:8px;
+    box-shadow:0 3px 10px rgba(0,0,0,.05); transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .qa-card:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.10); }
+  .qa-card::after{
+    content:"招"; position:absolute; right:-10px; bottom:-34px; pointer-events:none;
+    font-family:"Zhi Mang Xing",cursive; font-size:120px; color:var(--gold); opacity:.07;
+  }
+  .qa-card.just-added{ animation:qaPop .45s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes qaPop{ from{ opacity:0; transform:translateY(-8px) scale(.97); } to{ opacity:1; transform:none; } }
+  .qa-head{
+    display:flex; align-items:center; gap:8px; padding:10px 12px;
+    background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
+    border-bottom:2px solid var(--gold-deep);
+  }
+  .qa-name{
+    flex:1; min-width:0; background:transparent; border:none; border-bottom:1px solid rgba(232,202,130,.22);
+    color:#F8EDD1; font-family:"Noto Serif TC",serif; font-weight:900; font-size:17px; padding:2px 0;
+  }
+  .qa-name:focus{ outline:none; border-bottom-color:var(--gold); }
+  .qa-name::placeholder{ color:rgba(232,202,130,.38); font-weight:400; }
+  .qa-cost{
+    flex-shrink:0; font-size:11.5px; font-weight:700; letter-spacing:.5px; color:#E8CA82;
+    border:1px solid var(--gold-deep); background:rgba(0,0,0,.35); border-radius:999px; padding:3px 10px;
+  }
+  .qa-cost.empty{ display:none; }
+  .qa-del{
+    flex-shrink:0; background:transparent; border:none; color:rgba(232,202,130,.55);
+    cursor:pointer; font-size:14px; padding:2px 4px; line-height:1;
+  }
+  .qa-del:hover{ color:var(--vermillion-bright); }
+  .qa-body{ position:relative; z-index:1; padding:12px 14px 10px; display:grid; gap:8px; }
+  .qa-field{ display:flex; align-items:center; gap:10px; }
+  .qa-field > span{ flex:0 0 72px; font-size:11.5px; font-weight:700; letter-spacing:1px; color:var(--ink-faint2); }
+  .qa-field input{
+    flex:1; min-width:0; background:var(--paper); border:1px solid var(--border); border-radius:5px;
+    padding:6px 9px; font-family:inherit; font-size:14px; color:var(--ink);
+  }
+  .qa-field input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.10); }
+  .qa-use{
+    position:relative; z-index:1; display:block; width:calc(100% - 28px); margin:0 14px 14px;
+    background:linear-gradient(135deg,#2D5A4C,#1b4332); color:#DCEDE4;
+    border:1px solid rgba(255,255,255,.14); border-radius:5px; cursor:pointer;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:13.5px; letter-spacing:3px; padding:8px 0;
+    box-shadow:0 2px 8px rgba(27,67,50,.28); transition:filter .18s, box-shadow .18s, transform .12s;
+  }
+  .qa-use:hover{ filter:brightness(1.16); box-shadow:0 4px 14px rgba(27,67,50,.4); }
+  .qa-use:active{ transform:translateY(1px); }
+  .qa-empty{
+    background:var(--paper-2); border:1px dashed var(--border); border-radius:8px;
+    padding:30px; text-align:center; color:var(--ink-faint2); font-size:14px;
+  }
 </style>
 </head>
 <body>
@@ -341,7 +491,8 @@
     <select id="charSelect" class="btn" style="appearance:auto; padding:6px 24px 6px 12px;">
       <option value="">-- 選擇角色卡 --</option>
     </select>
-    <button class="btn" id="btnNewChar" style="display:none; border-color:var(--gold); color:var(--gold-deep);">＋ 新增</button>
+    <button class="btn gold-btn" id="btnNewChar" style="display:none;">＋ 新增</button>
+    <button class="btn danger-btn" id="btnDelChar" style="display:none;" title="刪除角色卡">🗑 刪除</button>
   </div>
 
   <div class="auth-box" id="authBox">
@@ -376,7 +527,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase, ref, onValue, set, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, onValue, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -396,8 +547,12 @@
   const REDIRECT_URI = window.location.origin + window.location.pathname;
   const DISCORD_TOKEN_KEY = "tf_discord_token";
 
+  const sheetEl = document.getElementById("sheet");
   let discordUser = null;
 
+  // ============================================================
+  // Discord 登入
+  // ============================================================
   function discordLogin(){
     if(!DISCORD_CLIENT_ID || DISCORD_CLIENT_ID === "YOUR_DISCORD_CLIENT_ID"){
       alert("尚未設定 Discord 登入。"); return;
@@ -445,67 +600,334 @@
       document.getElementById("authAvatar").src = discordUser.avatarUrl;
       document.getElementById("authName").textContent = discordUser.name;
     }
+    updateDeleteBtn();
   }
 
   document.getElementById("discordLoginBtn").addEventListener("click", discordLogin);
   document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
 
+  // ============================================================
+  // 狀態
+  //
+  // draft 是「目前正在編輯的角色卡本地副本」。所有輸入都只改 draft，
+  // 存檔時整份寫回 Firebase；遠端推送回來時，只有在本地沒有未存變更的
+  // 情況下才會覆蓋 draft。這樣可以同時解決三個舊問題：
+  //   1. 存檔回音造成整頁重畫（畫面閃一下）
+  //   2. 用 update() 合併陣列，刪掉的最後一列會被舊資料補回來（要按兩次才刪掉）
+  //   3. 遠端快照直接換掉 allChars，把剛剛打的字洗掉
+  // ============================================================
   let allChars = {};
   let currentCharId = null;
-  let lastLocalWriteAt = 0;
-  let chapters = {}, modules = {};
-  let chaptersLoaded = false, modulesLoaded = false;
-
-  onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chaptersLoaded = true; renderSheet(); }, err => console.error("chapters sync error", err));
-  onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modulesLoaded = true; renderSheet(); }, err => console.error("modules sync error", err));
-
-  function getRulebookOptions(chapterNameContains){
-    if(!(chaptersLoaded && modulesLoaded)) return { ready:false, found:false, options:[] };
-    const chapterIds = Object.entries(chapters).filter(([,c]) => (c.name || "").includes(chapterNameContains)).map(([id]) => id);
-    if(chapterIds.length === 0) return { ready:true, found:false, options:[] };
-    const titles = Object.values(modules)
-      .filter(m => chapterIds.includes(m.chapterId))
-      .sort((a,b) => (a.order||0) - (b.order||0))
-      .map(m => (m.title || "").split(/[:：\-－]/)[0].trim());
-    return { ready:true, found:true, options:[...new Set(titles)] };
-  }
+  let draft = null, draftId = null;
+  let dirty = false, saving = false;
+  let charsSyncError = null;
+  let activeTab = "tab-main";
 
   const ATTRS = [
     { id:"pot", name:"根骨", en:"POT" }, { id:"int", name:"悟性", en:"INT" },
     { id:"con", name:"抗性", en:"CON" }, { id:"per", name:"神識", en:"PER" },
     { id:"luk", name:"氣運", en:"LUK" }, { id:"cha", name:"魅力", en:"CHA" }
   ];
-
   const PATH_TINTS = { "散修": "140,107,39", "邪修": "124,58,237", "體修": "180,95,42", "毒修": "45,120,96", "劍修": "90,120,145", "佛修": "205,168,74", "巫修": "72,58,128", "術修": "42,66,112", "音修": "196,110,122" };
 
+  function num(v){ return Number(v) || 0; }
+  function clone(v){ return v == null ? v : JSON.parse(JSON.stringify(v)); }
+  function mod(val){ return Math.floor((num(val) - 10) / 2); }
+  function fmtMod(n){ return (n >= 0 ? "+" : "") + n; }
+  function pct(res){ const cur = num(res && res.current), max = num(res && res.max); return max<=0 ? 0 : Math.max(0, Math.min(100, (cur/max)*100)); }
+  function attr(s){ return escapeHtml(s==null?"":String(s)); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function parseRealmLevel(realmText){ const m = (realmText || "").match(/\d+/); return m ? parseInt(m[0], 10) : 0; }
+  function estimateQiMax(char){ return num(char.qiBase) + (parseRealmLevel(char.realm) * 10) + (mod(char.stats.per) * 5); }
+
   function blankCharacter(ownerId, ownerName){
-    return {
+    return normalizeChar({
       ownerId, ownerName, name: "未命名角色", player: ownerName || "", title: "",
       race: "", path: "", job: "", root: "", realm: "", karma: 0,
-      stats: { pot:10, con:10, int:10, per:10, luk:10, cha:10 },
-      saves: { pot:false, con:false, int:false, per:false, luk:false, cha:false },
-      ac: 10, speed: 30, lifespanCur: 0, lifespanMax: 100,
-      hp: { current: 0, max: 0 }, qi: { current: 0, max: 0 }, qiBase: 0,
+      ac: 10, speed: 30, hp: { current: 0, max: 0 }, qi: { current: 0, max: 0 }, qiBase: 0,
       languages: "", skills: "", notes: "",
       quickActions: [], spellGroups: [{ groupName: "主要功法", spells: [] }],
       notes_race: "", notes_path: "", notes_job: "", itemsList: [], backgroundText: "",
       updatedAt: Date.now(), updatedBy: ownerName || ""
-    };
+    });
   }
 
-  let charsSyncError = null;
+  function padRow(row, n){
+    const out = [];
+    for(let i=0; i<n; i++) out.push(String((row && row[i]) == null ? "" : row[i]));
+    return out;
+  }
+
+  // 把資料庫拿回來的角色卡補齊成固定形狀：欄位一致才能拿來跟本地草稿比對，
+  // 也才不會在存檔時把 undefined 丟進 Firebase（set() 會直接報錯）。
+  function normalizeChar(raw){
+    const c = clone(raw) || {};
+    const str = k => { c[k] = c[k] == null ? "" : String(c[k]); };
+    ["ownerId","ownerName","name","player","title","race","path","job","root","realm",
+     "languages","skills","notes","notes_race","notes_path","notes_job","backgroundText","updatedBy"].forEach(str);
+    c.karma = num(c.karma); c.ac = num(c.ac); c.speed = num(c.speed);
+    c.qiBase = num(c.qiBase); c.updatedAt = num(c.updatedAt);
+    c.stats = Object.assign({ pot:10, con:10, int:10, per:10, luk:10, cha:10 }, c.stats || {});
+    ATTRS.forEach(a => c.stats[a.id] = num(c.stats[a.id]));
+    const saves = {}; ATTRS.forEach(a => saves[a.id] = !!(c.saves && c.saves[a.id])); c.saves = saves;
+    c.hp = { current: num(c.hp && c.hp.current), max: num(c.hp && c.hp.max) };
+    c.qi = { current: num(c.qi && c.qi.current), max: num(c.qi && c.qi.max) };
+    c.quickActions = (Array.isArray(c.quickActions) ? c.quickActions : []).map(r => padRow(r, 4));
+    let groups = Array.isArray(c.spellGroups) ? c.spellGroups : [];
+    if(groups.length === 0){
+      groups = (Array.isArray(c.spells) && c.spells.length)
+        ? [{ groupName: "神通功法", spells: c.spells }]
+        : [{ groupName: "主要功法", spells: [] }];
+    }
+    c.spellGroups = groups.map(g => ({
+      groupName: (g && g.groupName) ? String(g.groupName) : "",
+      spells: (Array.isArray(g && g.spells) ? g.spells : []).map(r => padRow(r, 5))
+    }));
+    delete c.spells;
+    c.itemsList = (Array.isArray(c.itemsList) ? c.itemsList : []).map(i => ({
+      name: (i && i.name) ? String(i.name) : "",
+      type: (i && i.type) ? String(i.type) : "",
+      desc: (i && i.desc) ? String(i.desc) : ""
+    }));
+    return c;
+  }
+
+  // 鍵排序後再序列化，用來判斷「遠端資料跟本地草稿是不是同一份」。
+  function stable(v){
+    if(Array.isArray(v)) return "[" + v.map(stable).join(",") + "]";
+    if(v && typeof v === "object") return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + stable(v[k])).join(",") + "}";
+    return JSON.stringify(v == null ? null : v);
+  }
+
+  function currentChar(){
+    if(!currentCharId) return null;
+    if(draftId === currentCharId && draft) return draft;
+    return allChars[currentCharId] ? normalizeChar(allChars[currentCharId]) : null;
+  }
+  function isOwner(char){ return !!(discordUser && char && char.ownerId === discordUser.id); }
+  function canEditCurrent(){ return isOwner(currentChar()); }
+
+  function adoptDraft(){
+    const c = currentCharId ? allChars[currentCharId] : null;
+    draft = c ? normalizeChar(c) : null;
+    draftId = currentCharId;
+    dirty = false;
+  }
+
+  function markDirty(){ dirty = true; scheduleSave(); }
+
+  // ============================================================
+  // 規則書資料：先用 localStorage 的快取即時上畫面，再等 Firebase 更新
+  // ============================================================
+  let chapters = {}, modules = {};
+  let chaptersLoaded = false, modulesLoaded = false;
+  let rulebookAt = 0, rulebookBusy = false;
+  const RB_CACHE_KEY = "tf_rulebook_cache_v1";
+
+  function loadRulebookCache(){
+    try{
+      const raw = localStorage.getItem(RB_CACHE_KEY);
+      if(!raw) return;
+      const d = JSON.parse(raw);
+      if(!d || !d.chapters || !d.modules) return;
+      chapters = d.chapters; modules = d.modules;
+      chaptersLoaded = modulesLoaded = true; rulebookAt = num(d.ts);
+    }catch(e){ console.warn("規則書快取讀取失敗", e); }
+  }
+  function saveRulebookCache(){
+    try{ localStorage.setItem(RB_CACHE_KEY, JSON.stringify({ ts: rulebookAt, chapters, modules })); }
+    catch(e){ /* 超過容量就算了，只是快取 */ }
+  }
+  loadRulebookCache();
+
+  async function reloadRulebook(){
+    if(rulebookBusy) return;
+    rulebookBusy = true; paintRulebookBtn();
+    try{
+      const [cs, ms] = await Promise.all([get(ref(db, "chapters")), get(ref(db, "modules"))]);
+      chapters = cs.val() || {}; modules = ms.val() || {};
+      chaptersLoaded = modulesLoaded = true; rulebookAt = Date.now();
+      saveRulebookCache(); refreshRulebookViews();
+      flashSaveStatus("規則書已重新讀取", false);
+    }catch(e){
+      console.error("rulebook reload error", e);
+      flashSaveStatus("規則書讀取失敗：" + (e && e.message ? e.message : e), true);
+    }finally{
+      rulebookBusy = false; paintRulebookBtn();
+    }
+  }
+
+  function paintRulebookBtn(){
+    const btn = sheetEl.querySelector('[data-action="reload-rulebook"]');
+    if(!btn) return;
+    btn.classList.toggle("spinning", rulebookBusy);
+    btn.title = rulebookBusy ? "讀取中……"
+      : (rulebookAt ? "重新讀取規則書（上次：" + new Date(rulebookAt).toLocaleTimeString() + "）" : "重新讀取規則書");
+  }
+
+  function rulebookChapterIds(category){
+    return Object.entries(chapters).filter(([,c]) => (c.name || "").includes(category)).map(([id]) => id);
+  }
+
+  function getRulebookOptions(chapterNameContains){
+    if(!(chaptersLoaded && modulesLoaded)) return { ready:false, found:false, options:[] };
+    const chapterIds = rulebookChapterIds(chapterNameContains);
+    if(chapterIds.length === 0) return { ready:true, found:false, options:[] };
+    const titles = Object.values(modules)
+      .filter(m => chapterIds.includes(m.chapterId))
+      .sort((a,b) => (a.order||0) - (b.order||0))
+      .map(m => (m.title || "").split(/[:：\-－]/)[0].trim());
+    return { ready:true, found:true, options:[...new Set(titles)].filter(Boolean) };
+  }
+
+  function findRulebookModule(category, titleExact){
+    if(!chaptersLoaded || !modulesLoaded || !titleExact) return null;
+    const cIds = rulebookChapterIds(category);
+    return Object.values(modules).find(m => cIds.includes(m.chapterId) && (m.title||"").startsWith(titleExact)) || null;
+  }
+
+  // ---- 規則書內容 → 結構化色塊 ----
+  // 規則書條目是一整篇純文字，開頭通常是引言與世界觀敘述，之後才是
+  // 【起始熟練】【即時能力】這類真正會用到的機制。這裡只留下有標題的段落，
+  // 並把純敘述性的段落濾掉，每段各自成為一塊色塊。
+  const RB_SKIP_TITLE = /^(簡介|介紹|概述|概論|說明|背景|世界觀|外觀|外貌|描述|風俗|文化|歷史|故事|典故|前言|導言|序言|序|設定|定位|理念|概念|形象|扮演|角色扮演|範例對白|台詞)/;
+  const RB_ACCENTS = ["#9C2B22","#8C6B27","#2D5A4C","#4A3B78","#7A4A20","#2F5878","#7C3A52"];
+
+  function parseRuleSections(raw){
+    const lines = String(raw || "").replace(/\r/g, "").split("\n");
+    const out = [];
+    let cur = { title: "", lines: [] };
+    const flush = () => { if(cur.title || cur.lines.some(l => l.trim())) out.push(cur); };
+    for(const line of lines){
+      const m = line.trim().match(/^【(.+?)】\s*(.*)$/);
+      if(m){ flush(); cur = { title: m[1].trim(), lines: m[2] ? [m[2]] : [] }; }
+      else cur.lines.push(line);
+    }
+    flush();
+    return out;
+  }
+
+  function rbInline(text){
+    return escapeHtml(text)
+      .replace(/【(.*?)】/g, '<b class="rb-term">【$1】</b>')
+      .replace(/!!(.*?)!!/g, '<span class="rb-warn">⚠ $1</span>')
+      .replace(/__(.*?)__/g, '<u>$1</u>')
+      .replace(/~~(.*?)~~/g, '<s>$1</s>')
+      .replace(/\b(DC\s?\d+)/gi, '<b class="rb-num">$1</b>')
+      .replace(/(\d*d\d+(?:\s?[+\-]\s?\d+)?)/gi, '<b class="rb-num">$1</b>')
+      .replace(/([+\-]\d+(?:\.\d+)?%?)/g, '<b class="rb-num">$1</b>');
+  }
+
+  function rbSectionBody(lines){
+    const html = [];
+    let bullets = [];
+    const flushBullets = () => {
+      if(!bullets.length) return;
+      html.push('<ul class="rb-list">' + bullets.map(b => {
+        const m = b.match(/^(.{1,14}?)\s*[:：]\s*(.+)$/);
+        return "<li>" + (m ? '<b class="rb-key">' + rbInline(m[1]) + "</b>" + rbInline("：" + m[2]) : rbInline(b)) + "</li>";
+      }).join("") + "</ul>");
+      bullets = [];
+    };
+    for(const rawLine of lines){
+      const line = rawLine.trim();
+      if(!line){ flushBullets(); continue; }
+      const b = line.match(/^[•·・\-–—*▪◦]\s*(.+)$/);
+      if(b){ bullets.push(b[1]); continue; }
+      flushBullets();
+      html.push('<p class="rb-p">' + rbInline(line) + "</p>");
+    }
+    flushBullets();
+    return html.join("");
+  }
+
+  function rulebookBlocksHtml(category, value, showRaw){
+    if(!value) return `<div class="rb-hint">請先在上方選擇${escapeHtml(category)}，此處會自動載入規則書內容。</div>`;
+    if(!(chaptersLoaded && modulesLoaded)) return `<div class="rb-hint">規則書載入中……可按上方的 ↻ 重新讀取。</div>`;
+    const m = findRulebookModule(category, value);
+    if(!m || !m.content) return `<div class="rb-hint">規則書裡找不到「${escapeHtml(value)}」的條目。若剛在後台新增過，可按上方的 ↻ 重新讀取。</div>`;
+
+    if(showRaw){
+      return `<div class="rb-toolbar"><button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示重點摘要</button></div>
+        <div class="rb-card rb-raw-card"><div class="rb-head" style="--rb-accent:var(--gold)">${escapeHtml(m.title || value)}　原文</div>
+        <div class="rb-body rb-raw">${rbInline(m.content)}</div></div>`;
+    }
+
+    const sections = parseRuleSections(m.content).filter(s => s.title && !RB_SKIP_TITLE.test(s.title));
+    if(sections.length === 0){
+      return `<div class="rb-toolbar"><button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示完整原文</button></div>
+        <div class="rb-hint">這個條目沒有【】分段，無法拆成重點色塊，請直接看原文。</div>`;
+    }
+    const cards = sections.map((s, i) => {
+      const accent = RB_ACCENTS[i % RB_ACCENTS.length];
+      const body = rbSectionBody(s.lines);
+      return `<div class="rb-card" style="--rb-accent:${accent}">
+        <div class="rb-head">${escapeHtml(s.title)}</div>
+        <div class="rb-body">${body || '<p class="rb-p" style="color:var(--ink-faint2)">（無內容）</p>'}</div>
+      </div>`;
+    }).join("");
+    return `<div class="rb-toolbar">
+        <span class="rb-source">摘自規則書：${escapeHtml(m.title || value)}　·　已略過敘述性段落</span>
+        <button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示完整原文</button>
+      </div>
+      <div class="rb-wrap">${cards}</div>`;
+  }
+
+  const rbRawOpen = { "種族": false, "道途": false, "職業": false };
+  const RB_PANELS = [
+    { cat:"種族", field:"race", box:"rbBox-race" },
+    { cat:"道途", field:"path", box:"rbBox-path" },
+    { cat:"職業", field:"job",  box:"rbBox-job"  }
+  ];
+
+  // 規則書資料晚一步到齊時，只換掉三個規則書區塊與四個下拉選單，
+  // 不重畫整張角色卡（重畫會打斷正在打字的欄位、畫面也會閃）。
+  function refreshRulebookViews(){
+    paintRulebookBtn();
+    const char = currentChar();
+    if(!char) return;
+    RB_PANELS.forEach(p => {
+      const box = document.getElementById(p.box);
+      if(box) box.innerHTML = rulebookBlocksHtml(p.cat, char[p.field], rbRawOpen[p.cat]);
+    });
+    [["realm","境界"],["race","種族"],["path","道途"],["job","職業"]].forEach(([field, cat]) => {
+      const sel = sheetEl.querySelector(`select[data-f="${field}"]`);
+      if(!sel || sel === document.activeElement) return;
+      const value = char[field];
+      const fresh = rulebookSelectHtml(field, value, getRulebookOptions(cat), sel.disabled ? "disabled" : "");
+      const tmp = document.createElement("div"); tmp.innerHTML = fresh;
+      if(tmp.firstElementChild.innerHTML !== sel.innerHTML){
+        sel.innerHTML = tmp.firstElementChild.innerHTML;
+        sel.value = value || "";
+      }
+    });
+  }
+
+  // ============================================================
+  // 角色卡清單
+  // ============================================================
   const charsRef = ref(db, "characters");
   onValue(charsRef, snap => {
     charsSyncError = null;
     allChars = snap.val() || {};
-    renderCharLists(); renderSheet();
+    renderCharLists();
+
+    if(currentCharId && !allChars[currentCharId]){   // 角色卡被刪掉了
+      currentCharId = null; draft = null; draftId = null; dirty = false;
+      renderCharLists(); renderSheet();
+      return;
+    }
+    // 本地還有沒存完的修改就先別覆蓋，免得剛打的字被自己的存檔回音洗掉
+    if(dirty || saving) return;
+    const remote = currentCharId ? normalizeChar(allChars[currentCharId]) : null;
+    if(draftId === currentCharId && draft && remote && stable(remote) === stable(draft)) return; // 只是自己存檔的回音
+    adoptDraft();
+    renderSheet();
   }, err => {
     console.error("characters sync error", err);
     charsSyncError = err;
     renderCharLists();
   });
-
-  function isOwner(char){ return !!(discordUser && char && char.ownerId === discordUser.id); }
 
   function renderCharLists(){
     const select = document.getElementById("charSelect");
@@ -514,17 +936,19 @@
       select.innerHTML = `<option value="">連線失敗：${escapeHtml(charsSyncError.message || String(charsSyncError))}</option>`;
       select.disabled = true;
       select.title = "很可能是 Firebase 權限規則或匿名登入沒有開放，請檢查 Firebase 主控台";
+      updateDeleteBtn();
       return;
     }
     select.disabled = false;
     select.title = "";
     select.innerHTML = '<option value="">-- 選擇角色卡 --</option>';
 
+    const label = c => (c.name || "未命名角色") + (c.realm ? "（" + c.realm + "）" : "");
     if(discordUser){
       const mine = Object.entries(allChars).filter(([,c]) => c.ownerId === discordUser.id);
       if(mine.length > 0){
         const group = document.createElement("optgroup"); group.label = "我的角色";
-        mine.forEach(([id,c]) => group.innerHTML += `<option value="${id}">${escapeHtml(c.name)}</option>`);
+        mine.forEach(([id,c]) => group.innerHTML += `<option value="${id}">${escapeHtml(label(c))}</option>`);
         select.appendChild(group);
       }
     }
@@ -532,16 +956,71 @@
     const others = Object.entries(allChars).filter(([,c]) => !discordUser || c.ownerId !== discordUser.id);
     if(others.length > 0){
       const group = document.createElement("optgroup"); group.label = "宗門其他角色";
-      others.forEach(([id,c]) => group.innerHTML += `<option value="${id}">${escapeHtml(c.name)} (${escapeHtml(c.player||"未知")})</option>`);
+      others.forEach(([id,c]) => group.innerHTML += `<option value="${id}">${escapeHtml(label(c))} (${escapeHtml(c.player||"未知")})</option>`);
       select.appendChild(group);
     }
 
     select.value = currentCharId || "";
-    select.onchange = (e) => { currentCharId = e.target.value; renderSheet(); };
+    updateDeleteBtn();
   }
 
+  function updateDeleteBtn(){
+    const btn = document.getElementById("btnDelChar");
+    if(!btn) return;
+    const char = currentChar();
+    const show = !!(discordUser && char && isOwner(char));
+    btn.style.display = show ? "inline-flex" : "none";
+    if(show) btn.title = `刪除角色卡「${char.name || "未命名角色"}」`;
+  }
+
+  document.getElementById("charSelect").addEventListener("change", async (e) => {
+    if(dirty) await doSave();            // 切換前先把還沒存的改動寫回去
+    currentCharId = e.target.value || null;
+    adoptDraft();
+    renderSheet();
+    updateDeleteBtn();
+  });
+
+  document.getElementById("btnNewChar").addEventListener("click", async () => {
+    if(!discordUser) return;
+    const newRef = push(charsRef);
+    try{
+      const fresh = blankCharacter(discordUser.id, discordUser.name);
+      await set(newRef, fresh);
+      allChars[newRef.key] = fresh;
+      currentCharId = newRef.key;
+      adoptDraft();
+      renderCharLists(); renderSheet();
+    }catch(e){
+      console.error("create character error", e);
+      alert("建立角色卡失敗：" + (e && e.message ? e.message : e)
+        + "\n\n很可能是 Firebase Realtime Database 規則或匿名登入沒有開放寫入權限，"
+        + "請到 Firebase 主控台檢查 Authentication → Sign-in method（匿名登入是否開啟）"
+        + "與 Realtime Database → Rules 後再試一次。");
+    }
+  });
+
+  document.getElementById("btnDelChar").addEventListener("click", async () => {
+    const char = currentChar();
+    if(!char || !isOwner(char)) return;
+    const name = char.name || "未命名角色";
+    if(!confirm(`確定要刪除角色卡「${name}」嗎？\n\n這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`)) return;
+    const id = currentCharId;
+    try{
+      clearTimeout(saveTimer); dirty = false;
+      await remove(ref(db, "characters/" + id));
+      delete allChars[id];
+      currentCharId = null; draft = null; draftId = null;
+      renderCharLists(); renderSheet();
+      flashSaveStatus(`已刪除「${name}」`, false);
+    }catch(e){
+      console.error("delete character error", e);
+      flashSaveStatus("刪除失敗：" + (e && e.message ? e.message : e), true);
+    }
+  });
+
   // ============================================================
-  // 宗門總覽摘要（唯讀）：資料由宗門大殿 dm.html 維護，這裡只呈現統計
+  // 宗門總覽摘要（唯讀，資料來自宗門大殿）
   // ============================================================
   let clanWarehouse = {}, clanStones = {}, clanTreasury = {}, clanRoster = {}, clanLibrary = {};
 
@@ -559,9 +1038,8 @@
     const box = document.getElementById("clanSummary");
     const items = Object.values(clanWarehouse);
     const members = Object.values(clanRoster);
-    const stoneTotal = ["low","mid","high","extreme"].reduce((s,k) => s + (Number(clanStones[k])||0), 0);
+    const stoneTotal = ["low","mid","high","extreme"].reduce((s,k) => s + num(clanStones[k]), 0);
 
-    // 完全沒有任何宗門資料時就不顯示，免得角色卡上方掛一塊空的區塊
     if(items.length === 0 && members.length === 0 && stoneTotal === 0
        && Object.keys(clanTreasury).length === 0 && Object.keys(clanLibrary).length === 0){
       box.innerHTML = "";
@@ -598,68 +1076,100 @@
       </div>`;
   }
 
-  document.getElementById("btnNewChar").addEventListener("click", async () => {
-    if(!discordUser) return;
-    const newRef = push(charsRef);
+  // ============================================================
+  // 存檔
+  // ============================================================
+  let saveTimer = null;
+  function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 600); }
+  function setPath(obj, path, value){
+    const parts = path.split("."); let cur = obj;
+    for(let i=0; i<parts.length-1; i++){ if(typeof cur[parts[i]] !== "object" || cur[parts[i]] === null) cur[parts[i]] = {}; cur = cur[parts[i]]; }
+    cur[parts[parts.length-1]] = value;
+  }
+
+  async function doSave(){
+    clearTimeout(saveTimer);
+    if(!currentCharId || !discordUser) return;
+    const char = draft;
+    if(!char || draftId !== currentCharId || !isOwner(char)) return;
+    char.updatedAt = Date.now(); char.updatedBy = discordUser.name;
+    const id = currentCharId;
+    saving = true; dirty = false;
     try{
-      await set(newRef, blankCharacter(discordUser.id, discordUser.name));
-      currentCharId = newRef.key;
-      renderCharLists(); renderSheet();
+      // 用 set() 整份覆寫：update() 是「合併」，刪掉陣列最後一列時舊資料會被留下來，
+      // 造成使用者按了刪除卻好像沒反應、要再按一次的狀況。
+      await set(ref(db, "characters/" + id), char);
+      allChars[id] = clone(char);
+      flashSaveStatus("已自動儲存", false);
     }catch(e){
-      console.error("create character error", e);
-      alert("建立角色卡失敗：" + (e && e.message ? e.message : e)
-        + "\n\n很可能是 Firebase Realtime Database 規則或匿名登入沒有開放寫入權限，"
-        + "請到 Firebase 主控台檢查 Authentication → Sign-in method（匿名登入是否開啟）"
-        + "與 Realtime Database → Rules 後再試一次。");
+      console.error("save error", e);
+      dirty = true;
+      flashSaveStatus("儲存失敗：" + (e && e.message ? e.message : e), true);
+    }finally{
+      saving = false;
     }
-  });
+  }
+  window.addEventListener("beforeunload", () => { if(dirty) doSave(); });
 
-  function mod(val){ return Math.floor((val - 10) / 2); }
-  function fmtMod(n){ return (n >= 0 ? "+" : "") + n; }
-  function estimateQiMax(char){ return (Number(char.qiBase) || 0) + (parseRealmLevel(char.realm) * 10) + (mod(char.stats.per) * 5); }
-  function parseRealmLevel(realmText){ const m = (realmText || "").match(/\d+/); return m ? parseInt(m[0], 10) : 0; }
+  function flashSaveStatus(msg, isError){
+    const el = document.getElementById("saveStatus");
+    el.textContent = msg;
+    el.classList.toggle("error", !!isError);
+    el.classList.add("show");
+    clearTimeout(flashSaveStatus._t);
+    flashSaveStatus._t = setTimeout(()=>el.classList.remove("show"), isError ? 5000 : 1200);
+  }
 
-  let activeTab = "tab-main";
+  // 業力：正業力＝業障（紫），負業力＝功德（金）
+  function getKarmaStyle(k){
+    k = num(k);
+    if(k > 0) return "--karma-color: #7C3AED; --karma-glow: rgba(124,58,237,0.38);";
+    if(k < 0) return "--karma-color: #C8A035; --karma-glow: rgba(200,160,53,0.40);";
+    return "--karma-color: var(--ink-dim); --karma-glow: transparent;";
+  }
+  function karmaLabel(k){
+    k = num(k);
+    return k > 0 ? "業障纏身" : (k < 0 ? "功德加身" : "清淨無染");
+  }
 
-  function renderSheet(force){
-    const sheet = document.getElementById("sheet");
-    const char = currentCharId ? allChars[currentCharId] : null;
+  // 靈氣池動輒上萬，數字太長就自動縮字級，免得被輸入框切掉
+  function fitNumberInput(el, base){
+    const len = String(el.value == null ? "" : el.value).length;
+    const size = len <= 4 ? base : len <= 5 ? base * 0.84 : len <= 6 ? base * 0.72
+      : len <= 8 ? base * 0.60 : base * 0.48;
+    el.style.fontSize = Math.round(size) + "px";
+  }
+  function fitAllNumbers(root){
+    (root || sheetEl).querySelectorAll(".res-inputs input").forEach(el => fitNumberInput(el, 28));
+    (root || sheetEl).querySelectorAll(".karma-input").forEach(el => fitNumberInput(el, 42));
+  }
+
+  // ============================================================
+  // 畫面
+  // ============================================================
+  function renderSheet(){
+    const char = currentChar();
 
     if(!char){
       document.body.style.setProperty("--path-tint-alpha", "0");
       document.getElementById("watermark").textContent = "卡";
+      sheetEl.innerHTML = `
+        <div style="text-align:center; padding:100px 20px; color:var(--ink-faint2);">
+          <div style="font-family:'Zhi Mang Xing',cursive; font-size:80px; color:var(--border); margin-bottom:20px;">卡</div>
+          <h2>請從上方選擇或建立角色卡</h2>
+          <p>${discordUser ? "按右上角「＋ 新增」開一張新的角色卡。" : "需先登入 Discord 才能進行編輯。"}</p>
+        </div>`;
+      updateDeleteBtn();
       return;
     }
 
-    // force=true 用在「使用者剛按了新增/刪除這類明確的按鈕操作」之後：這種情況一定要立刻反映
-    // 在畫面上，不能被下面這條「避免打字打到一半被存檔回音蓋掉」的保護擋住。
-    // 之前這裡是靠呼叫端自己把 lastLocalWriteAt 設成 0 來繞過去，但 doSave() 內部緊接著
-    // 又會把 lastLocalWriteAt 設回 Date.now()，導致按鈕點了但畫面沒有立刻更新。
-    if(!force && isOwner(char) && (Date.now() - lastLocalWriteAt < 3000 || sheet.contains(document.activeElement))) return;
-
-    const rgb = PATH_TINTS[char.path];
-    document.body.style.setProperty("--path-tint-rgb", rgb || "140,107,39");
-    document.body.style.setProperty("--path-tint-alpha", rgb ? "0.15" : "0");
+    applyPathTint(char);
     document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
 
     const editable = isOwner(char);
     const dis = editable ? "" : "disabled";
 
-    // 舊版角色卡只有扁平的 char.spells／沒有 char.itemsList，這裡把顯示用的
-    // 暫存陣列直接寫回 char 本體，讓底下的編輯／新增／刪除都能操作到真正存在的資料，
-    // 不然只改本地變數的話，一旦使用者在這個「補救出來」的表格打字或按新增/刪除，
-    // char.spellGroups 仍然是 undefined，會直接噴錯
-    let sGroups = char.spellGroups || [];
-    if(sGroups.length === 0 && char.spells && char.spells.length > 0) {
-        sGroups = [{ groupName: "神通功法", spells: char.spells }];
-    } else if (sGroups.length === 0) {
-        sGroups = [{ groupName: "主要功法", spells: [] }];
-    }
-    char.spellGroups = sGroups;
-    let iList = char.itemsList || [];
-    char.itemsList = iList;
-
-    sheet.innerHTML = `
+    sheetEl.innerHTML = `
       ${!editable ? `<div class="readonly-banner">唯讀模式：您正在檢視「${escapeHtml(char.name)}」的角色卡。</div>` : ""}
 
       <div class="char-header-block">
@@ -679,6 +1189,7 @@
           <div class="h-tag">種族 ${rulebookSelectHtml("race", char.race, getRulebookOptions("種族"), dis)}</div>
           <div class="h-tag">道途 ${rulebookSelectHtml("path", char.path, getRulebookOptions("道途"), dis)}</div>
           <div class="h-tag">職業 ${rulebookSelectHtml("job", char.job, getRulebookOptions("職業"), dis)}</div>
+          <button class="h-refresh" data-action="reload-rulebook" title="重新讀取規則書">↻</button>
         </div>
       </div>
 
@@ -688,35 +1199,32 @@
 
       <div class="resources-container">
         <div class="res-card hp-card">
-          <div class="res-header">
-            <div class="res-title hp">生命值 HP</div>
-          </div>
+          <div class="res-header"><div class="res-title hp">生命值 <span class="res-unit">HP</span></div></div>
           <div class="res-inputs">
-            <input data-f="hp.current" type="number" value="${Number(char.hp?.current)||0}" ${dis}><span>/</span>
-            <input data-f="hp.max" type="number" value="${Number(char.hp?.max)||0}" ${dis}>
+            <input data-f="hp.current" type="number" value="${num(char.hp.current)}" ${dis}><span>/</span>
+            <input data-f="hp.max" type="number" value="${num(char.hp.max)}" ${dis}>
           </div>
           <div class="res-bar-wrap"><div class="res-bar hp" style="width:${pct(char.hp)}%"></div></div>
-          <div class="res-sub"><span></span><span>臨時：<input type="number" placeholder="0" style="width:40px;" ${dis}></span></div>
+          <div class="res-sub"><span></span><span>臨時：<input type="number" placeholder="0" class="res-temp" ${dis}></span></div>
         </div>
 
-        <!-- 業力玉牌 -->
+        <!-- 業力玉牌：正業力＝業障（紫），負業力＝功德（金） -->
         <div class="res-card karma-card" style="${getKarmaStyle(char.karma)}">
           <div class="karma-title">業力</div>
-          <input class="karma-input" data-f="karma" type="number" value="${Number(char.karma)||0}" ${dis}>
+          <input class="karma-input" data-f="karma" type="number" value="${num(char.karma)}" ${dis}>
+          <div class="karma-sub">${karmaLabel(char.karma)}</div>
         </div>
 
         <div class="res-card qi-card">
-          <div class="res-header">
-            <div class="res-title qi">靈氣值 QI</div>
-          </div>
+          <div class="res-header"><div class="res-title qi">靈氣池 <span class="res-unit">QI</span></div></div>
           <div class="res-inputs">
-            <input data-f="qi.current" type="number" value="${Number(char.qi?.current)||0}" ${dis}><span>/</span>
-            <input data-f="qi.max" type="number" value="${Number(char.qi?.max)||0}" ${dis}>
+            <input data-f="qi.current" type="number" value="${num(char.qi.current)}" ${dis}><span>/</span>
+            <input data-f="qi.max" type="number" value="${num(char.qi.max)}" ${dis}>
           </div>
           <div class="res-bar-wrap"><div class="res-bar qi" style="width:${pct(char.qi)}%"></div></div>
           <div class="res-sub">
-            <span>靈根基礎: <input data-f="qiBase" type="number" value="${Number(char.qiBase)||0}" style="width:40px;" ${dis}></span>
-            <span>估算: <b style="color:var(--ink);">${estimateQiMax(char)}</b> ${editable?`<button class="btn-icon" data-action="apply-qi-max" title="套用估算">↵</button>`:""}</span>
+            <span>靈根基礎: <input data-f="qiBase" type="number" class="res-mini" value="${num(char.qiBase)}" ${dis}></span>
+            <span>估算: <b id="qiEstimate" style="color:var(--ink);">${estimateQiMax(char)}</b> ${editable?`<button class="btn-icon" data-action="apply-qi-max" title="套用估算值">↵</button>`:""}</span>
           </div>
         </div>
       </div>
@@ -733,9 +1241,9 @@
       <!-- Tab: 基礎資料 -->
       <div class="tab-panel" id="tab-main">
         <div class="mini-stats">
-          <div class="mini-box"><div class="mini-label">護甲值 AC</div><input data-f="ac" type="number" value="${Number(char.ac)||0}" ${dis}></div>
-          <div class="mini-box"><div class="mini-label">先攻 (神識調整)</div><div style="font-size:18px; font-weight:900; color:var(--ink); font-family:'Noto Serif TC',serif; padding-top:2px;">${fmtMod(mod(char.stats.per))}</div></div>
-          <div class="mini-box"><div class="mini-label">步行速度</div><input data-f="speed" type="number" value="${Number(char.speed)||0}" ${dis}></div>
+          <div class="mini-box"><div class="mini-label">護甲值 AC</div><input data-f="ac" type="number" value="${num(char.ac)}" ${dis}></div>
+          <div class="mini-box"><div class="mini-label">先攻 (神識調整)</div><div class="mini-static" id="initValue">${fmtMod(mod(char.stats.per))}</div></div>
+          <div class="mini-box"><div class="mini-label">步行速度</div><input data-f="speed" type="number" value="${num(char.speed)}" ${dis}></div>
           <div class="mini-box"><div class="mini-label">靈根</div><input data-f="root" value="${attr(char.root)}" placeholder="例：金木火" ${dis}></div>
         </div>
 
@@ -746,23 +1254,10 @@
         </section>
 
         <section class="block">
-          <div class="block-title">快捷速查（武器 / 常用動作）</div>
-          <div class="manual-table-wrap">
-            <table class="sheet-table">
-              <thead><tr><th>名稱</th><th>判定/豁免</th><th>耗氣/類型</th><th>傷害/效果</th><th style="width:60px; text-align:center;">使用</th>${editable?'<th style="width:40px;"></th>':''}</tr></thead>
-              <tbody data-table="quickActions">
-                ${(char.quickActions || []).map((row, i) => `<tr>
-                  <td><input value="${attr(row[0])}" data-table="quickActions" data-row="${i}" data-col="0" ${dis}></td>
-                  <td><input value="${attr(row[1])}" data-table="quickActions" data-row="${i}" data-col="1" ${dis}></td>
-                  <td><input value="${attr(row[2])}" placeholder="數字可扣氣" data-table="quickActions" data-row="${i}" data-col="2" ${dis}></td>
-                  <td><input value="${attr(row[3])}" data-table="quickActions" data-row="${i}" data-col="3" ${dis}></td>
-                  <td style="text-align:center;"><button class="btn-icon" data-action="use-qa" data-cost="${parseInt(row[2])||0}" title="點擊扣除靈氣" style="color:var(--jade); background:rgba(45,120,96,0.1); border-radius:4px; padding:4px 8px;">⚡</button></td>
-                  ${editable?`<td><button class="btn-icon" data-action="del-row" data-table="quickActions" data-row="${i}">✕</button></td>`:''}
-                </tr>`).join("")}
-              </tbody>
-            </table>
-            ${editable ? `<div style="padding:8px; text-align:right;"><button class="btn" data-action="add-row" data-table="quickActions" data-cols="4">＋ 新增動作</button></div>` : ""}
+          <div class="block-title">快捷速查　<span class="block-sub">武器 · 常用動作</span>
+            ${editable ? `<button class="btn gold-btn" data-action="add-row" data-table="quickActions" data-cols="4" style="margin-left:auto;">＋ 新增動作</button>` : ""}
           </div>
+          <div id="qaHost">${quickActionsHtml(char, editable)}</div>
         </section>
 
         <section class="block">
@@ -775,10 +1270,8 @@
       <div class="tab-panel" id="tab-race">
         <section class="block">
           <div class="block-title">【${attr(char.race || '未選擇')}】種族特質</div>
-          <div style="background:var(--paper-2); padding:16px; border-radius:6px; border:1px solid var(--border); margin-bottom:16px; font-size:15px; line-height:1.8; color:var(--ink-dim);">
-            ${getRulebookContentHTML("種族", char.race) || "<span style='color:var(--ink-faint2)'>請先在上方選擇種族，此處將自動載入規則書內容。</span>"}
-          </div>
-          <label class="field-label">自訂種族筆記</label>
+          <div id="rbBox-race">${rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"])}</div>
+          <label class="field-label" style="margin-top:18px;">自訂種族筆記</label>
           <textarea class="nm-textarea" data-f="notes_race" rows="4" placeholder="填寫額外的種族變異或自訂設定..." ${dis}>${attr(char.notes_race)}</textarea>
         </section>
       </div>
@@ -787,10 +1280,8 @@
       <div class="tab-panel" id="tab-path">
         <section class="block">
           <div class="block-title">【${attr(char.path || '未選擇')}】道途能力</div>
-          <div style="background:var(--paper-2); padding:16px; border-radius:6px; border:1px solid var(--border); margin-bottom:16px; font-size:15px; line-height:1.8; color:var(--ink-dim);">
-            ${getRulebookContentHTML("道途", char.path) || "<span style='color:var(--ink-faint2)'>請先在上方選擇道途，此處將自動載入規則書內容。</span>"}
-          </div>
-          <label class="field-label">自訂道途筆記</label>
+          <div id="rbBox-path">${rulebookBlocksHtml("道途", char.path, rbRawOpen["道途"])}</div>
+          <label class="field-label" style="margin-top:18px;">自訂道途筆記</label>
           <textarea class="nm-textarea" data-f="notes_path" rows="4" placeholder="填寫道途專屬的選擇或變異..." ${dis}>${attr(char.notes_path)}</textarea>
         </section>
       </div>
@@ -799,93 +1290,135 @@
       <div class="tab-panel" id="tab-job">
         <section class="block">
           <div class="block-title">【${attr(char.job || '未選擇')}】職業專長</div>
-          <div style="background:var(--paper-2); padding:16px; border-radius:6px; border:1px solid var(--border); margin-bottom:16px; font-size:15px; line-height:1.8; color:var(--ink-dim);">
-            ${getRulebookContentHTML("職業", char.job) || "<span style='color:var(--ink-faint2)'>請先在上方選擇職業，此處將自動載入規則書內容。</span>"}
-          </div>
-          <label class="field-label">自訂職業筆記</label>
+          <div id="rbBox-job">${rulebookBlocksHtml("職業", char.job, rbRawOpen["職業"])}</div>
+          <label class="field-label" style="margin-top:18px;">自訂職業筆記</label>
           <textarea class="nm-textarea" data-f="notes_job" rows="4" placeholder="填寫工作收入、特殊工坊等設定..." ${dis}>${attr(char.notes_job)}</textarea>
         </section>
       </div>
 
       <!-- Tab: 功法 -->
-      <div class="tab-panel" id="tab-spells">
-        ${sGroups.map((group, gIdx) => `
-          <div class="manual-table-wrap">
-            <div class="manual-table-header">
-              <input data-sgname="${gIdx}" value="${attr(group.groupName)}" placeholder="功法名稱" ${dis}>
-              ${editable ? `<button class="btn-icon" data-action="del-spellgroup" data-gidx="${gIdx}" title="刪除此功法表">✕</button>` : ""}
-            </div>
-            <table class="sheet-table">
-              <thead><tr><th>技能名稱（門檻）</th><th>命中／豁免</th><th>消耗動作</th><th>傷害／效果</th><th>資源</th>${editable?'<th style="width:40px;"></th>':''}</tr></thead>
-              <tbody>
-                ${(group.spells || []).map((row, rIdx) => spellRowHtml(gIdx, rIdx, row, editable)).join("")}
-                ${!(group.spells && group.spells.length) ? `<tr><td colspan="${editable?6:5}" style="text-align:center;color:var(--ink-faint2);">尚無技能</td></tr>` : ""}
-              </tbody>
-            </table>
-            ${editable ? `<div style="padding:8px 12px; background:rgba(0,0,0,0.02);"><button class="btn" data-action="add-spellrow" data-gidx="${gIdx}">＋ 新增技能</button></div>` : ""}
-          </div>
-        `).join("")}
-        ${editable ? `<button class="btn" data-action="add-spellgroup" style="border-color:var(--gold); color:var(--gold-deep);">＋ 新增一組功法表</button>` : ""}
-      </div>
+      <div class="tab-panel" id="tab-spells"><div id="spellHost">${spellsHtml(char, editable)}</div></div>
 
       <!-- Tab: 物品 -->
-      <div class="tab-panel" id="tab-inventory">
-        <div class="item-cards">
-          ${iList.map((item, idx) => `
-            <div class="item-card">
-              ${editable ? `<button class="btn-icon item-delete" data-action="del-item" data-idx="${idx}">✕</button>` : ""}
-              <div class="item-header">
-                <input class="item-name" data-item="${idx}" data-prop="name" value="${attr(item.name)}" placeholder="物品名稱" ${dis}>
-                <input class="item-type" data-item="${idx}" data-prop="type" value="${attr(item.type)}" placeholder="品階 / 類型" ${dis}>
-              </div>
-              <textarea class="item-desc" data-item="${idx}" data-prop="desc" placeholder="物品描述與效果細節……" ${dis}>${attr(item.desc)}</textarea>
-            </div>
-          `).join("")}
-          ${iList.length === 0 ? `<div style="text-align:center; padding:30px; color:var(--ink-faint2); border:1px dashed var(--border); border-radius:6px;">儲物袋空空如也</div>` : ""}
-        </div>
-        ${editable ? `<div style="margin-top:20px; text-align:center;"><button class="btn" data-action="add-item" style="border-color:var(--jade); color:var(--jade);">＋ 新增法寶/物品</button></div>` : ""}
-      </div>
-
+      <div class="tab-panel" id="tab-inventory"><div id="itemHost">${itemsHtml(char, editable)}</div></div>
     `;
 
-    // 綁定頁籤
-    sheet.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.tab === activeTab);
-      btn.onclick = () => {
-        activeTab = btn.dataset.tab;
-        sheet.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-        sheet.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
-      };
-    });
-    sheet.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
+    if(!sheetEl.querySelector("#" + activeTab)) activeTab = "tab-main";
+    sheetEl.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === activeTab));
+    sheetEl.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
+    fitAllNumbers();
+    paintRulebookBtn();
+    updateDeleteBtn();
+  }
 
-    if(editable) wireEditableSheet(sheet, char);
+  function applyPathTint(char){
+    const rgb = PATH_TINTS[char.path];
+    document.body.style.setProperty("--path-tint-rgb", rgb || "140,107,39");
+    document.body.style.setProperty("--path-tint-alpha", rgb ? "0.15" : "0");
   }
 
   function statCardHtml(a, char, dis){
-    const val = Number(char.stats?.[a.id]) ?? 10;
-    const isProf = char.saves?.[a.id] ? "proficient" : "";
-    const checked = char.saves?.[a.id] ? "checked" : "";
+    const val = num(char.stats[a.id]);
+    const isProf = char.saves[a.id] ? "proficient" : "";
+    const checked = char.saves[a.id] ? "checked" : "";
     return `
-      <div class="stat-card ${isProf}">
+      <div class="stat-card ${isProf}" data-stat="${a.id}">
         <div class="stat-header">
-          ${a.name}
+          <span class="stat-name">${a.name}</span>
           <input type="checkbox" class="stat-prof-check" data-f="saves.${a.id}" title="豁免熟練" ${checked} ${dis}>
         </div>
         <input class="stat-value" data-f="stats.${a.id}" type="number" value="${val}" ${dis}>
         <div class="stat-mod">${fmtMod(mod(val))}</div>
-      </div>
-    `;
+      </div>`;
+  }
+
+  // ---- 快捷動作：卡片式（原本是四欄純表格，太素） ----
+  function qaCostText(row){
+    const raw = String(row[2] || "").trim();
+    if(!raw) return "";
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? `耗氣 ${n}` : raw;
+  }
+
+  function quickActionsHtml(char, editable){
+    const rows = char.quickActions || [];
+    if(rows.length === 0){
+      return `<div class="qa-empty">${editable ? "還沒有登錄任何招式。按上方「＋ 新增動作」開一張。" : "尚未登錄常用動作。"}</div>`;
+    }
+    return `<div class="qa-grid">${rows.map((row, i) => {
+      const dis = editable ? "" : "disabled";
+      const cost = qaCostText(row);
+      return `
+      <div class="qa-card" data-qa="${i}">
+        <div class="qa-head">
+          <input class="qa-name" value="${attr(row[0])}" placeholder="招式名稱" data-table="quickActions" data-row="${i}" data-col="0" ${dis}>
+          <span class="qa-cost${cost?"":" empty"}" data-qa-cost="${i}">${escapeHtml(cost)}</span>
+          ${editable ? `<button class="qa-del" data-action="del-row" data-table="quickActions" data-row="${i}" title="刪除這個動作">✕</button>` : ""}
+        </div>
+        <div class="qa-body">
+          <label class="qa-field"><span>判定／豁免</span>
+            <input value="${attr(row[1])}" placeholder="例：命中 +5／體質豁免 DC13" data-table="quickActions" data-row="${i}" data-col="1" ${dis}></label>
+          <label class="qa-field"><span>耗氣／類型</span>
+            <input value="${attr(row[2])}" placeholder="填數字可直接扣氣" data-table="quickActions" data-row="${i}" data-col="2" ${dis}></label>
+          <label class="qa-field"><span>傷害／效果</span>
+            <input value="${attr(row[3])}" placeholder="例：2d6 火焰傷害" data-table="quickActions" data-row="${i}" data-col="3" ${dis}></label>
+        </div>
+        ${editable ? `<button class="qa-use" data-action="use-qa" data-row="${i}">運功施展</button>` : ""}
+      </div>`;
+    }).join("")}</div>`;
+  }
+
+  function spellsHtml(char, editable){
+    const groups = char.spellGroups || [];
+    const dis = editable ? "" : "disabled";
+    return `
+      ${groups.map((group, gIdx) => `
+        <div class="manual-table-wrap">
+          <div class="manual-table-header">
+            <input data-sgname="${gIdx}" value="${attr(group.groupName)}" placeholder="功法名稱" ${dis}>
+            ${editable ? `<button class="btn-icon" data-action="del-spellgroup" data-gidx="${gIdx}" title="刪除此功法表">✕</button>` : ""}
+          </div>
+          <div class="table-scroll">
+          <table class="sheet-table">
+            <thead><tr><th>技能名稱（門檻）</th><th>命中／豁免</th><th>消耗動作</th><th>傷害／效果</th><th>資源</th>${editable?'<th style="width:40px;"></th>':''}</tr></thead>
+            <tbody>
+              ${(group.spells || []).map((row, rIdx) => spellRowHtml(gIdx, rIdx, row, editable)).join("")}
+              ${!(group.spells && group.spells.length) ? `<tr><td colspan="${editable?6:5}" style="text-align:center;color:var(--ink-faint2);">尚無技能</td></tr>` : ""}
+            </tbody>
+          </table>
+          </div>
+          ${editable ? `<div style="padding:8px 12px; background:rgba(0,0,0,0.02);"><button class="btn" data-action="add-spellrow" data-gidx="${gIdx}">＋ 新增技能</button></div>` : ""}
+        </div>`).join("")}
+      ${editable ? `<button class="btn gold-btn" data-action="add-spellgroup">＋ 新增一組功法表</button>` : ""}`;
   }
 
   function spellRowHtml(gIdx, rIdx, row, editable){
-    row = row || ["","","","",""];
+    row = padRow(row, 5);
     let tds = "";
     for(let c=0; c<5; c++){
       tds += `<td><input value="${attr(row[c])}" data-sg="${gIdx}" data-sr="${rIdx}" data-sc="${c}" ${editable?"":"disabled"}></td>`;
     }
     if(editable) tds += `<td><button class="btn-icon" data-action="del-spellrow" data-gidx="${gIdx}" data-ridx="${rIdx}">✕</button></td>`;
     return `<tr>${tds}</tr>`;
+  }
+
+  function itemsHtml(char, editable){
+    const iList = char.itemsList || [];
+    const dis = editable ? "" : "disabled";
+    return `
+      <div class="item-cards">
+        ${iList.map((item, idx) => `
+          <div class="item-card">
+            ${editable ? `<button class="btn-icon item-delete" data-action="del-item" data-idx="${idx}">✕</button>` : ""}
+            <div class="item-header">
+              <input class="item-name" data-item="${idx}" data-prop="name" value="${attr(item.name)}" placeholder="物品名稱" ${dis}>
+              <input class="item-type" data-item="${idx}" data-prop="type" value="${attr(item.type)}" placeholder="品階 / 類型" ${dis}>
+            </div>
+            <textarea class="item-desc" data-item="${idx}" data-prop="desc" placeholder="物品描述與效果細節……" ${dis}>${attr(item.desc)}</textarea>
+          </div>`).join("")}
+        ${iList.length === 0 ? `<div class="qa-empty">儲物袋空空如也</div>` : ""}
+      </div>
+      ${editable ? `<div style="margin-top:20px; text-align:center;"><button class="btn jade-btn" data-action="add-item">＋ 新增法寶/物品</button></div>` : ""}`;
   }
 
   function rulebookSelectHtml(field, value, result, dis){
@@ -895,144 +1428,243 @@
     return `<select data-f="${field}" ${dis}>${opts}</select>`;
   }
 
-  function pct(res){ const cur = Number(res?.current)||0, max = Number(res?.max)||0; return max<=0 ? 0 : Math.max(0, Math.min(100, (cur/max)*100)); }
-  function attr(s){ return escapeHtml(s==null?"":String(s)); }
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-
-  let saveTimer = null;
-  function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 500); }
-  function setPath(obj, path, value){
-    const parts = path.split("."); let cur = obj;
-    for(let i=0; i<parts.length-1; i++){ if(typeof cur[parts[i]] !== "object" || cur[parts[i]] === null) cur[parts[i]] = {}; cur = cur[parts[i]]; }
-    cur[parts[parts.length-1]] = value;
+  // ---- 局部重繪：只換掉需要更新的區塊，避免整張卡重畫造成畫面閃動 ----
+  function refreshQuickActions(){
+    const char = currentChar(); if(!char) return;
+    const host = document.getElementById("qaHost");
+    if(host) host.innerHTML = quickActionsHtml(char, isOwner(char));
+  }
+  function refreshSpells(){
+    const char = currentChar(); if(!char) return;
+    const host = document.getElementById("spellHost");
+    if(host) host.innerHTML = spellsHtml(char, isOwner(char));
+  }
+  function refreshItems(){
+    const char = currentChar(); if(!char) return;
+    const host = document.getElementById("itemHost");
+    if(host) host.innerHTML = itemsHtml(char, isOwner(char));
+  }
+  function refreshQiViews(char){
+    const bar = sheetEl.querySelector(".res-bar.qi");
+    if(bar) bar.style.width = pct(char.qi) + "%";
+    const est = document.getElementById("qiEstimate");
+    if(est) est.textContent = estimateQiMax(char);
+    sheetEl.querySelectorAll('input[data-f="qi.current"], input[data-f="qi.max"]').forEach(el => {
+      const field = el.dataset.f.split(".")[1];
+      if(el !== document.activeElement) el.value = num(char.qi[field]);
+      fitNumberInput(el, 28);
+    });
   }
 
-  async function doSave(){
-    if(!currentCharId || !discordUser) return;
-    const char = allChars[currentCharId];
-    if(!char || !isOwner(char)) return;
-    char.updatedAt = Date.now(); char.updatedBy = discordUser.name;
-    lastLocalWriteAt = Date.now();
-    try{
-      await update(ref(db, "characters/" + currentCharId), char);
-      flashSaveStatus("已自動儲存", false);
-    }catch(e){
-      console.error("save error", e);
-      flashSaveStatus("儲存失敗：" + (e && e.message ? e.message : e), true);
+  // ============================================================
+  // 事件：一次綁在 #sheet 上，局部重繪後不需要重新綁定
+  // ============================================================
+  sheetEl.addEventListener("input", (e) => {
+    const el = e.target;
+    const char = currentChar();
+    if(!char || !isOwner(char) || el.disabled) return;
+
+    if(el.dataset.f){
+      const field = el.dataset.f;
+      const val = el.type === "checkbox" ? el.checked
+        : (el.type === "number" ? (parseFloat(el.value) || 0) : el.value);
+      setPath(char, field, val);
+
+      if(field.startsWith("stats.")){
+        const card = el.closest(".stat-card");
+        if(card) card.querySelector(".stat-mod").textContent = fmtMod(mod(val));
+        if(field === "stats.per"){
+          const initEl = document.getElementById("initValue");
+          if(initEl) initEl.textContent = fmtMod(mod(val));
+          const est = document.getElementById("qiEstimate");
+          if(est) est.textContent = estimateQiMax(char);
+        }
+      }
+      if(field.startsWith("saves.")){
+        const card = el.closest(".stat-card");
+        if(card) card.classList.toggle("proficient", !!val);
+      }
+      if(field === "karma"){
+        const kCard = el.closest(".karma-card");
+        if(kCard){
+          kCard.style.cssText = getKarmaStyle(val);
+          const sub = kCard.querySelector(".karma-sub");
+          if(sub) sub.textContent = karmaLabel(val);
+        }
+        fitNumberInput(el, 42);
+      }
+      if(field === "hp.current" || field === "hp.max"){
+        const bar = sheetEl.querySelector(".res-bar.hp"); if(bar) bar.style.width = pct(char.hp) + "%";
+        fitNumberInput(el, 28);
+      }
+      if(field === "qi.current" || field === "qi.max"){
+        const bar = sheetEl.querySelector(".res-bar.qi"); if(bar) bar.style.width = pct(char.qi) + "%";
+        fitNumberInput(el, 28);
+      }
+      if(field === "qiBase"){
+        const est = document.getElementById("qiEstimate"); if(est) est.textContent = estimateQiMax(char);
+      }
+      if(field === "name"){
+        document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
+      }
+      if(field === "path"){
+        applyPathTint(char);
+        const box = document.getElementById("rbBox-path");
+        if(box) box.innerHTML = rulebookBlocksHtml("道途", char.path, rbRawOpen["道途"]);
+        const t = sheetEl.querySelector('#tab-path .block-title');
+        if(t) t.textContent = `【${char.path || "未選擇"}】道途能力`;
+      }
+      if(field === "race"){
+        const box = document.getElementById("rbBox-race");
+        if(box) box.innerHTML = rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"]);
+        const t = sheetEl.querySelector('#tab-race .block-title');
+        if(t) t.textContent = `【${char.race || "未選擇"}】種族特質`;
+      }
+      if(field === "job"){
+        const box = document.getElementById("rbBox-job");
+        if(box) box.innerHTML = rulebookBlocksHtml("職業", char.job, rbRawOpen["職業"]);
+        const t = sheetEl.querySelector('#tab-job .block-title');
+        if(t) t.textContent = `【${char.job || "未選擇"}】職業專長`;
+      }
+      if(field === "realm"){
+        const est = document.getElementById("qiEstimate"); if(est) est.textContent = estimateQiMax(char);
+      }
+      markDirty(); return;
     }
-  }
 
-  function flashSaveStatus(msg, isError){
-    const el = document.getElementById("saveStatus");
-    el.textContent = msg;
-    el.classList.toggle("error", !!isError);
-    el.classList.add("show");
-    clearTimeout(flashSaveStatus._t);
-    flashSaveStatus._t = setTimeout(()=>el.classList.remove("show"), isError ? 5000 : 1200);
-  }
-
-  // 業力顏色特效計算
-  function getKarmaStyle(k) {
-    k = Number(k) || 0;
-    if (k > 0) return "--karma-color: #D4AF37; --karma-glow: rgba(212,175,55,0.4);";
-    if (k < 0) return "--karma-color: #7C3AED; --karma-glow: rgba(124,58,237,0.4);";
-    return "--karma-color: var(--ink-dim); --karma-glow: transparent;";
-  }
-
-  // 自動獲取規則書內容
-  function getRulebookContentHTML(category, titleExact) {
-    if (!chaptersLoaded || !modulesLoaded || !titleExact) return "";
-    const cIds = Object.entries(chapters).filter(([,c]) => (c.name||"").includes(category)).map(([id])=>id);
-    const foundModule = Object.values(modules).find(m => cIds.includes(m.chapterId) && (m.title||"").startsWith(titleExact));
-    return foundModule && foundModule.content ? escapeHtml(foundModule.content).replace(/\n/g, "<br>") : "";
-  }
-
-  function wireEditableSheet(sheet, char){
-    sheet.querySelectorAll("input[data-f], select[data-f], textarea[data-f]").forEach(input => {
-      input.addEventListener("input", () => {
-        const field = input.dataset.f;
-        const val = input.type === "checkbox" ? input.checked : (input.type === "number" ? (parseFloat(input.value) || 0) : input.value);
-        setPath(char, field, val);
-
-        if(field.startsWith("stats.")){
-          input.closest(".stat-card").querySelector(".stat-mod").textContent = fmtMod(mod(val));
-          if(field === "stats.per") {
-            const initEl = sheet.querySelector(".mini-box:nth-child(2) div:last-child");
-            if(initEl) initEl.textContent = fmtMod(mod(val));
-          }
+    if(el.dataset.table){
+      const table = el.dataset.table, row = parseInt(el.dataset.row, 10), col = parseInt(el.dataset.col, 10);
+      if(!Array.isArray(char[table])) char[table] = [];
+      if(!char[table][row]) char[table][row] = padRow([], 4);
+      char[table][row][col] = el.value;
+      if(table === "quickActions" && col === 2){
+        const pill = sheetEl.querySelector(`[data-qa-cost="${row}"]`);
+        if(pill){
+          const text = qaCostText(char[table][row]);
+          pill.textContent = text;
+          pill.classList.toggle("empty", !text);
         }
-        if(field.startsWith("saves.")) {
-           input.closest(".stat-card").classList.toggle("proficient", val);
-        }
-        if(field === "karma") {
-           const kCard = input.closest('.karma-card');
-           if (kCard) kCard.style.cssText = getKarmaStyle(val);
-        }
-        if(field === "hp.current" || field === "hp.max") sheet.querySelector(".res-bar.hp").style.width = pct(char.hp) + "%";
-        if(field === "qi.current" || field === "qi.max") sheet.querySelector(".res-bar.qi").style.width = pct(char.qi) + "%";
-        if(field === "qiBase") sheet.querySelector(".res-sub b").textContent = estimateQiMax(char);
+      }
+      markDirty(); return;
+    }
 
-        scheduleSave();
-      });
-    });
+    if(el.dataset.sgname != null){
+      const g = char.spellGroups[parseInt(el.dataset.sgname, 10)];
+      if(g) g.groupName = el.value;
+      markDirty(); return;
+    }
 
-    // Quick Actions
-    sheet.querySelectorAll("input[data-table]").forEach(input => {
-      input.addEventListener("input", () => {
-        const table = input.dataset.table, row = parseInt(input.dataset.row), col = parseInt(input.dataset.col);
-        if(!Array.isArray(char[table])) char[table] = [];
-        if(!char[table][row]) char[table][row] = [];
-        char[table][row][col] = input.value; scheduleSave();
-      });
-    });
+    if(el.dataset.sg != null){
+      const g = char.spellGroups[parseInt(el.dataset.sg, 10)];
+      const r = g && g.spells[parseInt(el.dataset.sr, 10)];
+      if(r) r[parseInt(el.dataset.sc, 10)] = el.value;
+      markDirty(); return;
+    }
 
-    // Spells
-    sheet.querySelectorAll("input[data-sgname]").forEach(input => {
-      input.addEventListener("input", () => { char.spellGroups[parseInt(input.dataset.sgname)].groupName = input.value; scheduleSave(); });
-    });
-    sheet.querySelectorAll("input[data-sg]").forEach(input => {
-      input.addEventListener("input", () => {
-        const gIdx = parseInt(input.dataset.sg), rIdx = parseInt(input.dataset.sr), cIdx = parseInt(input.dataset.sc);
-        char.spellGroups[gIdx].spells[rIdx][cIdx] = input.value; scheduleSave();
-      });
-    });
+    if(el.dataset.item != null){
+      const it = char.itemsList[parseInt(el.dataset.item, 10)];
+      if(it) it[el.dataset.prop] = el.value;
+      markDirty(); return;
+    }
+  });
 
-    // Items
-    sheet.querySelectorAll("[data-item]").forEach(input => {
-      input.addEventListener("input", () => {
-        char.itemsList[parseInt(input.dataset.item)][input.dataset.prop] = input.value; scheduleSave();
-      });
-    });
+  sheetEl.addEventListener("click", (e) => {
+    const tabBtn = e.target.closest(".tab-btn");
+    if(tabBtn){
+      activeTab = tabBtn.dataset.tab;
+      sheetEl.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === tabBtn));
+      sheetEl.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
+      return;
+    }
 
-    // Buttons
-    sheet.querySelectorAll('[data-action]').forEach(btn => {
-      btn.addEventListener("click", () => {
-        const action = btn.dataset.action;
+    const btn = e.target.closest("[data-action]");
+    if(!btn) return;
+    const action = btn.dataset.action;
 
-        if(action === "use-qa"){
-          const cost = parseInt(btn.dataset.cost) || 0;
-          if (cost > 0) {
-            char.qi = char.qi || {current:0, max:0};
-            char.qi.current = Math.max(0, (Number(char.qi.current) || 0) - cost);
-          }
-        }
-        if(action === "apply-qi-max"){ char.qi = char.qi || {}; char.qi.max = estimateQiMax(char); }
-        if(action === "add-row"){ const t = btn.dataset.table; char[t] = char[t]||[]; char[t].push(Array(parseInt(btn.dataset.cols)).fill("")); }
-        if(action === "del-row"){ char[btn.dataset.table].splice(parseInt(btn.dataset.row), 1); }
+    // 這兩個動作不需要編輯權限
+    if(action === "reload-rulebook"){ reloadRulebook(); return; }
+    if(action === "rb-raw"){
+      const cat = btn.dataset.cat;
+      rbRawOpen[cat] = !rbRawOpen[cat];
+      const char = currentChar(); if(!char) return;
+      const panel = RB_PANELS.find(p => p.cat === cat);
+      const box = panel && document.getElementById(panel.box);
+      if(box) box.innerHTML = rulebookBlocksHtml(cat, char[panel.field], rbRawOpen[cat]);
+      return;
+    }
 
-        if(action === "add-spellgroup"){ char.spellGroups = char.spellGroups||[]; char.spellGroups.push({ groupName:"新功法表", spells:[] }); }
-        if(action === "del-spellgroup"){ char.spellGroups.splice(parseInt(btn.dataset.gidx), 1); }
-        if(action === "add-spellrow"){ const g = char.spellGroups[parseInt(btn.dataset.gidx)]; g.spells = g.spells||[]; g.spells.push(["","","","",""]); }
-        if(action === "del-spellrow"){ char.spellGroups[parseInt(btn.dataset.gidx)].spells.splice(parseInt(btn.dataset.ridx), 1); }
+    const char = currentChar();
+    if(!char || !isOwner(char)) return;
 
-        if(action === "add-item"){ char.itemsList = char.itemsList||[]; char.itemsList.push({name:"", type:"", desc:""}); }
-        if(action === "del-item"){ char.itemsList.splice(parseInt(btn.dataset.idx), 1); }
+    if(action === "use-qa"){
+      const row = char.quickActions[parseInt(btn.dataset.row, 10)] || [];
+      const cost = parseInt(row[2], 10) || 0;
+      if(cost > 0){
+        char.qi.current = Math.max(0, num(char.qi.current) - cost);
+        refreshQiViews(char);
+        flashSaveStatus(`${row[0] || "招式"} 施展：靈氣 −${cost}`, false);
+        markDirty();
+      }else{
+        flashSaveStatus("這個動作沒有填數字的耗氣值", true);
+      }
+      return;
+    }
+    if(action === "apply-qi-max"){
+      char.qi.max = estimateQiMax(char);
+      const el = sheetEl.querySelector('input[data-f="qi.max"]');
+      if(el){ el.value = char.qi.max; fitNumberInput(el, 28); }
+      refreshQiViews(char);
+      markDirty(); return;
+    }
 
-        doSave().then(() => renderSheet(true));
-      });
-    });
-  }
+    if(action === "add-row"){
+      const t = btn.dataset.table;
+      if(!Array.isArray(char[t])) char[t] = [];
+      char[t].push(padRow([], parseInt(btn.dataset.cols, 10) || 4));
+      refreshQuickActions();
+      const cards = sheetEl.querySelectorAll(".qa-card");
+      const last = cards[cards.length - 1];
+      if(last){ last.classList.add("just-added"); const n = last.querySelector(".qa-name"); if(n) n.focus(); }
+      markDirty(); return;
+    }
+    if(action === "del-row"){
+      char[btn.dataset.table].splice(parseInt(btn.dataset.row, 10), 1);
+      refreshQuickActions(); markDirty(); return;
+    }
 
+    if(action === "add-spellgroup"){ char.spellGroups.push({ groupName:"新功法表", spells:[] }); refreshSpells(); markDirty(); return; }
+    if(action === "del-spellgroup"){
+      const g = char.spellGroups[parseInt(btn.dataset.gidx, 10)];
+      if(g && (g.spells.length > 0 || g.groupName) && !confirm(`確定刪除功法表「${g.groupName || "未命名"}」？裡面的 ${g.spells.length} 招也會一起刪除。`)) return;
+      char.spellGroups.splice(parseInt(btn.dataset.gidx, 10), 1);
+      refreshSpells(); markDirty(); return;
+    }
+    if(action === "add-spellrow"){
+      const g = char.spellGroups[parseInt(btn.dataset.gidx, 10)];
+      if(g){ g.spells.push(padRow([], 5)); refreshSpells(); markDirty(); }
+      return;
+    }
+    if(action === "del-spellrow"){
+      const g = char.spellGroups[parseInt(btn.dataset.gidx, 10)];
+      if(g){ g.spells.splice(parseInt(btn.dataset.ridx, 10), 1); refreshSpells(); markDirty(); }
+      return;
+    }
+
+    if(action === "add-item"){ char.itemsList.push({name:"", type:"", desc:""}); refreshItems(); markDirty(); return; }
+    if(action === "del-item"){ char.itemsList.splice(parseInt(btn.dataset.idx, 10), 1); refreshItems(); markDirty(); return; }
+  });
+
+  // 規則書訂閱放在最後才註冊：確保回呼會用到的常數都已經初始化
+  onValue(ref(db, "chapters"), snap => {
+    chapters = snap.val() || {}; chaptersLoaded = true; rulebookAt = Date.now();
+    saveRulebookCache(); refreshRulebookViews();
+  }, err => console.error("chapters sync error", err));
+  onValue(ref(db, "modules"), snap => {
+    modules = snap.val() || {}; modulesLoaded = true; rulebookAt = Date.now();
+    saveRulebookCache(); refreshRulebookViews();
+  }, err => console.error("modules sync error", err));
+
+  renderSheet();
   initDiscordAuth();
 </script>
 </body>

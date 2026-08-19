@@ -47,12 +47,19 @@
     border:1px solid rgba(255,255,255,.25); border-radius:3px;
     font-family:"Ma Shan Zheng",cursive; color:#F5E4D3; font-size:13px;
   }
-  .nav-links{ display:flex; gap:6px; }
+  .nav-links{ display:flex; gap:8px; flex-wrap:wrap; }
   .nav-link{
-    text-decoration:none; color:var(--ink-dim); font-size:13px; font-weight:700;
-    padding:6px 12px; border:1px solid var(--border); border-radius:4px; background:var(--paper);
+    position:relative; text-decoration:none; font-size:13px; font-weight:700; letter-spacing:2px;
+    font-family:"Noto Serif TC",serif; padding:7px 16px; border-radius:4px;
+    color:#E8CA82; background:linear-gradient(155deg,#2B2520 0%,#141009 100%);
+    border:1px solid var(--gold-deep); box-shadow:0 2px 6px rgba(0,0,0,.18), inset 0 1px 0 rgba(232,202,130,.12);
+    transition:color .2s, box-shadow .2s, transform .15s, border-color .2s;
   }
-  .nav-link:hover{ background:var(--paper-3); border-color:var(--gold); }
+  .nav-link:hover{
+    color:#FBF0D2; border-color:var(--gold); transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
+  }
+  .nav-link.current{ color:#1D1712; background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; }
   .auth-box{ display:flex; align-items:center; gap:12px; }
   .btn-discord{
     display:flex; align-items:center; gap:6px; background:#5865F2; color:#fff; border:none;
@@ -75,7 +82,14 @@
     font-family:inherit; font-weight:700; font-size:12.5px; padding:6px 12px; cursor:pointer;
   }
   .btn:hover{ background:var(--paper-3); border-color:var(--gold); }
-  .btn.gold{ border-color:var(--gold); color:var(--gold-deep); }
+  .btn.gold{
+    color:#F3E3BC; border-color:var(--gold-deep);
+    background:linear-gradient(155deg,#2B2520 0%,#141009 100%);
+    box-shadow:inset 0 1px 0 rgba(232,202,130,.12);
+  }
+  .btn.gold:hover{ color:#FBF0D2; border-color:var(--gold); background:linear-gradient(155deg,#3A322A 0%,#1B1610 100%); }
+  .btn:disabled{ opacity:.45; cursor:default; filter:grayscale(.4); }
+  .btn:disabled:hover{ transform:none; }
   .btn.jade{ border-color:var(--jade); color:var(--jade); }
   .btn.danger{ border-color:var(--vermillion); color:var(--vermillion-bright); }
   .btn.danger:hover{ background:rgba(156,43,34,.1); border-color:var(--vermillion-bright); }
@@ -127,6 +141,8 @@
   .block-title .spacer{ flex:1; }
 
   .sub-tabs{ display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .table-wrap.swap-in{ animation:tableSwap .22s ease-out; }
+  @keyframes tableSwap{ from{ opacity:.35; } to{ opacity:1; } }
   .sub-tab{
     background:var(--paper-2); border:1px solid var(--border); border-radius:20px;
     font-family:inherit; font-weight:700; font-size:13px; color:var(--ink-faint2);
@@ -135,7 +151,7 @@
   .sub-tab.active{ background:var(--vermillion); color:#F5E9DD; border-color:var(--vermillion); }
 
   /* ===== 表格 ===== */
-  .table-wrap{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.03); }
+  .table-wrap{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; overflow-x:auto; overflow-y:hidden; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.03); }
   .table-head-bar{
     background:var(--ink); color:var(--gold); padding:12px 16px;
     font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px;
@@ -344,6 +360,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { ROSTER_SEED, WAREHOUSE_SEED } from "./seed-data.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -628,7 +645,23 @@
       <div class="sub-tabs">
         ${WAREHOUSE_CATS.map(c => `<button class="sub-tab ${c===warehouseCat?"active":""}" data-cat="${c}">${c}（${Object.values(warehouse).filter(i=>(i.category||"丹藥")===c).length}）</button>`).join("")}
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="whTableWrap">${warehouseTableHtml(editable)}</div>
+
+      <div class="block-title" style="margin-top:30px;">異動日誌
+        <span class="spacer"></span>
+        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">最近 60 筆</span>
+      </div>
+      ${logsHtml()}
+    `;
+  }
+
+  // 表格獨立成一段：切換丹藥／法器／材料／符咒時只重畫這裡，
+  // 上面的靈石總帳與分類列不動，畫面就不會整個跳一下。
+  function warehouseTableHtml(editable){
+    const entries = Object.entries(warehouse)
+      .filter(([,it]) => (it.category || "丹藥") === warehouseCat)
+      .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
+    return `
         <table class="sheet-table">
           <thead><tr>
             <th style="width:26%;">名稱</th>
@@ -653,15 +686,7 @@
                   ${editable ? `<td><button class="btn-icon" data-action="del-item" data-id="${id}" title="刪除">✕</button></td>` : ""}
                 </tr>`).join("")}
           </tbody>
-        </table>
-      </div>
-
-      <div class="block-title" style="margin-top:30px;">異動日誌
-        <span class="spacer"></span>
-        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">最近 60 筆</span>
-      </div>
-      ${logsHtml()}
-    `;
+        </table>`;
   }
 
   function logsHtml(){
@@ -759,13 +784,6 @@
     const maxCount = Math.max(1, ...Object.values(groups).map(g => g.count));
     const groupOrder = Object.entries(groups).sort((a,b) => b[1].count - a[1].count);
 
-    const filtered = all.filter(([,m]) => {
-      if(rosterRank !== "全部" && (m.rank || "記名") !== rosterRank) return false;
-      if(!rosterFilter) return true;
-      const hay = [m.name, m.title, m.root, m.job, m.path, m.realm, m.master].join(" ").toLowerCase();
-      return hay.includes(rosterFilter.toLowerCase());
-    }).sort((a,b) => RANKS.indexOf(a[1].rank||"記名") - RANKS.indexOf(b[1].rank||"記名"));
-
     return `
       <div class="block-title">境界人數統計<span class="spacer"></span>
         <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">依花名冊即時計算，共 ${all.length} 人</span>
@@ -790,7 +808,18 @@
         <button class="sub-tab ${rosterRank==="全部"?"active":""}" data-rank="全部">全部（${all.length}）</button>
         ${RANKS.map(r => `<button class="sub-tab ${rosterRank===r?"active":""}" data-rank="${r}">${r}（${all.filter(([,m])=>(m.rank||"記名")===r).length}）</button>`).join("")}
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="rosterTableWrap">${rosterTableHtml(editable)}</div>`;
+  }
+
+  // 切換階級分頁或搜尋時只重畫這張表，上面的境界統計不動
+  function rosterTableHtml(editable){
+    const filtered = Object.entries(roster).filter(([,m]) => {
+      if(rosterRank !== "全部" && (m.rank || "記名") !== rosterRank) return false;
+      if(!rosterFilter) return true;
+      const hay = [m.name, m.title, m.root, m.job, m.path, m.realm, m.master].join(" ").toLowerCase();
+      return hay.includes(rosterFilter.toLowerCase());
+    }).sort((a,b) => RANKS.indexOf(a[1].rank||"記名") - RANKS.indexOf(b[1].rank||"記名"));
+    return `
         <table class="sheet-table">
           <thead><tr>
             <th style="width:12%;">姓名</th>
@@ -821,8 +850,7 @@
                   ${editable ? `<td><button class="btn-icon" data-action="del-member" data-id="${id}">✕</button></td>` : ""}
                 </tr>`).join("")}
           </tbody>
-        </table>
-      </div>`;
+        </table>`;
   }
 
   // ===== 戰鬥統計 =====
@@ -830,7 +858,8 @@
     const list = Object.entries(chars).sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
     if(list.length === 0) return `<div class="notice info" style="font-weight:400;">目前還沒有任何角色卡。</div>`;
     const pct = (cur,max) => { const c=num(cur), m=num(max); return m<=0?0:Math.max(0,Math.min(100,c/m*100)); };
-    const karmaColor = k => num(k) > 0 ? "#B8860B" : (num(k) < 0 ? "#7C3AED" : "var(--ink-dim)");
+    // 正業力＝業障（紫），負業力＝功德（金），與角色卡一致
+    const karmaColor = k => num(k) > 0 ? "#7C3AED" : (num(k) < 0 ? "#C8A035" : "var(--ink-dim)");
     return `
       <div class="block-title">全團戰鬥狀態<span class="spacer"></span>
         <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">唯讀・角色卡變動時即時同步</span>
@@ -900,6 +929,8 @@
         </table>
       </div>
 
+      ${importPanelHtml()}
+
       ${discordUser && admins[discordUser.id] ? `
       <div class="admin-panel" style="margin-top:22px; border-color:rgba(156,43,34,.35);">
         <div style="font-weight:700; margin-bottom:6px; color:var(--vermillion-bright);">結束測試 / 交還權限</div>
@@ -913,20 +944,136 @@
       </div>` : ""}`;
   }
 
+  // ===== 基礎資料匯入（弟子花名冊 / 倉儲物資）=====
+  // 種子資料放在 seed-data.js，匯入後一切以資料庫為準，網站上的編輯不會回寫檔案。
+  const rosterKey = m => (m.rank || "記名") + "／" + String(m.name || "").trim();
+  const whKey = w => (w.category || "丹藥") + "／" + String(w.name || "").trim();
+
+  function pendingRoster(){
+    const have = new Set(Object.values(roster).map(rosterKey));
+    return ROSTER_SEED.filter(m => !have.has(rosterKey(m)));
+  }
+  function pendingWarehouse(){
+    const have = new Set(Object.values(warehouse).map(whKey));
+    return WAREHOUSE_SEED.filter(w => !have.has(whKey(w)));
+  }
+
+  function importPanelHtml(){
+    const r = pendingRoster().length, w = pendingWarehouse().length;
+    return `
+      <div class="admin-panel" style="margin-top:22px;">
+        <div style="font-weight:700; margin-bottom:6px;">基礎資料匯入</div>
+        <div style="font-size:13px; color:var(--ink-faint2); line-height:1.8; margin-bottom:12px;">
+          把長老團與各級弟子的花名冊、以及倉儲的丹藥／法器／材料／符咒一次寫進資料庫。<br>
+          <b>不會覆蓋現有資料</b>：同階級同名的弟子、同分類同名的物資都會自動略過，重複按也不會產生重複條目。
+        </div>
+        <div class="filter-row">
+          <button class="btn gold" data-action="import-roster" ${r ? "" : "disabled"}>
+            匯入弟子花名冊${r ? `（尚缺 ${r} 位）` : "（已全部匯入）"}</button>
+          <button class="btn gold" data-action="import-warehouse" ${w ? "" : "disabled"}>
+            匯入倉儲物資${w ? `（尚缺 ${w} 項）` : "（已全部匯入）"}</button>
+        </div>
+      </div>`;
+  }
+
+  // 一次 update() 寫進去，避免上百筆各自往返
+  async function importSeed(kind, btn){
+    const isRoster = kind === "roster";
+    const rows = isRoster ? pendingRoster() : pendingWarehouse();
+    const noun = isRoster ? "位弟子" : "項物資";
+    if(rows.length === 0){ flash(isRoster ? "花名冊已經是最新的了" : "倉儲已經是最新的了", false); return; }
+    if(!confirm(`要匯入 ${rows.length} ${noun}嗎？\n\n已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
+
+    const payload = {};
+    rows.forEach(row => { payload[push(ref(db, kind === "roster" ? "roster" : "warehouse")).key] = row; });
+    btn.disabled = true;
+    try{
+      lastLocalWriteAt = Date.now();
+      await update(ref(db, isRoster ? "roster" : "warehouse"), payload);
+      Object.assign(isRoster ? roster : warehouse, payload);
+      await writeLog(`匯入${isRoster ? "弟子花名冊" : "倉儲物資"} ${rows.length} 筆`, null);
+      flash(`已匯入 ${rows.length} ${noun}`, false);
+      renderAll(true);
+    }catch(e){
+      console.error("import error", e);
+      flash("匯入失敗：" + (e && e.message ? e.message : e), true);
+      btn.disabled = false;
+    }
+  }
+
   // ===== 事件綁定 =====
+  // 切換子分類／階級／搜尋時，只換掉那一張表格；
+  // 以前是整個 mainArea 重畫，捲軸與分頁動畫都會重來，畫面看起來就會整個跳一下。
+  // 換表格時把「分類列」釘在原本的螢幕位置上：表格長短不同會讓頁面高度改變，
+  // 不補正的話畫面會自己往上滑一段，看起來就是使用者說的「整個跳動」。
+  function keepAnchored(anchorSel, fn){
+    const anchor = document.querySelector(anchorSel);
+    const before = anchor ? anchor.getBoundingClientRect().top : null;
+    fn();
+    if(anchor){
+      const after = anchor.getBoundingClientRect().top;
+      if(Math.abs(after - before) > 1) window.scrollBy(0, after - before);
+    }
+  }
+  // 換表格時把高度變化做成 0.22 秒的過場：不同分類的筆數差很多，
+  // 直接抽換的話頁面高度會瞬間縮一大段，畫面就像被扯了一下。
+  function swapTable(wrap, html){
+    const from = wrap.getBoundingClientRect().height;
+    wrap.classList.remove("swap-in");
+    wrap.innerHTML = html;
+    wireEvents(wrap);
+    const to = wrap.getBoundingClientRect().height;
+    void wrap.offsetWidth;          // 強制重排，動畫才會重播
+    wrap.classList.add("swap-in");
+    if(Math.abs(to - from) > 4){
+      wrap.style.height = from + "px";
+      requestAnimationFrame(() => {
+        wrap.style.transition = "height .22s ease";
+        wrap.style.height = to + "px";
+      });
+      clearTimeout(swapTable._t);
+      swapTable._t = setTimeout(() => { wrap.style.height = ""; wrap.style.transition = ""; }, 280);
+    }
+  }
+  function refreshWarehouseTable(){
+    const wrap = document.getElementById("whTableWrap");
+    if(!wrap) return;
+    keepAnchored("#tab-warehouse .sub-tabs", () => swapTable(wrap, warehouseTableHtml(canEdit())));
+  }
+  function refreshRosterTable(){
+    const wrap = document.getElementById("rosterTableWrap");
+    if(!wrap) return;
+    keepAnchored("#tab-roster .sub-tabs", () => swapTable(wrap, rosterTableHtml(canEdit())));
+  }
+  function refreshCounts(){
+    document.querySelectorAll("[data-cat]").forEach(b => {
+      const c = b.dataset.cat;
+      b.textContent = `${c}（${Object.values(warehouse).filter(i => (i.category||"丹藥") === c).length}）`;
+    });
+    const all = Object.entries(roster);
+    document.querySelectorAll("[data-rank]").forEach(b => {
+      const r = b.dataset.rank;
+      b.textContent = r === "全部"
+        ? `全部（${all.length}）`
+        : `${r}（${all.filter(([,m]) => (m.rank||"記名") === r).length}）`;
+    });
+  }
+
   function wireEvents(area){
     // 分類 / 階級 / 搜尋
-    area.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => { warehouseCat = b.dataset.cat; renderAll(true); });
-    area.querySelectorAll("[data-rank]").forEach(b => b.onclick = () => { rosterRank = b.dataset.rank; renderAll(true); });
+    area.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
+      warehouseCat = b.dataset.cat;
+      document.querySelectorAll("[data-cat]").forEach(x => x.classList.toggle("active", x === b));
+      refreshWarehouseTable();
+    });
+    area.querySelectorAll("[data-rank]").forEach(b => b.onclick = () => {
+      rosterRank = b.dataset.rank;
+      document.querySelectorAll("[data-rank]").forEach(x => x.classList.toggle("active", x === b));
+      refreshRosterTable();
+    });
     const search = area.querySelector("#rosterSearch");
     if(search){
-      search.oninput = () => {
-        rosterFilter = search.value;
-        const pos = search.selectionStart;
-        renderAll(true);
-        const again = document.querySelector("#rosterSearch");
-        if(again){ again.focus(); again.setSelectionRange(pos, pos); }
-      };
+      search.oninput = () => { rosterFilter = search.value; refreshRosterTable(); };
     }
 
     // 靈石
@@ -982,10 +1129,12 @@
         if(prop === "realm" || prop === "rank"){
           // 境界統計與分頁計數要跟著更新，但延後到使用者離開輸入框再重繪
           clearTimeout(wireEvents._statTimer);
-          wireEvents._statTimer = setTimeout(() => { if(!document.activeElement || document.activeElement !== input) renderAll(true); }, 1200);
+          wireEvents._statTimer = setTimeout(() => {
+            if(document.activeElement !== input){ refreshCounts(); renderAll(true); }
+          }, 1200);
         }
       };
-      if(input.tagName === "SELECT") input.onchange = () => { handler(); renderAll(true); };
+      if(input.tagName === "SELECT") input.onchange = () => { handler(); refreshCounts(); refreshRosterTable(); };
       else input.oninput = handler;
     });
 
@@ -1003,6 +1152,11 @@
           if(Object.keys(admins).length > 0){ flash("已有管理員，無法自行取得宗主權限", true); return; }
           await writeNow("admins/" + discordUser.id, { role:"DM", name: discordUser.name });
           renderAll(true);
+          return;
+        }
+        if(action === "import-roster" || action === "import-warehouse"){
+          if(!isDM()){ flash("只有宗主（DM）可以匯入基礎資料", true); return; }
+          await importSeed(action === "import-roster" ? "roster" : "warehouse", btn);
           return;
         }
         if(action === "grant"){
@@ -1039,16 +1193,19 @@
 
         if(action === "add-item"){
           const r = push(ref(db, "warehouse"));
-          await writeNow("warehouse/" + r.key, { category: warehouseCat, name:"", qty:0, effect:"" });
+          const fresh = { category: warehouseCat, name:"", qty:0, effect:"" };
+          warehouse[r.key] = fresh;
+          await writeNow("warehouse/" + r.key, fresh);
           writeLog(`於【${warehouseCat}】新增一筆品項`, null);
-          renderAll(true);
+          refreshWarehouseTable(); refreshCounts(); renderHallStats();
         }
         if(action === "del-item"){
           const it = warehouse[btn.dataset.id] || {};
           if(!confirm(`確定刪除「${it.name || "此品項"}」？`)) return;
+          delete warehouse[btn.dataset.id];
           await writeNow("warehouse/" + btn.dataset.id, null);
           writeLog(`刪除品項「${it.name || "未命名"}」（原數量 ${num(it.qty)}）`, -num(it.qty));
-          renderAll(true);
+          refreshWarehouseTable(); refreshCounts(); renderHallStats();
         }
         if(action === "qty"){
           const id = btn.dataset.id, step = parseInt(btn.dataset.step, 10) || 0;
@@ -1058,7 +1215,9 @@
           if(await writeNow(`warehouse/${id}/qty`, after)){
             writeLog(`${it.name || "物資"} 數量 ${before} ➔ ${after}`, after - before);
           }
-          renderAll(true);
+          const box = document.querySelector(`input[data-w="${id}"][data-qty]`);
+          if(box) box.value = after;
+          renderHallStats();
         }
         if(action === "add-treasure"){
           const r = push(ref(db, "treasury"));
@@ -1073,14 +1232,17 @@
         }
         if(action === "add-member"){
           const r = push(ref(db, "roster"));
-          await writeNow("roster/" + r.key, { name:"", rank: rosterRank === "全部" ? "記名" : rosterRank, title:"", root:"", job:"", path:"", realm:"", master:"" });
-          renderAll(true);
+          const fresh = { name:"", rank: rosterRank === "全部" ? "記名" : rosterRank, title:"", root:"", job:"", path:"", realm:"", master:"" };
+          roster[r.key] = fresh;
+          await writeNow("roster/" + r.key, fresh);
+          refreshRosterTable(); refreshCounts(); renderHallStats();
         }
         if(action === "del-member"){
           const m = roster[btn.dataset.id] || {};
           if(!confirm(`確定將「${m.name || "此弟子"}」移出花名冊？`)) return;
+          delete roster[btn.dataset.id];
           await writeNow("roster/" + btn.dataset.id, null);
-          renderAll(true);
+          refreshRosterTable(); refreshCounts(); renderHallStats();
         }
       };
     });
