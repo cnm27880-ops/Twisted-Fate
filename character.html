@@ -21,15 +21,35 @@
     --gold-deep: #5F470F;
     --jade: #2D5A4C;
     --border: rgba(95, 71, 15, 0.22);
+    --path-tint-rgb: 140,107,39;
+    --path-tint-alpha: 0;
   }
   *{ box-sizing:border-box; }
   html,body{ height:100%; margin:0; }
   body{
     background:var(--paper); color:var(--ink);
     font-family:"LXGW WenKai TC","Noto Serif TC",serif;
-    min-height:100vh;
+    min-height:100vh; position:relative;
   }
   h1,h2,h3,.serif{ font-family:"Noto Serif TC",serif; }
+
+  /* 紙紋雜訊，跟規則書共用同一套質感 */
+  body::before{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.5; mix-blend-mode:multiply;
+  }
+  /* 依角色「道途」淡淡暈染背景色，JS 依角色資料切換 --path-tint-rgb / --path-tint-alpha */
+  body::after{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(ellipse 1100px 750px at 88% -8%, rgba(var(--path-tint-rgb), var(--path-tint-alpha)) 0%, transparent 70%);
+    transition:background 0.6s ease;
+  }
+  .watermark{
+    position:fixed; top:-10px; right:-60px; z-index:0; pointer-events:none; user-select:none;
+    font-family:"Zhi Mang Xing",cursive; font-size:420px; line-height:1;
+    color:var(--ink); opacity:.035; transform:rotate(-8deg); filter:blur(3px);
+  }
 
   .scrollable{ scrollbar-width:thin; scrollbar-color:var(--gold) transparent; }
   .scrollable::-webkit-scrollbar{ width:7px; }
@@ -37,7 +57,7 @@
   .scrollable::-webkit-scrollbar-thumb{ background:var(--gold); border-radius:5px; }
   .scrollable::-webkit-scrollbar-thumb:hover{ background:var(--vermillion); }
 
-  .layout{ display:flex; min-height:100vh; }
+  .layout{ display:flex; min-height:100vh; position:relative; z-index:1; }
 
   /* ===== 側欄 ===== */
   .sidebar{
@@ -56,9 +76,10 @@
   }
   .subtitle{ margin-top:6px; font-size:12px; letter-spacing:4px; color:var(--gold-deep); font-weight:700; }
   .back-link{
-    display:inline-block; margin-top:12px; font-size:12.5px; color:var(--ink-faint2);
+    display:inline-flex; align-items:center; gap:5px; margin-top:12px; font-size:12.5px; color:var(--ink-faint2);
     text-decoration:none; border-bottom:1px dashed var(--border); padding-bottom:1px;
   }
+  .back-link svg{ flex-shrink:0; }
   .back-link:hover{ color:var(--vermillion-bright); border-color:var(--vermillion); }
 
   /* ===== Discord 登入區 ===== */
@@ -91,6 +112,7 @@
     margin:14px 8px 6px; display:flex; align-items:center; justify-content:space-between;
   }
   .btn-new-char{
+    display:inline-flex; align-items:center; gap:4px;
     background:var(--paper); border:1px solid var(--border); border-radius:4px; color:var(--vermillion-bright);
     font-size:12px; font-weight:700; padding:3px 8px; cursor:pointer; font-family:inherit;
   }
@@ -101,22 +123,41 @@
   }
   .char-item:hover{ background:var(--paper-3); }
   .char-item.selected{ background:linear-gradient(90deg,var(--paper-3),transparent); border-left-color:var(--vermillion); }
+  .char-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--border); }
   .char-item .cname{ font-weight:700; font-size:14px; color:var(--ink-dim); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .char-item.selected .cname{ color:var(--vermillion-bright); }
   .char-item .cmeta{ font-size:11px; color:var(--ink-faint2); flex-shrink:0; }
   .empty-hint{ padding:16px 10px; font-size:12.5px; color:var(--ink-faint2); line-height:1.8; }
 
   /* ===== 主內容 ===== */
-  .main{ flex:1; min-width:0; padding:32px 40px 100px; }
+  .main{ flex:1; min-width:0; padding:40px 48px 110px; }
   .sheet{ max-width:1100px; margin:0 auto; }
 
   .no-char{ text-align:center; padding:140px 20px; color:var(--ink-faint2); }
   .no-char .glyph{ font-family:"Zhi Mang Xing",cursive; font-size:64px; color:var(--border); margin-bottom:12px; }
 
   .readonly-banner{
+    display:flex; align-items:center; gap:8px;
     background:rgba(156,43,34,.08); border:1px solid rgba(156,43,34,.28); color:var(--vermillion-bright);
-    font-size:13px; font-weight:700; padding:8px 14px; border-radius:4px; margin-bottom:18px;
+    font-size:13px; font-weight:700; padding:8px 14px; border-radius:4px; margin-bottom:22px;
   }
+
+  /* ===== 角色卡頁首（一整頁的身分標題）===== */
+  .char-banner{ display:flex; align-items:center; gap:22px; padding-bottom:22px; margin-bottom:28px; border-bottom:2px solid var(--gold); }
+  .char-seal{
+    width:68px; height:68px; flex-shrink:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(155deg, var(--paper), var(--paper-3));
+    border:2px solid var(--gold); box-shadow:inset 0 0 0 1px rgba(255,255,255,.4), 2px 3px 10px rgba(0,0,0,.12);
+    font-family:"Ma Shan Zheng",cursive; font-size:32px; color:var(--vermillion-bright);
+  }
+  .char-banner-main{ flex:1; min-width:0; }
+  .char-name-input{
+    width:100%; font-family:"Noto Serif TC",serif; font-weight:900; font-size:30px; color:var(--ink);
+    background:transparent; border:none; border-bottom:2px solid transparent; padding:2px 0;
+  }
+  .char-name-input:focus{ outline:none; border-bottom-color:var(--gold); }
+  .char-name-input:disabled{ color:var(--ink); opacity:1; cursor:default; }
+  .char-banner-tagline{ margin-top:6px; font-size:13px; letter-spacing:1.5px; color:var(--gold-deep); font-weight:700; }
 
   .tabs{ display:flex; gap:4px; border-bottom:2px solid var(--gold); margin-bottom:24px; flex-wrap:wrap; }
   .tab-btn{
@@ -138,15 +179,30 @@
 
   label.field-label{ display:block; font-size:11.5px; color:var(--ink-faint2); margin-bottom:4px; letter-spacing:1px; }
   .nm-input, .nm-textarea, .nm-select{
-    width:100%; background:var(--paper); border:1px solid var(--border); border-radius:4px;
-    color:var(--ink); padding:7px 9px; font-family:"LXGW WenKai TC",serif; font-size:14px;
+    width:100%; background:var(--paper); border:1px solid var(--border); border-radius:5px;
+    color:var(--ink); padding:8px 10px; font-family:"LXGW WenKai TC",serif; font-size:14px;
     transition:border-color .15s, box-shadow .15s;
   }
   .nm-input:focus, .nm-textarea:focus, .nm-select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 1px var(--gold); }
   .nm-input:disabled, .nm-textarea:disabled, .nm-select:disabled{ background:var(--paper-2); color:var(--ink-dim); cursor:not-allowed; opacity:.8; }
   .nm-textarea{ resize:vertical; line-height:1.8; }
 
-  .info-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; padding:16px; background:var(--paper-2); border:1px solid var(--border); border-radius:6px; }
+  /* 下拉選單：關掉瀏覽器原生樣式，換成手繪墨線箭頭 */
+  .nm-select{
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1L5.5 5.5L10 1' stroke='%238C6B27' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center; background-size:11px 7px;
+    padding-right:34px;
+  }
+  .nm-select:hover{ border-color:var(--gold); }
+  .nm-select:focus{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1L5.5 5.5L10 1' stroke='%23B5372B' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  .nm-select:disabled{ cursor:not-allowed; background-image:none; padding-right:10px; }
+  .nm-select option{ font-family:"LXGW WenKai TC",serif; }
+
+  .info-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:14px; padding:18px; background:var(--paper-2); border:1px solid var(--border); border-radius:8px; }
 
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
   .stat-box{
@@ -176,9 +232,10 @@
   .resource-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   @media (max-width:640px){ .resource-grid{ grid-template-columns:1fr; } }
   .resource-box{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
-  .resource-box .r-title{ font-size:13px; font-weight:700; letter-spacing:1px; margin-bottom:6px; }
+  .resource-box .r-title{ display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; letter-spacing:1px; margin-bottom:6px; }
   .r-title.hp{ color:var(--vermillion-bright); }
   .r-title.qi{ color:var(--jade); }
+  .r-title svg{ flex-shrink:0; }
   .resource-box .r-nums{ display:flex; align-items:center; gap:4px; font-size:18px; font-weight:700; margin-bottom:8px; font-family:"Noto Serif TC",serif; }
   .r-nums input{ width:60px; background:transparent; border:none; border-bottom:1px solid var(--border); color:var(--ink); text-align:center; font:inherit; }
   .r-nums input:focus{ outline:none; border-color:var(--gold); }
@@ -199,11 +256,12 @@
   table.sheet-table tr:hover td{ background:rgba(255,255,255,.25); }
   table.sheet-table input{ width:100%; background:transparent; border:none; color:var(--ink); font:inherit; font-family:"LXGW WenKai TC",serif; padding:4px 2px; }
   table.sheet-table input:focus{ outline:none; background:var(--paper); border-radius:3px; }
-  .row-del{ background:none; border:none; color:var(--ink-faint2); cursor:pointer; font-size:14px; padding:2px 6px; }
+  .row-del{ display:flex; align-items:center; justify-content:center; background:none; border:none; color:var(--ink-faint2); cursor:pointer; padding:4px 6px; }
   .row-del:hover{ color:var(--vermillion-bright); }
   .table-actions{ margin-top:8px; text-align:right; }
 
   .btn{
+    display:inline-flex; align-items:center; gap:5px;
     background:var(--paper); border:1px solid var(--border); border-radius:4px; color:var(--ink-dim);
     font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12.5px; padding:6px 12px; cursor:pointer;
     transition:background .15s, border-color .15s;
@@ -212,6 +270,8 @@
   .btn.primary{ background:var(--vermillion); color:#F5E9DD; border-color:var(--vermillion); }
   .btn.primary:hover{ background:var(--vermillion-bright); }
 
+  .rulebook-missing-hint{ margin-top:4px; font-size:11px; color:var(--vermillion-bright); }
+
   .karma-input{ font-weight:900; }
   .stones-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:640px){ .stones-grid{ grid-template-columns:repeat(2,1fr); } }
@@ -219,17 +279,20 @@
   .stone-box .stone-label{ font-size:11.5px; margin-bottom:4px; }
   .stone-box input{ width:100%; text-align:center; font-weight:700; }
 
-  .save-status{ position:fixed; bottom:16px; right:20px; font-size:12px; color:var(--ink-faint2); background:var(--paper-2); border:1px solid var(--border); padding:5px 12px; border-radius:20px; opacity:0; transition:opacity .3s; pointer-events:none; }
+  .save-status{ position:fixed; bottom:16px; right:20px; font-size:12px; color:var(--ink-faint2); background:var(--paper-2); border:1px solid var(--border); padding:5px 12px; border-radius:20px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:2; }
   .save-status.show{ opacity:1; }
 
   @media (max-width:900px){
     .layout{ flex-direction:column; }
     .sidebar{ width:100%; min-height:auto; }
-    .main{ padding:24px 16px 80px; }
+    .main{ padding:28px 18px 90px; }
+    .char-banner{ flex-wrap:wrap; }
   }
 </style>
 </head>
 <body>
+
+<div class="watermark" id="watermark">卡</div>
 
 <div class="layout">
   <aside class="sidebar">
@@ -239,7 +302,10 @@
         <div class="title-seal">逆</div>
       </div>
       <div class="subtitle">角色卡</div>
-      <a href="index.html" class="back-link">← 返回規則書</a>
+      <a href="index.html" class="back-link">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5L8 12L15 19"/></svg>
+        返回規則書
+      </a>
     </div>
 
     <div class="auth-box" id="authBox">
@@ -263,7 +329,10 @@
     <div class="char-list-wrap scrollable">
       <div class="list-section-title">
         <span>我的角色</span>
-        <button class="btn-new-char" id="btnNewChar" style="display:none;">＋ 新增</button>
+        <button class="btn-new-char" id="btnNewChar" style="display:none;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 4V20M4 12H20"/></svg>
+          新增
+        </button>
       </div>
       <div id="myCharList"><div class="empty-hint">登入 Discord 後可建立角色</div></div>
 
@@ -386,7 +455,7 @@
       loggedIn.style.display = "flex";
       document.getElementById("authAvatar").src = discordUser.avatarUrl;
       document.getElementById("authName").textContent = discordUser.name;
-      btnNew.style.display = "inline-block";
+      btnNew.style.display = "inline-flex";
     } else {
       loggedOut.style.display = "block";
       loggedIn.style.display = "none";
@@ -396,6 +465,37 @@
 
   document.getElementById("discordLoginBtn").addEventListener("click", discordLogin);
   document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
+
+  // 所有可變狀態集中在最前面宣告，避免 onValue 的非同步 callback 在自己所屬的
+  // let/const 宣告「執行到之前」就被觸發（實務上 Firebase 一定是非同步回呼，
+  // 但集中宣告可以讓執行順序不必依賴這個前提，也比較好讀）
+  let allChars = {};      // id -> character object (即時同步)
+  let currentCharId = null;
+  let lastLocalWriteAt = 0;
+  let chapters = {};
+  let modules = {};
+  let chaptersLoaded = false, modulesLoaded = false;
+
+  // ============================================================
+  // 規則書資料（種族／道途／職業／境界 選單直接讀規則書，不手key、不開放自訂）
+  // ============================================================
+  onValue(ref(db, "chapters"), snap => { chapters = snap.val() || {}; chaptersLoaded = true; renderSheet(); }, err => console.error("chapters sync error", err));
+  onValue(ref(db, "modules"), snap => { modules = snap.val() || {}; modulesLoaded = true; renderSheet(); }, err => console.error("modules sync error", err));
+
+  // 依章節名稱（例如「種族」「道途」「職業」「境界」）從規則書撈出該章底下所有條目標題，
+  // 當作選單選項的唯一來源，避免跟規則書內容脫節、也避免手動猜漏項目
+  function getRulebookOptions(chapterNameContains){
+    if(!(chaptersLoaded && modulesLoaded)) return { ready:false, found:false, options:[] };
+    const chapterIds = Object.entries(chapters)
+      .filter(([,c]) => (c.name || "").includes(chapterNameContains))
+      .map(([id]) => id);
+    if(chapterIds.length === 0) return { ready:true, found:false, options:[] };
+    const titles = Object.values(modules)
+      .filter(m => chapterIds.includes(m.chapterId))
+      .sort((a,b) => (a.order||0) - (b.order||0))
+      .map(m => m.title);
+    return { ready:true, found:true, options:[...new Set(titles)] };
+  }
 
   // ============================================================
   // 角色卡資料
@@ -409,14 +509,19 @@
     { id:"cha", name:"魅力", en:"CHA" }
   ];
 
-  // 下拉選單選項。道途／職業已對照規則書湊齊全部項目；種族目前只確定 9 種，
-  // 第 10 種尚未確認名稱，一律靠「自訂／其他」欄位補上，避免猜錯名字寫死進去。
-  const RACE_OPTIONS = ["人族","自然之靈","水族","妖獸","神獸","屍修","幽魂","骷髏","靈族"];
-  const PATH_OPTIONS = ["散修","邪修","體修","毒修","劍修","佛修","巫修","術修","音修"];
-  const JOB_OPTIONS = ["陣法師","煉丹師","符咒師","蠱師","醫師","鐵匠","占卜師","鑑定師","書法大師","偽裝大師","驅魔師","武僧","道士","馴獸師"];
-  const REALM_SUGGESTIONS = ["練氣期初期","練氣期中期","練氣期後期","築基期初期","築基期中期","築基期後期","築基期圓滿","金丹期初期","金丹期中期","金丹期後期","金丹期圓滿","元嬰期"];
-
-  function isCustomValue(val, options){ return !!val && !options.includes(val); }
+  // 道途淡色背景（單一來源：CSS 只吃 --path-tint-rgb / --path-tint-alpha 這兩個變數，
+  // 顏色對照表放在 JS 這裡就好，不用同時維護 CSS 規則）
+  const PATH_TINTS = {
+    "散修": "140,107,39",
+    "邪修": "124,58,237",
+    "體修": "180,95,42",
+    "毒修": "45,120,96",
+    "劍修": "90,120,145",
+    "佛修": "205,168,74",
+    "巫修": "72,58,128",
+    "術修": "42,66,112",
+    "音修": "196,110,122"
+  };
 
   function blankCharacter(ownerId, ownerName){
     return {
@@ -434,10 +539,6 @@
       updatedAt: Date.now(), updatedBy: ownerName || ""
     };
   }
-
-  let allChars = {};      // id -> character object (即時同步)
-  let currentCharId = null;
-  let lastLocalWriteAt = 0;
 
   const charsRef = ref(db, "characters");
   onValue(charsRef, snap => {
@@ -460,7 +561,7 @@
       const mineIds = Object.entries(allChars).filter(([,c]) => c.ownerId === discordUser.id);
       mine.innerHTML = mineIds.length
         ? mineIds.map(([id,c]) => charItemHtml(id,c)).join("")
-        : '<div class="empty-hint">尚未建立角色，點右上「＋ 新增」開始吧</div>';
+        : '<div class="empty-hint">尚未建立角色，點右上「新增」開始吧</div>';
     }
 
     const allIds = Object.entries(allChars);
@@ -479,7 +580,9 @@
 
   function charItemHtml(id, c){
     const sel = id === currentCharId ? " selected" : "";
+    const dotColor = PATH_TINTS[c.path] ? `rgb(${PATH_TINTS[c.path]})` : "var(--border)";
     return `<div class="char-item${sel}" data-id="${escapeHtml(id)}">
+      <span class="char-dot" style="background:${dotColor}"></span>
       <span class="cname">${escapeHtml(c.name || "未命名角色")}</span>
       <span class="cmeta">${escapeHtml(c.realm || "")}</span>
     </div>`;
@@ -510,6 +613,12 @@
     return m ? parseInt(m[0], 10) : 0;
   }
 
+  function applyPathTint(path){
+    const rgb = PATH_TINTS[path];
+    document.body.style.setProperty("--path-tint-rgb", rgb || "140,107,39");
+    document.body.style.setProperty("--path-tint-alpha", rgb ? "0.10" : "0");
+  }
+
   let activeTab = "tab-main";
 
   function renderSheet(){
@@ -518,22 +627,42 @@
 
     if(!char){
       sheet.innerHTML = `<div class="no-char"><div class="glyph">卡</div>從左側選擇一張角色卡查看，或登入 Discord 後建立你自己的角色卡。</div>`;
+      applyPathTint(null);
+      document.getElementById("watermark").textContent = "卡";
       return;
     }
 
     // 若正在編輯自己的卡（近期有本地寫入或表單有 focus 中的欄位），不要整個重繪蓋掉輸入到一半的內容
     if(isOwner(char) && (Date.now() - lastLocalWriteAt < 3000 || sheet.contains(document.activeElement))){
+      applyPathTint(char.path);
       return;
     }
+
+    applyPathTint(char.path);
+    document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
 
     const editable = isOwner(char);
     const dis = editable ? "" : "disabled";
     const banner = !editable
-      ? `<div class="readonly-banner">你正在檢視「${escapeHtml(char.name || "未命名角色")}」的角色卡（唯讀，僅擁有者可編輯）</div>`
+      ? `<div class="readonly-banner">${ICON_LOCK}你正在檢視「${escapeHtml(char.name || "未命名角色")}」的角色卡（唯讀，僅擁有者可編輯）</div>`
       : "";
+
+    const raceR = getRulebookOptions("種族");
+    const pathR = getRulebookOptions("道途");
+    const jobR = getRulebookOptions("職業");
+    const realmR = getRulebookOptions("境界");
+    const tagline = [char.race, char.path, char.job, char.realm].filter(Boolean).join(" ・ ") || "尚未填寫種族／道途／職業／境界";
 
     sheet.innerHTML = `
       ${banner}
+      <div class="char-banner">
+        <div class="char-seal">${escapeHtml((char.name||"?").trim().charAt(0) || "?")}</div>
+        <div class="char-banner-main">
+          <input class="char-name-input" data-f="name" value="${attr(char.name)}" placeholder="未命名角色" ${dis}>
+          <div class="char-banner-tagline">${escapeHtml(tagline)}</div>
+        </div>
+      </div>
+
       <div class="tabs">
         <button class="tab-btn" data-tab="tab-main">【命盤與戰鬥】</button>
         <button class="tab-btn" data-tab="tab-features">【特性與功法】</button>
@@ -543,16 +672,18 @@
       <div class="tab-panel" id="tab-main">
         <section class="block">
           <div class="info-grid">
-            <div><label class="field-label">姓名</label><input class="nm-input" data-f="name" value="${attr(char.name)}" ${dis}></div>
             <div><label class="field-label">玩家</label><input class="nm-input" data-f="player" value="${attr(char.player)}" ${dis}></div>
-            <div><label class="field-label">境界</label><input class="nm-input" data-f="realm" list="realmSuggestions" value="${attr(char.realm)}" placeholder="例：金丹期初期" ${dis}></div>
-            <div><label class="field-label">種族</label>${selectFieldHtml("race", char.race, RACE_OPTIONS, dis)}</div>
-            <div><label class="field-label">道途</label>${selectFieldHtml("path", char.path, PATH_OPTIONS, dis)}</div>
-            <div><label class="field-label">職業</label>${selectFieldHtml("job", char.job, JOB_OPTIONS, dis)}</div>
+            <div>
+              <label class="field-label">境界</label>
+              <input class="nm-input" data-f="realm" list="realmSuggestions" value="${attr(char.realm)}" placeholder="請依規則書填寫" ${dis}>
+            </div>
+            <div><label class="field-label">種族</label>${rulebookSelectHtml("race", char.race, raceR, dis)}</div>
+            <div><label class="field-label">道途</label>${rulebookSelectHtml("path", char.path, pathR, dis)}</div>
+            <div><label class="field-label">職業</label>${rulebookSelectHtml("job", char.job, jobR, dis)}</div>
             <div><label class="field-label">靈根</label><input class="nm-input" data-f="root" value="${attr(char.root)}" placeholder="例：金木火" ${dis}></div>
             <div><label class="field-label">業力</label><input class="nm-input karma-input" data-f="karma" type="number" value="${Number(char.karma)||0}" style="color:${karmaColor(char.karma)}" ${dis}></div>
           </div>
-          <datalist id="realmSuggestions">${REALM_SUGGESTIONS.map(r=>`<option value="${r}">`).join("")}</datalist>
+          <datalist id="realmSuggestions">${(realmR.ready ? realmR.options : []).map(r=>`<option value="${attr(r)}">`).join("")}</datalist>
         </section>
 
         <section class="block">
@@ -576,7 +707,7 @@
           </div>
 
           <div class="resource-box" style="margin-bottom:12px;">
-            <div class="r-title hp">🩸 生命 HP</div>
+            <div class="r-title hp">${ICON_HP}生命 HP</div>
             <div class="r-nums">
               <input data-f="hp.current" type="number" value="${Number(char.hp?.current)||0}" ${dis}>
               <span class="sep">/</span>
@@ -586,7 +717,7 @@
           </div>
 
           <div class="resource-box" style="margin-bottom:12px;">
-            <div class="r-title qi">💠 靈氣 QI</div>
+            <div class="r-title qi">${ICON_QI}靈氣 QI</div>
             <div class="r-nums">
               <input data-f="qi.current" type="number" value="${Number(char.qi?.current)||0}" ${dis}>
               <span class="sep">/</span>
@@ -597,7 +728,7 @@
               靈根基礎值：<input data-f="qiBase" type="number" value="${Number(char.qiBase)||0}" style="width:56px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--ink);" ${dis}>
               　估算上限 = 基礎值 + 境界×10 + 神識調整值×5 = <b>${estimateQiMax(char)}</b>
               （築基期／金丹期另有房規門檻，請自行核對規則書）
-              ${editable ? '<button class="btn" data-action="apply-qi-max" style="margin-left:6px;">套用估算值</button>' : ""}
+              ${editable ? `<button class="btn" data-action="apply-qi-max" style="margin-left:6px;">套用估算值</button>` : ""}
             </div>
           </div>
 
@@ -668,13 +799,30 @@
     if(editable) wireEditableSheet(sheet, char);
   }
 
-  function selectFieldHtml(field, value, options, dis){
-    const customFlag = isCustomValue(value, options);
-    const opts = `<option value="">請選擇…</option>`
-      + options.map(o => `<option value="${attr(o)}" ${value===o?"selected":""}>${o}</option>`).join("")
-      + `<option value="__custom__" ${customFlag?"selected":""}>✏️ 自訂／其他</option>`;
-    return `<select class="nm-select" data-f="${field}" ${dis}>${opts}</select>
-      <input class="nm-input" data-f="${field}" style="margin-top:4px;${customFlag?"":"display:none;"}" placeholder="輸入自訂內容" value="${customFlag?attr(value):""}" ${dis}>`;
+  // ===== 手繪線條圖示（不使用 emoji）=====
+  const ICON_HP = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C12 3 5 11 5 15.5A7 7 0 0 0 19 15.5C19 11 12 3 12 3Z"/></svg>`;
+  const ICON_QI = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3L19 9.5L12 21L5 9.5Z"/><path d="M5 9.5H19M9 9.5L12 3L15 9.5M9 9.5L12 21M15 9.5L12 21"/></svg>`;
+  const ICON_LOCK = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
+  const ICON_DEL = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M5 5L19 19M19 5L5 19"/></svg>`;
+  const ICON_PLUS = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 4V20M4 12H20"/></svg>`;
+
+  // 種族／道途／職業選單：只吃規則書資料，不提供任何「自訂」欄位。
+  // 若目前存的值不在規則書清單裡（例如規則書後來改了名字），仍把它保留成一個選項，
+  // 不會因為對不上就悄悄清空玩家已經填好的資料。
+  function rulebookSelectHtml(field, value, result, dis){
+    if(!result.ready){
+      return `<select class="nm-select" disabled><option>讀取規則書中…</option></select>`;
+    }
+    let opts = `<option value="">請選擇…</option>`;
+    opts += result.options.map(o => `<option value="${attr(o)}" ${value===o?"selected":""}>${escapeHtml(o)}</option>`).join("");
+    if(value && !result.options.includes(value)){
+      opts += `<option value="${attr(value)}" selected>${escapeHtml(value)}</option>`;
+    }
+    let html = `<select class="nm-select" data-f="${field}" ${dis}>${opts}</select>`;
+    if(!result.found){
+      html += `<div class="rulebook-missing-hint">規則書中找不到對應章節，請確認規則書分類名稱</div>`;
+    }
+    return html;
   }
 
   function statBoxHtml(a, char, dis){
@@ -697,7 +845,7 @@
           ${rows.length===0 ? `<tr><td colspan="${cols+(editable?1:0)}" style="text-align:center;color:var(--ink-faint2);padding:14px;">尚無資料</td></tr>` : ""}
         </tbody>
       </table>
-      ${editable ? `<div class="table-actions"><button class="btn" data-action="add-row" data-table="${field}" data-cols="${cols}">＋ 新增一列</button></div>` : ""}
+      ${editable ? `<div class="table-actions"><button class="btn" data-action="add-row" data-table="${field}" data-cols="${cols}">${ICON_PLUS}新增一列</button></div>` : ""}
     </div>`;
   }
 
@@ -707,7 +855,7 @@
     for(let c=0;c<cols;c++){
       tds += `<td><input value="${attr(row[c])}" data-table="${field}" data-row="${idx}" data-col="${c}" ${editable?"":"disabled"}></td>`;
     }
-    if(editable) tds += `<td><button class="row-del" data-action="del-row" data-table="${field}" data-row="${idx}">✕</button></td>`;
+    if(editable) tds += `<td><button class="row-del" data-action="del-row" data-table="${field}" data-row="${idx}">${ICON_DEL}</button></td>`;
     return `<tr>${tds}</tr>`;
   }
 
@@ -771,19 +919,8 @@
       input.addEventListener("input", () => {
         const field = input.dataset.f;
         const val = input.type === "number" ? (parseFloat(input.value) || 0) : input.value;
-        if(input.tagName === "SELECT"){
-          // 選單本身只負責挑選項目；選到「自訂／其他」時改用旁邊的文字框輸入，
-          // 不要把 sentinel 值 "__custom__" 存進資料庫
-          const sibling = input.parentElement.querySelector(`input[data-f="${field}"]`);
-          if(val === "__custom__"){
-            if(sibling){ sibling.style.display = ""; sibling.focus(); }
-            return;
-          } else if(sibling){
-            sibling.style.display = "none";
-          }
-        }
         setPath(char, field, val);
-        // 局部更新受影響的顯示（調整值 / 進度條 / 靈氣估算 / 業力顏色），不整個重繪避免輸入被打斷
+        // 局部更新受影響的顯示（調整值 / 進度條 / 靈氣估算 / 業力顏色 / 頁首標題），不整個重繪避免輸入被打斷
         if(field.startsWith("stats.")){
           const id = field.split(".")[1];
           const box = input.closest(".stat-box");
@@ -805,6 +942,15 @@
         }
         if(field === "karma"){
           input.style.color = karmaColor(val);
+        }
+        if(field === "name"){
+          sheet.querySelector(".char-seal").textContent = (val || "?").trim().charAt(0) || "?";
+          document.getElementById("watermark").textContent = (val || "卡").trim().charAt(0) || "卡";
+        }
+        if(field === "race" || field === "path" || field === "job" || field === "realm"){
+          sheet.querySelector(".char-banner-tagline").textContent =
+            [char.race, char.path, char.job, char.realm].filter(Boolean).join(" ・ ") || "尚未填寫種族／道途／職業／境界";
+          if(field === "path") applyPathTint(char.path);
         }
         scheduleSave();
       });
