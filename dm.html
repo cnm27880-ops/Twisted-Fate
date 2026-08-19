@@ -230,50 +230,39 @@
   .realm-detail{ font-size:12px; color:var(--ink-faint2); line-height:1.9; }
   .realm-detail span{ display:inline-block; margin-right:10px; }
 
-  /* ===== 簡報分析 ===== */
-  .report-section{ margin-bottom:34px; }
-  .report-section-title{
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px; color:var(--gold-deep);
-    letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; gap:8px;
+  /* ===== 天機分析報告 (原簡報分析) ===== */
+  .report-section { margin-bottom: 38px; }
+  .report-section-title {
+    font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; color: var(--gold-deep);
+    letter-spacing: 2px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+    border-bottom: 2px solid var(--border); padding-bottom: 8px;
   }
-  .report-section-title .n{ color:var(--ink-faint2); font-weight:400; font-size:12px; }
-  .kpi-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:8px; }
-  .kpi-card{
-    background:linear-gradient(135deg,var(--ink) 0%,#2A2520 100%); border:1px solid var(--gold-deep);
-    border-radius:8px; padding:14px 16px; box-shadow:inset 0 0 20px rgba(140,107,39,.1);
-  }
-  .kpi-label{ font-size:11px; color:#E8CA82; letter-spacing:1.5px; margin-bottom:6px; }
-  .kpi-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:26px; color:#F8EDD1; }
-  .kpi-sub{ font-size:11px; color:rgba(232,202,130,.75); margin-top:4px; }
-  .dist-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
-  .dist-card{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
-  .dist-card-title{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; color:var(--ink); }
-  .dist-row{ display:flex; align-items:center; gap:8px; margin-bottom:7px; font-size:12.5px; }
-  .dist-row .dr-name{ width:64px; flex-shrink:0; color:var(--ink-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .dist-row .dr-track{ flex:1; height:8px; background:var(--paper-3); border-radius:4px; overflow:hidden; border:1px solid var(--border); }
-  .dist-row .dr-bar{ height:100%; background:linear-gradient(90deg,var(--gold-deep),var(--gold)); }
-  .dist-row .dr-count{ width:26px; text-align:right; flex-shrink:0; font-weight:700; color:var(--ink); }
-  .dist-empty{ font-size:12.5px; color:var(--ink-faint2); }
-  .gauge-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
-  .gauge-card{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:16px; }
-  .gauge-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
-  .gauge-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:14px; }
-  .gauge-title.hp{ color:var(--vermillion-bright); } .gauge-title.qi{ color:var(--jade); }
-  .gauge-pct{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; color:var(--ink); }
-  .gauge-track{ height:10px; background:var(--paper-3); border-radius:5px; overflow:hidden; border:1px solid rgba(0,0,0,.1); margin-bottom:8px; }
-  .gauge-fill{ height:100%; }
-  .gauge-fill.hp{ background:linear-gradient(90deg,#9C2B22,#ff4d4d); }
-  .gauge-fill.qi{ background:linear-gradient(90deg,#1b4332,#40916c); }
-  .gauge-note{ font-size:11.5px; color:var(--ink-faint2); }
-  .karma-split{ display:flex; height:18px; border-radius:9px; overflow:hidden; border:1px solid var(--border); margin-bottom:10px; }
-  .karma-split div{ height:100%; }
-  .karma-split .ks-bad{ background:#7C3AED; } .karma-split .ks-good{ background:#C8A035; } .karma-split .ks-neutral{ background:var(--paper-3); }
-  .karma-legend{ display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-faint2); }
-  .karma-legend b{ font-weight:900; }
-  .karma-legend .dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; }
-  .low-list{ margin-top:14px; }
-  .low-list-title{ font-size:12px; font-weight:700; color:var(--vermillion-bright); margin-bottom:6px; }
-  .low-list-row{ display:flex; justify-content:space-between; font-size:12.5px; padding:5px 10px; background:rgba(156,43,34,.05); border-radius:4px; margin-bottom:4px; }
+  .board-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .board-card { background: var(--paper-2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .board-head { padding: 12px 16px; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 16px; display: flex; align-items: center; gap: 8px; letter-spacing: 1px; }
+  .board-head.qi { background: linear-gradient(135deg, #1A2E26 0%, #091410 100%); color: #A6F0CA; border-bottom: 2px solid var(--jade); }
+  .board-head.hp { background: linear-gradient(135deg, #3A1C1A 0%, #1A0A09 100%); color: #F0B3A6; border-bottom: 2px solid var(--vermillion); }
+  .board-head.good { background: linear-gradient(135deg, #352B18 0%, #17120A 100%); color: #F3E3BC; border-bottom: 2px solid #C8A035; }
+  .board-head.bad { background: linear-gradient(135deg, #2D1A3A 0%, #13091A 100%); color: #D8BCF3; border-bottom: 2px solid #7C3AED; }
+
+  .board-list { padding: 8px 10px; }
+  .board-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px dashed var(--border); font-size: 14px; }
+  .board-row:last-child { border-bottom: none; }
+  .board-rank { font-weight: 900; font-family: "Noto Serif TC", serif; width: 28px; color: var(--ink-faint2); }
+  .board-name { flex: 1; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+  .board-val { font-weight: 900; font-family: "Noto Serif TC", serif; font-size: 17px; text-align: right; }
+  .board-empty { padding: 24px; text-align: center; color: var(--ink-faint2); font-size: 13.5px; font-weight: 700; }
+
+  .text-jade { color: var(--jade); }
+  .text-vermillion { color: var(--vermillion-bright); }
+  .text-gold { color: var(--gold-deep); }
+  .text-purple { color: #7C3AED; }
+
+  .eco-warn { padding: 16px 20px; border-radius: 6px; margin-bottom: 14px; font-size: 15px; font-weight: 700; line-height: 1.6; display: flex; gap: 14px; align-items: flex-start; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  .eco-warn.danger { background: rgba(156,43,34,0.08); border: 1px solid rgba(156,43,34,0.3); color: var(--vermillion-bright); }
+  .eco-warn.warn { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.3); color: #7C3AED; }
+  .eco-warn.info { background: rgba(45,90,76,0.08); border: 1px solid rgba(45,90,76,0.3); color: var(--jade); }
+  .eco-warn.good { background: rgba(200,160,53,0.08); border: 1px solid rgba(200,160,53,0.3); color: var(--gold-deep); }
 
   .filter-row{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
   .search-input{
@@ -628,7 +617,7 @@
         <button class="tab-btn" data-tab="tab-warehouse">【宗門庫房】</button>
         <button class="tab-btn" data-tab="tab-treasury">【多寶閣】</button>
         <button class="tab-btn" data-tab="tab-roster">【弟子花名冊】</button>
-        <button class="tab-btn" data-tab="tab-report">【簡報分析】</button>
+        <button class="tab-btn" data-tab="tab-report">【天機閣】</button>
         <button class="tab-btn" data-tab="tab-combat">【戰鬥統計】</button>
         ${isDM() ? `<button class="tab-btn" data-tab="tab-admin">【權限管理】</button>` : ""}
       </div>
@@ -971,115 +960,109 @@
         </table>`;
   }
 
-  // ===== 簡報分析 =====
+  // ===== 天機閣分析 (原簡報分析) =====
   function countBy(list, fn){
     const out = {};
     list.forEach(item => { const k = (fn(item) || "").trim() || "未記錄"; out[k] = (out[k] || 0) + 1; });
     return out;
-  }
-  function distributionRows(counts){
-    const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-    if(entries.length === 0) return `<div class="dist-empty">尚無資料</div>`;
-    const max = Math.max(1, ...entries.map(([,v]) => v));
-    return entries.map(([k,v]) => `
-      <div class="dist-row">
-        <span class="dr-name" title="${escapeHtml(k)}">${escapeHtml(k)}</span>
-        <span class="dr-track"><span class="dr-bar" style="width:${(v/max*100).toFixed(1)}%"></span></span>
-        <span class="dr-count">${v}</span>
-      </div>`).join("");
   }
 
   function reportHtml(){
     const rosterList = Object.values(roster);
     const charList = Object.values(chars);
     const totalDisciples = rosterList.length;
-    const totalChars = charList.length;
 
-    const rankCounts = {}; RANKS.forEach(r => rankCounts[r] = 0);
-    rosterList.forEach(m => { const r = m.rank || "記名"; rankCounts[r] = (rankCounts[r] || 0) + 1; });
-
-    const pathCounts = countBy(rosterList, m => m.path);
-    const jobCounts = countBy(rosterList, m => m.job);
-    const rootCounts = countBy(rosterList, m => m.root);
-    const masterCounts = countBy(rosterList.filter(m => m.master), m => m.master);
+    if(charList.length === 0) return `<div class="notice info" style="font-weight:400;">尚無角色卡資料，天機閣無法進行推演。</div>`;
 
     const pct = (cur, mx) => { const c = num(cur), m = num(mx); return m <= 0 ? null : Math.max(0, Math.min(100, c/m*100)); };
-    const hpPcts = charList.map(c => pct(c.hp && c.hp.current, c.hp && c.hp.max)).filter(v => v != null);
-    const qiPcts = charList.map(c => pct(c.qi && c.qi.current, c.qi && c.qi.max)).filter(v => v != null);
-    const avg = arr => arr.length ? arr.reduce((s,v) => s+v, 0) / arr.length : 0;
-    const avgHp = avg(hpPcts), avgQi = avg(qiPcts);
-    const avgAc = avg(charList.map(c => num(c.ac)).filter(v => v > 0));
 
-    const karmaBad = charList.filter(c => num(c.karma) > 0).length;
-    const karmaGood = charList.filter(c => num(c.karma) < 0).length;
-    const karmaNeutral = Math.max(0, totalChars - karmaBad - karmaGood);
+    // 1. 重傷瀕死名單 (HP <= 30%)
+    const lowHp = charList.map(c => ({ c, p: pct(c.hp && c.hp.current, c.hp && c.hp.max) }))
+      .filter(x => x.p != null && x.p <= 30).sort((a,b) => a.p - b.p);
 
-    const lowHp = charList
-      .map(c => ({ c, p: pct(c.hp && c.hp.current, c.hp && c.hp.max) }))
-      .filter(x => x.p != null && x.p <= 30)
-      .sort((a,b) => a.p - b.p);
+    // 2. 靈氣底蘊排行榜 (Top 5)
+    const topQi = [...charList].filter(c => num(c.qi?.max) > 0).sort((a,b) => num(b.qi?.max) - num(a.qi?.max)).slice(0, 5);
+
+    // 3. 因果善惡榜
+    const goodKarma = [...charList].filter(c => num(c.karma) < 0).sort((a,b) => num(a.karma) - num(b.karma)).slice(0, 5); // 越負越前面(功德)
+    const badKarma = [...charList].filter(c => num(c.karma) > 0).sort((a,b) => num(b.karma) - num(a.karma)).slice(0, 5);  // 越正越前面(業障)
+
+    // 4. 生態與運勢預警 (由花名冊推演)
+    const pathCounts = countBy(rosterList, m => m.path);
+    const jobCounts = countBy(rosterList, m => m.job);
+    let warnings = [];
+
+    // 檢查醫療/煉丹後勤
+    const hasMedic = Object.keys(jobCounts).some(k => k.includes("丹") || k.includes("醫") || k.includes("補") || k.includes("藥"));
+    if(!hasMedic && totalDisciples > 0) {
+      warnings.push({ type: "danger", icon: "💊", text: "後勤空虛：宗門內極度缺乏「煉丹」或「醫療」相關職業，若遇大戰恐無人救治，死傷慘重。" });
+    }
+
+    // 檢查邪修比例
+    const evilCount = pathCounts["邪修"] || 0;
+    if(evilCount > totalDisciples * 0.3) {
+      warnings.push({ type: "warn", icon: "⚡", text: `風氣偏移：門內邪道修士高達 ${evilCount} 人，比例過高。近期須慎防正道聯盟借機發難，或引動大規模天劫降臨。` });
+    }
+
+    // 檢查單一道途過於集中 (以劍修為例)
+    const swordCount = pathCounts["劍修"] || 0;
+    if(swordCount > totalDisciples * 0.5) {
+      warnings.push({ type: "info", icon: "⚔️", text: "劍氣沖霄：本門逾半數為劍修，殺伐極盛！但須注意鬥法時輔助與防禦手段恐顯單一。" });
+    }
+
+    // 都很健康的話給予正面回饋
+    if(warnings.length === 0 && totalDisciples > 0) {
+      warnings.push({ type: "good", icon: "☯", text: "陰陽調和：目前宗門百花齊放，各道途與職業分布尚稱均衡，氣運綿長，並無明顯短板。" });
+    }
+
+    const renderBoard = (list, valFn, emptyMsg, colorClass) => {
+      if(list.length === 0) return `<div class="board-empty">${emptyMsg}</div>`;
+      return list.map((item, i) => `
+        <div class="board-row">
+          <span class="board-rank">#${i+1}</span>
+          <span class="board-name">${escapeHtml(item.name || "未命名")}</span>
+          <span class="board-val ${colorClass}">${valFn(item)}</span>
+        </div>`).join("");
+    };
 
     return `
       <div class="report-section">
-        <div class="report-section-title">宗門總覽</div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">在冊弟子</div><div class="kpi-value">${totalDisciples}</div></div>
-          <div class="kpi-card"><div class="kpi-label">已建角色卡</div><div class="kpi-value">${totalChars}</div><div class="kpi-sub">${totalDisciples > 0 ? (totalChars/totalDisciples*100).toFixed(0) + "% 建卡率" : "－"}</div></div>
-          <div class="kpi-card"><div class="kpi-label">管理員人數</div><div class="kpi-value">${Object.keys(admins).length}</div></div>
-          <div class="kpi-card"><div class="kpi-label">全團平均護甲 AC</div><div class="kpi-value">${avgAc ? avgAc.toFixed(1) : "－"}</div></div>
+        <div class="report-section-title">天機榜 · 戰力底蘊</div>
+        <div class="board-grid">
+          <div class="board-card">
+            <div class="board-head qi">🌟 靈氣巔峰榜 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">最高靈氣上限</span></div>
+            <div class="board-list">${renderBoard(topQi, c => num(c.qi?.max).toLocaleString(), "尚無填寫靈氣的修士", "text-jade")}</div>
+          </div>
+          <div class="board-card">
+            <div class="board-head hp">🩸 命懸一線 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">生命 ≤ 30%</span></div>
+            <div class="board-list">${renderBoard(lowHp.map(x=>x.c), c => num(c.hp?.current) + " / " + num(c.hp?.max), "宗門上下目前安然無恙", "text-vermillion")}</div>
+          </div>
         </div>
       </div>
 
       <div class="report-section">
-        <div class="report-section-title">階級分布<span class="n">共 ${totalDisciples} 人</span></div>
-        <div class="dist-card">${distributionRows(rankCounts)}</div>
+        <div class="report-section-title">天機榜 · 善惡因果</div>
+        <div class="board-grid">
+          <div class="board-card">
+            <div class="board-head good">✨ 功德無量 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">負業力排行</span></div>
+            <div class="board-list">${renderBoard(goodKarma, c => num(c.karma), "尚未發現功德顯赫之輩", "text-gold")}</div>
+          </div>
+          <div class="board-card">
+            <div class="board-head bad">💀 業障纏身 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">正業力排行</span></div>
+            <div class="board-list">${renderBoard(badKarma, c => "+" + num(c.karma), "門內尚無罪孽深重之徒", "text-purple")}</div>
+          </div>
+        </div>
       </div>
 
       <div class="report-section">
-        <div class="report-section-title">道途／職業／靈根 分布</div>
-        <div class="dist-grid">
-          <div class="dist-card"><div class="dist-card-title">道途</div>${distributionRows(pathCounts)}</div>
-          <div class="dist-card"><div class="dist-card-title">職業</div>${distributionRows(jobCounts)}</div>
-          <div class="dist-card"><div class="dist-card-title">靈根</div>${distributionRows(rootCounts)}</div>
-          ${Object.keys(masterCounts).length ? `<div class="dist-card"><div class="dist-card-title">師承分布</div>${distributionRows(masterCounts)}</div>` : ""}
+        <div class="report-section-title">宗門氣運推演預警</div>
+        <div style="margin-top:12px;">
+          ${warnings.map(w => `<div class="eco-warn ${w.type}"><span style="font-size:18px;">${w.icon}</span> <span>${w.text}</span></div>`).join("")}
         </div>
       </div>
-
-      <div class="report-section">
-        <div class="report-section-title">戰鬥狀態摘要<span class="n">依 ${totalChars} 張角色卡計算</span></div>
-        ${totalChars === 0 ? `<div class="dist-empty">尚無角色卡資料</div>` : `
-        <div class="gauge-grid">
-          <div class="gauge-card">
-            <div class="gauge-head"><span class="gauge-title hp">全團平均生命值</span><span class="gauge-pct">${avgHp.toFixed(0)}%</span></div>
-            <div class="gauge-track"><div class="gauge-fill hp" style="width:${avgHp.toFixed(1)}%"></div></div>
-            <div class="gauge-note">${hpPcts.length}／${totalChars} 張卡已填寫生命上限</div>
-          </div>
-          <div class="gauge-card">
-            <div class="gauge-head"><span class="gauge-title qi">全團平均靈氣值</span><span class="gauge-pct">${avgQi.toFixed(0)}%</span></div>
-            <div class="gauge-track"><div class="gauge-fill qi" style="width:${avgQi.toFixed(1)}%"></div></div>
-            <div class="gauge-note">${qiPcts.length}／${totalChars} 張卡已填寫靈氣上限</div>
-          </div>
-          <div class="gauge-card">
-            <div class="gauge-head"><span class="gauge-title">業力分布</span></div>
-            <div class="karma-split">
-              ${karmaBad > 0 ? `<div class="ks-bad" style="width:${(karmaBad/totalChars*100).toFixed(1)}%"></div>` : ""}
-              ${karmaNeutral > 0 ? `<div class="ks-neutral" style="width:${(karmaNeutral/totalChars*100).toFixed(1)}%"></div>` : ""}
-              ${karmaGood > 0 ? `<div class="ks-good" style="width:${(karmaGood/totalChars*100).toFixed(1)}%"></div>` : ""}
-            </div>
-            <div class="karma-legend">
-              <span><span class="dot" style="background:#7C3AED;"></span>業障纏身 <b>${karmaBad}</b></span>
-              <span><span class="dot" style="background:var(--paper-3);border:1px solid var(--border);"></span>清淨無染 <b>${karmaNeutral}</b></span>
-              <span><span class="dot" style="background:#C8A035;"></span>功德加身 <b>${karmaGood}</b></span>
-            </div>
-          </div>
-        </div>
-        ${lowHp.length ? `<div class="low-list">
-          <div class="low-list-title">⚠ 生命值偏低（≤30%）</div>
-          ${lowHp.map(({c}) => `<div class="low-list-row"><span>${escapeHtml(c.name || "未命名角色")}</span><span>${num(c.hp && c.hp.current)} / ${num(c.hp && c.hp.max)}</span></div>`).join("")}
-        </div>` : ""}
-        `}
-      </div>`;
+    `;
   }
+
 
   // ===== 戰鬥統計 =====
   function combatHtml(){
