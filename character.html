@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>逆命．角色卡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F2E9D6;
+    --paper-2: #EBDFC5;
+    --paper-3: #E0D0A9;
+    --ink: #1D1712;
+    --ink-dim: #453A2A;
+    --ink-faint2: #6E5F45;
+    --vermillion: #9C2B22;
+    --vermillion-bright: #B5372B;
+    --gold: #8C6B27;
+    --gold-deep: #5F470F;
+    --jade: #2D5A4C;
+    --border: rgba(95, 71, 15, 0.22);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"LXGW WenKai TC","Noto Serif TC",serif;
+    min-height:100vh;
+  }
+  h1,h2,h3,.serif{ font-family:"Noto Serif TC",serif; }
+
+  .scrollable{ scrollbar-width:thin; scrollbar-color:var(--gold) transparent; }
+  .scrollable::-webkit-scrollbar{ width:7px; }
+  .scrollable::-webkit-scrollbar-track{ background:transparent; }
+  .scrollable::-webkit-scrollbar-thumb{ background:var(--gold); border-radius:5px; }
+  .scrollable::-webkit-scrollbar-thumb:hover{ background:var(--vermillion); }
+
+  .layout{ display:flex; min-height:100vh; }
+
+  /* ===== 側欄 ===== */
+  .sidebar{
+    width:300px; flex-shrink:0; min-height:100vh;
+    background:var(--paper-2); border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+  }
+  .sidebar-header{ padding:22px 20px 14px; text-align:center; border-bottom:1px solid var(--border); }
+  .title-row{ display:flex; align-items:center; justify-content:center; gap:6px; }
+  .title-main-img{ height:64px; object-fit:contain; mix-blend-mode:multiply; opacity:.95; }
+  .title-seal{
+    width:26px; height:26px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(155deg, var(--vermillion-bright), var(--vermillion) 60%, #6E1D18);
+    border:1.5px solid rgba(255,255,255,.25); border-radius:4px 2px 5px 3px; transform:rotate(-6deg);
+    font-family:"Ma Shan Zheng",cursive; color:#F5E4D3; font-size:14px; box-shadow:2px 3px 8px rgba(0,0,0,.5);
+  }
+  .subtitle{ margin-top:6px; font-size:12px; letter-spacing:4px; color:var(--gold-deep); font-weight:700; }
+  .back-link{
+    display:inline-block; margin-top:12px; font-size:12.5px; color:var(--ink-faint2);
+    text-decoration:none; border-bottom:1px dashed var(--border); padding-bottom:1px;
+  }
+  .back-link:hover{ color:var(--vermillion-bright); border-color:var(--vermillion); }
+
+  /* ===== Discord 登入區 ===== */
+  .auth-box{ padding:16px 18px; border-bottom:1px solid var(--border); }
+  .auth-logged-out .btn-discord{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+    background:#5865F2; color:#fff; border:none; border-radius:6px; padding:10px 12px;
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:14px; cursor:pointer;
+    transition:background .15s;
+  }
+  .btn-discord:hover{ background:#4752C4; }
+  .btn-discord svg{ width:18px; height:18px; fill:#fff; flex-shrink:0; }
+  .auth-hint{ margin-top:8px; font-size:11.5px; color:var(--ink-faint2); line-height:1.6; text-align:center; }
+
+  .auth-logged-in{ display:flex; align-items:center; gap:10px; }
+  .auth-avatar{ width:38px; height:38px; border-radius:50%; border:2px solid var(--gold); flex-shrink:0; object-fit:cover; }
+  .auth-info{ flex:1; min-width:0; }
+  .auth-name{ font-weight:700; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .auth-role{ font-size:11px; color:var(--gold-deep); }
+  .auth-logout{
+    flex-shrink:0; background:transparent; border:1px solid var(--border); border-radius:4px;
+    color:var(--ink-faint2); font-size:11px; padding:5px 8px; cursor:pointer; font-family:inherit;
+  }
+  .auth-logout:hover{ border-color:var(--vermillion); color:var(--vermillion-bright); }
+
+  /* ===== 角色卡列表 ===== */
+  .char-list-wrap{ flex:1; overflow-y:auto; padding:14px 12px 24px; }
+  .list-section-title{
+    font-size:11.5px; letter-spacing:2px; color:var(--gold-deep); font-weight:900;
+    margin:14px 8px 6px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .btn-new-char{
+    background:var(--paper); border:1px solid var(--border); border-radius:4px; color:var(--vermillion-bright);
+    font-size:12px; font-weight:700; padding:3px 8px; cursor:pointer; font-family:inherit;
+  }
+  .btn-new-char:hover{ background:var(--paper-3); border-color:var(--gold); }
+  .char-item{
+    display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:4px; cursor:pointer;
+    border-left:2px solid transparent; transition:background .15s;
+  }
+  .char-item:hover{ background:var(--paper-3); }
+  .char-item.selected{ background:linear-gradient(90deg,var(--paper-3),transparent); border-left-color:var(--vermillion); }
+  .char-item .cname{ font-weight:700; font-size:14px; color:var(--ink-dim); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .char-item.selected .cname{ color:var(--vermillion-bright); }
+  .char-item .cmeta{ font-size:11px; color:var(--ink-faint2); flex-shrink:0; }
+  .empty-hint{ padding:16px 10px; font-size:12.5px; color:var(--ink-faint2); line-height:1.8; }
+
+  /* ===== 主內容 ===== */
+  .main{ flex:1; min-width:0; padding:32px 40px 100px; }
+  .sheet{ max-width:1100px; margin:0 auto; }
+
+  .no-char{ text-align:center; padding:140px 20px; color:var(--ink-faint2); }
+  .no-char .glyph{ font-family:"Zhi Mang Xing",cursive; font-size:64px; color:var(--border); margin-bottom:12px; }
+
+  .readonly-banner{
+    background:rgba(156,43,34,.08); border:1px solid rgba(156,43,34,.28); color:var(--vermillion-bright);
+    font-size:13px; font-weight:700; padding:8px 14px; border-radius:4px; margin-bottom:18px;
+  }
+
+  .tabs{ display:flex; gap:4px; border-bottom:2px solid var(--gold); margin-bottom:24px; flex-wrap:wrap; }
+  .tab-btn{
+    background:transparent; border:none; font-family:"Noto Serif TC",serif; font-weight:700; font-size:15px;
+    letter-spacing:2px; color:var(--ink-faint2); padding:9px 16px; cursor:pointer; border-bottom:3px solid transparent;
+    margin-bottom:-2px; transition:color .15s, border-color .15s;
+  }
+  .tab-btn:hover{ color:var(--ink); }
+  .tab-btn.active{ color:var(--vermillion-bright); border-color:var(--vermillion); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  section.block{ margin-bottom:32px; }
+  .block-title{
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:var(--ink);
+    margin-bottom:14px; display:flex; align-items:center; gap:8px;
+  }
+  .block-title .bar{ width:4px; height:18px; background:var(--vermillion); display:inline-block; border-radius:2px; }
+
+  label.field-label{ display:block; font-size:11.5px; color:var(--ink-faint2); margin-bottom:4px; letter-spacing:1px; }
+  .nm-input, .nm-textarea, .nm-select{
+    width:100%; background:var(--paper); border:1px solid var(--border); border-radius:4px;
+    color:var(--ink); padding:7px 9px; font-family:"LXGW WenKai TC",serif; font-size:14px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .nm-input:focus, .nm-textarea:focus, .nm-select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 1px var(--gold); }
+  .nm-input:disabled, .nm-textarea:disabled, .nm-select:disabled{ background:var(--paper-2); color:var(--ink-dim); cursor:not-allowed; opacity:.8; }
+  .nm-textarea{ resize:vertical; line-height:1.8; }
+
+  .info-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; padding:16px; background:var(--paper-2); border:1px solid var(--border); border-radius:6px; }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .stat-box{
+    background:linear-gradient(160deg, var(--paper), var(--paper-2));
+    border:1px solid var(--border); border-radius:8px; padding:12px; position:relative; overflow:hidden;
+  }
+  .stat-box::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent); opacity:.6;
+  }
+  .stat-box .stat-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .stat-box .stat-name{ font-weight:700; font-size:14px; letter-spacing:2px; color:var(--ink-dim); }
+  .stat-box .stat-en{ font-size:10.5px; color:var(--ink-faint2); }
+  .stat-box .stat-val{
+    width:100%; text-align:center; font-size:22px; font-weight:700; color:var(--vermillion-bright);
+    background:transparent; border:none; border-bottom:2px solid var(--border); padding:2px 0; margin-bottom:8px;
+    font-family:"Noto Serif TC",serif;
+  }
+  .stat-box .stat-val:focus{ outline:none; border-bottom-color:var(--gold); }
+  .stat-box .stat-mod-row{
+    display:flex; justify-content:space-between; align-items:center; background:var(--paper-3);
+    border-radius:4px; padding:4px 8px; border:1px solid var(--border);
+  }
+  .stat-box .stat-mod-label{ font-size:11px; color:var(--ink-faint2); }
+  .stat-box .stat-mod-val{ font-weight:900; font-size:15px; color:var(--gold-deep); }
+
+  .resource-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:640px){ .resource-grid{ grid-template-columns:1fr; } }
+  .resource-box{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .resource-box .r-title{ font-size:13px; font-weight:700; letter-spacing:1px; margin-bottom:6px; }
+  .r-title.hp{ color:var(--vermillion-bright); }
+  .r-title.qi{ color:var(--jade); }
+  .resource-box .r-nums{ display:flex; align-items:center; gap:4px; font-size:18px; font-weight:700; margin-bottom:8px; font-family:"Noto Serif TC",serif; }
+  .r-nums input{ width:60px; background:transparent; border:none; border-bottom:1px solid var(--border); color:var(--ink); text-align:center; font:inherit; }
+  .r-nums input:focus{ outline:none; border-color:var(--gold); }
+  .r-nums .sep{ color:var(--ink-faint2); font-weight:400; }
+  .bar-track{ width:100%; height:10px; background:var(--paper-3); border-radius:5px; overflow:hidden; border:1px solid var(--border); }
+  .bar-fill{ height:100%; transition:width .3s; }
+  .bar-fill.hp{ background:var(--vermillion); }
+  .bar-fill.qi{ background:var(--jade); }
+  .qi-formula-hint{ margin-top:6px; font-size:10.5px; color:var(--ink-faint2); line-height:1.6; }
+
+  table.sheet-table{ width:100%; border-collapse:collapse; background:var(--paper-2); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  table.sheet-table th{
+    background:var(--paper-3); text-align:left; font-family:"Noto Serif TC",serif; font-weight:700;
+    color:var(--gold-deep); font-size:12.5px; padding:8px 10px; border-bottom:1px solid var(--border);
+  }
+  table.sheet-table td{ padding:5px 8px; border-bottom:1px solid var(--border); }
+  table.sheet-table tr:last-child td{ border-bottom:none; }
+  table.sheet-table tr:hover td{ background:rgba(255,255,255,.25); }
+  table.sheet-table input{ width:100%; background:transparent; border:none; color:var(--ink); font:inherit; font-family:"LXGW WenKai TC",serif; padding:4px 2px; }
+  table.sheet-table input:focus{ outline:none; background:var(--paper); border-radius:3px; }
+  .row-del{ background:none; border:none; color:var(--ink-faint2); cursor:pointer; font-size:14px; padding:2px 6px; }
+  .row-del:hover{ color:var(--vermillion-bright); }
+  .table-actions{ margin-top:8px; text-align:right; }
+
+  .btn{
+    background:var(--paper); border:1px solid var(--border); border-radius:4px; color:var(--ink-dim);
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12.5px; padding:6px 12px; cursor:pointer;
+    transition:background .15s, border-color .15s;
+  }
+  .btn:hover{ background:var(--paper-3); border-color:var(--gold); }
+  .btn.primary{ background:var(--vermillion); color:#F5E9DD; border-color:var(--vermillion); }
+  .btn.primary:hover{ background:var(--vermillion-bright); }
+
+  .karma-input{ font-weight:900; }
+  .stones-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  @media (max-width:640px){ .stones-grid{ grid-template-columns:repeat(2,1fr); } }
+  .stone-box{ background:var(--paper-2); border:1px solid var(--border); border-radius:6px; padding:10px; text-align:center; }
+  .stone-box .stone-label{ font-size:11.5px; margin-bottom:4px; }
+  .stone-box input{ width:100%; text-align:center; font-weight:700; }
+
+  .save-status{ position:fixed; bottom:16px; right:20px; font-size:12px; color:var(--ink-faint2); background:var(--paper-2); border:1px solid var(--border); padding:5px 12px; border-radius:20px; opacity:0; transition:opacity .3s; pointer-events:none; }
+  .save-status.show{ opacity:1; }
+
+  @media (max-width:900px){
+    .layout{ flex-direction:column; }
+    .sidebar{ width:100%; min-height:auto; }
+    .main{ padding:24px 16px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="title-row">
+        <img src="logo.png" alt="逆命" class="title-main-img">
+        <div class="title-seal">逆</div>
+      </div>
+      <div class="subtitle">角色卡</div>
+      <a href="index.html" class="back-link">← 返回規則書</a>
+    </div>
+
+    <div class="auth-box" id="authBox">
+      <div class="auth-logged-out">
+        <button class="btn-discord" id="discordLoginBtn">
+          <svg viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+          使用 Discord 登入
+        </button>
+        <div class="auth-hint" id="authHint">登入後即可建立、編輯屬於自己的角色卡</div>
+      </div>
+      <div class="auth-logged-in" id="authLoggedIn" style="display:none;">
+        <img class="auth-avatar" id="authAvatar" src="" alt="">
+        <div class="auth-info">
+          <div class="auth-name" id="authName">—</div>
+          <div class="auth-role">道友</div>
+        </div>
+        <button class="auth-logout" id="discordLogoutBtn">登出</button>
+      </div>
+    </div>
+
+    <div class="char-list-wrap scrollable">
+      <div class="list-section-title">
+        <span>我的角色</span>
+        <button class="btn-new-char" id="btnNewChar" style="display:none;">＋ 新增</button>
+      </div>
+      <div id="myCharList"><div class="empty-hint">登入 Discord 後可建立角色</div></div>
+
+      <div class="list-section-title"><span>宗門全員角色卡</span></div>
+      <div id="allCharList"><div class="empty-hint">連線中…</div></div>
+    </div>
+  </aside>
+
+  <main class="main scrollable">
+    <div class="sheet" id="sheet">
+      <div class="no-char">
+        <div class="glyph">卡</div>
+        從左側選擇一張角色卡查看，或登入 Discord 後建立你自己的角色卡。
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="save-status" id="saveStatus">已自動儲存</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, set, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
+    authDomain: "twisted-fate-trpg.firebaseapp.com",
+    databaseURL: "https://twisted-fate-trpg-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "twisted-fate-trpg",
+    storageBucket: "twisted-fate-trpg.firebasestorage.app",
+    messagingSenderId: "804781497200",
+    appId: "1:804781497200:web:9e6a61e81ead31ba994db5"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  signInAnonymously(auth).catch(err => console.warn("匿名登入失敗", err));
+
+  // ============================================================
+  // Discord 登入設定
+  // 1. 前往 https://discord.com/developers/applications 建立一個 Application
+  // 2. 左側「OAuth2」→「General」複製 CLIENT ID，貼到下面 DISCORD_CLIENT_ID
+  // 3. 同一頁「Redirects」新增一筆，網址要跟這個頁面的實際網址完全一致，
+  //    例如：https://cnm27880-ops.github.io/Twisted-Fate/character.html
+  //    （本機測試也要另外加一筆本機網址，例如 http://localhost:xxxx/character.html）
+  // 不需要 CLIENT SECRET，也不需要任何後端伺服器：這裡用的是 Discord 的
+  // Implicit Grant（response_type=token），整個登入流程都在瀏覽器端完成。
+  // ============================================================
+  const DISCORD_CLIENT_ID = "YOUR_DISCORD_CLIENT_ID";
+  const REDIRECT_URI = window.location.origin + window.location.pathname;
+  const DISCORD_TOKEN_KEY = "tf_discord_token";
+
+  let discordUser = null; // { id, name, avatarUrl }
+
+  function discordLogin(){
+    if(!DISCORD_CLIENT_ID || DISCORD_CLIENT_ID === "YOUR_DISCORD_CLIENT_ID"){
+      alert("尚未設定 Discord 登入。\n請先到 Discord 開發者後台建立 Application，\n把 Client ID 貼到 character.html 裡的 DISCORD_CLIENT_ID。\n\n目前頁面網址（要加進 Discord 的 Redirect URI）：\n" + REDIRECT_URI);
+      return;
+    }
+    const url = new URL("https://discord.com/oauth2/authorize");
+    url.searchParams.set("client_id", DISCORD_CLIENT_ID);
+    url.searchParams.set("redirect_uri", REDIRECT_URI);
+    url.searchParams.set("response_type", "token");
+    url.searchParams.set("scope", "identify");
+    window.location.href = url.toString();
+  }
+
+  function discordLogout(){
+    sessionStorage.removeItem(DISCORD_TOKEN_KEY);
+    discordUser = null;
+    renderAuth();
+    renderCharLists();
+    renderSheet();
+  }
+
+  async function fetchDiscordUser(token){
+    const res = await fetch("https://discord.com/api/users/@me", { headers: { Authorization: "Bearer " + token } });
+    if(!res.ok) throw new Error("discord auth failed");
+    const u = await res.json();
+    let avatarUrl;
+    if(u.avatar){
+      avatarUrl = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=64`;
+    } else {
+      const fallbackIdx = Number((BigInt(u.id) >> 22n) % 6n);
+      avatarUrl = `https://cdn.discordapp.com/embed/avatars/${fallbackIdx}.png`;
+    }
+    return { id: u.id, name: u.global_name || u.username, avatarUrl };
+  }
+
+  async function initDiscordAuth(){
+    // 從 OAuth 導回的網址片段(#access_token=...)取出 token
+    if(window.location.hash.includes("access_token")){
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const token = params.get("access_token");
+      if(token){
+        sessionStorage.setItem(DISCORD_TOKEN_KEY, token);
+        history.replaceState(null, "", REDIRECT_URI);
+      }
+    }
+    const token = sessionStorage.getItem(DISCORD_TOKEN_KEY);
+    if(!token) { renderAuth(); return; }
+    try{
+      discordUser = await fetchDiscordUser(token);
+    }catch(e){
+      sessionStorage.removeItem(DISCORD_TOKEN_KEY);
+      discordUser = null;
+    }
+    renderAuth();
+    renderCharLists();
+    renderSheet();
+  }
+
+  function renderAuth(){
+    const loggedOut = document.querySelector(".auth-logged-out");
+    const loggedIn = document.getElementById("authLoggedIn");
+    const btnNew = document.getElementById("btnNewChar");
+    if(discordUser){
+      loggedOut.style.display = "none";
+      loggedIn.style.display = "flex";
+      document.getElementById("authAvatar").src = discordUser.avatarUrl;
+      document.getElementById("authName").textContent = discordUser.name;
+      btnNew.style.display = "inline-block";
+    } else {
+      loggedOut.style.display = "block";
+      loggedIn.style.display = "none";
+      btnNew.style.display = "none";
+    }
+  }
+
+  document.getElementById("discordLoginBtn").addEventListener("click", discordLogin);
+  document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
+
+  // ============================================================
+  // 角色卡資料
+  // ============================================================
+  const ATTRS = [
+    { id:"pot", name:"根骨", en:"POT" },
+    { id:"con", name:"抗性", en:"CON" },
+    { id:"int", name:"悟性", en:"INT" },
+    { id:"per", name:"神識", en:"PER" },
+    { id:"luk", name:"氣運", en:"LUK" },
+    { id:"cha", name:"魅力", en:"CHA" }
+  ];
+
+  // 下拉選單選項。道途／職業已對照規則書湊齊全部項目；種族目前只確定 9 種，
+  // 第 10 種尚未確認名稱，一律靠「自訂／其他」欄位補上，避免猜錯名字寫死進去。
+  const RACE_OPTIONS = ["人族","自然之靈","水族","妖獸","神獸","屍修","幽魂","骷髏","靈族"];
+  const PATH_OPTIONS = ["散修","邪修","體修","毒修","劍修","佛修","巫修","術修","音修"];
+  const JOB_OPTIONS = ["陣法師","煉丹師","符咒師","蠱師","醫師","鐵匠","占卜師","鑑定師","書法大師","偽裝大師","驅魔師","武僧","道士","馴獸師"];
+  const REALM_SUGGESTIONS = ["練氣期初期","練氣期中期","練氣期後期","築基期初期","築基期中期","築基期後期","築基期圓滿","金丹期初期","金丹期中期","金丹期後期","金丹期圓滿","元嬰期"];
+
+  function isCustomValue(val, options){ return !!val && !options.includes(val); }
+
+  function blankCharacter(ownerId, ownerName){
+    return {
+      ownerId, ownerName,
+      name: "未命名角色", player: ownerName || "", race: "", path: "", job: "", root: "",
+      realm: "", karma: 0,
+      stats: { pot:10, con:10, int:10, per:10, luk:10, cha:10 },
+      ac: 10, speed: 30, lifespanCur: 0, lifespanMax: 100,
+      hp: { current: 0, max: 0 }, qi: { current: 0, max: 0 }, qiBase: 0,
+      quickActions: [],
+      spells: [],
+      featuresText: "",
+      stones: { low:0, mid:0, high:0, extreme:0 },
+      inventoryText: "", backgroundText: "",
+      updatedAt: Date.now(), updatedBy: ownerName || ""
+    };
+  }
+
+  let allChars = {};      // id -> character object (即時同步)
+  let currentCharId = null;
+  let lastLocalWriteAt = 0;
+
+  const charsRef = ref(db, "characters");
+  onValue(charsRef, snap => {
+    allChars = snap.val() || {};
+    renderCharLists();
+    renderSheet();
+  }, err => console.error("characters sync error", err));
+
+  function isOwner(char){
+    return !!(discordUser && char && char.ownerId === discordUser.id);
+  }
+
+  function renderCharLists(){
+    const mine = document.getElementById("myCharList");
+    const all = document.getElementById("allCharList");
+
+    if(!discordUser){
+      mine.innerHTML = '<div class="empty-hint">登入 Discord 後可建立角色</div>';
+    } else {
+      const mineIds = Object.entries(allChars).filter(([,c]) => c.ownerId === discordUser.id);
+      mine.innerHTML = mineIds.length
+        ? mineIds.map(([id,c]) => charItemHtml(id,c)).join("")
+        : '<div class="empty-hint">尚未建立角色，點右上「＋ 新增」開始吧</div>';
+    }
+
+    const allIds = Object.entries(allChars);
+    all.innerHTML = allIds.length
+      ? allIds.map(([id,c]) => charItemHtml(id,c)).join("")
+      : '<div class="empty-hint">目前還沒有任何角色卡</div>';
+
+    document.querySelectorAll(".char-item").forEach(el => {
+      el.addEventListener("click", () => {
+        currentCharId = el.getAttribute("data-id");
+        renderCharLists();
+        renderSheet();
+      });
+    });
+  }
+
+  function charItemHtml(id, c){
+    const sel = id === currentCharId ? " selected" : "";
+    return `<div class="char-item${sel}" data-id="${escapeHtml(id)}">
+      <span class="cname">${escapeHtml(c.name || "未命名角色")}</span>
+      <span class="cmeta">${escapeHtml(c.realm || "")}</span>
+    </div>`;
+  }
+
+  document.getElementById("btnNewChar").addEventListener("click", async () => {
+    if(!discordUser) return;
+    const newRef = push(charsRef);
+    await set(newRef, blankCharacter(discordUser.id, discordUser.name));
+    currentCharId = newRef.key;
+    renderCharLists();
+    renderSheet();
+  });
+
+  // ============================================================
+  // 角色卡畫面渲染 / 計算
+  // ============================================================
+  function mod(val){ return Math.floor((val - 10) / 2); }
+  function fmtMod(n){ return (n >= 0 ? "+" : "") + n; }
+
+  function estimateQiMax(char){
+    const perMod = mod(char.stats.per);
+    return (Number(char.qiBase) || 0) + (parseRealmLevel(char.realm) * 10) + (perMod * 5);
+  }
+  // 境界字串裡抓不到明確的數字時，先當作 0 級處理，實際數值仍以規則書為準
+  function parseRealmLevel(realmText){
+    const m = (realmText || "").match(/\d+/);
+    return m ? parseInt(m[0], 10) : 0;
+  }
+
+  let activeTab = "tab-main";
+
+  function renderSheet(){
+    const sheet = document.getElementById("sheet");
+    const char = currentCharId ? allChars[currentCharId] : null;
+
+    if(!char){
+      sheet.innerHTML = `<div class="no-char"><div class="glyph">卡</div>從左側選擇一張角色卡查看，或登入 Discord 後建立你自己的角色卡。</div>`;
+      return;
+    }
+
+    // 若正在編輯自己的卡（近期有本地寫入或表單有 focus 中的欄位），不要整個重繪蓋掉輸入到一半的內容
+    if(isOwner(char) && (Date.now() - lastLocalWriteAt < 3000 || sheet.contains(document.activeElement))){
+      return;
+    }
+
+    const editable = isOwner(char);
+    const dis = editable ? "" : "disabled";
+    const banner = !editable
+      ? `<div class="readonly-banner">你正在檢視「${escapeHtml(char.name || "未命名角色")}」的角色卡（唯讀，僅擁有者可編輯）</div>`
+      : "";
+
+    sheet.innerHTML = `
+      ${banner}
+      <div class="tabs">
+        <button class="tab-btn" data-tab="tab-main">【命盤與戰鬥】</button>
+        <button class="tab-btn" data-tab="tab-features">【特性與功法】</button>
+        <button class="tab-btn" data-tab="tab-inventory">【百寶與塵緣】</button>
+      </div>
+
+      <div class="tab-panel" id="tab-main">
+        <section class="block">
+          <div class="info-grid">
+            <div><label class="field-label">姓名</label><input class="nm-input" data-f="name" value="${attr(char.name)}" ${dis}></div>
+            <div><label class="field-label">玩家</label><input class="nm-input" data-f="player" value="${attr(char.player)}" ${dis}></div>
+            <div><label class="field-label">境界</label><input class="nm-input" data-f="realm" list="realmSuggestions" value="${attr(char.realm)}" placeholder="例：金丹期初期" ${dis}></div>
+            <div><label class="field-label">種族</label>${selectFieldHtml("race", char.race, RACE_OPTIONS, dis)}</div>
+            <div><label class="field-label">道途</label>${selectFieldHtml("path", char.path, PATH_OPTIONS, dis)}</div>
+            <div><label class="field-label">職業</label>${selectFieldHtml("job", char.job, JOB_OPTIONS, dis)}</div>
+            <div><label class="field-label">靈根</label><input class="nm-input" data-f="root" value="${attr(char.root)}" placeholder="例：金木火" ${dis}></div>
+            <div><label class="field-label">業力</label><input class="nm-input karma-input" data-f="karma" type="number" value="${Number(char.karma)||0}" style="color:${karmaColor(char.karma)}" ${dis}></div>
+          </div>
+          <datalist id="realmSuggestions">${REALM_SUGGESTIONS.map(r=>`<option value="${r}">`).join("")}</datalist>
+        </section>
+
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>六大根基</div>
+          <div class="stat-grid">
+            ${ATTRS.map(a => statBoxHtml(a, char, dis)).join("")}
+          </div>
+        </section>
+
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>生死樞紐</div>
+          <div class="resource-grid" style="margin-bottom:12px;">
+            <div class="resource-box">
+              <div class="r-title">護甲 AC</div>
+              <input class="nm-input" data-f="ac" type="number" value="${Number(char.ac)||0}" ${dis}>
+            </div>
+            <div class="resource-box">
+              <div class="r-title">先攻（神識調整值）</div>
+              <div style="font-size:22px;font-weight:700;color:var(--gold-deep);font-family:'Noto Serif TC',serif;">${fmtMod(mod(char.stats.per))}</div>
+            </div>
+          </div>
+
+          <div class="resource-box" style="margin-bottom:12px;">
+            <div class="r-title hp">🩸 生命 HP</div>
+            <div class="r-nums">
+              <input data-f="hp.current" type="number" value="${Number(char.hp?.current)||0}" ${dis}>
+              <span class="sep">/</span>
+              <input data-f="hp.max" type="number" value="${Number(char.hp?.max)||0}" ${dis}>
+            </div>
+            <div class="bar-track"><div class="bar-fill hp" style="width:${pct(char.hp)}%"></div></div>
+          </div>
+
+          <div class="resource-box" style="margin-bottom:12px;">
+            <div class="r-title qi">💠 靈氣 QI</div>
+            <div class="r-nums">
+              <input data-f="qi.current" type="number" value="${Number(char.qi?.current)||0}" ${dis}>
+              <span class="sep">/</span>
+              <input data-f="qi.max" type="number" value="${Number(char.qi?.max)||0}" ${dis}>
+            </div>
+            <div class="bar-track"><div class="bar-fill qi" style="width:${pct(char.qi)}%"></div></div>
+            <div class="qi-formula-hint">
+              靈根基礎值：<input data-f="qiBase" type="number" value="${Number(char.qiBase)||0}" style="width:56px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--ink);" ${dis}>
+              　估算上限 = 基礎值 + 境界×10 + 神識調整值×5 = <b>${estimateQiMax(char)}</b>
+              （築基期／金丹期另有房規門檻，請自行核對規則書）
+              ${editable ? '<button class="btn" data-action="apply-qi-max" style="margin-left:6px;">套用估算值</button>' : ""}
+            </div>
+          </div>
+
+          <div class="resource-grid">
+            <div class="resource-box">
+              <div class="r-title">步行速度</div>
+              <input class="nm-input" data-f="speed" type="number" value="${Number(char.speed)||0}" ${dis}>
+            </div>
+            <div class="resource-box">
+              <div class="r-title">壽元（目前 / 最大）</div>
+              <div class="r-nums">
+                <input data-f="lifespanCur" type="number" value="${Number(char.lifespanCur)||0}" ${dis}>
+                <span class="sep">/</span>
+                <input data-f="lifespanMax" type="number" value="${Number(char.lifespanMax)||0}" ${dis}>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>快捷速查（武器 / 常用動作）</div>
+          ${tableHtml("quickActions", ["名稱","判定/豁免","耗氣/類型","傷害/效果"], char.quickActions, editable)}
+        </section>
+      </div>
+
+      <div class="tab-panel" id="tab-features">
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>命格、特性與專長</div>
+          <textarea class="nm-textarea" data-f="featuresText" rows="10" placeholder="記錄種族特性、道途能力、職業專長……" ${dis}>${attr(char.featuresText)}</textarea>
+        </section>
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>神通功法總錄</div>
+          ${tableHtml("spells", ["階級","名稱","動作","命中/豁免DC","耗氣","效果"], char.spells, editable)}
+        </section>
+      </div>
+
+      <div class="tab-panel" id="tab-inventory">
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>靈石與財富</div>
+          <div class="stones-grid">
+            <div class="stone-box"><div class="stone-label">下品靈石</div><input class="nm-input" data-f="stones.low" type="number" value="${Number(char.stones?.low)||0}" ${dis}></div>
+            <div class="stone-box"><div class="stone-label">中品靈石</div><input class="nm-input" data-f="stones.mid" type="number" value="${Number(char.stones?.mid)||0}" ${dis}></div>
+            <div class="stone-box"><div class="stone-label">上品靈石</div><input class="nm-input" data-f="stones.high" type="number" value="${Number(char.stones?.high)||0}" ${dis}></div>
+            <div class="stone-box"><div class="stone-label">極品靈石</div><input class="nm-input" data-f="stones.extreme" type="number" value="${Number(char.stones?.extreme)||0}" ${dis}></div>
+          </div>
+        </section>
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>儲物袋（法寶／丹藥／材料）</div>
+          <textarea class="nm-textarea" data-f="inventoryText" rows="8" placeholder="例如：百毒玉瓶（玄品上階）：封存十八奇毒……" ${dis}>${attr(char.inventoryText)}</textarea>
+        </section>
+        <section class="block">
+          <div class="block-title"><span class="bar"></span>身世與塵緣</div>
+          <textarea class="nm-textarea" data-f="backgroundText" rows="8" placeholder="過往、動機、宗門關係、仇家……" ${dis}>${attr(char.backgroundText)}</textarea>
+        </section>
+      </div>
+    `;
+
+    sheet.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.tab === activeTab);
+      btn.addEventListener("click", () => {
+        activeTab = btn.dataset.tab;
+        sheet.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+        sheet.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
+      });
+    });
+    sheet.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
+
+    if(editable) wireEditableSheet(sheet, char);
+  }
+
+  function selectFieldHtml(field, value, options, dis){
+    const customFlag = isCustomValue(value, options);
+    const opts = `<option value="">請選擇…</option>`
+      + options.map(o => `<option value="${attr(o)}" ${value===o?"selected":""}>${o}</option>`).join("")
+      + `<option value="__custom__" ${customFlag?"selected":""}>✏️ 自訂／其他</option>`;
+    return `<select class="nm-select" data-f="${field}" ${dis}>${opts}</select>
+      <input class="nm-input" data-f="${field}" style="margin-top:4px;${customFlag?"":"display:none;"}" placeholder="輸入自訂內容" value="${customFlag?attr(value):""}" ${dis}>`;
+  }
+
+  function statBoxHtml(a, char, dis){
+    const val = Number(char.stats?.[a.id]) ?? 10;
+    return `<div class="stat-box">
+      <div class="stat-head"><span class="stat-name">${a.name}</span><span class="stat-en">${a.en}</span></div>
+      <input class="stat-val" data-f="stats.${a.id}" type="number" value="${val}" ${dis}>
+      <div class="stat-mod-row"><span class="stat-mod-label">調整值</span><span class="stat-mod-val">${fmtMod(mod(val))}</span></div>
+    </div>`;
+  }
+
+  function tableHtml(field, headers, rows, editable){
+    rows = rows || [];
+    const cols = headers.length;
+    return `<div>
+      <table class="sheet-table">
+        <thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}${editable?'<th style="width:36px;"></th>':""}</tr></thead>
+        <tbody data-table="${field}">
+          ${rows.map((row,i) => tableRowHtml(field, row, i, cols, editable)).join("")}
+          ${rows.length===0 ? `<tr><td colspan="${cols+(editable?1:0)}" style="text-align:center;color:var(--ink-faint2);padding:14px;">尚無資料</td></tr>` : ""}
+        </tbody>
+      </table>
+      ${editable ? `<div class="table-actions"><button class="btn" data-action="add-row" data-table="${field}" data-cols="${cols}">＋ 新增一列</button></div>` : ""}
+    </div>`;
+  }
+
+  function tableRowHtml(field, row, idx, cols, editable){
+    row = row || Array(cols).fill("");
+    let tds = "";
+    for(let c=0;c<cols;c++){
+      tds += `<td><input value="${attr(row[c])}" data-table="${field}" data-row="${idx}" data-col="${c}" ${editable?"":"disabled"}></td>`;
+    }
+    if(editable) tds += `<td><button class="row-del" data-action="del-row" data-table="${field}" data-row="${idx}">✕</button></td>`;
+    return `<tr>${tds}</tr>`;
+  }
+
+  function pct(res){
+    const cur = Number(res?.current)||0, max = Number(res?.max)||0;
+    if(max<=0) return 0;
+    return Math.max(0, Math.min(100, (cur/max)*100));
+  }
+  function karmaColor(k){
+    k = Number(k)||0;
+    if(k>0) return "#ca8a04";
+    if(k<0) return "#7c3aed";
+    return "var(--ink)";
+  }
+  function attr(s){ return escapeHtml(s==null?"":String(s)); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+  // ============================================================
+  // 編輯 / 自動存檔
+  // ============================================================
+  let saveTimer = null;
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 500);
+  }
+
+  function setPath(obj, path, value){
+    const parts = path.split(".");
+    let cur = obj;
+    for(let i=0;i<parts.length-1;i++){
+      if(typeof cur[parts[i]] !== "object" || cur[parts[i]] === null) cur[parts[i]] = {};
+      cur = cur[parts[i]];
+    }
+    cur[parts[parts.length-1]] = value;
+  }
+
+  async function doSave(){
+    if(!currentCharId || !discordUser) return;
+    const char = allChars[currentCharId];
+    if(!char || !isOwner(char)) return;
+    char.updatedAt = Date.now();
+    char.updatedBy = discordUser.name;
+    lastLocalWriteAt = Date.now();
+    try{
+      await update(ref(db, "characters/" + currentCharId), char);
+      flashSaveStatus();
+    }catch(e){
+      console.error("save error", e);
+    }
+  }
+
+  function flashSaveStatus(){
+    const el = document.getElementById("saveStatus");
+    el.classList.add("show");
+    clearTimeout(flashSaveStatus._t);
+    flashSaveStatus._t = setTimeout(()=>el.classList.remove("show"), 1200);
+  }
+
+  function wireEditableSheet(sheet, char){
+    sheet.querySelectorAll("[data-f]").forEach(input => {
+      input.addEventListener("input", () => {
+        const field = input.dataset.f;
+        const val = input.type === "number" ? (parseFloat(input.value) || 0) : input.value;
+        if(input.tagName === "SELECT"){
+          // 選單本身只負責挑選項目；選到「自訂／其他」時改用旁邊的文字框輸入，
+          // 不要把 sentinel 值 "__custom__" 存進資料庫
+          const sibling = input.parentElement.querySelector(`input[data-f="${field}"]`);
+          if(val === "__custom__"){
+            if(sibling){ sibling.style.display = ""; sibling.focus(); }
+            return;
+          } else if(sibling){
+            sibling.style.display = "none";
+          }
+        }
+        setPath(char, field, val);
+        // 局部更新受影響的顯示（調整值 / 進度條 / 靈氣估算 / 業力顏色），不整個重繪避免輸入被打斷
+        if(field.startsWith("stats.")){
+          const id = field.split(".")[1];
+          const box = input.closest(".stat-box");
+          box.querySelector(".stat-mod-val").textContent = fmtMod(mod(val));
+          const initEl = sheet.querySelector('[data-f="ac"]')?.closest(".resource-grid")?.querySelectorAll(".resource-box")[1];
+          if(id === "per" && initEl) initEl.querySelector("div[style]").textContent = fmtMod(mod(char.stats.per));
+          const hint = sheet.querySelector(".qi-formula-hint b");
+          if(hint) hint.textContent = estimateQiMax(char);
+        }
+        if(field === "hp.current" || field === "hp.max"){
+          sheet.querySelector(".bar-fill.hp").style.width = pct(char.hp) + "%";
+        }
+        if(field === "qi.current" || field === "qi.max"){
+          sheet.querySelector(".bar-fill.qi").style.width = pct(char.qi) + "%";
+        }
+        if(field === "qiBase"){
+          const hint = sheet.querySelector(".qi-formula-hint b");
+          if(hint) hint.textContent = estimateQiMax(char);
+        }
+        if(field === "karma"){
+          input.style.color = karmaColor(val);
+        }
+        scheduleSave();
+      });
+    });
+
+    sheet.querySelectorAll("input[data-table]").forEach(input => {
+      input.addEventListener("input", () => {
+        const table = input.dataset.table, row = parseInt(input.dataset.row), col = parseInt(input.dataset.col);
+        if(!Array.isArray(char[table])) char[table] = [];
+        if(!char[table][row]) char[table][row] = [];
+        char[table][row][col] = input.value;
+        scheduleSave();
+      });
+    });
+
+    sheet.querySelectorAll('[data-action="add-row"]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        const table = btn.dataset.table, cols = parseInt(btn.dataset.cols);
+        if(!Array.isArray(char[table])) char[table] = [];
+        char[table].push(Array(cols).fill(""));
+        lastLocalWriteAt = 0; // 允許這次操作觸發重繪
+        doSave().then(renderSheet);
+      });
+    });
+    sheet.querySelectorAll('[data-action="del-row"]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        const table = btn.dataset.table, row = parseInt(btn.dataset.row);
+        char[table].splice(row, 1);
+        lastLocalWriteAt = 0;
+        doSave().then(renderSheet);
+      });
+    });
+    sheet.querySelectorAll('[data-action="apply-qi-max"]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        char.qi = char.qi || {};
+        char.qi.max = estimateQiMax(char);
+        lastLocalWriteAt = 0;
+        doSave().then(renderSheet);
+      });
+    });
+  }
+
+  initDiscordAuth();
+</script>
+</body>
+</html>
