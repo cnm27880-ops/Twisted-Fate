@@ -153,6 +153,12 @@
   }
   .cs-label{ font-size:11px; color:#E8CA82; letter-spacing:1.5px; margin-bottom:3px; }
   .cs-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:21px; color:#F8EDD1; }
+  .cs-realms {
+    margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(232,202,130,0.25);
+    font-size: 12px; color: #E8CA82; display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1;
+  }
+  .cs-realms span { background: rgba(0,0,0,0.35); padding: 3px 8px; border-radius: 3px; border: 1px solid rgba(232,202,130,0.15); }
+  .cs-realms b { color: #F8EDD1; margin-left: 4px; font-family: "Noto Serif TC", serif; }
 
   .readonly-banner{
     display:flex; align-items:center; gap:8px;
@@ -179,7 +185,7 @@
     flex: 1; min-width: 0; position: relative; z-index: 1;
     display: flex; flex-direction: column; justify-content: center; gap: 18px;
   }
-  .ch-nameline { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+  .ch-nameline { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
   .ch-field { min-width: 0; }
   
   .char-name-input {
@@ -262,7 +268,7 @@
   .h-refresh.spinning{ animation:rbSpin .9s linear infinite; color:var(--gold); }
   @keyframes rbSpin{ to{ transform:rotate(360deg); } }
 
-  /* 自訂 Datalist 標籤輸入框 (解決原生選單藍色反白) */
+  /* 自訂 Datalist 標籤輸入框 */
   .tag-input {
     background: rgba(0,0,0,0.25); border: 1px dashed rgba(232,202,130,0.3); border-radius: 3px;
     color: #F8EDD1; font-family: inherit; font-size: 14px; font-weight: 700;
@@ -421,7 +427,7 @@
   /* 隱藏滾動條，靠 JS 讓文字框無限延伸 */
   .nm-textarea { overflow: hidden; resize: none; min-height: 80px; }
 
-  /* ===== 規則書重點色塊（Masonry 瀑布流排版解決不均勻問題） ===== */
+  /* ===== 規則書重點色塊（Masonry 瀑布流排版） ===== */
   .rb-toolbar{ display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
   .rb-source{ font-size:12px; color:var(--ink-faint2); letter-spacing:.5px; }
   .rb-toggle{ margin-left:auto; font-size:12px; padding:5px 12px; }
@@ -470,7 +476,12 @@
   .qa-use:active{ transform:translateY(1px); }
   .qa-empty{ background:var(--paper-2); border:1px dashed var(--border); border-radius:8px; padding:30px; text-align:center; color:var(--ink-faint2); font-size:14px; }
   
-  /* 表格 */
+  /* 功法與物品表格 */
+  .manual-table-wrap { background: var(--paper-2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+  .manual-table-header { background: var(--ink); color: var(--gold); padding: 12px 16px; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .manual-table-header input { background: transparent; border: none; color: var(--gold); font-family: inherit; font-weight: inherit; font-size: inherit; width: 300px; }
+  .manual-table-header input:focus { outline: none; border-bottom: 1px solid var(--gold); }
+
   table.sheet-table { width: 100%; border-collapse: collapse; }
   table.sheet-table th { background: rgba(0,0,0,0.03); text-align: left; font-family: "Noto Serif TC", serif; font-weight: 700; color: var(--ink-dim); font-size: 13px; padding: 10px 12px; border-bottom: 2px solid var(--border); }
   table.sheet-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
@@ -482,7 +493,7 @@
   .item-header { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; }
   .item-name { flex: 2; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 18px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--ink); }
   .item-type { flex: 1; font-size: 14px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--ink-faint2); }
-  .item-desc { width: 100%; background: transparent; border: none; resize: vertical; min-height: 60px; font-family: inherit; font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .item-desc { width: 100%; background: transparent; border: none; resize: none; overflow: hidden; min-height: 60px; font-family: inherit; font-size: 14px; line-height: 1.6; color: var(--ink); }
   .btn-icon { background: transparent; border: none; color: var(--ink-faint2); cursor: pointer; padding: 4px; }
   .btn-icon:hover { color: var(--vermillion-bright); }
   .item-delete { position: absolute; top: 12px; right: 12px; }
@@ -648,11 +659,18 @@
   function pct(res){ const cur = num(res && res.current), max = num(res && res.max); return max<=0 ? 0 : Math.max(0, Math.min(100, (cur/max)*100)); }
   function attr(s){ return escapeHtml(s==null?"":String(s)); }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  
+  function toArray(val){
+    if (Array.isArray(val)) return val;
+    if (val && typeof val === "object") return Object.values(val);
+    return [];
+  }
+
   function blankCharacter(ownerId, ownerName){
     return normalizeChar({
       ownerId, ownerName, name: "未命名角色", player: ownerName || "", title: "",
-      race: "", path: "", job: "", root: "", realm: "", karma: 0, portrait: "", pb: 0,
-      ac: 10, speed: 30, hp: { current: 0, max: 0 }, hpTemp: 0, qi: { current: 0, max: 0 }, qiBase: 0,
+      race: "", path: "", job: "", root: "", realm: "", karma: 0, portrait: "", pb: 2,
+      ac: 10, speed: 30, hp: { current: 10, max: 10 }, hpTemp: 0, qi: { current: 10, max: 10 }, qiBase: 0,
       languages: "", skills: "", notes: "",
       quickActions: [], spellGroups: [{ groupName: "主要功法", spells: [] }],
       notes_race: "", notes_path: "", notes_job: "", itemsList: [], backgroundText: "",
@@ -662,7 +680,8 @@
 
   function padRow(row, n){
     const out = [];
-    for(let i=0; i<n; i++) out.push(String((row && row[i]) == null ? "" : row[i]));
+    const arr = toArray(row);
+    for(let i=0; i<n; i++) out.push(String(arr[i] == null ? "" : arr[i]));
     return out;
   }
 
@@ -679,20 +698,24 @@
     const saves = {}; ATTRS.forEach(a => saves[a.id] = !!(c.saves && c.saves[a.id])); c.saves = saves;
     c.hp = { current: num(c.hp && c.hp.current), max: num(c.hp && c.hp.max) };
     c.qi = { current: num(c.qi && c.qi.current), max: num(c.qi && c.qi.max) };
-    c.quickActions = (Array.isArray(c.quickActions) ? c.quickActions : []).map(r => padRow(r, 4));
-    let groups = Array.isArray(c.spellGroups) ? c.spellGroups : [];
+    
+    // 使用 toArray 防止 Firebase 物件反序列化導致陣列清空
+    c.quickActions = toArray(c.quickActions).map(r => padRow(r, 4));
+    let groups = toArray(c.spellGroups);
     if(groups.length === 0){
-      groups = (Array.isArray(c.spells) && c.spells.length)
-        ? [{ groupName: "神通功法", spells: c.spells }]
+      groups = toArray(c.spells).length
+        ? [{ groupName: "主要功法", spells: c.spells }]
         : [{ groupName: "主要功法", spells: [] }];
     }
     c.spellGroups = groups.map(g => ({
       groupName: (g && g.groupName) ? String(g.groupName) : "",
-      spells: (Array.isArray(g && g.spells) ? g.spells : []).map(r => padRow(r, 5))
+      spells: toArray(g && g.spells).map(r => padRow(r, 5))
     }));
     delete c.spells;
-    c.itemsList = (Array.isArray(c.itemsList) ? c.itemsList : []).map(i => ({
-      name: (i && i.name) ? String(i.name) : "", type: (i && i.type) ? String(i.type) : "", desc: (i && i.desc) ? String(i.desc) : ""
+    c.itemsList = toArray(c.itemsList).map(i => ({
+      name: (i && i.name) ? String(i.name) : "",
+      type: (i && i.type) ? String(i.type) : "",
+      desc: (i && i.desc) ? String(i.desc) : ""
     }));
     return c;
   }
@@ -786,9 +809,7 @@
   const RB_ACCENTS = ["#9C2B22","#8C6B27","#2D5A4C","#4A3B78","#7A4A20","#2F5878","#7C3A52"];
 
   function parseRuleSections(raw){
-    const lines = String(raw || "").replace(/
-/g, "").split("
-");
+    const lines = String(raw || "").replace(/\r/g, "").split("\n");
     const out = []; let cur = { title: "", lines: [] };
     const flush = () => { if(cur.title || cur.lines.some(l => l.trim())) out.push(cur); };
     for(const line of lines){
@@ -800,7 +821,7 @@
   }
 
   function rbInline(text){
-    return escapeHtml(text).replace(/【(.*?)】/g, '<b class="rb-term">【$1】</b>').replace(/!!(.*?)!!/g, '<span class="rb-warn">⚠ $1</span>').replace(/__(.*?)__/g, '<u>$1</u>').replace(/~~(.*?)~~/g, '<s>$1</s>').replace(/(DC\s?\d+)/gi, '<b class="rb-num">$1</b>').replace(/(\d*d\d+(?:\s?[+\-]\s?\d+)?)/gi, '<b class="rb-num">$1</b>').replace(/([+\-]\d+(?:\.\d+)?%?)/g, '<b class="rb-num">$1</b>');
+    return escapeHtml(text).replace(/【(.*?)】/g, '<b class="rb-term">【$1】</b>').replace(/!!(.*?)!!/g, '<span class="rb-warn">⚠ $1</span>').replace(/__(.*?)__/g, '<u>$1</u>').replace(/~~(.*?)~~/g, '<s>$1</s>').replace(/\b(DC\s?\d+)/gi, '<b class="rb-num">$1</b>').replace(/(\d*d\d+(?:\s?[+\-]\s?\d+)?)/gi, '<b class="rb-num">$1</b>').replace(/([+\-]\d+(?:\.\d+)?%?)/g, '<b class="rb-num">$1</b>');
   }
 
   function rbSectionBody(lines){
@@ -830,7 +851,7 @@
 
     if(showRaw){
       return `<div class="rb-toolbar"><button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示重點摘要</button></div>
-        <div class="rb-card rb-raw-card"><div class="rb-head" style="--rb-accent:var(--gold)">${escapeHtml(m.title || value)}　原文</div>
+        <div class="rb-card rb-raw-card"><div class="rb-head" style="--rb-accent:var(--gold)">${escapeHtml(m.title || value)} 原文</div>
         <div class="rb-body rb-raw">${rbInline(m.content)}</div></div>`;
     }
 
@@ -848,7 +869,7 @@
       </div>`;
     }).join("");
     return `<div class="rb-toolbar">
-        <span class="rb-source">摘自規則書：${escapeHtml(m.title || value)}　·　已略過敘述性段落</span>
+        <span class="rb-source">摘自規則書：${escapeHtml(m.title || value)} · 已略過敘述性段落</span>
         <button class="btn rb-toggle" data-action="rb-raw" data-cat="${attr(category)}">顯示完整原文</button>
       </div>
       <div class="rb-wrap">${cards}</div>`;
@@ -865,8 +886,6 @@
       if(box) box.innerHTML = rulebookBlocksHtml(p.cat, char[p.field], rbRawOpen[p.cat]);
     });
     [["realm","境界"],["race","種族"],["path","道途"],["job","職業"]].forEach(([field, cat]) => {
-      const el = sheetEl.querySelector(`input[data-f="${field}"]`);
-      if(!el || el === document.activeElement) return;
       const listId = "dl-" + field;
       const datalist = document.getElementById(listId);
       if(datalist) {
@@ -877,7 +896,7 @@
   }
 
   // ============================================================
-  // 角色卡清單 & 宗門大殿
+  // 角色卡清單 & 宗門大殿總覽
   // ============================================================
   const charsRef = ref(db, "characters");
   onValue(charsRef, snap => {
@@ -891,6 +910,12 @@
       return;
     }
     if(dirty || saving) return;
+
+    // 如果使用者正在輸入文字，防止即時同步整頁重繪造成失焦
+    if(document.activeElement && sheetEl.contains(document.activeElement)) {
+      return;
+    }
+
     const remote = currentCharId ? normalizeChar(allChars[currentCharId]) : null;
     if(draftId === currentCharId && draft && remote && stable(remote) === stable(draft)) return; 
     adoptDraft(); renderSheet();
@@ -959,9 +984,7 @@
     const char = currentChar();
     if(!char || !isOwner(char)) return;
     const name = char.name || "未命名角色";
-    if(!confirm(`確定要刪除角色卡「${name}」嗎？
-
-這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`)) return;
+    if(!confirm(`確定要刪除角色卡「${name}」嗎？\n\n這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`)) return;
     const id = currentCharId;
     try{
       clearTimeout(saveTimer); dirty = false;
@@ -993,7 +1016,7 @@
     const realmText = Object.entries(realmGroups).sort((a,b) => b[1]-a[1]).map(([g,n]) => `<span>${escapeHtml(g)} <b>${n}</b></span>`).join("");
     box.innerHTML = `
       <div class="cs-box">
-        <div class="cs-head"><span class="cs-title">宗門總覽</span><span class="cs-sub">庫房物資　·　藏經閣　·　弟子境界分布</span><a class="cs-more" href="dm.html">前往宗門大殿 →</a></div>
+        <div class="cs-head"><span class="cs-title">宗門總覽</span><span class="cs-sub">庫房物資 · 藏經閣 · 弟子境界分布</span><a class="cs-more" href="dm.html">前往宗門大殿 →</a></div>
         <div class="cs-grid">
           <div class="cs-cell"><div class="cs-label">靈石總計</div><div class="cs-value">${stoneTotal.toLocaleString()}</div></div>
           <div class="cs-cell"><div class="cs-label">丹藥</div><div class="cs-value">${catCount("丹藥")}</div></div>
@@ -1004,7 +1027,7 @@
           <div class="cs-cell"><div class="cs-label">藏經閣功法</div><div class="cs-value">${Object.keys(clanLibrary).length}</div></div>
           <div class="cs-cell"><div class="cs-label">宗門弟子</div><div class="cs-value">${members.length}</div></div>
         </div>
-        ${realmText ? `<div class="cs-realms">境界分布　${realmText}</div>` : ""}
+        ${realmText ? `<div class="cs-realms">境界分布 ${realmText}</div>` : ""}
       </div>`;
   }
 
@@ -1194,6 +1217,13 @@
     (root || sheetEl).querySelectorAll(".karma-input").forEach(el => fitNumberInput(el, 42));
   }
 
+  function resizeAllTextareas(){
+    sheetEl.querySelectorAll('textarea').forEach(el => {
+      el.style.height = 'auto';
+      el.style.height = (el.scrollHeight) + 'px';
+    });
+  }
+
   // ============================================================
   // 畫面
   // ============================================================
@@ -1301,7 +1331,7 @@
         </section>
 
         <section class="block">
-          <div class="block-title">快捷速查　<span class="block-sub">武器 · 常用動作</span>${editable ? `<button class="btn gold-btn" data-action="add-row" data-table="quickActions" data-cols="4" style="margin-left:auto;">＋ 新增動作</button>` : ""}</div>
+          <div class="block-title">快捷速查 <span class="block-sub">武器 · 常用動作</span>${editable ? `<button class="btn gold-btn" data-action="add-row" data-table="quickActions" data-cols="4" style="margin-left:auto;">＋ 新增動作</button>` : ""}</div>
           <div id="qaHost">${quickActionsHtml(char, editable)}</div>
         </section>
 
@@ -1352,14 +1382,10 @@
     sheetEl.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === activeTab));
     sheetEl.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
     
-    // 初始化自適應文字框高度
-    sheetEl.querySelectorAll('textarea').forEach(el => {
-      const resize = () => { el.style.height = 'auto'; el.style.height = (el.scrollHeight) + 'px'; };
-      el.addEventListener('input', resize);
-      setTimeout(resize, 0); 
-    });
-    
-    fitAllNumbers(); paintRulebookBtn(); updateDeleteBtn();
+    fitAllNumbers();
+    resizeAllTextareas();
+    paintRulebookBtn();
+    updateDeleteBtn();
   }
 
   function applyPathTint(char){
@@ -1457,7 +1483,7 @@
   function rulebookInputHtml(field, value, result, dis){
     const listId = "dl-" + field;
     let opts = result.ready ? result.options.map(o => `<option value="${attr(o)}">`).join("") : "";
-    return `<input class="tag-input" data-f="${field}" list="${listId}" value="${attr(value)}" placeholder="手動填寫" ${dis} autocomplete="off"><datalist id="${listId}">${opts}</datalist>`;
+    return `<input class="tag-input" data-f="${field}" list="${listId}" value="${attr(value)}" placeholder="手動填寫或選擇" ${dis} autocomplete="off"><datalist id="${listId}">${opts}</datalist>`;
   }
 
   function refreshQuickActions(){
@@ -1470,7 +1496,11 @@
   }
   function refreshItems(){
     const char = currentChar(); if(!char) return;
-    const host = document.getElementById("itemHost"); if(host) host.innerHTML = itemsHtml(char, isOwner(char));
+    const host = document.getElementById("itemHost");
+    if(host) {
+      host.innerHTML = itemsHtml(char, isOwner(char));
+      resizeAllTextareas();
+    }
   }
   function refreshQiViews(char){
     setRing("qi", char.qi);
@@ -1482,10 +1512,18 @@
   }
 
   // ============================================================
-  // 事件：一次綁在 #sheet 上
+  // 全域事件委託
   // ============================================================
   sheetEl.addEventListener("input", (e) => {
-    const el = e.target; const char = currentChar();
+    const el = e.target;
+    const char = currentChar();
+
+    // 任何 Textarea 輸入時全域自動增高
+    if (el.tagName === "TEXTAREA") {
+      el.style.height = "auto";
+      el.style.height = (el.scrollHeight) + "px";
+    }
+
     if(!char || !isOwner(char) || el.disabled) return;
 
     if(el.dataset.f){
@@ -1554,9 +1592,9 @@
     const char = currentChar();
     const editable = isOwner(char);
     
-    // Stat card toggle
+    // 點擊屬性卡切換熟練，但點擊輸入框時不觸發
     const statCard = e.target.closest(".stat-card");
-    if(statCard && editable){
+    if(statCard && editable && e.target.tagName !== "INPUT"){
       const statId = statCard.dataset.stat;
       char.saves[statId] = !char.saves[statId];
       statCard.classList.toggle("proficient", char.saves[statId]);
@@ -1568,6 +1606,7 @@
       activeTab = tabBtn.dataset.tab;
       sheetEl.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === tabBtn));
       sheetEl.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
+      resizeAllTextareas();
       return;
     }
 
