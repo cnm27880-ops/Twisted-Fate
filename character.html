@@ -540,12 +540,18 @@
     };
   }
 
+  let charsSyncError = null;
   const charsRef = ref(db, "characters");
   onValue(charsRef, snap => {
+    charsSyncError = null;
     allChars = snap.val() || {};
     renderCharLists();
     renderSheet();
-  }, err => console.error("characters sync error", err));
+  }, err => {
+    console.error("characters sync error", err);
+    charsSyncError = err;
+    renderCharLists();
+  });
 
   function isOwner(char){
     return !!(discordUser && char && char.ownerId === discordUser.id);
@@ -554,6 +560,13 @@
   function renderCharLists(){
     const mine = document.getElementById("myCharList");
     const all = document.getElementById("allCharList");
+
+    if(charsSyncError){
+      const msg = `<div class="empty-hint" style="color:var(--vermillion-bright);">連線失敗（${escapeHtml(charsSyncError.message || String(charsSyncError))}）。<br>很可能是 Firebase Realtime Database 規則裡還沒開放「characters」路徑的讀寫權限，請到 Firebase 主控台 → Realtime Database → Rules 確認。</div>`;
+      mine.innerHTML = msg;
+      all.innerHTML = msg;
+      return;
+    }
 
     if(!discordUser){
       mine.innerHTML = '<div class="empty-hint">登入 Discord 後可建立角色</div>';
@@ -591,10 +604,17 @@
   document.getElementById("btnNewChar").addEventListener("click", async () => {
     if(!discordUser) return;
     const newRef = push(charsRef);
-    await set(newRef, blankCharacter(discordUser.id, discordUser.name));
-    currentCharId = newRef.key;
-    renderCharLists();
-    renderSheet();
+    try{
+      await set(newRef, blankCharacter(discordUser.id, discordUser.name));
+      currentCharId = newRef.key;
+      renderCharLists();
+      renderSheet();
+    }catch(e){
+      console.error("create character error", e);
+      alert("建立角色卡失敗：" + (e && e.message ? e.message : e)
+        + "\n\n很可能是 Firebase Realtime Database 規則裡還沒開放「characters」路徑的寫入權限，"
+        + "請到 Firebase 主控台 → Realtime Database → Rules 加上對應規則後再試一次。");
+    }
   });
 
   // ============================================================
@@ -901,17 +921,21 @@
     lastLocalWriteAt = Date.now();
     try{
       await update(ref(db, "characters/" + currentCharId), char);
-      flashSaveStatus();
+      flashSaveStatus("已自動儲存", false);
     }catch(e){
       console.error("save error", e);
+      flashSaveStatus("儲存失敗：" + (e && e.message ? e.message : e), true);
     }
   }
 
-  function flashSaveStatus(){
+  function flashSaveStatus(msg, isError){
     const el = document.getElementById("saveStatus");
+    el.textContent = msg;
+    el.style.color = isError ? "var(--vermillion-bright)" : "";
+    el.style.borderColor = isError ? "var(--vermillion-bright)" : "";
     el.classList.add("show");
     clearTimeout(flashSaveStatus._t);
-    flashSaveStatus._t = setTimeout(()=>el.classList.remove("show"), 1200);
+    flashSaveStatus._t = setTimeout(()=>el.classList.remove("show"), isError ? 5000 : 1200);
   }
 
   function wireEditableSheet(sheet, char){
