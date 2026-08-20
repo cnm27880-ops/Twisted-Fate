@@ -337,7 +337,7 @@
     window.location.href = url.toString();
   }
   function discordLogout(){
-    sessionStorage.removeItem(DISCORD_TOKEN_KEY);
+    localStorage.removeItem(DISCORD_TOKEN_KEY);
     discordUser = null; activeCharId = "";
     renderAuth(); render(true);
   }
@@ -354,12 +354,12 @@
     if(window.location.hash.includes("access_token")){
       const params = new URLSearchParams(window.location.hash.slice(1));
       const token = params.get("access_token");
-      if(token){ sessionStorage.setItem(DISCORD_TOKEN_KEY, token); history.replaceState(null, "", REDIRECT_URI); }
+      if(token){ localStorage.setItem(DISCORD_TOKEN_KEY, token); history.replaceState(null, "", REDIRECT_URI); }
     }
-    const token = sessionStorage.getItem(DISCORD_TOKEN_KEY);
+    const token = localStorage.getItem(DISCORD_TOKEN_KEY);
     if(token){
       try{ discordUser = await fetchDiscordUser(token); }
-      catch(e){ sessionStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
+      catch(e){ localStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
     }
     renderAuth(); render(true);
   }
