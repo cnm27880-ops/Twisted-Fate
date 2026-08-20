@@ -787,10 +787,15 @@
   }
   function isOwner(char){ return !!(discordUser && char && char.ownerId === discordUser.id); }
 
+  // 採用草稿時記下當下的儲物袋內容當基準：存檔前用它分辨
+  // 「這筆物品是我自己刪掉的」還是「我在編輯期間長老從宗門大殿賜下來的」。
+  let baseItemSigs = [];
+  const itemSig = i => JSON.stringify([(i&&i.name)||"", (i&&i.type)||"", (i&&i.desc)||""]);
   function adoptDraft(){
     const c = currentCharId ? allChars[currentCharId] : null;
     draft = c ? normalizeChar(c) : null;
     draftId = currentCharId;
+    baseItemSigs = draft ? draft.itemsList.map(itemSig) : [];
     dirty = false;
   }
   function markDirty(){ dirty = true; scheduleSave(); }
@@ -1167,12 +1172,17 @@
     if(!currentCharId || !discordUser) return;
     const char = draft;
     if(!char || draftId !== currentCharId || !isOwner(char)) return;
-    char.updatedAt = Date.now(); char.updatedBy = discordUser.name;
     const id = currentCharId;
     saving = true; dirty = false;
     try{
+      // 存檔是整份覆蓋。如果在我編輯的這段期間，長老從宗門大殿賜下了物品，
+      // 那筆新物品只存在於資料庫、不在我的草稿裡，直接覆蓋就會把它吃掉。
+      // 先把「資料庫有、我採用草稿時沒有、而且草稿裡也還沒有」的物品補回來。
+      await mergeExternalItems(id, char);
+      char.updatedAt = Date.now(); char.updatedBy = discordUser.name;
       await set(ref(db, "characters/" + id), char);
       allChars[id] = clone(char);
+      baseItemSigs = char.itemsList.map(itemSig);
       flashSaveStatus("已自動儲存", false);
     }catch(e){
       console.error("save error", e);
@@ -1180,6 +1190,50 @@
       flashSaveStatus("儲存失敗：" + (e && e.message ? e.message : e), true);
     }finally{ saving = false; }
   }
+  async function mergeExternalItems(id, char){
+    let remoteItems = null;
+    try{
+      const snap = await get(ref(db, "characters/" + id + "/itemsList"));
+      const raw = snap.val();
+      remoteItems = Array.isArray(raw) ? raw : (raw && typeof raw === "object" ? Object.values(raw) : []);
+    }catch(e){
+      console.warn("merge check failed", e);   // 讀不到就照原本的存，至少不要卡住存檔
+      return;
+    }
+    const base = baseItemSigs.slice();
+    const mine = new Set(char.itemsList.map(itemSig));
+    const added = [];
+    remoteItems.forEach(it => {
+      const sig = itemSig(it);
+      const at = base.indexOf(sig);
+      if(at >= 0){ base.splice(at, 1); return; }   // 本來就有的，不算新增
+      if(mine.has(sig)) return;                    // 我自己也加了同一筆，不重複補
+      added.push({ name:(it&&it.name)||"", type:(it&&it.type)||"", desc:(it&&it.desc)||"" });
+    });
+    if(added.length){
+      char.itemsList = char.itemsList.concat(added);
+      const names = added.map(i => i.name || "未命名物品").join("、");
+      flashSaveStatus(`宗門另有賜物入袋：${names}`, false);
+      refreshItemsWhenIdle();
+    }
+  }
+
+  // 只重畫儲物袋那一塊（整頁重繪會把正在打字的欄位搶走焦點）；
+  // 若使用者正在袋子裡打字，就等他把游標移開再補畫，不要打斷他。
+  function refreshItemsWhenIdle(){
+    const host = document.getElementById("itemHost");
+    if(!host) return;
+    if(!host.contains(document.activeElement)){ refreshItems(); return; }
+    const onOut = () => setTimeout(() => {
+      const h = document.getElementById("itemHost");
+      if(h && h.contains(document.activeElement)) return;   // 只是換到袋子裡另一格，繼續等
+      host.removeEventListener("focusout", onOut);
+      refreshItems();
+    }, 0);
+    host.removeEventListener("focusout", onOut);
+    host.addEventListener("focusout", onOut);
+  }
+
   window.addEventListener("beforeunload", () => { if(dirty) doSave(); });
 
   function flashSaveStatus(msg, isError){

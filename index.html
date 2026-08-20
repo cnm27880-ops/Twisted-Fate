@@ -442,8 +442,6 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   // 比舊的 compat 全量包輕巧許多（本頁不需要 auth）
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  // 繁簡轉換：需要雙向辭典（見下方 applyScriptMode 的說明），故用含完整辭典的 full 版
-  import OpenCC from "https://cdn.jsdelivr.net/npm/opencc-js@1.4.1/dist/esm/full.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -466,9 +464,35 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   // 顯示繁體用簡轉繁、顯示簡體用繁轉簡，不管文字原本是哪種字體，轉換後都會落在正確的目標字體，
   // 前後多次切換也不會累積誤差（繁體/簡體字再轉一次同方向基本上是不動點）。
   const SCRIPT_MODE_KEY = "tf_script_mode_v1";
-  const toTradConverter = OpenCC.Converter({ from: "cn", to: "tw" });
-  const toSimpConverter = OpenCC.Converter({ from: "tw", to: "cn" });
   let scriptMode = localStorage.getItem(SCRIPT_MODE_KEY) === "simp" ? "simp" : "trad";
+
+  // 繁簡辭典（opencc-js full 版）改成延遲載入。
+  // 以前是寫在最上面的頂層 import，只要 CDN 連不上或很慢，整份 module 都不會執行，
+  // 規則書會整個空白、永遠停在「載入規則中…」。現在辭典是額外的加分項：
+  // 沒載到就照資料庫原本的繁體顯示，規則書照樣讀得到。
+  let toTradConverter = null, toSimpConverter = null;
+  const OPENCC_URL = "https://cdn.jsdelivr.net/npm/opencc-js@1.4.1/dist/esm/full.js";
+  async function loadOpenCC(){
+    try{
+      // 也擋住「連得上但一直沒回應」的情況：逾時就當作載不到，
+      // 否則切換鈕會一直可按卻沒有反應，使用者只會覺得壞掉。
+      const OpenCC = (await Promise.race([
+        import(OPENCC_URL),
+        new Promise((_, rej) => setTimeout(() => rej(new Error("opencc timeout")), 8000))
+      ])).default;
+      toTradConverter = OpenCC.Converter({ from: "cn", to: "tw" });
+      toSimpConverter = OpenCC.Converter({ from: "tw", to: "cn" });
+      applyScriptMode();                       // 辭典到了再把整頁轉一次
+    }catch(e){
+      console.warn("繁簡辭典載入失敗，改以資料庫原文（繁體）顯示", e);
+      scriptMode = "trad";
+      document.querySelectorAll(".script-switch button[data-mode]").forEach(btn => {
+        btn.disabled = true;
+        btn.title = "繁簡辭典載入失敗（可能是網路或 CDN 問題），目前僅顯示繁體";
+      });
+      applyScriptMode();
+    }
+  }
 
   function convertTextNodes(node, converter){
     if(node.nodeType === Node.ELEMENT_NODE){
@@ -485,7 +509,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
 
   function applyScriptMode(){
     const converter = scriptMode === "simp" ? toSimpConverter : toTradConverter;
-    convertTextNodes(document.body, converter);
+    if(converter) convertTextNodes(document.body, converter);   // 辭典還沒到就先照原文顯示
     document.body.setAttribute("lang", scriptMode === "simp" ? "zh-CN" : "zh-TW");
     document.querySelectorAll(".script-switch button[data-mode]").forEach(btn => {
       btn.classList.toggle("active", btn.getAttribute("data-mode") === scriptMode);
@@ -503,6 +527,7 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   });
 
   applyScriptMode();
+  loadOpenCC();
 
   let chapters = {};
   let modules = {};

@@ -819,10 +819,12 @@
       area.innerHTML = `<div class="notice info">連線中……</div>`;
       return;
     }
+    // 內務堂總帳只有純顯示、沒有輸入框，先畫它才不會被下面的「正在輸入時不重繪」擋住；
+    // 否則長老在編輯庫房時新進來的調用申請，警訊數字會一直停在舊值。
+    renderHallStats();
+
     // 正在輸入時不要整頁重繪（會打斷打字），除非是明確的按鈕操作
     if(!force && (Date.now() - lastLocalWriteAt < 2500 || area.contains(document.activeElement))) return;
-
-    renderHallStats();
 
     const editable = canEdit();
     area.innerHTML = `
@@ -963,10 +965,6 @@
 
   // ===== 宗門庫房 =====
   function warehouseHtml(editable){
-    const entries = Object.entries(warehouse)
-      .filter(([,it]) => (it.category || "丹藥") === warehouseCat)
-      .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
-
     return `
       <div class="block-title">靈石總帳<span class="spacer"></span>
         ${editable ? `<span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">直接修改數字即可，變更會寫入下方日誌</span>` : ""}
@@ -1891,6 +1889,9 @@
           const id = btn.dataset.id, step = parseInt(btn.dataset.step, 10) || 0;
           const it = warehouse[id]; if(!it) return;
           const before = num(it.qty), after = Math.max(0, before + step);
+          // 數量已經是 0 還按減號時 after === before，這時不該白寫一次資料庫，
+          // 也不該在異動日誌與近期流水留下「0 ➔ 0」這種沒有意義的紀錄。
+          if(after === before) return;
           it.qty = after;
           if(await writeNow(`warehouse/${id}/qty`, after)){
             writeLog(`${it.name || "物資"} 數量 ${before} ➔ ${after}`, after - before);
