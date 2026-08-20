@@ -402,11 +402,27 @@
   .jt-line-label .val{ font-family:"Noto Serif TC",serif; font-weight:700; font-size:13px; letter-spacing:0; }
   .jt-line.hp .jt-line-label{ color:#DE8B77; }
   .jt-line.qi .jt-line-label{ color:#7FC7A4; }
-  .jt-rail{ position:relative; height:3px; border-radius:2px; background:rgba(232,202,130,.09); box-shadow:inset 0 0 3px rgba(0,0,0,.5); }
-  .jt-flow{ position:absolute; top:0; left:0; height:3px; border-radius:2px; transition:width .65s cubic-bezier(.22,.61,.36,1); }
-  .jt-line.hp .jt-flow{ background:linear-gradient(90deg, rgba(156,43,34,.35), #E0664C); box-shadow:0 0 8px #E0664C; animation:lineBreath 3.6s ease-in-out infinite; }
-  .jt-line.qi .jt-flow{ background:linear-gradient(90deg, rgba(45,90,76,.35), #63B78E); box-shadow:0 0 8px #63B78E; animation:lineBreath 4.4s ease-in-out infinite; }
-  @keyframes lineBreath{ 0%,100%{ filter:brightness(.86); } 50%{ filter:brightness(1.22); } }
+  /* 生命／靈氣改成「在玉面上鑿出凹槽、槽裡嵌一條凸起的刻印」：
+     外發光會把邊緣糊掉、和玉牌底色融在一起，改用上亮下暗的硬邊來做立體感，
+     再於槽底壓一條深色細影，數值邊界一眼就分得出來。 */
+  .jt-rail{
+    position:relative; height:6px; border-radius:1px;
+    background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.3));
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.8), inset 0 -1px 0 rgba(232,202,130,.1), 0 1px 0 rgba(232,202,130,.12);
+  }
+  .jt-flow{
+    position:absolute; top:0; left:0; height:100%; border-radius:1px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.42), inset 0 -1px 0 rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4);
+    transition:width .65s cubic-bezier(.22,.61,.36,1);
+  }
+  /* 刻印末端的亮邊：目前值落在哪裡，靠這條高對比細線讀 */
+  .jt-flow::after{
+    content:""; position:absolute; right:0; top:-2px; bottom:-2px; width:1px;
+    background:rgba(255,255,255,.62); box-shadow:1px 0 0 rgba(0,0,0,.55);
+  }
+  .jt-flow.empty::after{ display:none; }
+  .jt-line.hp .jt-flow{ background:linear-gradient(180deg, #F2A08A 0%, #C03A2C 48%, #7A1C14 100%); }
+  .jt-line.qi .jt-flow{ background:linear-gradient(180deg, #9BE8C2 0%, #37936B 48%, #12503A 100%); }
 
   .jt-foot{
     position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -416,6 +432,36 @@
   .jt-stat{ display:flex; align-items:center; gap:6px; }
   .jt-stat svg{ width:16px; height:16px; flex-shrink:0; opacity:.8; }
   .jt-stat b{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px; letter-spacing:0; color:#EDE0BE; }
+
+  /* 天道排序：拖曳整面玉牌，或用左右箭頭一格一格挪 */
+  .jade-tablet.sortable{ cursor:grab; }
+  .jade-tablet.sortable:active{ cursor:grabbing; }
+  .jade-tablet.dragging{ opacity:.45; }
+  .jade-tablet.drop-mark{ box-shadow:0 0 0 2px var(--gold), 0 11px 26px rgba(0,0,0,.42); }
+  .jt-ord{
+    position:absolute; left:0; top:0; z-index:2; padding:3px 9px 4px;
+    border-radius:6px 0 6px 0; background:rgba(0,0,0,.42);
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:11px; letter-spacing:1px; color:#C9A75E;
+  }
+  .jt-move{ position:absolute; right:8px; bottom:8px; z-index:2; display:flex; gap:4px; opacity:0; transition:opacity .2s; }
+  .jade-tablet:hover .jt-move, .jade-tablet:focus-within .jt-move{ opacity:1; }
+  .jt-move button{
+    display:flex; align-items:center; justify-content:center; width:24px; height:22px; padding:0; cursor:pointer;
+    background:rgba(0,0,0,.45); border:1px solid rgba(232,202,130,.3); border-radius:3px; color:#C9A75E;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .jt-move button:hover:not(:disabled){ background:rgba(232,202,130,.16); color:#F8EDD1; border-color:var(--gold); }
+  .jt-move button:disabled{ opacity:.28; cursor:default; }
+  .jt-move svg{ width:13px; height:13px; }
+  .jt-grip{ position:absolute; right:8px; top:8px; z-index:2; color:rgba(232,202,130,.3); pointer-events:none; }
+  .jt-grip svg{ width:15px; height:15px; stroke-width:2.6; stroke-linecap:round; }
+  .jade-tablet:hover .jt-grip{ color:rgba(232,202,130,.6); }
+  .sort-hint{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; padding:9px 14px;
+    background:rgba(140,107,39,.07); border:1px dashed var(--border); border-radius:5px;
+    font-size:12.5px; color:var(--ink-faint2); line-height:1.7;
+  }
+  .sort-hint .spacer{ flex:1; }
 
   .jade-tablet.shattered{ border-color:rgba(184,58,44,.6); animation:tabletCrack 3.6s ease-in-out infinite; }
   .jade-tablet.shattered .jt-crack{ opacity:.45; }
@@ -610,6 +656,7 @@
   let treasury = {};        // id -> 法寶
   let chars = {};           // 角色卡（本命玉牌用）
   let itemRequests = {};    // id -> { itemId, itemName, qty, charId, charName, reason, applicantId, applicantName, ts }
+  let tabletOrder = [];     // 本命玉牌的排列順序（角色卡 id 陣列），由天道排定
   let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
   let syncError = null;
 
@@ -710,6 +757,7 @@
   watch("treasury",   v => treasury = v,  "treasury");
   watch("characters", v => chars = v,     "chars");
   watch("itemRequests", v => itemRequests = v);
+  watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean));
 
   // ===== 共用工具 =====
   // 全站不使用系統 emoji：所有圖示皆為手繪風格的 inline SVG（單色描線、無填色）。
@@ -747,6 +795,13 @@
     lotus: cls => svg(`<path d="M12 4.6c1.9 2 2.9 3.9 2.9 5.9 0 1.7-1.3 3.1-2.9 3.1s-2.9-1.4-2.9-3.1c0-2 1-3.9 2.9-5.9z"/><path d="M9.4 13.4c-1.5-1.5-3.4-2.3-5.3-2.3.2 2.1 1 3.8 2.5 5.3s3.4 2.3 5.4 2.3"/><path d="M14.6 13.4c1.5-1.5 3.4-2.3 5.3-2.3-.2 2.1-1 3.8-2.5 5.3s-3.4 2.3-5.4 2.3"/>`, cls),
     // 業障鎖鏈
     chain: cls => svg(`<path d="M10.4 13.6 8 16a3.4 3.4 0 1 1-4.8-4.8l2.4-2.4"/><path d="m13.6 10.4 2.4-2.4a3.4 3.4 0 1 1 4.8 4.8l-2.4 2.4"/><path d="m9.5 14.5 5-5"/>`, cls),
+    // 左右移動（玉牌排序）
+    chevronL: cls => svg(`<path d="M14.6 5.6 8.2 12l6.4 6.4"/>`, cls),
+    chevronR: cls => svg(`<path d="M9.4 5.6 15.8 12l-6.4 6.4"/>`, cls),
+    // 復位
+    reset: cls => svg(`<path d="M4.6 6.4v5h5"/><path d="M5.4 11.4a7 7 0 1 1 1.6 5"/>`, cls),
+    // 拖曳握把
+    grip: cls => svg(`<path d="M9.2 6.4h.01M9.2 12h.01M9.2 17.6h.01M14.8 6.4h.01M14.8 12h.01M14.8 17.6h.01"/>`, cls),
     // 庫房大門
     vault: cls => svg(`<path d="M3.6 9.4 12 3.6l8.4 5.8"/><path d="M5.4 9.4v10.4h13.2V9.4"/><path d="M9.6 19.8v-5.6h4.8v5.6"/>`, cls)
   };
@@ -859,6 +914,8 @@
     area.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
 
     wireEvents(area);
+    const jadeGrid = document.getElementById("jadeGrid");
+    if(jadeGrid) wireTabletDrag(jadeGrid);
   }
 
   // ===== 【內務堂：宗門底蘊】=====
@@ -1000,8 +1057,9 @@
     const entries = Object.entries(warehouse)
       .filter(([,it]) => (it.category || "丹藥") === warehouseCat)
       .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
-    // 弟子（非長老）看到的是「申請調用」，長老看到的是刪除
-    const canRequest = !!discordUser && !editable;
+    // 團裡所有玩家都掛長老身分（弟子是 NPC），所以長老自己也要能向庫房請領，
+    // 「申請調用」對每個登入者都顯示；長老另外多一欄刪除。
+    const canRequest = !!discordUser;
     const cols = 3 + (editable ? 1 : 0) + (canRequest ? 1 : 0);
     return `
         <table class="sheet-table">
@@ -1303,55 +1361,164 @@
 
 
   // ===== 【本命玉牌殿】=====
-  // 每位弟子一面墨玉本命牌：生命與靈氣化為極細的呼吸靈光，血量低於三成則玉牌龜裂泛血。
-  function combatHtml(){
-    const list = Object.entries(chars).sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
-    if(list.length === 0) return `<div class="notice info" style="font-weight:400;">本命玉牌殿空無一牌，尚未有弟子刻下姓名。</div>`;
-    const pct = (cur,max) => { const c=num(cur), m=num(max); return m<=0?0:Math.max(0,Math.min(100,c/m*100)); };
+  // 報名制跑團的點名板：每位角色一面墨玉本命牌，生命與靈氣鑿成凸起的刻印，
+  // 血量低於三成則玉牌龜裂泛血。天道可自行排定玉牌順序（例如把本場出團的排前面）。
+
+  // 依天道排定的順序排列，沒排到的接在後面按姓名排
+  function orderedChars(){
+    const pos = new Map();
+    tabletOrder.forEach((id, i) => { if(!pos.has(id)) pos.set(id, i); });
+    return Object.entries(chars).sort((a, b) => {
+      const pa = pos.has(a[0]) ? pos.get(a[0]) : Infinity;
+      const pb = pos.has(b[0]) ? pos.get(b[0]) : Infinity;
+      if(pa !== pb) return pa - pb;
+      return (a[1].name || "").localeCompare(b[1].name || "", "zh-Hant");
+    });
+  }
+
+  function jadeTabletHtml(id, c, idx, total, sortable){
+    const pct = (cur,max) => { const v=num(cur), m=num(max); return m<=0?0:Math.max(0,Math.min(100,v/m*100)); };
     // 正業力＝業障（紫），負業力＝功德（金），與角色卡一致
     const karmaColor = k => num(k) > 0 ? "#B48CF0" : (num(k) < 0 ? "#E8CA82" : "rgba(220,207,168,.6)");
+    const hpPct = pct(c.hp?.current, c.hp?.max);
+    const qiPct = pct(c.qi?.current, c.qi?.max);
+    const shattered = num(c.hp?.max) > 0 && hpPct <= 30;
+    return `
+      <div class="jade-tablet${shattered ? " shattered" : ""}${sortable ? " sortable" : ""}"
+        data-char="${attr(id)}" ${sortable ? `draggable="true"` : ""}>
+        ${shattered ? CRACK_SVG : ""}
+        ${sortable ? `<div class="jt-ord">${idx + 1}</div><div class="jt-grip">${SVG.grip()}</div>` : ""}
+        <div class="jt-head">
+          <span class="jt-name">${escapeHtml(c.name || "未命名角色")}</span>
+          <span class="jt-realm">${escapeHtml(c.realm || "－")}</span>
+        </div>
+        <div class="jt-meta">${escapeHtml([c.race, c.path, c.job].filter(Boolean).join(" · ") || "－")}
+          ${c.player ? `　<span class="jt-player">${escapeHtml(c.player)}</span>` : ""}</div>
+
+        <div class="jt-line hp">
+          <div class="jt-line-label">
+            <span class="lbl">${SVG.drop()}生命</span>
+            <span class="val">${num(c.hp?.current).toLocaleString()} / ${num(c.hp?.max).toLocaleString()}</span>
+          </div>
+          <div class="jt-rail"><div class="jt-flow${hpPct <= 0 ? " empty" : ""}" style="width:${hpPct.toFixed(1)}%"></div></div>
+        </div>
+
+        <div class="jt-line qi">
+          <div class="jt-line-label">
+            <span class="lbl">${SVG.spark()}靈氣</span>
+            <span class="val">${num(c.qi?.current).toLocaleString()} / ${num(c.qi?.max).toLocaleString()}</span>
+          </div>
+          <div class="jt-rail"><div class="jt-flow${qiPct <= 0 ? " empty" : ""}" style="width:${qiPct.toFixed(1)}%"></div></div>
+        </div>
+
+        <div class="jt-foot">
+          <span class="jt-stat">${SVG.shield()}護甲<b>${num(c.ac)}</b></span>
+          <span class="jt-stat">${SVG.yinyang()}業力<b style="color:${karmaColor(c.karma)};">${num(c.karma)}</b></span>
+        </div>
+        ${sortable ? `<div class="jt-move">
+          <button data-action="tablet-move" data-id="${attr(id)}" data-dir="-1" title="往前移" ${idx === 0 ? "disabled" : ""}>${SVG.chevronL()}</button>
+          <button data-action="tablet-move" data-id="${attr(id)}" data-dir="1" title="往後移" ${idx === total - 1 ? "disabled" : ""}>${SVG.chevronR()}</button>
+        </div>` : ""}
+      </div>`;
+  }
+
+  function jadeGridHtml(){
+    const list = orderedChars();
+    const sortable = isDM();
+    return list.map(([id,c], i) => jadeTabletHtml(id, c, i, list.length, sortable)).join("");
+  }
+
+  function combatHtml(){
+    const list = orderedChars();
+    if(list.length === 0) return `<div class="notice info" style="font-weight:400;">本命玉牌殿空無一牌，尚未有弟子刻下姓名。</div>`;
     return `
       <div class="block-title">本命玉牌殿<span class="spacer"></span>
         <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">唯讀・角色卡變動時玉牌即時感應</span>
       </div>
-      <div class="jade-grid">
-        ${list.map(([id,c]) => {
-          const hpPct = pct(c.hp?.current, c.hp?.max);
-          const shattered = num(c.hp?.max) > 0 && hpPct <= 30;
-          return `
-          <div class="jade-tablet${shattered ? " shattered" : ""}" data-char="${attr(id)}">
-            ${shattered ? CRACK_SVG : ""}
-            <div class="jt-head">
-              <span class="jt-name">${escapeHtml(c.name || "未命名角色")}</span>
-              <span class="jt-realm">${escapeHtml(c.realm || "－")}</span>
-            </div>
-            <div class="jt-meta">${escapeHtml([c.race, c.path, c.job].filter(Boolean).join(" · ") || "－")}
-              ${c.player ? `　<span class="jt-player">${escapeHtml(c.player)}</span>` : ""}</div>
-
-            <div class="jt-line hp">
-              <div class="jt-line-label">
-                <span class="lbl">${SVG.drop()}生命</span>
-                <span class="val">${num(c.hp?.current).toLocaleString()} / ${num(c.hp?.max).toLocaleString()}</span>
-              </div>
-              <div class="jt-rail"><div class="jt-flow" style="width:${hpPct.toFixed(1)}%"></div></div>
-            </div>
-
-            <div class="jt-line qi">
-              <div class="jt-line-label">
-                <span class="lbl">${SVG.spark()}靈氣</span>
-                <span class="val">${num(c.qi?.current).toLocaleString()} / ${num(c.qi?.max).toLocaleString()}</span>
-              </div>
-              <div class="jt-rail"><div class="jt-flow" style="width:${pct(c.qi?.current, c.qi?.max).toFixed(1)}%"></div></div>
-            </div>
-
-            <div class="jt-foot">
-              <span class="jt-stat">${SVG.shield()}護甲<b>${num(c.ac)}</b></span>
-              <span class="jt-stat">${SVG.yinyang()}業力<b style="color:${karmaColor(c.karma)};">${num(c.karma)}</b></span>
-            </div>
-          </div>`;
-        }).join("")}
-      </div>`;
+      ${isDM() ? `<div class="sort-hint">
+        ${SVG.grip()}<span>拖曳玉牌即可調整排列，或用玉牌右下角的左右箭頭一格一格挪；順序會同步給所有人。</span>
+        <span class="spacer"></span>
+        <button class="btn" data-action="tablet-reset" ${tabletOrder.length ? "" : "disabled"}>${SVG.reset()}依姓名重排</button>
+      </div>` : ""}
+      <div class="jade-grid" id="jadeGrid">${jadeGridHtml()}</div>`;
   }
+
+  // 只重畫玉牌區，避免整頁重繪讓捲軸跳動
+  function refreshJadeGrid(){
+    const grid = document.getElementById("jadeGrid");
+    if(!grid) return;
+    grid.innerHTML = jadeGridHtml();
+    wireEvents(grid);
+    wireTabletDrag(grid);
+    const reset = document.querySelector('[data-action="tablet-reset"]');
+    if(reset) reset.disabled = tabletOrder.length === 0;
+  }
+
+  async function saveTabletOrder(ids){
+    tabletOrder = ids;
+    await writeNow("tabletOrder", ids.length ? ids : null);
+    refreshJadeGrid();
+  }
+
+  async function moveTablet(id, dir){
+    const ids = orderedChars().map(([cid]) => cid);
+    const i = ids.indexOf(id);
+    const j = i + dir;
+    if(i < 0 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    await saveTabletOrder(ids);
+  }
+
+  // 拖曳排序：滑鼠拖到哪就即時插到哪，放開才寫進資料庫。
+  // 觸控裝置不會觸發 HTML5 拖曳事件，所以另外保留左右箭頭那組按鈕。
+  let draggingTablet = null;   // 容器層的監聽只掛一次，拖曳中的牌得放在外層共用
+  function wireTabletDrag(grid){
+    if(!isDM()) return;
+
+    grid.querySelectorAll(".jade-tablet.sortable").forEach(el => {
+      el.addEventListener("dragstart", e => {
+        draggingTablet = el;
+        el.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+        try{ e.dataTransfer.setData("text/plain", el.dataset.char); }catch(_){}
+      });
+      el.addEventListener("dragend", async () => {
+        el.classList.remove("dragging");
+        grid.querySelectorAll(".drop-mark").forEach(x => x.classList.remove("drop-mark"));
+        draggingTablet = null;
+        await saveTabletOrder([...grid.children].map(x => x.dataset.char).filter(Boolean));
+      });
+    });
+
+    // 玉牌每次重畫都會再進來一次，容器上的監聽只掛一次，免得越疊越多
+    if(grid.dataset.dragWired) return;
+    grid.dataset.dragWired = "1";
+    grid.addEventListener("dragover", e => {
+      if(!draggingTablet || draggingTablet.parentElement !== grid) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const spot = nearestSlot(grid, e.clientX, e.clientY);
+      if(!spot) return;
+      grid.querySelectorAll(".drop-mark").forEach(x => x.classList.remove("drop-mark"));
+      spot.el.classList.add("drop-mark");
+      grid.insertBefore(draggingTablet, spot.before ? spot.el : spot.el.nextSibling);
+    });
+    grid.addEventListener("drop", e => e.preventDefault());
+  }
+
+  // 找出離游標最近的那面牌，再判斷該插在它前面還是後面
+  function nearestSlot(grid, x, y){
+    let best = null, bestDist = Infinity;
+    grid.querySelectorAll(".jade-tablet:not(.dragging)").forEach(el => {
+      const b = el.getBoundingClientRect();
+      const d = Math.hypot(x - (b.left + b.width / 2), y - (b.top + b.height / 2));
+      if(d < bestDist){ bestDist = d; best = el; }
+    });
+    if(!best) return null;
+    const b = best.getBoundingClientRect();
+    return { el: best, before: x < b.left + b.width / 2 };
+  }
+
 
   // ===== 【領物申請與賜寶系統】=====
   // 弟子於庫房呈遞調用申請 → 內務長老於【待批核卷宗】賜下或駁回。
@@ -1850,6 +2017,19 @@
         // 弟子：領物申請（不需編輯權限）
         if(action === "request-item"){
           openRequestModal(btn.dataset.id);
+          return;
+        }
+
+        // 玉牌排序：只有天道能排
+        if(action === "tablet-move" || action === "tablet-reset"){
+          if(!isDM()){ flash("只有天道可以調整玉牌排列", true); return; }
+          btn.disabled = true;
+          if(action === "tablet-reset"){
+            if(confirm("要清掉目前的玉牌排列，改回依姓名排序嗎？")) await saveTabletOrder([]);
+            else btn.disabled = false;
+          } else {
+            await moveTablet(btn.dataset.id, parseInt(btn.dataset.dir, 10) || 0);
+          }
           return;
         }
 
