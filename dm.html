@@ -1000,8 +1000,9 @@
     const entries = Object.entries(warehouse)
       .filter(([,it]) => (it.category || "丹藥") === warehouseCat)
       .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
-    // 弟子（非長老）看到的是「申請調用」，長老看到的是刪除
-    const canRequest = !!discordUser && !editable;
+    // 團裡所有玩家都掛長老身分（弟子是 NPC），所以長老自己也要能向庫房請領，
+    // 「申請調用」對每個登入者都顯示；長老另外多一欄刪除。
+    const canRequest = !!discordUser;
     const cols = 3 + (editable ? 1 : 0) + (canRequest ? 1 : 0);
     return `
         <table class="sheet-table">
