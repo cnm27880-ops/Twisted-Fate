@@ -282,8 +282,9 @@
   </div>
 </div>
 
-<!-- 引入 SortableJS (拖曳排序神器)：釘住版本才能吃到 CDN 的長效快取，且不受上游改版影響 -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
+<!-- 引入 SortableJS (拖曳排序神器)：釘住版本才能吃到 CDN 的長效快取，且不受上游改版影響。
+     加 defer 是為了不讓這支外部 script 擋住頁面解析：CDN 連不上時後台照樣能開，只是少了拖曳排序。 -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js" defer></script>
 <script type="module">
   // Firebase modular SDK：只載入實際用到的模組（app + auth + database），
   // 比舊的 compat 全量包輕巧許多。注意本 script 為 module，
@@ -291,8 +292,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, set, update, remove, push, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  // 繁簡轉換：後台編輯需要「繁→簡」與「簡→繁」雙向，用完整版辭典（含各地區用詞）
-  import OpenCC from "https://cdn.jsdelivr.net/npm/opencc-js@1.4.1/dist/esm/full.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -308,9 +307,21 @@
   const db = getDatabase(app);
 
   // 繁簡轉換用（就地編輯表單內「簡轉繁」／「繁轉簡」按鈕），資料庫仍統一存繁體，
-  // 這兩個轉換器只是輔助編輯：方便貼上簡體文字時一鍵轉回繁體存檔，或反向檢查簡體版用詞
-  const s2tConverter = OpenCC.Converter({ from: "cn", to: "tw" });
-  const t2sConverter = OpenCC.Converter({ from: "tw", to: "cn" });
+  // 這兩個轉換器只是輔助編輯：方便貼上簡體文字時一鍵轉回繁體存檔，或反向檢查簡體版用詞。
+  // 改成第一次按下按鈕才去載辭典：以前寫成頂層 import，只要 CDN 連不上，
+  // 整份 module 都不會執行，後台會整個開不起來——但這兩個轉換器其實只是編輯輔助。
+  let s2tConverter = null, t2sConverter = null, openccLoading = null;
+  function loadOpenCC(){
+    if(openccLoading) return openccLoading;
+    openccLoading = import("https://cdn.jsdelivr.net/npm/opencc-js@1.4.1/dist/esm/full.js")
+      .then(m => {
+        const OpenCC = m.default;
+        s2tConverter = OpenCC.Converter({ from: "cn", to: "tw" });
+        t2sConverter = OpenCC.Converter({ from: "tw", to: "cn" });
+      })
+      .catch(e => { openccLoading = null; throw e; });
+    return openccLoading;
+  }
 
   let chapters = {};
   let modules = {};
@@ -599,7 +610,7 @@
       });
 
       // 初始化條目拖曳 (只允許在章節內排序)
-      if(!regex) {
+      if(!regex && window.Sortable) {
         new Sortable(listEl, {
           handle: '.module-handle', animation: 150,
           onEnd: (evt) => {
@@ -613,7 +624,7 @@
     });
 
     // 初始化章節拖曳
-    if(!regex) {
+    if(!regex && window.Sortable) {
       new Sortable(container, {
         handle: '.chapter-handle', animation: 150,
         onEnd: (evt) => {
@@ -937,7 +948,9 @@
 
   // 繁簡轉換：把「條目名稱」「子分類」「規則內容」三個欄位一起轉換，
   // 方便貼上另一種字體的文字後一鍵統一成要存檔的版本（資料庫統一存繁體）
-  window.convertEntryScript = function(direction) {
+  window.convertEntryScript = async function(direction) {
+    try{ await loadOpenCC(); }
+    catch(e){ console.warn("繁簡辭典載入失敗", e); alert("繁簡辭典載入失敗，請檢查網路後再試。"); return; }
     const converter = direction === 's2t' ? s2tConverter : t2sConverter;
     const titleEl = document.getElementById('if-title');
     const sectionEl = document.getElementById('if-section');

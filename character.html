@@ -391,7 +391,8 @@
   .ring-fill.qi { stroke: url(#qiGrad); filter: drop-shadow(0 0 6px rgba(64,145,108,.55)); }
   .ring-tick { stroke: var(--gold-deep); stroke-width: 1.4; opacity: .55; stroke-linecap: round; }
   .ring-stud { fill: var(--gold); opacity: .85; }
-  .ring-bead { stroke: rgba(255,255,255,.72); stroke-width: 1.2; transition: cx .5s ease, cy .5s ease, opacity .3s; }
+  .ring-bead-pivot { transform-origin: 120px 120px; transition: transform .55s cubic-bezier(.33,.72,.36,1); will-change: transform; }
+  .ring-bead { stroke: rgba(255,255,255,.72); stroke-width: 1.2; transition: opacity .3s; }
   .ring-bead.hp { fill: #F0836A; filter: drop-shadow(0 0 6px rgba(224,102,76,.95)); }
   .ring-bead.qi { fill: #7FD2A8; filter: drop-shadow(0 0 6px rgba(99,183,142,.95)); }
 
@@ -786,10 +787,15 @@
   }
   function isOwner(char){ return !!(discordUser && char && char.ownerId === discordUser.id); }
 
+  // 採用草稿時記下當下的儲物袋內容當基準：存檔前用它分辨
+  // 「這筆物品是我自己刪掉的」還是「我在編輯期間長老從宗門大殿賜下來的」。
+  let baseItemSigs = [];
+  const itemSig = i => JSON.stringify([(i&&i.name)||"", (i&&i.type)||"", (i&&i.desc)||""]);
   function adoptDraft(){
     const c = currentCharId ? allChars[currentCharId] : null;
     draft = c ? normalizeChar(c) : null;
     draftId = currentCharId;
+    baseItemSigs = draft ? draft.itemsList.map(itemSig) : [];
     dirty = false;
   }
   function markDirty(){ dirty = true; scheduleSave(); }
@@ -1166,12 +1172,17 @@
     if(!currentCharId || !discordUser) return;
     const char = draft;
     if(!char || draftId !== currentCharId || !isOwner(char)) return;
-    char.updatedAt = Date.now(); char.updatedBy = discordUser.name;
     const id = currentCharId;
     saving = true; dirty = false;
     try{
+      // 存檔是整份覆蓋。如果在我編輯的這段期間，長老從宗門大殿賜下了物品，
+      // 那筆新物品只存在於資料庫、不在我的草稿裡，直接覆蓋就會把它吃掉。
+      // 先把「資料庫有、我採用草稿時沒有、而且草稿裡也還沒有」的物品補回來。
+      await mergeExternalItems(id, char);
+      char.updatedAt = Date.now(); char.updatedBy = discordUser.name;
       await set(ref(db, "characters/" + id), char);
       allChars[id] = clone(char);
+      baseItemSigs = char.itemsList.map(itemSig);
       flashSaveStatus("已自動儲存", false);
     }catch(e){
       console.error("save error", e);
@@ -1179,6 +1190,50 @@
       flashSaveStatus("儲存失敗：" + (e && e.message ? e.message : e), true);
     }finally{ saving = false; }
   }
+  async function mergeExternalItems(id, char){
+    let remoteItems = null;
+    try{
+      const snap = await get(ref(db, "characters/" + id + "/itemsList"));
+      const raw = snap.val();
+      remoteItems = Array.isArray(raw) ? raw : (raw && typeof raw === "object" ? Object.values(raw) : []);
+    }catch(e){
+      console.warn("merge check failed", e);   // 讀不到就照原本的存，至少不要卡住存檔
+      return;
+    }
+    const base = baseItemSigs.slice();
+    const mine = new Set(char.itemsList.map(itemSig));
+    const added = [];
+    remoteItems.forEach(it => {
+      const sig = itemSig(it);
+      const at = base.indexOf(sig);
+      if(at >= 0){ base.splice(at, 1); return; }   // 本來就有的，不算新增
+      if(mine.has(sig)) return;                    // 我自己也加了同一筆，不重複補
+      added.push({ name:(it&&it.name)||"", type:(it&&it.type)||"", desc:(it&&it.desc)||"" });
+    });
+    if(added.length){
+      char.itemsList = char.itemsList.concat(added);
+      const names = added.map(i => i.name || "未命名物品").join("、");
+      flashSaveStatus(`宗門另有賜物入袋：${names}`, false);
+      refreshItemsWhenIdle();
+    }
+  }
+
+  // 只重畫儲物袋那一塊（整頁重繪會把正在打字的欄位搶走焦點）；
+  // 若使用者正在袋子裡打字，就等他把游標移開再補畫，不要打斷他。
+  function refreshItemsWhenIdle(){
+    const host = document.getElementById("itemHost");
+    if(!host) return;
+    if(!host.contains(document.activeElement)){ refreshItems(); return; }
+    const onOut = () => setTimeout(() => {
+      const h = document.getElementById("itemHost");
+      if(h && h.contains(document.activeElement)) return;   // 只是換到袋子裡另一格，繼續等
+      host.removeEventListener("focusout", onOut);
+      refreshItems();
+    }, 0);
+    host.removeEventListener("focusout", onOut);
+    host.addEventListener("focusout", onOut);
+  }
+
   window.addEventListener("beforeunload", () => { if(dirty) doSave(); });
 
   function flashSaveStatus(msg, isError){
@@ -1199,7 +1254,9 @@
   const RING_R = 100;
   const RING_C = 2 * Math.PI * RING_R;
   const ARC_SPAN = 168;
-  const HP_START = -39, QI_START = 141;   // 分界線在 135°／315°，恢復舊版的斜切傾斜感
+  // 分界線仍在 135°／315°（斜切傾斜感不變），但兩條弧左右對調：
+  // 生命弧起於左下、沿左側上行，緊貼左翼的「生命值」；靈氣弧起於右上、沿右側下行，緊貼右翼的「靈氣池」。
+  const HP_START = 141, QI_START = -39;
   const ARC_LEN = RING_C * ARC_SPAN / 360;
   function ringLen(res){ return (pct(res) / 100) * ARC_LEN; }
 
@@ -1224,12 +1281,12 @@
     return out;
   }
 
+  function beadDeg(kind, res){ return (kind === "hp" ? HP_START : QI_START) + ARC_SPAN * (pct(res) / 100); }
   function ringDash(len){ return len.toFixed(2) + " " + Math.max(0, RING_C - len).toFixed(2); }
   const GLOSS_R = 103.4; const GLOSS_C = 2 * Math.PI * GLOSS_R;
   function glossDash(len){ const l = len * GLOSS_R / RING_R; return l.toFixed(2) + " " + Math.max(0, GLOSS_C - l).toFixed(2); }
 
   function setRing(kind, res){
-    const isHp = kind === "hp";
     const el = sheetEl.querySelector(".ring-fill." + kind);
     if(!el) return;
     const len = ringLen(res);
@@ -1238,11 +1295,11 @@
     const gloss = sheetEl.querySelector(".ring-gloss." + kind);
     if(gloss){ gloss.setAttribute("stroke-dasharray", glossDash(len)); gloss.style.opacity = len > 0.6 ? 1 : 0; }
     const bead = sheetEl.querySelector(".ring-bead." + kind);
-    if(bead){
-      const tip = polar((isHp ? HP_START : QI_START) + ARC_SPAN * (pct(res) / 100), RING_R);
-      bead.setAttribute("cx", tip.x.toFixed(2)); bead.setAttribute("cy", tip.y.toFixed(2));
-      bead.style.opacity = len > 0.6 ? 1 : 0;
-    }
+    const pivot = sheetEl.querySelector(".ring-bead-pivot." + kind);
+    if(bead) bead.style.opacity = len > 0.6 ? 1 : 0;
+    // 光珠掛在以圓心為軸的群組上，補間的是「角度」而不是 cx/cy，
+    // 這樣扣血扣氣時它會沿著弧線滑過去，不會抄對角線直接飛過圓面。
+    if(pivot) pivot.style.transform = "rotate(" + beadDeg(kind, res).toFixed(2) + "deg)";
   }
 
   const BAGUA = ["111","110","101","100","011","010","001","000"];
@@ -1400,8 +1457,8 @@
         <div class="taiji-core" style="${getKarmaStyle(char.karma)}">
           <svg class="taiji-rings" viewBox="0 0 240 240" aria-hidden="true">
             <defs>
-              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="34" y1="206" x2="206" y2="34"><stop offset="0" stop-color="#5E1610"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#E0664C"/></linearGradient>
-              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="206" y1="34" x2="34" y2="206"><stop offset="0" stop-color="#0F2E23"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#63B78E"/></linearGradient>
+              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="206" y1="34" x2="34" y2="206"><stop offset="0" stop-color="#5E1610"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#E0664C"/></linearGradient>
+              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="34" y1="206" x2="206" y2="34"><stop offset="0" stop-color="#0F2E23"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#63B78E"/></linearGradient>
               <linearGradient id="glossGrad" gradientUnits="userSpaceOnUse" x1="120" y1="10" x2="120" y2="230"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient>
             </defs>
             <g class="bagua-ring">${baguaHtml()}</g>
@@ -1418,8 +1475,8 @@
             <circle class="ring-fill qi" cx="120" cy="120" r="100" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${ringDash(ringLen(char.qi))}" style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
             <circle class="ring-gloss hp" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${HP_START} 120 120)" stroke-dasharray="${glossDash(ringLen(char.hp))}" style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
             <circle class="ring-gloss qi" cx="120" cy="120" r="${GLOSS_R}" transform="rotate(${QI_START} 120 120)" stroke-dasharray="${glossDash(ringLen(char.qi))}" style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
-            <circle class="ring-bead hp" r="4.6" cx="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).x.toFixed(2)}" cy="${polar(HP_START + ARC_SPAN * pct(char.hp) / 100, RING_R).y.toFixed(2)}" style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle>
-            <circle class="ring-bead qi" r="4.6" cx="${polar(QI_START + ARC_SPAN * pct(char.qi) / 100, RING_R).x.toFixed(2)}" cy="${polar(QI_START + ARC_SPAN * pct(char.qi) / 100, RING_R).y.toFixed(2)}" style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle>
+            <g class="ring-bead-pivot hp" style="transform:rotate(${beadDeg("hp", char.hp).toFixed(2)}deg)"><circle class="ring-bead hp" r="4.6" cx="${(120 + RING_R).toFixed(2)}" cy="120" style="opacity:${ringLen(char.hp) > 0.6 ? 1 : 0}"></circle></g>
+            <g class="ring-bead-pivot qi" style="transform:rotate(${beadDeg("qi", char.qi).toFixed(2)}deg)"><circle class="ring-bead qi" r="4.6" cx="${(120 + RING_R).toFixed(2)}" cy="120" style="opacity:${ringLen(char.qi) > 0.6 ? 1 : 0}"></circle></g>
           </svg>
           <div class="karma-plate">
             <svg class="yy" viewBox="0 0 240 240" aria-hidden="true"><path class="yy-dark" d="M120,54 A66,66 0 0,1 120,186 A33,33 0 0,1 120,120 A33,33 0 0,0 120,54 Z"></path><circle class="yy-dot-a" cx="120" cy="87" r="10"></circle><circle class="yy-dot-b" cx="120" cy="153" r="10"></circle><circle class="yy-edge" cx="120" cy="120" r="66"></circle></svg>

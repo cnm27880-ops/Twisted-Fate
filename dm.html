@@ -93,7 +93,8 @@
   .btn.jade{ border-color:var(--jade); color:var(--jade); }
   .btn.danger{ border-color:var(--vermillion); color:var(--vermillion-bright); }
   .btn.danger:hover{ background:rgba(156,43,34,.1); border-color:var(--vermillion-bright); }
-  .btn-icon{ background:transparent; border:none; color:var(--ink-faint2); cursor:pointer; padding:4px; font-size:14px; }
+  .btn-icon{ background:transparent; border:none; color:var(--ink-faint2); cursor:pointer; padding:4px; font-size:14px; line-height:0; }
+  .btn-icon svg{ width:15px; height:15px; display:block; }
   .btn-icon:hover{ color:var(--vermillion-bright); }
 
   .layout{ max-width:1280px; margin:0 auto; padding:30px 20px 100px; position:relative; z-index:1; }
@@ -112,27 +113,71 @@
   .hall-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:36px; color:#F8EDD1; text-shadow:0 2px 6px rgba(0,0,0,.8); position:relative; z-index:1; }
   .hall-sub{ margin-top:6px; font-size:14px; color:#E8CA82; letter-spacing:1px; position:relative; z-index:1; }
   .hall-stats{ margin-top:18px; position:relative; z-index:1; }
-  .hall-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:12px; }
-  .hall-stat{
-    background:rgba(0,0,0,.4); border:1px solid var(--gold-deep); box-shadow:inset 0 0 8px rgba(140,107,39,.2);
-    padding:10px 16px 11px; border-radius:5px; color:var(--paper-2);
-  }
-  .hall-stat .hs-label{ font-size:11px; color:#E8CA82; letter-spacing:2px; }
-  .hall-stat .hs-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:26px; color:#F8EDD1; line-height:1.25; }
-  .hall-stat .hs-sub{ font-size:11.5px; color:rgba(232,202,130,.72); line-height:1.6; margin-top:2px; }
 
-  .hall-line{
-    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-    margin-top:12px; padding-top:11px; border-top:1px dashed rgba(232,202,130,.22);
+  /* ===== 內務堂：宗門底蘊 ===== */
+  .ledger-head{
+    display:flex; align-items:center; gap:9px; margin-bottom:12px;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:#E8CA82;
   }
-  .hall-line .hl-label{ font-size:11px; letter-spacing:2px; color:#E8CA82; flex-shrink:0; }
-  .hall-line .hl-label.warn{ color:#F0A38F; }
-  .hl-chip{
-    background:rgba(0,0,0,.35); border:1px solid rgba(232,202,130,.18); border-radius:3px;
-    padding:3px 9px; font-size:12px; color:#E8CA82;
+  .ledger-head svg{ width:17px; height:17px; flex-shrink:0; opacity:.9; }
+  .ledger-head .lh-rule{ flex:1; height:1px; background:linear-gradient(90deg,rgba(232,202,130,.36),transparent); }
+  .ledger{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr) minmax(0,1.05fr); gap:14px; }
+  @media(max-width:960px){ .ledger{ grid-template-columns:1fr; } }
+  .ledger-panel{
+    position:relative; overflow:hidden; padding:14px 17px 15px; border-radius:5px;
+    background:linear-gradient(150deg, rgba(21,28,23,.94) 0%, rgba(7,11,9,.96) 100%);
+    border:1px solid var(--gold-deep);
+    box-shadow:inset 0 0 24px rgba(140,107,39,.13), 0 4px 14px rgba(0,0,0,.34);
+    transition:box-shadow .45s ease, border-color .45s ease;
   }
-  .hl-chip b{ color:#F8EDD1; margin-left:4px; font-family:"Noto Serif TC",serif; }
-  .hl-chip.warn{ border-color:rgba(240,163,143,.4); background:rgba(156,43,34,.22); color:#F6C9BC; }
+  .ledger-panel::after{
+    content:""; position:absolute; inset:3px; border:1px solid rgba(232,202,130,.12);
+    border-radius:3px; pointer-events:none;
+  }
+  .lp-head{ display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:3px; color:#C9A75E; margin-bottom:9px; }
+  .lp-head svg{ width:14px; height:14px; flex-shrink:0; }
+
+  .lp-stone{ display:flex; align-items:center; gap:13px; }
+  .stone-sigil{ width:44px; height:44px; flex-shrink:0; color:#8FE3C0; animation:stoneBreath 4.6s ease-in-out infinite; }
+  @keyframes stoneBreath{
+    0%,100%{ opacity:.68; filter:drop-shadow(0 0 3px rgba(143,227,192,.28)); }
+    50%{ opacity:1; filter:drop-shadow(0 0 11px rgba(143,227,192,.7)); }
+  }
+  .lp-total{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:31px; line-height:1.12; color:#F8EDD1; text-shadow:0 0 16px rgba(232,202,130,.3); }
+  .lp-total .lp-unit{ font-family:inherit; font-weight:400; font-size:12px; letter-spacing:2px; color:#C9A75E; margin-left:6px; }
+  .lp-breakdown{ margin-top:8px; font-size:11.5px; color:rgba(232,202,130,.7); line-height:1.9; }
+  .lp-breakdown span{ display:inline-block; margin-right:11px; white-space:nowrap; }
+  .lp-breakdown b{ color:#F0DCA4; font-family:"Noto Serif TC",serif; margin-left:3px; }
+
+  .lp-flow{ margin:0; padding:0; list-style:none; }
+  .lp-flow li{
+    display:flex; gap:9px; align-items:baseline; padding:6px 0; font-size:12.5px; line-height:1.65;
+    color:#DCCFA8; border-bottom:1px dashed rgba(232,202,130,.13); animation:flowIn .45s ease-out both;
+  }
+  .lp-flow li:last-child{ border-bottom:none; }
+  .lp-flow li:nth-child(2){ animation-delay:.07s; }
+  .lp-flow li:nth-child(3){ animation-delay:.14s; }
+  @keyframes flowIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:none; } }
+  .lf-time{ font-size:10.5px; color:rgba(232,202,130,.45); flex-shrink:0; font-family:"Noto Serif TC",serif; }
+  .lf-actor{ color:#E8CA82; flex-shrink:0; }
+  .lf-text{ flex:1; }
+  .lf-delta{ font-family:"Noto Serif TC",serif; font-weight:900; }
+  .lf-delta.plus{ color:#7FD2A8; } .lf-delta.minus{ color:#F0836A; }
+  .lp-empty{ font-size:12px; color:rgba(232,202,130,.42); padding:10px 0; line-height:1.8; }
+
+  .lp-talisman{ display:flex; gap:13px; align-items:flex-start; }
+  .talisman-sigil{ width:36px; height:50px; flex-shrink:0; color:rgba(201,167,94,.75); }
+  .ledger-panel.alarm{ border-color:rgba(200,70,52,.55); box-shadow:inset 0 0 26px rgba(140,30,22,.25), 0 4px 16px rgba(0,0,0,.4); }
+  .ledger-panel.alarm .talisman-sigil{ color:#E8654B; animation:talismanPulse 2.6s ease-in-out infinite; }
+  @keyframes talismanPulse{
+    0%,100%{ filter:drop-shadow(0 0 2px rgba(232,101,75,.35)); opacity:.85; }
+    50%{ filter:drop-shadow(0 0 13px rgba(232,101,75,.95)); opacity:1; }
+  }
+  .lp-alert{ font-size:13px; line-height:1.85; color:#F0DCA4; }
+  .lp-alert .urgent{ color:#F8D4C6; }
+  .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:18px; color:#FF9E82; margin:0 4px; }
+  .lp-alert .lp-more{ display:block; margin-top:5px; font-size:11.5px; color:rgba(232,202,130,.62); }
+  .lp-alert.quiet{ font-size:12.5px; color:rgba(232,202,130,.62); }
 
   /* ===== 頁籤 ===== */
   .tabs{ display:flex; gap:8px; border-bottom:3px solid var(--gold-deep); margin-bottom:24px; overflow-x:auto; scrollbar-width:none; }
@@ -143,6 +188,14 @@
     padding:12px 24px; cursor:pointer; transition:all .2s; white-space:nowrap;
   }
   .tab-btn.active{ background:var(--gold-deep); color:var(--paper); border-color:var(--gold-deep); }
+  .tab-btn .tab-dot{
+    display:inline-flex; align-items:center; justify-content:center; min-width:19px; height:19px;
+    margin-left:7px; padding:0 5px; border-radius:10px; font-size:11.5px; line-height:1;
+    background:var(--vermillion); color:#F8EDD1; box-shadow:0 0 9px rgba(156,43,34,.5);
+    animation:dotPulse 2.2s ease-in-out infinite;
+  }
+  .tab-btn.active .tab-dot{ background:var(--vermillion-bright); }
+  @keyframes dotPulse{ 0%,100%{ box-shadow:0 0 4px rgba(156,43,34,.4); } 50%{ box-shadow:0 0 13px rgba(181,55,43,.9); } }
   .tab-panel{ display:none; animation:fadeIn .3s; }
   .tab-panel.active{ display:block; }
   @keyframes fadeIn{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:translateY(0);} }
@@ -263,6 +316,9 @@
   .eco-warn.warn { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.3); color: #7C3AED; }
   .eco-warn.info { background: rgba(45,90,76,0.08); border: 1px solid rgba(45,90,76,0.3); color: var(--jade); }
   .eco-warn.good { background: rgba(200,160,53,0.08); border: 1px solid rgba(200,160,53,0.3); color: var(--gold-deep); }
+  .eco-icon{ flex-shrink:0; line-height:0; }
+  .eco-icon svg{ width:22px; height:22px; }
+  .board-head svg{ width:17px; height:17px; flex-shrink:0; opacity:.9; }
 
   .filter-row{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
   .search-input{
@@ -310,24 +366,139 @@
     background:var(--gold-deep); color:var(--paper); letter-spacing:1px;
   }
 
-  /* ===== 戰鬥統計 ===== */
-  .combat-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
-  .combat-card{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:16px; position:relative; overflow:hidden; }
-  .combat-card::before{ content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,transparent,var(--vermillion),transparent); }
-  .cc-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
-  .cc-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; color:var(--ink); }
-  .cc-realm{ font-size:12px; color:var(--gold-deep); font-weight:700; }
-  .cc-meta{ font-size:12px; color:var(--ink-faint2); margin-bottom:12px; }
-  .cc-bar-row{ margin-bottom:9px; }
-  .cc-bar-label{ display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:3px; }
-  .cc-bar-label.hp{ color:var(--vermillion-bright); }
-  .cc-bar-label.qi{ color:var(--jade); }
-  .cc-track{ height:12px; background:var(--paper-3); border-radius:6px; overflow:hidden; border:1px solid rgba(0,0,0,.1); box-shadow:inset 0 2px 4px rgba(0,0,0,.08); }
-  .cc-fill{ height:100%; transition:width .4s; }
-  .cc-fill.hp{ background:linear-gradient(90deg,#9C2B22,#ff4d4d); }
-  .cc-fill.qi{ background:linear-gradient(90deg,#1b4332,#40916c); }
-  .cc-foot{ display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:12.5px; }
-  .cc-karma{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px; }
+  /* ===== 本命玉牌殿 ===== */
+  .jade-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(276px,1fr)); gap:18px; }
+  .jade-tablet{
+    position:relative; overflow:hidden; padding:16px 18px 14px; border-radius:6px;
+    background:linear-gradient(135deg, #1A211D, #0D120F);
+    border:1px solid var(--gold-deep);
+    box-shadow:0 6px 18px rgba(0,0,0,.32), inset 0 0 26px rgba(45,90,76,.15);
+    transition:box-shadow .5s ease, border-color .5s ease, transform .25s ease;
+  }
+  .jade-tablet:hover{ transform:translateY(-2px); box-shadow:0 11px 26px rgba(0,0,0,.42), inset 0 0 30px rgba(45,90,76,.24); }
+  .jade-tablet::before{
+    content:""; position:absolute; inset:4px; border:1px solid rgba(232,202,130,.12);
+    border-radius:3px; pointer-events:none;
+  }
+  .jade-tablet::after{
+    content:""; position:absolute; top:-40%; left:-25%; width:60%; height:180%;
+    background:linear-gradient(100deg, transparent, rgba(255,255,255,.045), transparent);
+    transform:rotate(14deg); pointer-events:none;
+  }
+  .jt-crack{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:0; transition:opacity .6s ease; color:rgba(210,78,60,.5); }
+  .jt-head{ position:relative; z-index:1; display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .jt-name{
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:19px; letter-spacing:1px;
+    color:#F3E8CC; text-shadow:0 1px 7px rgba(0,0,0,.75);
+  }
+  .jt-realm{ font-size:11.5px; letter-spacing:1px; color:#C9A75E; white-space:nowrap; }
+  .jt-meta{ position:relative; z-index:1; margin:4px 0 15px; font-size:11.5px; letter-spacing:.5px; color:rgba(220,207,168,.5); }
+  .jt-meta .jt-player{ color:#9FC0AC; }
+
+  .jt-line{ position:relative; z-index:1; margin-bottom:13px; }
+  .jt-line-label{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; font-size:10.5px; letter-spacing:2.5px; margin-bottom:6px; }
+  .jt-line-label .lbl{ display:flex; align-items:center; gap:5px; }
+  .jt-line-label svg{ width:12px; height:12px; flex-shrink:0; }
+  .jt-line-label .val{ font-family:"Noto Serif TC",serif; font-weight:700; font-size:13px; letter-spacing:0; }
+  .jt-line.hp .jt-line-label{ color:#DE8B77; }
+  .jt-line.qi .jt-line-label{ color:#7FC7A4; }
+  .jt-rail{ position:relative; height:3px; border-radius:2px; background:rgba(232,202,130,.09); box-shadow:inset 0 0 3px rgba(0,0,0,.5); }
+  .jt-flow{ position:absolute; top:0; left:0; height:3px; border-radius:2px; transition:width .65s cubic-bezier(.22,.61,.36,1); }
+  .jt-line.hp .jt-flow{ background:linear-gradient(90deg, rgba(156,43,34,.35), #E0664C); box-shadow:0 0 8px #E0664C; animation:lineBreath 3.6s ease-in-out infinite; }
+  .jt-line.qi .jt-flow{ background:linear-gradient(90deg, rgba(45,90,76,.35), #63B78E); box-shadow:0 0 8px #63B78E; animation:lineBreath 4.4s ease-in-out infinite; }
+  @keyframes lineBreath{ 0%,100%{ filter:brightness(.86); } 50%{ filter:brightness(1.22); } }
+
+  .jt-foot{
+    position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-top:15px; padding-top:11px; border-top:1px solid rgba(232,202,130,.12);
+    font-size:11px; letter-spacing:2px; color:rgba(220,207,168,.5);
+  }
+  .jt-stat{ display:flex; align-items:center; gap:6px; }
+  .jt-stat svg{ width:16px; height:16px; flex-shrink:0; opacity:.8; }
+  .jt-stat b{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px; letter-spacing:0; color:#EDE0BE; }
+
+  .jade-tablet.shattered{ border-color:rgba(184,58,44,.6); animation:tabletCrack 3.6s ease-in-out infinite; }
+  .jade-tablet.shattered .jt-crack{ opacity:.45; }
+  .jade-tablet.shattered .jt-name{ color:#F6D8CC; }
+  @keyframes tabletCrack{
+    0%,100%{ box-shadow:0 6px 18px rgba(0,0,0,.34), inset 0 0 20px rgba(92,20,15,.3), 0 0 0 rgba(156,43,34,0); }
+    50%{ box-shadow:0 6px 18px rgba(0,0,0,.34), inset 0 0 36px rgba(146,28,21,.55), 0 0 24px rgba(170,44,33,.5); }
+  }
+
+  /* ===== 領物申請與賜寶 ===== */
+  .btn-sigil{
+    display:inline-flex; align-items:center; gap:5px; background:transparent;
+    border:1px solid var(--border); border-radius:4px; color:var(--gold-deep);
+    font-family:inherit; font-weight:700; font-size:12px; padding:4px 9px; cursor:pointer;
+    transition:background .2s, border-color .2s, color .2s, box-shadow .2s;
+  }
+  .btn-sigil svg{ width:14px; height:14px; flex-shrink:0; }
+  .btn-sigil:hover{ color:var(--ink); border-color:var(--gold); background:rgba(140,107,39,.09); box-shadow:0 0 0 2px rgba(140,107,39,.08); }
+  .btn-sigil.grant{ color:var(--jade); border-color:rgba(45,90,76,.42); }
+  .btn-sigil.grant:hover{ color:#1B4332; border-color:var(--jade); background:rgba(45,90,76,.12); box-shadow:0 0 0 2px rgba(45,90,76,.1); }
+  .btn-sigil.reject{ color:var(--vermillion-bright); border-color:rgba(156,43,34,.42); }
+  .btn-sigil.reject:hover{ border-color:var(--vermillion); background:rgba(156,43,34,.1); box-shadow:0 0 0 2px rgba(156,43,34,.08); }
+  .btn-sigil:disabled{ opacity:.38; cursor:default; filter:grayscale(.5); }
+  .btn-sigil:disabled:hover{ background:transparent; border-color:var(--border); color:var(--gold-deep); box-shadow:none; }
+
+  .scroll-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; }
+  .scroll-doc{
+    position:relative; border:1px solid var(--border); border-radius:3px; overflow:hidden;
+    background:linear-gradient(175deg, var(--paper-2) 0%, var(--paper-3) 100%);
+    box-shadow:0 4px 14px rgba(0,0,0,.07); animation:fadeIn .3s ease-out;
+  }
+  .scroll-doc::before, .scroll-doc::after{
+    content:""; position:absolute; left:0; right:0; height:10px;
+    background:linear-gradient(180deg, var(--ink), #3B332B); box-shadow:0 0 6px rgba(0,0,0,.3);
+  }
+  .scroll-doc::before{ top:0; } .scroll-doc::after{ bottom:0; }
+  .sd-body{ padding:24px 20px 22px; }
+  .sd-title{
+    display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:var(--ink);
+    border-bottom:1px dashed var(--border); padding-bottom:9px; margin-bottom:11px;
+  }
+  .sd-title .sd-qty{ color:var(--vermillion); font-size:20px; }
+  .sd-title .sd-stock{ margin-left:auto; font-family:inherit; font-weight:400; font-size:11.5px; color:var(--ink-faint2); letter-spacing:1px; }
+  .sd-title .sd-stock.short{ color:var(--vermillion-bright); font-weight:700; }
+  .sd-row{ display:flex; gap:8px; font-size:13px; line-height:1.9; color:var(--ink-dim); }
+  .sd-row .sd-k{ flex-shrink:0; width:56px; color:var(--gold-deep); font-weight:700; letter-spacing:2px; }
+  .sd-row .sd-v{ flex:1; }
+  .sd-reason{ margin-top:9px; padding:9px 12px; border-left:3px solid var(--gold); background:rgba(140,107,39,.07); font-size:13px; line-height:1.85; color:var(--ink-dim); border-radius:0 4px 4px 0; }
+  .sd-foot{ display:flex; align-items:center; gap:9px; margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); }
+  .sd-foot .sd-ts{ margin-right:auto; font-size:11px; color:var(--ink-faint2); letter-spacing:1px; }
+
+  /* ===== 玉簡彈窗 ===== */
+  .modal-mask{
+    position:fixed; inset:0; z-index:400; display:flex; align-items:center; justify-content:center;
+    padding:22px; background:rgba(9,7,4,.66); backdrop-filter:blur(3px); animation:fadeIn .18s ease-out;
+  }
+  .modal-card{
+    width:100%; max-width:440px; max-height:88vh; overflow-y:auto; padding:22px 24px 20px; border-radius:6px;
+    background:linear-gradient(160deg, #1C231E 0%, #0A0F0C 100%); border:1px solid var(--gold-deep);
+    box-shadow:0 22px 54px rgba(0,0,0,.6), inset 0 0 34px rgba(140,107,39,.12); animation:modalRise .26s ease-out;
+  }
+  @keyframes modalRise{ from{ opacity:0; transform:translateY(14px) scale(.985); } to{ opacity:1; transform:none; } }
+  .modal-title{
+    display:flex; align-items:center; gap:9px; font-family:"Noto Serif TC",serif; font-weight:900;
+    font-size:19px; letter-spacing:3px; color:#F3E3BC;
+  }
+  .modal-title svg{ width:19px; height:19px; color:#C9A75E; flex-shrink:0; }
+  .modal-sub{ margin:7px 0 16px; font-size:12.5px; line-height:1.85; color:rgba(232,202,130,.66); }
+  .modal-label{ display:block; font-size:11px; letter-spacing:3px; color:#C9A75E; margin:13px 0 5px; }
+  .modal-field{
+    width:100%; background:rgba(0,0,0,.34); border:1px solid rgba(232,202,130,.22); border-radius:4px;
+    color:#F3E8CC; font-family:inherit; font-size:14px; padding:8px 11px; line-height:1.7; resize:vertical;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .modal-field:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.22); }
+  .modal-field option{ background:#141A16; color:#F3E8CC; }
+  .modal-foot{ display:flex; justify-content:flex-end; gap:9px; margin-top:20px; }
+  .modal-foot .btn{ background:rgba(0,0,0,.3); border-color:rgba(232,202,130,.26); color:#DCCFA8; }
+  .modal-foot .btn:hover{ background:rgba(232,202,130,.1); border-color:var(--gold); color:#F8EDD1; }
+  .modal-foot .btn.gold{ background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; color:#1D1712; }
+  .modal-foot .btn.gold:hover{ background:linear-gradient(155deg,#F0D890,#CBA043); color:#120E08; }
+  .modal-foot .btn svg{ width:14px; height:14px; }
 
   /* ===== 權限 ===== */
   .admin-panel{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:20px; }
@@ -394,7 +565,7 @@
 <div class="layout">
   <div class="hall-header">
     <div class="hall-title">宗門大殿</div>
-    <div class="hall-sub">簡易分析報告　·　資料隨庫房與角色卡即時同步</div>
+    <div class="hall-sub">內務堂總帳　·　庫房、卷宗與本命玉牌即時同步</div>
     <div class="hall-stats" id="hallStats"></div>
   </div>
 
@@ -408,7 +579,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase, ref, onValue, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, onValue, get, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
   import { ROSTER_SEED, WAREHOUSE_SEED } from "./seed-data.js";
 
   const firebaseConfig = {
@@ -437,7 +608,8 @@
   let logs = {};            // id -> { ts, actor, text, delta }
   let roster = {};          // id -> { name, title, rank, root, job, path, realm, master }
   let treasury = {};        // id -> 法寶
-  let chars = {};           // 角色卡（戰鬥統計用）
+  let chars = {};           // 角色卡（本命玉牌用）
+  let itemRequests = {};    // id -> { itemId, itemName, qty, charId, charName, reason, applicantId, applicantName, ts }
   let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
   let syncError = null;
 
@@ -537,8 +709,50 @@
   watch("roster",     v => roster = v,    "roster");
   watch("treasury",   v => treasury = v,  "treasury");
   watch("characters", v => chars = v,     "chars");
+  watch("itemRequests", v => itemRequests = v);
 
   // ===== 共用工具 =====
+  // 全站不使用系統 emoji：所有圖示皆為手繪風格的 inline SVG（單色描線、無填色）。
+  const svg = (body, cls) => `<svg class="${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+  const SVG = {
+    // 靈石：切面晶石
+    stone: cls => svg(`<path d="M12 2.6 19.6 8 16.8 19.4H7.2L4.4 8Z"/><path d="M4.4 8h15.2"/><path d="m12 2.6-2.7 16.8"/><path d="m12 2.6 2.7 16.8"/><path d="m8.2 8 3.8 3.8L15.8 8"/>`, cls),
+    // 卷宗：兩端捲軸的帳冊
+    scroll: cls => svg(`<path d="M3.4 5.6v12.8M20.6 5.6v12.8"/><rect x="5.4" y="4.4" width="13.2" height="15.2" rx="1.4"/><path d="M8.6 8.6h6.8M8.6 12h6.8M8.6 15.4h4.2"/>`, cls),
+    // 符籙：下端裁尖的傳音符
+    talisman: cls => svg(`<path d="M7.4 2.6h9.2v13.9L12 21.4l-4.6-4.9z"/><path d="M12 5.6v9.6"/><path d="M9.4 8.4h5.2M9.4 11.6h5.2"/>`, cls),
+    // 護甲：宗門護心鏡
+    shield: cls => svg(`<path d="M12 2.6 19.4 5.3v6.1c0 4.6-3.1 8.4-7.4 10-4.3-1.6-7.4-5.4-7.4-10V5.3z"/><path d="M12 7v8.6M8.7 11.3h6.6"/>`, cls),
+    // 業力：陰陽魚
+    yinyang: cls => svg(`<circle cx="12" cy="12" r="9.2"/><path d="M12 2.8a4.6 4.6 0 0 0 0 9.2 4.6 4.6 0 0 1 0 9.2"/><circle cx="12" cy="7.4" r="1.4"/><circle cx="12" cy="16.6" r="1.4"/>`, cls),
+    // 申請調用：呈遞上稟
+    request: cls => svg(`<path d="M12 3.2v9.6"/><path d="m8.3 6.7 3.7-3.5 3.7 3.5"/><path d="M4.8 13.8v4.8a2.2 2.2 0 0 0 2.2 2.2h10a2.2 2.2 0 0 0 2.2-2.2v-4.8"/>`, cls),
+    // 賜下：由上而下的賞賜
+    grant: cls => svg(`<path d="M12 3.2v9.6"/><path d="m8.3 9.3 3.7 3.5 3.7-3.5"/><path d="M4.8 15.2v3.4a2.2 2.2 0 0 0 2.2 2.2h10a2.2 2.2 0 0 0 2.2-2.2v-3.4"/>`, cls),
+    // 駁回：折返的回帖
+    reject: cls => svg(`<path d="M9.6 5.2 4.6 10.2l5 5"/><path d="M4.6 10.2h9.6a5 5 0 0 1 5 5v3.6"/>`, cls),
+    // 刪除
+    cross: cls => svg(`<path d="M6.2 6.2 17.8 17.8M17.8 6.2 6.2 17.8"/>`, cls),
+    // 丹藥：葫蘆
+    gourd: cls => svg(`<path d="M9.8 3h4.4"/><path d="M10.6 3v2.4C10.6 7 8.5 7.7 8.5 9.6c0 1.2.8 2 1.6 2.6-1.3.9-2.3 2.3-2.3 4 0 2.6 2 4.4 4.2 4.4s4.2-1.8 4.2-4.4c0-1.7-1-3.1-2.3-4 .8-.6 1.6-1.4 1.6-2.6 0-1.9-2.1-2.6-2.1-4.2V3"/><path d="M8.6 15.4h6.8"/>`, cls),
+    // 天劫雷紋
+    bolt: cls => svg(`<path d="M13.6 2.6 5.8 13.2h5.2L9.4 21.4l8.2-11.2h-5.2z"/>`, cls),
+    // 劍
+    sword: cls => svg(`<path d="M12 2.4 13.7 6v9.2h-3.4V6z"/><path d="M8.2 15.2h7.6"/><path d="M12 15.2v4.4"/><path d="M10.4 19.6h3.2"/>`, cls),
+    // 靈光星芒
+    spark: cls => svg(`<path d="M10.4 2.6c.7 4.8 2.3 6.4 7.1 7.1-4.8.7-6.4 2.3-7.1 7.1-.7-4.8-2.3-6.4-7.1-7.1 4.8-.7 6.4-2.3 7.1-7.1z"/><path d="M18.2 15.4c.3 1.9 1 2.6 2.9 2.9-1.9.3-2.6 1-2.9 2.9-.3-1.9-1-2.6-2.9-2.9 1.9-.3 2.6-1 2.9-2.9z"/>`, cls),
+    // 血滴
+    drop: cls => svg(`<path d="M12 3.2c3.4 4.2 5.6 7.1 5.6 9.7a5.6 5.6 0 1 1-11.2 0c0-2.6 2.2-5.5 5.6-9.7z"/>`, cls),
+    // 蓮華（功德）
+    lotus: cls => svg(`<path d="M12 4.6c1.9 2 2.9 3.9 2.9 5.9 0 1.7-1.3 3.1-2.9 3.1s-2.9-1.4-2.9-3.1c0-2 1-3.9 2.9-5.9z"/><path d="M9.4 13.4c-1.5-1.5-3.4-2.3-5.3-2.3.2 2.1 1 3.8 2.5 5.3s3.4 2.3 5.4 2.3"/><path d="M14.6 13.4c1.5-1.5 3.4-2.3 5.3-2.3-.2 2.1-1 3.8-2.5 5.3s-3.4 2.3-5.4 2.3"/>`, cls),
+    // 業障鎖鏈
+    chain: cls => svg(`<path d="M10.4 13.6 8 16a3.4 3.4 0 1 1-4.8-4.8l2.4-2.4"/><path d="m13.6 10.4 2.4-2.4a3.4 3.4 0 1 1 4.8 4.8l-2.4 2.4"/><path d="m9.5 14.5 5-5"/>`, cls),
+    // 庫房大門
+    vault: cls => svg(`<path d="M3.6 9.4 12 3.6l8.4 5.8"/><path d="M5.4 9.4v10.4h13.2V9.4"/><path d="M9.6 19.8v-5.6h4.8v5.6"/>`, cls)
+  };
+  // 玉牌裂痕（僅在瀕死時疊上）
+  const CRACK_SVG = `<svg class="jt-crack" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M0 28 13 39 7 54l12 11"/><path d="M100 24 88 35l6 15-10 11"/><path d="M41 100 47 88l-7-9"/><path d="M8 0l6 13"/></svg>`;
+
   function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
   const attr = escapeHtml;
   function num(v){ return Number(v) || 0; }
@@ -605,10 +819,12 @@
       area.innerHTML = `<div class="notice info">連線中……</div>`;
       return;
     }
+    // 內務堂總帳只有純顯示、沒有輸入框，先畫它才不會被下面的「正在輸入時不重繪」擋住；
+    // 否則長老在編輯庫房時新進來的調用申請，警訊數字會一直停在舊值。
+    renderHallStats();
+
     // 正在輸入時不要整頁重繪（會打斷打字），除非是明確的按鈕操作
     if(!force && (Date.now() - lastLocalWriteAt < 2500 || area.contains(document.activeElement))) return;
-
-    renderHallStats();
 
     const editable = canEdit();
     area.innerHTML = `
@@ -618,7 +834,8 @@
         <button class="tab-btn" data-tab="tab-treasury">【多寶閣】</button>
         <button class="tab-btn" data-tab="tab-roster">【弟子花名冊】</button>
         <button class="tab-btn" data-tab="tab-report">【天機閣】</button>
-        <button class="tab-btn" data-tab="tab-combat">【戰鬥統計】</button>
+        <button class="tab-btn" data-tab="tab-combat">【本命玉牌殿】</button>
+        ${editable ? `<button class="tab-btn" data-tab="tab-requests">【待批核卷宗】${pendingRequests().length ? `<span class="tab-dot">${pendingRequests().length}</span>` : ""}</button>` : ""}
         ${isDM() ? `<button class="tab-btn" data-tab="tab-admin">【權限管理】</button>` : ""}
       </div>
       <div class="tab-panel" id="tab-warehouse">${warehouseHtml(editable)}</div>
@@ -626,6 +843,7 @@
       <div class="tab-panel" id="tab-roster">${rosterHtml(editable)}</div>
       <div class="tab-panel" id="tab-report">${reportHtml()}</div>
       <div class="tab-panel" id="tab-combat">${combatHtml()}</div>
+      ${editable ? `<div class="tab-panel" id="tab-requests">${requestsHtml()}</div>` : ""}
       ${isDM() ? `<div class="tab-panel" id="tab-admin">${adminHtml()}</div>` : ""}
     `;
 
@@ -643,72 +861,90 @@
     wireEvents(area);
   }
 
-  // 頂部總覽：不只是總數，而是一份帶脈絡與警訊的簡易分析報告
+  // ===== 【內務堂：宗門底蘊】=====
+  // 三面玉牌：左為靈石國庫、中為近期流水、右為傳音警訊。
+  function fmtLogTime(ts){
+    const d = new Date(num(ts));
+    return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+  }
+  function pendingRequests(){
+    return Object.entries(itemRequests)
+      .filter(([,r]) => r && typeof r === "object")
+      .sort((a,b) => num(a[1].ts) - num(b[1].ts));
+  }
+
   function renderHallStats(){
     const items = Object.values(warehouse);
-    const totalQty = items.reduce((s,i) => s + num(i.qty), 0);
     const stoneTotal = STONE_KEYS.reduce((s,x) => s + num(stones[x.k]), 0);
-    const members = Object.values(roster);
-    const charList = Object.values(chars);
+    const stoneParts = STONE_KEYS
+      .map(s => `<span>${escapeHtml(s.label.replace("靈石",""))}<b>${num(stones[s.k]).toLocaleString()}</b></span>`)
+      .join("");
 
-    // 階級重心：人數最多的階級
-    const rankCount = {};
-    members.forEach(m => { const r = m.rank || "記名"; rankCount[r] = (rankCount[r] || 0) + 1; });
-    const topRank = Object.entries(rankCount).sort((a,b) => b[1] - a[1])[0];
+    // 近期流水：庫房日誌最新三筆
+    const recent = Object.values(logs)
+      .filter(l => l && typeof l === "object")
+      .sort((a,b) => num(b.ts) - num(a.ts))
+      .slice(0, 3);
 
-    // 境界分布：取前三大境界（以前兩字分組）
-    const realmCount = {};
-    members.forEach(m => { const g = majorRealm(m.realm); realmCount[g] = (realmCount[g] || 0) + 1; });
-    const topRealms = Object.entries(realmCount).sort((a,b) => b[1] - a[1]).slice(0, 4);
-
-    // 戰備狀態：全團平均生命百分比，以及重傷人數
-    const hpPcts = charList
-      .map(c => { const mx = num(c.hp && c.hp.max); return mx > 0 ? Math.max(0, Math.min(100, num(c.hp && c.hp.current) / mx * 100)) : null; })
-      .filter(v => v != null);
-    const avgHp = hpPcts.length ? hpPcts.reduce((s,v) => s+v, 0) / hpPcts.length : null;
-    const wounded = hpPcts.filter(v => v <= 30).length;
-
-    const buildRate = members.length ? charList.length / members.length * 100 : null;
-    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
+    // 警訊：待批核申請 > 見底物資 > 低存量 > 重傷弟子
+    const reqCount = pendingRequests().length;
     const outOfStock = items.filter(i => num(i.qty) <= 0).length;
-    const stoneParts = STONE_KEYS.filter(s => num(stones[s.k]) > 0)
-      .map(s => `${s.label.replace("靈石", "")} ${num(stones[s.k]).toLocaleString()}`);
+    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
+    const wounded = Object.values(chars).filter(c => {
+      const mx = num(c.hp && c.hp.max);
+      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
+    }).length;
 
-    const cell = (label, value, sub) => `
-      <div class="hall-stat">
-        <div class="hs-label">${label}</div>
-        <div class="hs-value">${value}</div>
-        <div class="hs-sub">${sub || "－"}</div>
-      </div>`;
+    const notes = [];
+    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已然見底`);
+    if(lowStock > 0) notes.push(`${lowStock} 項物資存量不足三份`);
+    if(wounded > 0) notes.push(`${wounded} 名弟子本命玉牌將裂`);
 
-    const alerts = [];
-    if(wounded > 0) alerts.push(`${wounded} 名弟子生命值低於 30%`);
-    if(outOfStock > 0) alerts.push(`${outOfStock} 項物資已見底`);
-    if(lowStock > 0) alerts.push(`${lowStock} 項物資存量 ≤ 2`);
-    if(members.length && charList.length === 0) alerts.push("尚無任何角色卡，戰備數據無法計算");
+    const alarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
+    const alertBody = reqCount > 0
+      ? `<div class="lp-alert"><span class="urgent">長老請注意：有</span><b>${reqCount}</b><span class="urgent">筆調用申請待批核</span>
+           ${notes.length ? `<span class="lp-more">另：${escapeHtml(notes.join("、"))}。</span>` : ""}</div>`
+      : (notes.length
+          ? `<div class="lp-alert"><span class="urgent">內務堂稟報：</span>${escapeHtml(notes.join("、"))}，宜早作打算。</div>`
+          : `<div class="lp-alert quiet">符紙靜默，四下無事。庫房充盈，弟子安康。</div>`);
 
     document.getElementById("hallStats").innerHTML = `
-      <div class="hall-grid">
-        ${cell("宗門弟子", members.length.toLocaleString(),
-          topRank ? `最多：${escapeHtml(topRank[0])} ${topRank[1]} 人` : "花名冊尚無資料")}
-        ${cell("建卡率", buildRate == null ? "－" : buildRate.toFixed(0) + "%",
-          `${charList.length} / ${members.length} 張角色卡`)}
-        ${cell("戰備狀態", avgHp == null ? "－" : avgHp.toFixed(0) + "%",
-          avgHp == null ? "無可用生命資料" : `平均生命${wounded ? ` · 重傷 ${wounded} 人` : " · 全員無恙"}`)}
-        ${cell("庫房物資", items.length.toLocaleString(),
-          `共 ${totalQty.toLocaleString()} 件${lowStock ? ` · 低存量 ${lowStock}` : ""}`)}
-        ${cell("靈石總計", stoneTotal.toLocaleString(),
-          stoneParts.length ? stoneParts.join(" · ") : "尚未登錄靈石")}
-        ${cell("多寶閣", Object.keys(treasury).length.toLocaleString(), "件法寶")}
+      <div class="ledger-head">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
+      <div class="ledger">
+        <div class="ledger-panel">
+          <div class="lp-head">${SVG.stone()}<span>靈石國庫</span></div>
+          <div class="lp-stone">
+            ${SVG.stone("stone-sigil")}
+            <div>
+              <div class="lp-total">${stoneTotal.toLocaleString()}<span class="lp-unit">枚</span></div>
+              <div class="lp-breakdown">${stoneParts}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ledger-panel">
+          <div class="lp-head">${SVG.scroll()}<span>近期流水</span></div>
+          ${recent.length === 0
+            ? `<div class="lp-empty">帳冊尚無墨跡，庫房未見進出。</div>`
+            : `<ul class="lp-flow">${recent.map(l => {
+                const d = num(l.delta);
+                return `<li>
+                  <span class="lf-time">${fmtLogTime(l.ts)}</span>
+                  <span class="lf-actor">${escapeHtml(l.actor || "無名")}</span>
+                  <span class="lf-text">${escapeHtml(l.text || "")}</span>
+                  ${d ? `<span class="lf-delta ${d > 0 ? "plus" : "minus"}">${d > 0 ? "+" : ""}${d.toLocaleString()}</span>` : ""}
+                </li>`;
+              }).join("")}</ul>`}
+        </div>
+
+        <div class="ledger-panel${alarm ? " alarm" : ""}">
+          <div class="lp-head">${SVG.talisman()}<span>傳音警訊</span></div>
+          <div class="lp-talisman">
+            ${SVG.talisman("talisman-sigil")}
+            ${alertBody}
+          </div>
+        </div>
       </div>
-      ${topRealms.length ? `<div class="hall-line">
-        <span class="hl-label">境界分布</span>
-        ${topRealms.map(([g,n]) => `<span class="hl-chip">${escapeHtml(g)} <b>${n}</b></span>`).join("")}
-      </div>` : ""}
-      ${alerts.length ? `<div class="hall-line alerts">
-        <span class="hl-label warn">待處理</span>
-        ${alerts.map(a => `<span class="hl-chip warn">${escapeHtml(a)}</span>`).join("")}
-      </div>` : ""}
     `;
   }
 
@@ -729,10 +965,6 @@
 
   // ===== 宗門庫房 =====
   function warehouseHtml(editable){
-    const entries = Object.entries(warehouse)
-      .filter(([,it]) => (it.category || "丹藥") === warehouseCat)
-      .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
-
     return `
       <div class="block-title">靈石總帳<span class="spacer"></span>
         ${editable ? `<span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">直接修改數字即可，變更會寫入下方日誌</span>` : ""}
@@ -768,17 +1000,21 @@
     const entries = Object.entries(warehouse)
       .filter(([,it]) => (it.category || "丹藥") === warehouseCat)
       .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
+    // 弟子（非長老）看到的是「申請調用」，長老看到的是刪除
+    const canRequest = !!discordUser && !editable;
+    const cols = 3 + (editable ? 1 : 0) + (canRequest ? 1 : 0);
     return `
         <table class="sheet-table">
           <thead><tr>
             <th style="width:26%;">名稱</th>
             <th style="width:16%;">數量</th>
             <th>效果 / 備註</th>
+            ${canRequest ? `<th style="width:112px;">調用</th>` : ""}
             ${editable ? `<th style="width:40px;"></th>` : ""}
           </tr></thead>
           <tbody>
             ${entries.length === 0
-              ? `<tr><td colspan="${editable?4:3}" class="empty-row">此分類尚無物資</td></tr>`
+              ? `<tr><td colspan="${cols}" class="empty-row">此分類尚無物資</td></tr>`
               : entries.map(([id,it]) => `
                 <tr>
                   <td><input data-w="${id}" data-prop="name" value="${attr(it.name)}" placeholder="物資名稱" ${editable?"":"disabled"}></td>
@@ -790,7 +1026,9 @@
                     </div>
                   </td>
                   <td><input data-w="${id}" data-prop="effect" value="${attr(it.effect)}" placeholder="效果說明" ${editable?"":"disabled"}></td>
-                  ${editable ? `<td><button class="btn-icon" data-action="del-item" data-id="${id}" title="刪除">✕</button></td>` : ""}
+                  ${canRequest ? `<td><button class="btn-sigil" data-action="request-item" data-id="${id}"
+                    title="向內務堂申請調用" ${num(it.qty) > 0 ? "" : "disabled"}>${SVG.request()}申請調用</button></td>` : ""}
+                  ${editable ? `<td><button class="btn-icon" data-action="del-item" data-id="${id}" title="刪除">${SVG.cross()}</button></td>` : ""}
                 </tr>`).join("")}
           </tbody>
         </table>`;
@@ -838,7 +1076,7 @@
     return `
       <div class="treasure-card">
         <div class="treasure-head">
-          ${editable ? `<button class="btn-icon treasure-del" data-action="del-treasure" data-id="${id}">✕</button>` : ""}
+          ${editable ? `<button class="btn-icon treasure-del" data-action="del-treasure" data-id="${id}" title="刪除">${SVG.cross()}</button>` : ""}
           <input class="treasure-name" data-t="${id}" data-prop="name" value="${attr(t.name)}" placeholder="法寶名稱" ${dis}>
           <input class="treasure-quote" data-t="${id}" data-prop="quote" value="${attr(t.quote)}" placeholder="題詞（例：杖起群魔伏，心清五蘊空）" ${dis}>
         </div>
@@ -954,7 +1192,7 @@
                   <td><input data-r="${id}" data-prop="path" value="${attr(m.path)}" ${editable?"":"disabled"}></td>
                   <td><input data-r="${id}" data-prop="realm" value="${attr(m.realm)}" ${editable?"":"disabled"}></td>
                   <td><input data-r="${id}" data-prop="master" value="${attr(m.master)}" placeholder="－" ${editable?"":"disabled"}></td>
-                  ${editable ? `<td><button class="btn-icon" data-action="del-member" data-id="${id}">✕</button></td>` : ""}
+                  ${editable ? `<td><button class="btn-icon" data-action="del-member" data-id="${id}" title="移出花名冊">${SVG.cross()}</button></td>` : ""}
                 </tr>`).join("")}
           </tbody>
         </table>`;
@@ -995,24 +1233,24 @@
     // 檢查醫療/煉丹後勤
     const hasMedic = Object.keys(jobCounts).some(k => k.includes("丹") || k.includes("醫") || k.includes("補") || k.includes("藥"));
     if(!hasMedic && totalDisciples > 0) {
-      warnings.push({ type: "danger", icon: "💊", text: "後勤空虛：宗門內極度缺乏「煉丹」或「醫療」相關職業，若遇大戰恐無人救治，死傷慘重。" });
+      warnings.push({ type: "danger", icon: SVG.gourd(), text: "後勤空虛：宗門內極度缺乏「煉丹」或「醫療」相關職業，若遇大戰恐無人救治，死傷慘重。" });
     }
 
     // 檢查邪修比例
     const evilCount = pathCounts["邪修"] || 0;
     if(evilCount > totalDisciples * 0.3) {
-      warnings.push({ type: "warn", icon: "⚡", text: `風氣偏移：門內邪道修士高達 ${evilCount} 人，比例過高。近期須慎防正道聯盟借機發難，或引動大規模天劫降臨。` });
+      warnings.push({ type: "warn", icon: SVG.bolt(), text: `風氣偏移：門內邪道修士高達 ${evilCount} 人，比例過高。近期須慎防正道聯盟借機發難，或引動大規模天劫降臨。` });
     }
 
     // 檢查單一道途過於集中 (以劍修為例)
     const swordCount = pathCounts["劍修"] || 0;
     if(swordCount > totalDisciples * 0.5) {
-      warnings.push({ type: "info", icon: "⚔️", text: "劍氣沖霄：本門逾半數為劍修，殺伐極盛！但須注意鬥法時輔助與防禦手段恐顯單一。" });
+      warnings.push({ type: "info", icon: SVG.sword(), text: "劍氣沖霄：本門逾半數為劍修，殺伐極盛！但須注意鬥法時輔助與防禦手段恐顯單一。" });
     }
 
     // 都很健康的話給予正面回饋
     if(warnings.length === 0 && totalDisciples > 0) {
-      warnings.push({ type: "good", icon: "☯", text: "陰陽調和：目前宗門百花齊放，各道途與職業分布尚稱均衡，氣運綿長，並無明顯短板。" });
+      warnings.push({ type: "good", icon: SVG.yinyang(), text: "陰陽調和：目前宗門百花齊放，各道途與職業分布尚稱均衡，氣運綿長，並無明顯短板。" });
     }
 
     const renderBoard = (list, valFn, emptyMsg, colorClass) => {
@@ -1030,11 +1268,11 @@
         <div class="report-section-title">天機榜 · 戰力底蘊</div>
         <div class="board-grid">
           <div class="board-card">
-            <div class="board-head qi">🌟 靈氣巔峰榜 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">最高靈氣上限</span></div>
+            <div class="board-head qi">${SVG.spark()} 靈氣巔峰榜 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">最高靈氣上限</span></div>
             <div class="board-list">${renderBoard(topQi, c => num(c.qi?.max).toLocaleString(), "尚無填寫靈氣的修士", "text-jade")}</div>
           </div>
           <div class="board-card">
-            <div class="board-head hp">🩸 命懸一線 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">生命 ≤ 30%</span></div>
+            <div class="board-head hp">${SVG.drop()} 命懸一線 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">生命 ≤ 30%</span></div>
             <div class="board-list">${renderBoard(lowHp.map(x=>x.c), c => num(c.hp?.current) + " / " + num(c.hp?.max), "宗門上下目前安然無恙", "text-vermillion")}</div>
           </div>
         </div>
@@ -1044,11 +1282,11 @@
         <div class="report-section-title">天機榜 · 善惡因果</div>
         <div class="board-grid">
           <div class="board-card">
-            <div class="board-head good">✨ 功德無量 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">負業力排行</span></div>
+            <div class="board-head good">${SVG.lotus()} 功德無量 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">負業力排行</span></div>
             <div class="board-list">${renderBoard(goodKarma, c => num(c.karma), "尚未發現功德顯赫之輩", "text-gold")}</div>
           </div>
           <div class="board-card">
-            <div class="board-head bad">💀 業障纏身 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">正業力排行</span></div>
+            <div class="board-head bad">${SVG.chain()} 業障纏身 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">正業力排行</span></div>
             <div class="board-list">${renderBoard(badKarma, c => "+" + num(c.karma), "門內尚無罪孽深重之徒", "text-purple")}</div>
           </div>
         </div>
@@ -1057,47 +1295,256 @@
       <div class="report-section">
         <div class="report-section-title">宗門氣運推演預警</div>
         <div style="margin-top:12px;">
-          ${warnings.map(w => `<div class="eco-warn ${w.type}"><span style="font-size:18px;">${w.icon}</span> <span>${w.text}</span></div>`).join("")}
+          ${warnings.map(w => `<div class="eco-warn ${w.type}"><span class="eco-icon">${w.icon}</span><span>${w.text}</span></div>`).join("")}
         </div>
       </div>
     `;
   }
 
 
-  // ===== 戰鬥統計 =====
+  // ===== 【本命玉牌殿】=====
+  // 每位弟子一面墨玉本命牌：生命與靈氣化為極細的呼吸靈光，血量低於三成則玉牌龜裂泛血。
   function combatHtml(){
     const list = Object.entries(chars).sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
-    if(list.length === 0) return `<div class="notice info" style="font-weight:400;">目前還沒有任何角色卡。</div>`;
+    if(list.length === 0) return `<div class="notice info" style="font-weight:400;">本命玉牌殿空無一牌，尚未有弟子刻下姓名。</div>`;
     const pct = (cur,max) => { const c=num(cur), m=num(max); return m<=0?0:Math.max(0,Math.min(100,c/m*100)); };
     // 正業力＝業障（紫），負業力＝功德（金），與角色卡一致
-    const karmaColor = k => num(k) > 0 ? "#7C3AED" : (num(k) < 0 ? "#C8A035" : "var(--ink-dim)");
+    const karmaColor = k => num(k) > 0 ? "#B48CF0" : (num(k) < 0 ? "#E8CA82" : "rgba(220,207,168,.6)");
     return `
-      <div class="block-title">全團戰鬥狀態<span class="spacer"></span>
-        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">唯讀・角色卡變動時即時同步</span>
+      <div class="block-title">本命玉牌殿<span class="spacer"></span>
+        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">唯讀・角色卡變動時玉牌即時感應</span>
       </div>
-      <div class="combat-grid">
-        ${list.map(([id,c]) => `
-          <div class="combat-card">
-            <div class="cc-head">
-              <span class="cc-name">${escapeHtml(c.name || "未命名角色")}</span>
-              <span class="cc-realm">${escapeHtml(c.realm || "－")}</span>
+      <div class="jade-grid">
+        ${list.map(([id,c]) => {
+          const hpPct = pct(c.hp?.current, c.hp?.max);
+          const shattered = num(c.hp?.max) > 0 && hpPct <= 30;
+          return `
+          <div class="jade-tablet${shattered ? " shattered" : ""}" data-char="${attr(id)}">
+            ${shattered ? CRACK_SVG : ""}
+            <div class="jt-head">
+              <span class="jt-name">${escapeHtml(c.name || "未命名角色")}</span>
+              <span class="jt-realm">${escapeHtml(c.realm || "－")}</span>
             </div>
-            <div class="cc-meta">${escapeHtml([c.race, c.path, c.job].filter(Boolean).join(" · ") || "－")}
-              ${c.player ? `　<span style="color:var(--gold-deep);">${escapeHtml(c.player)}</span>` : ""}</div>
-            <div class="cc-bar-row">
-              <div class="cc-bar-label hp"><span>生命 HP</span><span>${num(c.hp?.current)} / ${num(c.hp?.max)}</span></div>
-              <div class="cc-track"><div class="cc-fill hp" style="width:${pct(c.hp?.current, c.hp?.max)}%"></div></div>
+            <div class="jt-meta">${escapeHtml([c.race, c.path, c.job].filter(Boolean).join(" · ") || "－")}
+              ${c.player ? `　<span class="jt-player">${escapeHtml(c.player)}</span>` : ""}</div>
+
+            <div class="jt-line hp">
+              <div class="jt-line-label">
+                <span class="lbl">${SVG.drop()}生命</span>
+                <span class="val">${num(c.hp?.current).toLocaleString()} / ${num(c.hp?.max).toLocaleString()}</span>
+              </div>
+              <div class="jt-rail"><div class="jt-flow" style="width:${hpPct.toFixed(1)}%"></div></div>
             </div>
-            <div class="cc-bar-row">
-              <div class="cc-bar-label qi"><span>靈氣 QI</span><span>${num(c.qi?.current).toLocaleString()} / ${num(c.qi?.max).toLocaleString()}</span></div>
-              <div class="cc-track"><div class="cc-fill qi" style="width:${pct(c.qi?.current, c.qi?.max)}%"></div></div>
+
+            <div class="jt-line qi">
+              <div class="jt-line-label">
+                <span class="lbl">${SVG.spark()}靈氣</span>
+                <span class="val">${num(c.qi?.current).toLocaleString()} / ${num(c.qi?.max).toLocaleString()}</span>
+              </div>
+              <div class="jt-rail"><div class="jt-flow" style="width:${pct(c.qi?.current, c.qi?.max).toFixed(1)}%"></div></div>
             </div>
-            <div class="cc-foot">
-              <span style="color:var(--ink-faint2);">護甲 AC <b style="color:var(--ink);">${num(c.ac)}</b></span>
-              <span style="color:var(--ink-faint2);">業力 <b class="cc-karma" style="color:${karmaColor(c.karma)};">${num(c.karma)}</b></span>
+
+            <div class="jt-foot">
+              <span class="jt-stat">${SVG.shield()}護甲<b>${num(c.ac)}</b></span>
+              <span class="jt-stat">${SVG.yinyang()}業力<b style="color:${karmaColor(c.karma)};">${num(c.karma)}</b></span>
             </div>
-          </div>`).join("")}
+          </div>`;
+        }).join("")}
       </div>`;
+  }
+
+  // ===== 【領物申請與賜寶系統】=====
+  // 弟子於庫房呈遞調用申請 → 內務長老於【待批核卷宗】賜下或駁回。
+
+  function closeModal(){
+    const m = document.getElementById("tfModal");
+    if(m) m.remove();
+    if(closeModal._esc){ document.removeEventListener("keydown", closeModal._esc); closeModal._esc = null; }
+  }
+  function openModal(html, onMount){
+    closeModal();
+    const el = document.createElement("div");
+    el.className = "modal-mask"; el.id = "tfModal";
+    el.innerHTML = `<div class="modal-card">${html}</div>`;
+    el.addEventListener("mousedown", e => { if(e.target === el) closeModal(); });
+    document.body.appendChild(el);
+    closeModal._esc = e => { if(e.key === "Escape") closeModal(); };
+    document.addEventListener("keydown", closeModal._esc);
+    if(onMount) onMount(el);
+  }
+
+  function myChars(){
+    if(!discordUser) return [];
+    return Object.entries(chars)
+      .filter(([,c]) => c && c.ownerId === discordUser.id)
+      .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
+  }
+
+  function openRequestModal(itemId){
+    if(!discordUser){ flash("請先以 Discord 登入，方能呈遞申請", true); return; }
+    const item = warehouse[itemId];
+    if(!item){ flash("庫房已無此物資", true); return; }
+    const mine = myChars();
+    if(mine.length === 0){ flash("你名下尚無角色卡，請先至角色卡建卡", true); return; }
+    const stock = num(item.qty);
+    const itemName = item.name || "未命名物資";
+
+    openModal(`
+      <div class="modal-title">${SVG.request()}<span>領物申請</span></div>
+      <div class="modal-sub">向內務堂呈遞【${escapeHtml(itemName)}】的調用申請。庫房現存 ${stock.toLocaleString()} 份，
+        申請將送入【待批核卷宗】，待長老賜下。</div>
+
+      <label class="modal-label">賜予何人</label>
+      <select class="modal-field" id="reqChar">
+        ${mine.map(([id,c]) => `<option value="${attr(id)}">${escapeHtml(c.name || "未命名角色")}${c.realm ? `　（${escapeHtml(c.realm)}）` : ""}</option>`).join("")}
+      </select>
+
+      <label class="modal-label">請求數量</label>
+      <input class="modal-field" id="reqQty" type="number" min="1" step="1" value="1">
+
+      <label class="modal-label">申請理由</label>
+      <textarea class="modal-field" id="reqReason" rows="3" placeholder="例：閉關衝擊築基，需此丹護住心脈"></textarea>
+
+      <div class="modal-foot">
+        <button class="btn" data-modal="cancel">作罷</button>
+        <button class="btn gold" data-modal="submit">${SVG.request()}呈遞申請</button>
+      </div>`, el => {
+      const sel = el.querySelector("#reqChar");
+      const qtyEl = el.querySelector("#reqQty");
+      const reasonEl = el.querySelector("#reqReason");
+      el.querySelector('[data-modal="cancel"]').onclick = closeModal;
+      el.querySelector('[data-modal="submit"]').onclick = async btn => {
+        const charId = sel.value;
+        const c = chars[charId];
+        const qty = Math.floor(num(qtyEl.value));
+        const reason = (reasonEl.value || "").trim();
+        if(!c){ flash("找不到該角色卡", true); return; }
+        if(qty <= 0){ flash("請填寫正確的數量", true); qtyEl.focus(); return; }
+        if(qty > stock && !confirm(`庫房現存僅 ${stock} 份，仍要提出 ${qty} 份的申請嗎？`)) return;
+        if(!reason){ flash("請寫下申請理由，長老才好定奪", true); reasonEl.focus(); return; }
+
+        const r = push(ref(db, "itemRequests"));
+        const ok = await writeNow("itemRequests/" + r.key, {
+          itemId, itemName, qty,
+          charId, charName: c.name || "未命名角色",
+          reason,
+          applicantId: discordUser.id, applicantName: discordUser.name,
+          ts: Date.now()
+        });
+        if(!ok) return;
+        closeModal();
+        flash("申請已呈入內務堂", false);
+        renderAll(true);
+      };
+      setTimeout(() => qtyEl.focus(), 30);
+    });
+  }
+
+  function requestsHtml(){
+    const list = pendingRequests();
+    return `
+      <div class="block-title">待批核卷宗<span class="spacer"></span>
+        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">共 ${list.length} 卷待決</span>
+      </div>
+      <div class="notice info" style="font-weight:400;">
+        「賜下」會自庫房扣除數量、將物品寫入該弟子的儲物袋，並在異動日誌留下墨跡；「駁回」則僅退回卷宗。
+      </div>
+      ${list.length === 0
+        ? `<div class="notice info" style="font-weight:400;">案上清淨，並無待批核的調用申請。</div>`
+        : `<div class="scroll-grid">${list.map(([id,r]) => {
+            const item = warehouse[r.itemId];
+            const stock = item ? num(item.qty) : null;
+            const qty = Math.max(1, Math.floor(num(r.qty)));
+            const short = stock == null || stock < qty;
+            return `
+            <div class="scroll-doc">
+              <div class="sd-body">
+                <div class="sd-title">
+                  <span>${escapeHtml(r.itemName || "未命名物資")}</span>
+                  <span class="sd-qty">×${qty.toLocaleString()}</span>
+                  <span class="sd-stock${short ? " short" : ""}">${stock == null ? "庫房已無此品項" : `庫存 ${stock.toLocaleString()}`}</span>
+                </div>
+                <div class="sd-row"><span class="sd-k">申請者</span><span class="sd-v">${escapeHtml(r.applicantName || "無名弟子")}</span></div>
+                <div class="sd-row"><span class="sd-k">賜予</span><span class="sd-v">${escapeHtml(r.charName || "未命名角色")}</span></div>
+                <div class="sd-reason">${escapeHtml(r.reason || "（未書理由）")}</div>
+                <div class="sd-foot">
+                  <span class="sd-ts">${fmtLogTime(r.ts)} 呈遞</span>
+                  <button class="btn-sigil grant" data-action="approve-req" data-id="${attr(id)}">${SVG.grant()}賜下</button>
+                  <button class="btn-sigil reject" data-action="reject-req" data-id="${attr(id)}">${SVG.reject()}駁回</button>
+                </div>
+              </div>
+            </div>`;
+          }).join("")}</div>`}
+    `;
+  }
+
+  // 賜下：庫房扣量 → 寫入弟子儲物袋 → 留下日誌 → 退掉卷宗
+  async function approveRequest(reqId){
+    const req = itemRequests[reqId];
+    if(!req){ flash("此卷宗已不存在", true); return; }
+    const qty = Math.max(1, Math.floor(num(req.qty)));
+    const reason = req.reason || "－";
+    try{
+      lastLocalWriteAt = Date.now();
+      const itemSnap = await get(ref(db, "warehouse/" + req.itemId));
+      const item = itemSnap.val();
+      if(!item){ alert(`庫房已無【${req.itemName || "此物資"}】，無法賜下。`); return; }
+      const have = num(item.qty);
+      if(have < qty){
+        alert(`庫存不足，無法賜下。\n\n【${item.name || req.itemName}】現存 ${have}，申請 ${qty}。`);
+        return;
+      }
+
+      const charSnap = await get(ref(db, "characters/" + req.charId));
+      const char = charSnap.val();
+      if(!char){ alert(`找不到弟子「${req.charName || "未命名"}」的角色卡，可能已被刪除。`); return; }
+
+      const raw = char.itemsList;
+      const itemsList = Array.isArray(raw) ? raw.slice()
+        : (raw && typeof raw === "object" ? Object.values(raw) : []);
+      itemsList.push({
+        name: req.itemName || "未命名物資",
+        type: "宗門調用",
+        desc: "數量: " + qty + "。理由: " + reason
+      });
+
+      await update(ref(db, "warehouse/" + req.itemId), { qty: have - qty });
+      await update(ref(db, "characters/" + req.charId), {
+        itemsList,
+        updatedAt: Date.now(),
+        updatedBy: (discordUser && discordUser.name) || "內務堂"
+      });
+      if(warehouse[req.itemId]) warehouse[req.itemId].qty = have - qty;
+
+      await writeLog(`內務長老 將 【${req.itemName || "未命名物資"} x${qty}】 賜予 弟子 ${req.charName || "未命名角色"} (理由：${reason})`, -qty);
+      await remove(ref(db, "itemRequests/" + reqId));
+      delete itemRequests[reqId];
+
+      flash(`已賜下【${req.itemName || "物資"} x${qty}】`, false);
+      renderAll(true);
+    }catch(e){
+      console.error("approve error", e);
+      flash("賜下失敗：" + (e && e.message ? e.message : e), true);
+    }
+  }
+
+  // 駁回：僅退回卷宗，並在日誌留下一筆備查
+  async function rejectRequest(reqId){
+    const req = itemRequests[reqId];
+    if(!req){ flash("此卷宗已不存在", true); return; }
+    const qty = Math.max(1, Math.floor(num(req.qty)));
+    if(!confirm(`確定駁回「${req.applicantName || "此弟子"}」申請的【${req.itemName || "物資"} x${qty}】？`)) return;
+    try{
+      lastLocalWriteAt = Date.now();
+      await remove(ref(db, "itemRequests/" + reqId));
+      delete itemRequests[reqId];
+      await writeLog(`內務長老 駁回 弟子 ${req.charName || "未命名角色"} 所請之 【${req.itemName || "未命名物資"} x${qty}】`, null);
+      flash("已駁回此卷", false);
+      renderAll(true);
+    }catch(e){
+      console.error("reject error", e);
+      flash("駁回失敗：" + (e && e.message ? e.message : e), true);
+    }
   }
 
   // ===== 權限管理 =====
@@ -1134,7 +1581,7 @@
                 <td>${escapeHtml(a.name || "－")}</td>
                 <td><b style="color:${a.role==="DM"?"var(--vermillion-bright)":"var(--gold-deep)"};">${a.role==="DM"?"天道":"長老"}</b></td>
                 <td><button class="btn-icon" data-action="revoke" data-id="${escapeHtml(uid)}"
-                  title="${isMe ? "移除我自己的權限" : "撤銷此人的權限"}">✕</button></td>
+                  title="${isMe ? "移除我自己的權限" : "撤銷此人的權限"}">${SVG.cross()}</button></td>
               </tr>`; }).join("")}
           </tbody>
         </table>
@@ -1400,7 +1847,27 @@
           return;
         }
 
+        // 弟子：領物申請（不需編輯權限）
+        if(action === "request-item"){
+          openRequestModal(btn.dataset.id);
+          return;
+        }
+
         if(!canEdit()) return;
+
+        // 長老：批核卷宗
+        if(action === "approve-req"){
+          btn.disabled = true;
+          await approveRequest(btn.dataset.id);
+          btn.disabled = false;
+          return;
+        }
+        if(action === "reject-req"){
+          btn.disabled = true;
+          await rejectRequest(btn.dataset.id);
+          btn.disabled = false;
+          return;
+        }
 
         if(action === "add-item"){
           const r = push(ref(db, "warehouse"));
@@ -1422,6 +1889,9 @@
           const id = btn.dataset.id, step = parseInt(btn.dataset.step, 10) || 0;
           const it = warehouse[id]; if(!it) return;
           const before = num(it.qty), after = Math.max(0, before + step);
+          // 數量已經是 0 還按減號時 after === before，這時不該白寫一次資料庫，
+          // 也不該在異動日誌與近期流水留下「0 ➔ 0」這種沒有意義的紀錄。
+          if(after === before) return;
           it.qty = after;
           if(await writeNow(`warehouse/${id}/qty`, after)){
             writeLog(`${it.name || "物資"} 數量 ${before} ➔ ${after}`, after - before);
