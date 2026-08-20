@@ -274,7 +274,18 @@
 
   /* ===== 花名冊統計 ===== */
   .realm-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:20px; }
-  .realm-card{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+  .realm-card{
+    background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:14px 16px;
+    text-align:left; font-family:inherit; cursor:pointer; width:100%;
+    transition:border-color .18s, box-shadow .18s, transform .12s;
+  }
+  .realm-card:hover{ border-color:var(--gold); box-shadow:0 3px 12px rgba(0,0,0,.08); transform:translateY(-1px); }
+  .realm-card.on{ border-color:var(--vermillion); box-shadow:0 0 0 2px rgba(156,43,34,.14); }
+  .realm-card.on .realm-name{ color:var(--vermillion); }
+  /* 沒填境界的那一格：點下去就能把人揪出來，不用在名冊裡一列列翻 */
+  .realm-card.unknown .realm-name{ color:var(--ink-faint2); }
+  .realm-card.unknown .realm-bar{ background:linear-gradient(90deg,#8A7B63,#B5A585); }
+
   .realm-card-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
   .realm-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:var(--ink); }
   .realm-count{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:24px; color:var(--vermillion-bright); }
@@ -282,6 +293,22 @@
   .realm-bar{ height:100%; background:linear-gradient(90deg,var(--gold-deep),var(--gold)); }
   .realm-detail{ font-size:12px; color:var(--ink-faint2); line-height:1.9; }
   .realm-detail span{ display:inline-block; margin-right:10px; }
+
+  .realm-chip{
+    display:inline-flex; align-items:center; gap:6px; padding:4px 6px 4px 11px; border-radius:14px;
+    background:rgba(156,43,34,.09); border:1px solid rgba(156,43,34,.3);
+    color:var(--vermillion-bright); font-size:12px; font-weight:700; letter-spacing:1px;
+  }
+  .realm-chip .chip-x{
+    display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
+    background:transparent; border:none; border-radius:50%; cursor:pointer; color:inherit; padding:0;
+  }
+  .realm-chip .chip-x:hover{ background:rgba(156,43,34,.18); }
+  .realm-chip .chip-x svg{ width:11px; height:11px; }
+
+  /* 名冊裡沒填的欄位：留一道虛線提醒，翻名冊時一眼就看得到 */
+  .sheet-table input.miss{ border:1px dashed rgba(156,43,34,.45); background:rgba(156,43,34,.04); }
+  .sheet-table input.miss::placeholder{ color:rgba(156,43,34,.6); }
 
   /* ===== 天機分析報告 (原簡報分析) ===== */
   .report-section { margin-bottom: 38px; }
@@ -326,6 +353,11 @@
     padding:9px 12px; font-family:inherit; font-size:14px; color:var(--ink);
   }
   .search-input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
+  .filter-select{
+    background:var(--paper); border:1px solid var(--border); border-radius:6px;
+    padding:9px 12px; font-family:inherit; font-size:14px; color:var(--ink); cursor:pointer;
+  }
+  .filter-select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
 
   /* ===== 多寶閣卡片 ===== */
   .treasure-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; }
@@ -664,6 +696,8 @@
   let warehouseCat = "丹藥";
   let rosterFilter = "";
   let rosterRank = "全部";
+  let rosterSort = "rank";        // rank / realmDesc / realmAsc / job / name
+  let rosterRealmFilter = "";     // 由境界統計卡點選；"未記錄" 代表沒填境界的那群
 
   const WAREHOUSE_CATS = ["丹藥","法器","材料","符咒"];
   const RANKS = ["長老","真傳","內門","外門","記名"];
@@ -684,7 +718,7 @@
     window.location.href = url.toString();
   }
   function discordLogout(){
-    sessionStorage.removeItem(DISCORD_TOKEN_KEY);
+    localStorage.removeItem(DISCORD_TOKEN_KEY);
     discordUser = null;
     renderAuth(); renderAll(true);
   }
@@ -701,12 +735,12 @@
     if(window.location.hash.includes("access_token")){
       const params = new URLSearchParams(window.location.hash.slice(1));
       const token = params.get("access_token");
-      if(token){ sessionStorage.setItem(DISCORD_TOKEN_KEY, token); history.replaceState(null, "", REDIRECT_URI); }
+      if(token){ localStorage.setItem(DISCORD_TOKEN_KEY, token); history.replaceState(null, "", REDIRECT_URI); }
     }
-    const token = sessionStorage.getItem(DISCORD_TOKEN_KEY);
+    const token = localStorage.getItem(DISCORD_TOKEN_KEY);
     if(token){
       try{ discordUser = await fetchDiscordUser(token); }
-      catch(e){ sessionStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
+      catch(e){ localStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
     }
     renderAuth(); renderAll(true);
   }
@@ -1173,8 +1207,32 @@
     return r.slice(0, 2);
   }
 
+  // 境界排序：先比大境界（煉氣→築基→金丹……），同一個大境界再比層數或期別。
+  // 「煉氣圓滿」要排在「煉氣九層」後面，所以期別的分數一律加在層數之上。
+  // 沒填境界的給 Infinity，兩個方向都墊底。
+  const REALM_MAJORS = ["煉氣","築基","金丹","元嬰","化神","煉虛","合體","大乘","渡劫"];
+  const REALM_STAGES = ["初期","中期","後期","圓滿"];
+  const CN_NUM = { "一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,"十":10 };
+  function realmScore(realm){
+    const r = String(realm == null ? "" : realm).trim();
+    if(!r) return Infinity;
+    const major = REALM_MAJORS.indexOf(r.slice(0, 2));
+    const base = (major < 0 ? REALM_MAJORS.length : major) * 100;
+    const layer = r.match(/([一二三四五六七八九十])層/);
+    if(layer) return base + (CN_NUM[layer[1]] || 0);
+    const stage = REALM_STAGES.findIndex(x => r.includes(x));
+    if(stage >= 0) return base + 20 + stage;
+    return base + 50;      // 認得大境界但寫法特別的，排在該境界最後
+  }
+
+  // Firebase 上偶爾會留下不是物件的殘骸（例如寫壞的節點），先濾掉再統計，
+  // 免得統計數字多一個人、名冊卻翻不到那一列。
+  function rosterEntries(){
+    return Object.entries(roster).filter(([,m]) => m && typeof m === "object");
+  }
+
   function rosterHtml(editable){
-    const all = Object.entries(roster);
+    const all = rosterEntries();
     // 境界統計：以境界前兩字分組（煉氣／築基／金丹…），並保留完整子境界細分
     const groups = {};
     all.forEach(([,m]) => {
@@ -1194,18 +1252,34 @@
       ${groupOrder.length === 0
         ? `<div class="notice info" style="font-weight:400;">花名冊尚無資料。</div>`
         : `<div class="realm-stats">${groupOrder.map(([g,data]) => `
-            <div class="realm-card">
+            <button type="button" class="realm-card${g === "未記錄" ? " unknown" : ""}${rosterRealmFilter === g ? " on" : ""}"
+              data-realm-pick="${attr(g)}" title="只看${escapeHtml(g)}的弟子，再點一次取消">
               <div class="realm-card-head"><span class="realm-name">${escapeHtml(g)}</span><span class="realm-count">${data.count}</span></div>
               <div class="realm-bar-track"><div class="realm-bar" style="width:${(data.count/maxCount*100).toFixed(1)}%"></div></div>
               <div class="realm-detail">${Object.entries(data.detail).sort((a,b)=>b[1]-a[1])
                 .map(([k,v]) => `<span>${escapeHtml(k)} <b>${v}</b></span>`).join("")}</div>
-            </div>`).join("")}</div>`}
+            </button>`).join("")}</div>`}
 
       <div class="block-title" style="margin-top:30px;">弟子花名冊<span class="spacer"></span>
         ${editable ? `<button class="btn gold" data-action="add-member">＋ 收錄弟子</button>` : ""}
       </div>
       <div class="filter-row">
         <input class="search-input" id="rosterSearch" placeholder="搜尋姓名／職位／靈根／職業／道途／境界／師傅……" value="${attr(rosterFilter)}">
+        <select class="filter-select" id="rosterSort" title="名冊排序">
+          <option value="rank" ${rosterSort==="rank"?"selected":""}>依階級</option>
+          <option value="realmDesc" ${rosterSort==="realmDesc"?"selected":""}>依境界（高→低）</option>
+          <option value="realmAsc" ${rosterSort==="realmAsc"?"selected":""}>依境界（低→高）</option>
+          <option value="job" ${rosterSort==="job"?"selected":""}>依職業</option>
+          <option value="name" ${rosterSort==="name"?"selected":""}>依姓名</option>
+        </select>
+        <span class="realm-chip" id="realmFilterChip" style="display:${rosterRealmFilter ? "inline-flex" : "none"};">
+          <span id="realmFilterText">${rosterRealmFilter ? "只看境界【" + escapeHtml(rosterRealmFilter) + "】" : ""}</span>
+          <button type="button" class="chip-x" id="realmFilterClear" title="取消境界篩選">${SVG.cross()}</button>
+        </span>
+      </div>
+      <div class="notice info" style="font-weight:400;">
+        上面的境界卡可以點：點「未記錄」就只列出沒填境界的弟子，不必在名冊裡一列列翻。
+        名冊裡沒填的欄位會用虛線框標起來，排序也可以改成依境界或依職業。
       </div>
       <div class="sub-tabs">
         <button class="sub-tab ${rosterRank==="全部"?"active":""}" data-rank="全部">全部（${all.length}）</button>
@@ -1215,13 +1289,36 @@
   }
 
   // 切換階級分頁或搜尋時只重畫這張表，上面的境界統計不動
+  const ROSTER_SORTERS = (() => {
+    const byName = (a, b) => String(a[1].name || "").localeCompare(String(b[1].name || ""), "zh-Hant");
+    // 沒填的職業排最後，不要跟有填的混在一起
+    const jobKey = m => String(m.job || "").trim() || "\uFFFF";
+    const byRealm = dir => (a, b) => {
+      const x = realmScore(a[1].realm), y = realmScore(b[1].realm);
+      if(x === y) return byName(a, b);
+      if(!isFinite(x)) return 1;          // 未填境界的兩個方向都墊底
+      if(!isFinite(y)) return -1;
+      return dir * (x - y);
+    };
+    return {
+      rank: (a, b) => RANKS.indexOf(a[1].rank || "記名") - RANKS.indexOf(b[1].rank || "記名") || byName(a, b),
+      realmAsc: byRealm(1),
+      realmDesc: byRealm(-1),
+      job: (a, b) => jobKey(a[1]).localeCompare(jobKey(b[1]), "zh-Hant") || byName(a, b),
+      name: byName
+    };
+  })();
+
   function rosterTableHtml(editable){
-    const filtered = Object.entries(roster).filter(([,m]) => {
+    const filtered = rosterEntries().filter(([,m]) => {
       if(rosterRank !== "全部" && (m.rank || "記名") !== rosterRank) return false;
+      if(rosterRealmFilter && majorRealm(m.realm) !== rosterRealmFilter) return false;
       if(!rosterFilter) return true;
-      const hay = [m.name, m.title, m.root, m.job, m.path, m.realm, m.master].join(" ").toLowerCase();
+      // 搜「未記錄」也要找得到沒填境界的人，不然那一格永遠翻不出來
+      const hay = [m.name, m.title, m.root, m.job, m.path, m.realm, m.master, majorRealm(m.realm)]
+        .join(" ").toLowerCase();
       return hay.includes(rosterFilter.toLowerCase());
-    }).sort((a,b) => RANKS.indexOf(a[1].rank||"記名") - RANKS.indexOf(b[1].rank||"記名"));
+    }).sort(ROSTER_SORTERS[rosterSort] || ROSTER_SORTERS.rank);
     return `
         <table class="sheet-table">
           <thead><tr>
@@ -1240,15 +1337,15 @@
               ? `<tr><td colspan="${editable?9:8}" class="empty-row">沒有符合條件的弟子</td></tr>`
               : filtered.map(([id,m]) => `
                 <tr>
-                  <td><input data-r="${id}" data-prop="name" value="${attr(m.name)}" ${editable?"":"disabled"}></td>
+                  <td><input class="${String(m.name||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="name" value="${attr(m.name)}" placeholder="未命名" ${editable?"":"disabled"}></td>
                   <td><select data-r="${id}" data-prop="rank" ${editable?"":"disabled"}>
                     ${RANKS.map(r => `<option value="${r}" ${(m.rank||"記名")===r?"selected":""}>${r}</option>`).join("")}
                   </select></td>
                   <td><input data-r="${id}" data-prop="title" value="${attr(m.title)}" placeholder="－" ${editable?"":"disabled"}></td>
-                  <td><input data-r="${id}" data-prop="root" value="${attr(m.root)}" ${editable?"":"disabled"}></td>
-                  <td><input data-r="${id}" data-prop="job" value="${attr(m.job)}" ${editable?"":"disabled"}></td>
-                  <td><input data-r="${id}" data-prop="path" value="${attr(m.path)}" ${editable?"":"disabled"}></td>
-                  <td><input data-r="${id}" data-prop="realm" value="${attr(m.realm)}" ${editable?"":"disabled"}></td>
+                  <td><input class="${String(m.root||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="root" value="${attr(m.root)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
+                  <td><input class="${String(m.job||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="job" value="${attr(m.job)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
+                  <td><input data-r="${id}" data-prop="path" value="${attr(m.path)}" placeholder="－" ${editable?"":"disabled"}></td>
+                  <td><input class="${String(m.realm||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="realm" value="${attr(m.realm)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
                   <td><input data-r="${id}" data-prop="master" value="${attr(m.master)}" placeholder="－" ${editable?"":"disabled"}></td>
                   ${editable ? `<td><button class="btn-icon" data-action="del-member" data-id="${id}" title="移出花名冊">${SVG.cross()}</button></td>` : ""}
                 </tr>`).join("")}
@@ -1614,22 +1711,30 @@
         <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">共 ${list.length} 卷待決</span>
       </div>
       <div class="notice info" style="font-weight:400;">
-        「賜下」會自庫房扣除數量、將物品寫入該弟子的儲物袋，並在異動日誌留下墨跡；「駁回」則僅退回卷宗。
+        「賜下」會自庫房扣除數量、將物品寫入該弟子的儲物袋，並在異動日誌留下墨跡；「駁回」則僅退回卷宗。<br>
+        <b>多寶閣法寶</b>的卷宗不扣庫存，賜下時會把法寶寫進弟子儲物袋，並把多寶閣的「持有者」改記到該弟子名下。
       </div>
       ${list.length === 0
         ? `<div class="notice info" style="font-weight:400;">案上清淨，並無待批核的調用申請。</div>`
         : `<div class="scroll-grid">${list.map(([id,r]) => {
-            const item = warehouse[r.itemId];
+            // 法寶卷宗看多寶閣、庫房卷宗看庫房；法寶是獨一無二的，右上角改標品階與持有者
+            const isTreasure = r.kind === "treasure";
+            const tre = isTreasure ? treasury[r.itemId] : null;
+            const item = isTreasure ? null : warehouse[r.itemId];
+            const qty = isTreasure ? 1 : Math.max(1, Math.floor(num(r.qty)));
             const stock = item ? num(item.qty) : null;
-            const qty = Math.max(1, Math.floor(num(r.qty)));
-            const short = stock == null || stock < qty;
+            const holder = tre ? String(tre.holder || "").trim() : "";
+            const short = isTreasure ? (!tre || !!holder) : (stock == null || stock < qty);
+            const stockText = isTreasure
+              ? (!tre ? "多寶閣已無此法寶" : (holder ? `已歸 ${escapeHtml(holder)}` : `多寶閣${tre.rank ? "・" + escapeHtml(tre.rank) : ""}・尚無持有者`))
+              : (stock == null ? "庫房已無此品項" : `庫存 ${stock.toLocaleString()}`);
             return `
             <div class="scroll-doc">
               <div class="sd-body">
                 <div class="sd-title">
                   <span>${escapeHtml(r.itemName || "未命名物資")}</span>
-                  <span class="sd-qty">×${qty.toLocaleString()}</span>
-                  <span class="sd-stock${short ? " short" : ""}">${stock == null ? "庫房已無此品項" : `庫存 ${stock.toLocaleString()}`}</span>
+                  ${isTreasure ? `<span class="sd-qty" style="font-size:13px;">法寶</span>` : `<span class="sd-qty">×${qty.toLocaleString()}</span>`}
+                  <span class="sd-stock${short ? " short" : ""}">${stockText}</span>
                 </div>
                 <div class="sd-row"><span class="sd-k">申請者</span><span class="sd-v">${escapeHtml(r.applicantName || "無名弟子")}</span></div>
                 <div class="sd-row"><span class="sd-k">賜予</span><span class="sd-v">${escapeHtml(r.charName || "未命名角色")}</span></div>
@@ -1645,10 +1750,74 @@
     `;
   }
 
+  // 從資料庫讀回角色卡的儲物袋（Firebase 可能把陣列還原成物件，統一轉回陣列）
+  function readItemsList(char){
+    const raw = char && char.itemsList;
+    return Array.isArray(raw) ? raw.slice()
+      : (raw && typeof raw === "object" ? Object.values(raw) : []);
+  }
+
+  // 賜下多寶閣法寶：不扣庫存，寫進弟子儲物袋，並把多寶閣的持有者改記過去
+  async function approveTreasureRequest(reqId, req){
+    const reason = req.reason || "－";
+    try{
+      lastLocalWriteAt = Date.now();
+      const treSnap = await get(ref(db, "treasury/" + req.itemId));
+      const tre = treSnap.val();
+      if(!tre){ alert(`多寶閣已無【${req.itemName || "此法寶"}】，無法賜下。`); return; }
+
+      const holder = String(tre.holder || "").trim();
+      const charName = req.charName || "未命名角色";
+      if(holder && holder !== charName &&
+         !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。\n\n仍要改賜給「${charName}」嗎？`)) return;
+
+      const charSnap = await get(ref(db, "characters/" + req.charId));
+      const char = charSnap.val();
+      if(!char){ alert(`找不到弟子「${charName}」的角色卡，可能已被刪除。`); return; }
+
+      const desc = [
+        tre.quote ? "題詞：" + tre.quote : "",
+        tre.appearance ? "外觀：" + tre.appearance : "",
+        tre.coreEffect ? "核心效果：" + tre.coreEffect : "",
+        tre.specialEffect ? "特殊效果：" + tre.specialEffect : "",
+        tre.condition ? "使用條件：" + tre.condition : "",
+        tre.upgrade ? "升級：" + tre.upgrade : "",
+        tre.upgradeEffect ? "升級效果：" + tre.upgradeEffect : "",
+        "賜下理由：" + reason
+      ].filter(Boolean).join("\n");
+
+      const itemsList = readItemsList(char);
+      itemsList.push({
+        name: tre.name || req.itemName || "未命名法寶",
+        type: [tre.rank, tre.type].filter(Boolean).join("・") || "多寶閣法寶",
+        desc
+      });
+
+      await update(ref(db, "treasury/" + req.itemId), { holder: charName });
+      await update(ref(db, "characters/" + req.charId), {
+        itemsList,
+        updatedAt: Date.now(),
+        updatedBy: (discordUser && discordUser.name) || "內務堂"
+      });
+      if(treasury[req.itemId]) treasury[req.itemId].holder = charName;
+
+      await writeLog(`內務長老 將 多寶閣法寶【${tre.name || req.itemName || "未命名法寶"}】 賜予 弟子 ${charName} (理由：${reason})`, null);
+      await remove(ref(db, "itemRequests/" + reqId));
+      delete itemRequests[reqId];
+
+      flash(`已賜下法寶【${tre.name || req.itemName || "法寶"}】`, false);
+      renderAll(true);
+    }catch(e){
+      console.error("approve treasure error", e);
+      flash("賜下失敗：" + (e && e.message ? e.message : e), true);
+    }
+  }
+
   // 賜下：庫房扣量 → 寫入弟子儲物袋 → 留下日誌 → 退掉卷宗
   async function approveRequest(reqId){
     const req = itemRequests[reqId];
     if(!req){ flash("此卷宗已不存在", true); return; }
+    if(req.kind === "treasure") return approveTreasureRequest(reqId, req);
     const qty = Math.max(1, Math.floor(num(req.qty)));
     const reason = req.reason || "－";
     try{
@@ -1666,9 +1835,7 @@
       const char = charSnap.val();
       if(!char){ alert(`找不到弟子「${req.charName || "未命名"}」的角色卡，可能已被刪除。`); return; }
 
-      const raw = char.itemsList;
-      const itemsList = Array.isArray(raw) ? raw.slice()
-        : (raw && typeof raw === "object" ? Object.values(raw) : []);
+      const itemsList = readItemsList(char);
       itemsList.push({
         name: req.itemName || "未命名物資",
         type: "宗門調用",
@@ -1699,13 +1866,17 @@
   async function rejectRequest(reqId){
     const req = itemRequests[reqId];
     if(!req){ flash("此卷宗已不存在", true); return; }
+    const isTreasure = req.kind === "treasure";
     const qty = Math.max(1, Math.floor(num(req.qty)));
-    if(!confirm(`確定駁回「${req.applicantName || "此弟子"}」申請的【${req.itemName || "物資"} x${qty}】？`)) return;
+    const label = isTreasure
+      ? `法寶【${req.itemName || "未命名法寶"}】`
+      : `【${req.itemName || "物資"} x${qty}】`;
+    if(!confirm(`確定駁回「${req.applicantName || "此弟子"}」所請之${label}？`)) return;
     try{
       lastLocalWriteAt = Date.now();
       await remove(ref(db, "itemRequests/" + reqId));
       delete itemRequests[reqId];
-      await writeLog(`內務長老 駁回 弟子 ${req.charName || "未命名角色"} 所請之 【${req.itemName || "未命名物資"} x${qty}】`, null);
+      await writeLog(`內務長老 駁回 弟子 ${req.charName || "未命名角色"} 所請之 ${label}`, null);
       flash("已駁回此卷", false);
       renderAll(true);
     }catch(e){
@@ -1870,12 +2041,20 @@
     if(!wrap) return;
     keepAnchored("#tab-roster .sub-tabs", () => swapTable(wrap, rosterTableHtml(canEdit())));
   }
+  function paintRealmChip(){
+    const chip = document.getElementById("realmFilterChip");
+    const text = document.getElementById("realmFilterText");
+    if(!chip || !text) return;
+    text.textContent = rosterRealmFilter ? `只看境界【${rosterRealmFilter}】` : "";
+    chip.style.display = rosterRealmFilter ? "inline-flex" : "none";
+  }
+
   function refreshCounts(){
     document.querySelectorAll("[data-cat]").forEach(b => {
       const c = b.dataset.cat;
       b.textContent = `${c}（${Object.values(warehouse).filter(i => (i.category||"丹藥") === c).length}）`;
     });
-    const all = Object.entries(roster);
+    const all = rosterEntries();
     document.querySelectorAll("[data-rank]").forEach(b => {
       const r = b.dataset.rank;
       b.textContent = r === "全部"
@@ -1900,6 +2079,26 @@
     if(search){
       search.oninput = () => { rosterFilter = search.value; refreshRosterTable(); };
     }
+    const sortSel = area.querySelector("#rosterSort");
+    if(sortSel) sortSel.onchange = () => { rosterSort = sortSel.value; refreshRosterTable(); };
+
+    // 境界統計卡＝名冊的境界篩選器；再點同一張就取消
+    area.querySelectorAll("[data-realm-pick]").forEach(card => card.onclick = () => {
+      const g = card.dataset.realmPick;
+      rosterRealmFilter = rosterRealmFilter === g ? "" : g;
+      document.querySelectorAll("[data-realm-pick]").forEach(x => {
+        x.classList.toggle("on", !!rosterRealmFilter && x.dataset.realmPick === rosterRealmFilter);
+      });
+      paintRealmChip();
+      refreshRosterTable();
+    });
+    const chipClear = area.querySelector("#realmFilterClear");
+    if(chipClear) chipClear.onclick = () => {
+      rosterRealmFilter = "";
+      document.querySelectorAll("[data-realm-pick]").forEach(x => x.classList.remove("on"));
+      paintRealmChip();
+      refreshRosterTable();
+    };
 
     // 靈石
     area.querySelectorAll("[data-stone]").forEach(input => {

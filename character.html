@@ -551,6 +551,63 @@
   .save-status{ position:fixed; bottom:20px; right:20px; font-size:13px; font-weight:700; color:#fff; background:var(--jade); padding:8px 16px; border-radius:20px; opacity:0; transition:opacity .3s, background .3s; pointer-events:none; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
   .save-status.show{ opacity:1; }
   .save-status.error{ background:var(--vermillion-bright); }
+
+  /* ===== 玉簡彈窗：自藏經閣取用功法、向內務堂請調法寶 ===== */
+  .modal-mask{
+    position:fixed; inset:0; z-index:400; display:flex; align-items:center; justify-content:center;
+    padding:22px; background:rgba(9,7,4,.66); backdrop-filter:blur(3px); animation:fadeIn .18s ease-out;
+  }
+  .modal-card{
+    width:100%; max-width:620px; max-height:88vh; display:flex; flex-direction:column;
+    padding:22px 24px 20px; border-radius:6px;
+    background:linear-gradient(160deg, #1C231E 0%, #0A0F0C 100%); border:1px solid var(--gold-deep);
+    box-shadow:0 22px 54px rgba(0,0,0,.6), inset 0 0 34px rgba(140,107,39,.12); animation:modalRise .26s ease-out;
+  }
+  @keyframes modalRise{ from{ opacity:0; transform:translateY(14px) scale(.985); } to{ opacity:1; transform:none; } }
+  .modal-title{
+    display:flex; align-items:center; gap:9px; font-family:"Noto Serif TC",serif; font-weight:900;
+    font-size:19px; letter-spacing:3px; color:#F3E3BC;
+  }
+  .modal-sub{ margin:7px 0 14px; font-size:12.5px; line-height:1.85; color:rgba(232,202,130,.66); }
+  .modal-label{ display:block; font-size:11px; letter-spacing:3px; color:#C9A75E; margin:13px 0 5px; }
+  .modal-field{
+    width:100%; background:rgba(0,0,0,.34); border:1px solid rgba(232,202,130,.22); border-radius:4px;
+    color:#F3E8CC; font-family:inherit; font-size:14px; padding:8px 11px; line-height:1.7; resize:vertical;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .modal-field:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.22); }
+  .modal-field option{ background:#141A16; color:#F3E8CC; }
+  .modal-foot{ display:flex; justify-content:flex-end; gap:9px; margin-top:18px; flex-shrink:0; }
+  .modal-foot .btn{ background:rgba(0,0,0,.3); border-color:rgba(232,202,130,.26); color:#DCCFA8; }
+  .modal-foot .btn:hover{ background:rgba(232,202,130,.1); border-color:var(--gold); color:#F8EDD1; }
+  .modal-foot .btn.gold-btn{ background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; color:#1D1712; }
+  .modal-foot .btn.gold-btn:hover{ background:linear-gradient(155deg,#F0D890,#CBA043); color:#120E08; }
+
+  /* 可捲動的挑選清單 */
+  .pick-scroll{ flex:1; min-height:120px; overflow-y:auto; margin-top:6px; padding-right:4px; }
+  .pick-row{
+    display:block; width:100%; text-align:left; cursor:pointer; margin-bottom:8px; padding:11px 13px;
+    background:rgba(0,0,0,.3); border:1px solid rgba(232,202,130,.18); border-left:3px solid rgba(232,202,130,.3);
+    border-radius:4px; color:#E7DCBE; font-family:inherit; font-size:13.5px; line-height:1.7;
+    transition:background .18s, border-color .18s, transform .12s;
+  }
+  .pick-row:hover{ background:rgba(232,202,130,.09); border-color:var(--gold); transform:translateX(2px); }
+  .pick-row.on{ background:rgba(140,107,39,.2); border-left-color:#F0DCA4; border-color:var(--gold); }
+  .pick-row.locked{ opacity:.55; }
+  .pick-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:15.5px; color:#F3E3BC; letter-spacing:1px; }
+  .pick-tags{ display:flex; flex-wrap:wrap; gap:5px; margin:5px 0 3px; }
+  .pick-tag{
+    font-size:10.5px; letter-spacing:1px; padding:1px 7px; border-radius:9px;
+    background:rgba(232,202,130,.1); border:1px solid rgba(232,202,130,.25); color:#D9C79A;
+  }
+  .pick-tag.yes{ background:rgba(45,90,76,.28); border-color:rgba(127,199,164,.5); color:#A6E8C6; }
+  .pick-tag.no{ background:rgba(156,43,34,.24); border-color:rgba(222,139,119,.45); color:#F0BCAF; }
+  .pick-desc{ font-size:12.5px; color:rgba(232,202,130,.62); line-height:1.75; }
+  .pick-empty{ padding:26px 10px; text-align:center; font-size:13px; color:rgba(232,202,130,.5); }
+
+  /* 分頁標題列右側的取用鈕 */
+  .tab-toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .tab-toolbar .toolbar-note{ font-size:12px; color:var(--ink-faint2); line-height:1.7; }
 </style>
 </head>
 <body>
@@ -647,7 +704,7 @@
 
   function discordLogout(){
     if(dirty) doSave();
-    sessionStorage.removeItem(DISCORD_TOKEN_KEY);
+    localStorage.removeItem(DISCORD_TOKEN_KEY);
     discordUser = null;
     draft = null; draftId = null; dirty = false;
     renderAuth(); renderCharLists(); renderSheet();
@@ -665,12 +722,13 @@
     if(window.location.hash.includes("access_token")){
       const params = new URLSearchParams(window.location.hash.slice(1));
       const token = params.get("access_token");
-      if(token){ sessionStorage.setItem(DISCORD_TOKEN_KEY, token); history.replaceState(null, "", REDIRECT_URI); }
+      if(token){ localStorage.setItem(DISCORD_TOKEN_KEY, token); history.replaceState(null, "", REDIRECT_URI); }
     }
-    const token = sessionStorage.getItem(DISCORD_TOKEN_KEY);
+    const token = localStorage.getItem(DISCORD_TOKEN_KEY);
     if(!token) { renderAuth(); return; }
     try{ discordUser = await fetchDiscordUser(token); }
-    catch(e){ sessionStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
+    catch(e){ localStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
+    if(autoPickChar()) adoptDraft();
     renderAuth(); renderCharLists(); renderSheet();
   }
 
@@ -797,6 +855,48 @@
     draftId = currentCharId;
     baseItemSigs = draft ? draft.itemsList.map(itemSig) : [];
     dirty = false;
+    migrateLegacyNotes();
+  }
+
+  // 種族／道途／職業底下的獨立筆記欄已經拿掉，統一寫在【筆記】分類裡。
+  // 舊卡上若還留著字，開卡時搬進筆記分類再清空，玩家寫過的東西才不會憑空消失。
+  function migrateLegacyNotes(){
+    if(!draft || !isOwner(draft)) return;
+    const moved = [];
+    [["notes_race","種族筆記"], ["notes_path","道途筆記"], ["notes_job","職業筆記"]].forEach(([field, title]) => {
+      const text = String(draft[field] || "").trim();
+      if(!text) return;
+      draft.notesList.push({ title, body: text });
+      draft[field] = "";
+      moved.push(title);
+    });
+    if(moved.length){
+      markDirty();
+      flashSaveStatus(`${moved.join("、")}已移入【筆記】分類`, false);
+    }
+  }
+
+  // 登入者跳回角色卡頁時，直接開回上次看的那張自己的卡，免得每次都要重選。
+  // 記在 localStorage、依 Discord ID 分開存，換人登入不會互相蓋掉。
+  const LAST_CHAR_KEY = "tf_last_char";
+  function lastCharSlot(){ return discordUser ? LAST_CHAR_KEY + ":" + discordUser.id : null; }
+  function rememberChar(id){
+    const slot = lastCharSlot(); if(!slot) return;
+    try{ if(id) localStorage.setItem(slot, id); else localStorage.removeItem(slot); }
+    catch(e){ /* 無痕模式等情境寫不進去，記不住就算了，不影響其他功能 */ }
+  }
+  function rememberedCharId(){
+    const slot = lastCharSlot(); if(!slot) return null;
+    try{ return localStorage.getItem(slot); }catch(e){ return null; }
+  }
+  // 回傳 true 代表這次真的挑了一張卡，呼叫端就知道要重新採用草稿
+  function autoPickChar(){
+    if(currentCharId || !discordUser) return false;
+    const mine = Object.entries(allChars).filter(([,c]) => c && c.ownerId === discordUser.id);
+    if(mine.length === 0) return false;
+    const last = rememberedCharId();
+    currentCharId = (last && mine.some(([id]) => id === last)) ? last : mine[0][0];
+    return true;
   }
   function markDirty(){ dirty = true; scheduleSave(); }
 
@@ -1027,6 +1127,7 @@
   onValue(charsRef, snap => {
     charsSyncError = null;
     allChars = snap.val() || {};
+    autoPickChar();
     renderCharLists();
 
     if(currentCharId && !allChars[currentCharId]){
@@ -1087,6 +1188,7 @@
   document.getElementById("charSelect").addEventListener("change", async (e) => {
     if(dirty) await doSave();
     currentCharId = e.target.value || null;
+    rememberChar(currentCharId);
     adoptDraft(); renderSheet(); updateDeleteBtn();
   });
 
@@ -1098,6 +1200,7 @@
       await set(newRef, fresh);
       allChars[newRef.key] = fresh;
       currentCharId = newRef.key;
+      rememberChar(currentCharId);
       adoptDraft(); renderCharLists(); renderSheet();
     }catch(e){
       console.error("create character error", e);
@@ -1115,6 +1218,8 @@
       clearTimeout(saveTimer); dirty = false;
       await remove(ref(db, "characters/" + id));
       delete allChars[id]; currentCharId = null; draft = null; draftId = null;
+      rememberChar(null);
+      autoPickChar(); adoptDraft();
       renderCharLists(); renderSheet();
       flashSaveStatus(`已刪除「${name}」`, false);
     }catch(e){ flashSaveStatus("刪除失敗：" + (e && e.message ? e.message : e), true); }
@@ -1457,8 +1562,12 @@
         <div class="taiji-core" style="${getKarmaStyle(char.karma)}">
           <svg class="taiji-rings" viewBox="0 0 240 240" aria-hidden="true">
             <defs>
-              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="206" y1="34" x2="34" y2="206"><stop offset="0" stop-color="#5E1610"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#E0664C"/></linearGradient>
-              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="34" y1="206" x2="206" y2="34"><stop offset="0" stop-color="#0F2E23"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#63B78E"/></linearGradient>
+              <!-- userSpaceOnUse 的漸層是在「弧線自己 rotate 之後」的座標系裡解析的。
+                   兩條弧都是從本地 0°（220,120）起、順時針掃 168° 到本地 168°（22,141），
+                   所以共用同一條軸就好：offset 0 貼著弧頭、offset 1 貼著弧尾 → 一律頭淺尾深。
+                   兩個 circle 的 rotate 角度本來就相反，畫到畫面上會自動左右鏡像。 -->
+              <linearGradient id="hpGrad" gradientUnits="userSpaceOnUse" x1="220" y1="120" x2="22" y2="141"><stop offset="0" stop-color="#E0664C"/><stop offset=".5" stop-color="#A82C21"/><stop offset="1" stop-color="#5E1610"/></linearGradient>
+              <linearGradient id="qiGrad" gradientUnits="userSpaceOnUse" x1="220" y1="120" x2="22" y2="141"><stop offset="0" stop-color="#63B78E"/><stop offset=".5" stop-color="#2D6B52"/><stop offset="1" stop-color="#0F2E23"/></linearGradient>
               <linearGradient id="glossGrad" gradientUnits="userSpaceOnUse" x1="120" y1="10" x2="120" y2="230"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient>
             </defs>
             <g class="bagua-ring">${baguaHtml()}</g>
@@ -1535,8 +1644,6 @@
         <section class="block">
           <div class="block-title">【${attr(char.race || '未選擇')}】種族特質</div>
           <div id="rbBox-race">${rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"])}</div>
-          <label class="field-label" style="margin-top:18px;">自訂種族筆記</label>
-          <textarea class="nm-textarea" data-f="notes_race" rows="4" placeholder="填寫額外的種族變異或自訂設定..." ${dis}>${attr(char.notes_race)}</textarea>
         </section>
       </div>
 
@@ -1545,8 +1652,6 @@
         <section class="block">
           <div class="block-title">【${attr(char.path || '未選擇')}】道途能力</div>
           <div id="rbBox-path">${rulebookBlocksHtml("道途", char.path, rbRawOpen["道途"])}</div>
-          <label class="field-label" style="margin-top:18px;">自訂道途筆記</label>
-          <textarea class="nm-textarea" data-f="notes_path" rows="4" placeholder="填寫道途專屬的選擇或變異..." ${dis}>${attr(char.notes_path)}</textarea>
         </section>
       </div>
 
@@ -1641,6 +1746,10 @@
   function spellsHtml(char, editable){
     const groups = char.spellGroups || []; const dis = editable ? "" : "disabled";
     return `
+      ${editable ? `<div class="tab-toolbar">
+        <button class="btn gold-btn" data-action="pick-art">自藏經閣取用功法</button>
+        <span class="toolbar-note">藏經閣本就開放閱覽，選定即整部抄成一張功法表；抄進來之後就是這張卡上的內容，可自行增刪。</span>
+      </div>` : ""}
       ${groups.map((group, gIdx) => `
         <div class="manual-table-wrap">
           <div class="manual-table-header">
@@ -1671,6 +1780,10 @@
   function itemsHtml(char, editable){
     const iList = char.itemsList || []; const dis = editable ? "" : "disabled";
     return `
+      ${editable ? `<div class="tab-toolbar">
+        <button class="btn gold-btn" data-action="pick-treasure">向天道請調法寶</button>
+        <span class="toolbar-note">多寶閣的法寶有名有姓、獨一無二，須經天道或天道授權的管理長老批核，賜下後才會落進袋裡。</span>
+      </div>` : ""}
       <div class="item-cards">
         ${iList.map((item, idx) => `
           <div class="item-card">
@@ -1699,6 +1812,249 @@
         ${nList.length === 0 ? `<div class="qa-empty">還沒有任何筆記分類</div>` : ""}
       </div>
       ${editable ? `<div style="margin-top:20px; text-align:center;"><button class="btn gold-btn" data-action="add-note">＋ 新增筆記分類</button></div>` : ""}`;
+  }
+
+  // ============================================================
+  // 藏經閣／多寶閣聯動
+  //   功法：藏經閣本來權限就開放，弟子可以直接把整部功法拉進自己的【功法總錄】。
+  //   法寶：多寶閣收的是獨一無二的法寶，不能自取；得呈遞請調卷宗，
+  //         由天道或天道授權的管理長老在宗門大殿批核，賜下之後才會寫進儲物袋。
+  // ============================================================
+  // 藏經閣的功法品階與多寶閣的法寶品階共用同一套階梯
+  const RANK_ORDER = ["凡品","黃品","玄品","地品","天品","仙品","神品"];
+
+  function closeModal(){
+    const m = document.getElementById("tfModal");
+    if(m) m.remove();
+    if(closeModal._esc){ document.removeEventListener("keydown", closeModal._esc); closeModal._esc = null; }
+  }
+  function openModal(html, onMount){
+    closeModal();
+    const el = document.createElement("div");
+    el.className = "modal-mask"; el.id = "tfModal";
+    el.innerHTML = `<div class="modal-card">${html}</div>`;
+    el.addEventListener("mousedown", e => { if(e.target === el) closeModal(); });
+    document.body.appendChild(el);
+    closeModal._esc = e => { if(e.key === "Escape") closeModal(); };
+    document.addEventListener("keydown", closeModal._esc);
+    if(onMount) onMount(el);
+  }
+
+  // 跟藏經閣同一套判定：allow＝只有名單內可學、deny＝名單內不可學、其餘不限
+  function passLimit(mode, list, value){
+    if(mode !== "allow" && mode !== "deny") return true;
+    const arr = toArray(list);
+    if(arr.length === 0) return true;
+    const hit = value ? arr.includes(value) : false;
+    return mode === "allow" ? hit : !hit;
+  }
+  function canLearnArt(art, char){
+    if(!char) return null;
+    return passLimit(art.pathMode, art.paths, char.path)
+        && passLimit(art.jobMode,  art.jobs,  char.job);
+  }
+
+  // 把一部功法攤平成功法表的五欄：技能名稱（門檻）／命中豁免／消耗動作／傷害效果／資源
+  function artToSpellRows(art){
+    const join = (arr, sep) => arr.map(v => String(v == null ? "" : v).trim()).filter(Boolean).join(sep);
+    const rows = [];
+    const meditation = String(art.meditation || "").trim();
+    if(meditation) rows.push(padRow(["心法・打坐", "－", "打坐", meditation, "－"], 5));
+    toArray(art.passives).forEach(p => {
+      p = p || {};
+      rows.push(padRow([
+        (String(p.name || "").trim() || "未命名被動") + "（被動）",
+        "－",
+        "被動",
+        join([p.effect, p.trigger ? "觸發：" + p.trigger : ""], "；") || "－",
+        String(p.limit || "").trim() || "－"
+      ], 5));
+    });
+    toArray(art.actives).forEach(a => {
+      a = a || {};
+      const realm = String(a.realm || "").trim();
+      rows.push(padRow([
+        (String(a.name || "").trim() || "未命名招式") + (realm ? "（" + realm + "）" : ""),
+        String(a.hit || "").trim() || "－",
+        join([a.castType, a.range, a.target], "／") || "－",
+        join([a.damage, a.extra], "；") || "－",
+        String(a.cost || "").trim() || "－"
+      ], 5));
+    });
+    return rows;
+  }
+
+  // ===== 自藏經閣取用功法 =====
+  let libPickSearch = "";
+
+  function libraryRowsHtml(char){
+    let list = Object.entries(clanLibrary).filter(([,a]) => a && typeof a === "object");
+    const q = libPickSearch.trim().toLowerCase();
+    if(q){
+      list = list.filter(([,a]) => [a.name, a.intro, a.rank, a.coreAttr, a.medium, a.ownerName, a.minRealm,
+        toArray(a.paths).join(" "), toArray(a.jobs).join(" ")].join(" ").toLowerCase().includes(q));
+    }
+    list.sort((x, y) => RANK_ORDER.indexOf(y[1].rank || "") - RANK_ORDER.indexOf(x[1].rank || "")
+      || String(x[1].name || "").localeCompare(String(y[1].name || ""), "zh-Hant"));
+    if(list.length === 0){
+      return `<div class="pick-empty">${Object.keys(clanLibrary).length === 0
+        ? "藏經閣尚無藏書，先去上傳一部功法吧。" : "沒有符合條件的功法。"}</div>`;
+    }
+    return list.map(([id, a]) => {
+      const learn = canLearnArt(a, char);
+      return `
+        <button type="button" class="pick-row${learn === false ? " locked" : ""}" data-art="${attr(id)}">
+          <span class="pick-name">${escapeHtml(a.name || "未命名功法")}</span>
+          <div class="pick-tags">
+            ${a.rank ? `<span class="pick-tag">${escapeHtml(a.rank)}</span>` : ""}
+            ${a.minRealm ? `<span class="pick-tag">門檻 ${escapeHtml(a.minRealm)}</span>` : ""}
+            <span class="pick-tag">被動 ${toArray(a.passives).length}・招式 ${toArray(a.actives).length}</span>
+            ${learn === null ? "" : `<span class="pick-tag ${learn ? "yes" : "no"}">${learn ? "道途職業相符" : "道途／職業不符"}</span>`}
+          </div>
+          <div class="pick-desc">${escapeHtml(a.intro || "（尚無簡介）")}</div>
+        </button>`;
+    }).join("");
+  }
+
+  function openLibraryPicker(){
+    const char = currentChar();
+    if(!char || !isOwner(char)){ flashSaveStatus("只有卡主可以取用功法", true); return; }
+    libPickSearch = "";
+    openModal(`
+      <div class="modal-title">自藏經閣取用功法</div>
+      <div class="modal-sub">藏經閣對全宗門開放，選定一部功法就會整部抄成一張新的功法表。
+        抄錄後即為這張卡上的內容，日後藏經閣再改也不會動到你，可自行增刪。</div>
+      <input class="modal-field" id="libSearch" placeholder="搜尋功法名稱、簡介、品階、道途、職業……" autocomplete="off">
+      <div class="pick-scroll" id="libList"></div>
+      <div class="modal-foot"><button class="btn" data-modal="cancel">作罷</button></div>`, el => {
+      const list = el.querySelector("#libList");
+      const paint = () => { list.innerHTML = libraryRowsHtml(char); };
+      paint();
+      const sb = el.querySelector("#libSearch");
+      sb.oninput = () => { libPickSearch = sb.value; paint(); };
+      el.querySelector('[data-modal="cancel"]').onclick = closeModal;
+      list.onclick = ev => {
+        const row = ev.target.closest("[data-art]");
+        if(row) importArt(row.dataset.art);
+      };
+      setTimeout(() => sb.focus(), 30);
+    });
+  }
+
+  function importArt(id){
+    const char = currentChar();
+    const art = clanLibrary[id];
+    if(!char || !isOwner(char) || !art) return;
+    const name = String(art.name || "").trim() || "未命名功法";
+    if(canLearnArt(art, char) === false &&
+       !confirm(`【${name}】限定的道途／職業和這張卡不符。\n\n仍要抄進功法總錄嗎？`)) return;
+    if(char.spellGroups.some(g => g.groupName === name) &&
+       !confirm(`功法總錄裡已經有一張「${name}」了。\n\n要再抄一份嗎？`)) return;
+    const rows = artToSpellRows(art);
+    char.spellGroups.push({ groupName: name, spells: rows });
+    closeModal();
+    refreshSpells(); markDirty();
+    flashSaveStatus(rows.length
+      ? `已自藏經閣抄錄【${name}】，共 ${rows.length} 條`
+      : `已自藏經閣抄錄【${name}】（這部功法還沒有寫任何招式）`, false);
+  }
+
+  // ===== 向內務堂請調法寶 =====
+  let treasurePickSearch = "", treasurePickId = null;
+
+  function treasureRowsHtml(){
+    let list = Object.entries(clanTreasury).filter(([,t]) => t && typeof t === "object");
+    const q = treasurePickSearch.trim().toLowerCase();
+    if(q){
+      list = list.filter(([,t]) => [t.name, t.rank, t.type, t.quote, t.holder,
+        t.appearance, t.coreEffect, t.specialEffect, t.condition].join(" ").toLowerCase().includes(q));
+    }
+    list.sort((x, y) => RANK_ORDER.indexOf(y[1].rank || "") - RANK_ORDER.indexOf(x[1].rank || "")
+      || String(x[1].name || "").localeCompare(String(y[1].name || ""), "zh-Hant"));
+    if(list.length === 0){
+      return `<div class="pick-empty">${Object.keys(clanTreasury).length === 0
+        ? "多寶閣尚未收錄任何法寶。" : "沒有符合條件的法寶。"}</div>`;
+    }
+    return list.map(([id, t]) => {
+      const holder = String(t.holder || "").trim();
+      return `
+        <button type="button" class="pick-row${treasurePickId === id ? " on" : ""}${holder ? " locked" : ""}" data-tre="${attr(id)}">
+          <span class="pick-name">${escapeHtml(t.name || "未命名法寶")}</span>
+          <div class="pick-tags">
+            ${t.rank ? `<span class="pick-tag">${escapeHtml(t.rank)}</span>` : ""}
+            ${t.type ? `<span class="pick-tag">${escapeHtml(t.type)}</span>` : ""}
+            ${t.condition ? `<span class="pick-tag">限 ${escapeHtml(t.condition)}</span>` : ""}
+            <span class="pick-tag ${holder ? "no" : "yes"}">${holder ? "已歸 " + escapeHtml(holder) : "尚無持有者"}</span>
+          </div>
+          <div class="pick-desc">${escapeHtml(t.coreEffect || t.quote || "（尚無說明）")}</div>
+        </button>`;
+    }).join("");
+  }
+
+  function openTreasuryRequest(){
+    const char = currentChar();
+    if(!discordUser){ flashSaveStatus("請先以 Discord 登入，方能呈遞卷宗", true); return; }
+    if(!char || !isOwner(char)){ flashSaveStatus("只有卡主可以呈遞請調卷宗", true); return; }
+    treasurePickSearch = ""; treasurePickId = null;
+    openModal(`
+      <div class="modal-title">向內務堂請調法寶</div>
+      <div class="modal-sub">多寶閣的法寶有名有姓、獨一無二，不能自行取用。
+        選定並寫下理由後，卷宗會呈進宗門大殿的【待批核卷宗】，
+        由天道或天道授權的管理長老定奪；賜下之後法寶才會落進【${escapeHtml(char.name || "這張卡")}】的儲物袋。</div>
+      <input class="modal-field" id="treSearch" placeholder="搜尋法寶名稱、品階、類型、效果……" autocomplete="off">
+      <div class="pick-scroll" id="treList"></div>
+      <label class="modal-label">請調理由</label>
+      <textarea class="modal-field" id="treReason" rows="2" placeholder="例：奉命下山除魔，需此寶鎮壓屍煞"></textarea>
+      <div class="modal-foot">
+        <button class="btn" data-modal="cancel">作罷</button>
+        <button class="btn gold-btn" data-modal="submit">呈遞卷宗</button>
+      </div>`, el => {
+      const list = el.querySelector("#treList");
+      const reasonEl = el.querySelector("#treReason");
+      const paint = () => { list.innerHTML = treasureRowsHtml(); };
+      paint();
+      const sb = el.querySelector("#treSearch");
+      sb.oninput = () => { treasurePickSearch = sb.value; paint(); };
+      list.onclick = ev => {
+        const row = ev.target.closest("[data-tre]");
+        if(!row) return;
+        treasurePickId = treasurePickId === row.dataset.tre ? null : row.dataset.tre;
+        paint();
+      };
+      el.querySelector('[data-modal="cancel"]').onclick = closeModal;
+      el.querySelector('[data-modal="submit"]').onclick = () => submitTreasureRequest(char, reasonEl);
+      setTimeout(() => sb.focus(), 30);
+    });
+  }
+
+  async function submitTreasureRequest(char, reasonEl){
+    const t = treasurePickId ? clanTreasury[treasurePickId] : null;
+    if(!t){ flashSaveStatus("請先選定一件法寶", true); return; }
+    const reason = (reasonEl.value || "").trim();
+    if(!reason){ flashSaveStatus("請寫下請調理由，長老才好定奪", true); reasonEl.focus(); return; }
+    const name = String(t.name || "").trim() || "未命名法寶";
+    const holder = String(t.holder || "").trim();
+    if(holder && !confirm(`【${name}】目前記在「${holder}」名下。\n\n仍要呈遞請調卷宗嗎？`)) return;
+    try{
+      const r = push(ref(db, "itemRequests"));
+      await set(r, {
+        kind: "treasure",
+        itemId: treasurePickId,
+        itemName: name,
+        qty: 1,
+        charId: currentCharId,
+        charName: char.name || "未命名角色",
+        reason,
+        applicantId: discordUser.id,
+        applicantName: discordUser.name,
+        ts: Date.now()
+      });
+      closeModal();
+      flashSaveStatus(`請調卷宗已呈入內務堂：【${name}】`, false);
+    }catch(e){
+      console.error("treasure request error", e);
+      flashSaveStatus("呈遞失敗：" + (e && e.message ? e.message : e), true);
+    }
   }
 
   function rulebookInputHtml(field, value, result, dis){
@@ -1887,6 +2243,9 @@
       markDirty(); return;
     }
     if(action === "del-row"){ char[btn.dataset.table].splice(parseInt(btn.dataset.row, 10), 1); refreshQuickActions(); markDirty(); return; }
+
+    if(action === "pick-art"){ openLibraryPicker(); return; }
+    if(action === "pick-treasure"){ openTreasuryRequest(); return; }
 
     if(action === "add-spellgroup"){ char.spellGroups.push({ groupName:"新功法表", spells:[] }); refreshSpells(); markDirty(); return; }
     if(action === "del-spellgroup"){
