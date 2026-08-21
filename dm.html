@@ -22,12 +22,13 @@
     font-family:"LXGW WenKai TC","Noto Serif TC",serif; min-height:100vh; position:relative;
   }
   h1,h2,h3{ font-family:"Noto Serif TC",serif; }
-  /* mix-blend-mode 疊在 fixed 滿版層上，滾動時如果沒獨立合成層，
-     每一幀都要跟底下捲動中的內容重新混合，手機上容易卡頓；用 will-change 拉成獨立層。 */
+  /* mix-blend-mode 疊在 fixed 滿版層上：這層本身不會動，不需要 will-change:transform；
+     曾經加過會強制拉成獨立合成層，結果部分手機瀏覽器的 mix-blend-mode 混合層隔離失敗，
+     整層直接蓋成一塊實色，比卡頓更嚴重，所以拿掉。 */
   body::before{
     content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity:.5; mix-blend-mode:multiply; will-change:transform;
+    opacity:.5; mix-blend-mode:multiply;
   }
   .watermark{
     position:fixed; top:-10px; right:-60px; z-index:0; pointer-events:none; user-select:none;
@@ -279,7 +280,8 @@
   .stone-value:focus{ outline:none; border-bottom-color:var(--gold); }
   .stone-value:disabled{ border-bottom-color:transparent; }
 
-  /* 靈石快速增減：卡片下方一排小按鈕，點下去先跳小視窗二次確認才真的送出 */
+  /* 靈石快速增減：卡片下方一排小按鈕，點下去直接套用（不跳二次確認，按錯了
+     按對應的反向數字馬上抵銷即可，靠「復原上一筆」保底） */
   .stone-quick{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
   .sq-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:5px; }
   .sq-chip{
@@ -293,26 +295,6 @@
   .sq-chip.minus{ border-color:rgba(156,43,34,.3); color:var(--vermillion-bright); }
   .sq-chip.minus:hover{ background:rgba(156,43,34,.08); border-color:var(--vermillion); }
   .sq-chip.sq-custom{ display:block; margin:6px auto 0; color:var(--ink-faint2); }
-
-  /* 小區域二次確認彈窗：固定在點擊的按鈕旁邊，不是整頁遮罩 */
-  .stone-pop{
-    position:fixed; z-index:500; background:var(--paper-2); border:1px solid var(--gold);
-    border-radius:8px; padding:12px 14px; box-shadow:0 10px 30px rgba(0,0,0,.24);
-    width:220px; max-width:calc(100vw - 16px);
-    opacity:0; transform:translateY(-4px); transition:opacity .12s ease, transform .12s ease;
-  }
-  .stone-pop.show{ opacity:1; transform:none; }
-  .stone-pop .sp-title{ font-weight:700; font-size:14px; margin-bottom:4px; }
-  .stone-pop .sp-title b.plus{ color:var(--jade); }
-  .stone-pop .sp-title b.minus{ color:var(--vermillion-bright); }
-  .stone-pop .sp-sub{ font-size:12px; color:var(--ink-faint2); margin-bottom:10px; }
-  .stone-pop .sp-input{
-    width:100%; box-sizing:border-box; padding:7px 9px; margin-bottom:8px; font-size:14px;
-    border:1px solid var(--border); border-radius:5px; font-family:inherit; color:var(--ink);
-  }
-  .stone-pop .sp-input:focus{ outline:none; border-color:var(--gold); }
-  .stone-pop .sp-actions{ display:flex; justify-content:flex-end; gap:8px; }
-  .stone-pop .sp-actions .btn{ font-size:12px; padding:5px 12px; }
 
   /* ===== 日誌 ===== */
   .log-list{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; overflow:hidden; max-height:420px; overflow-y:auto; }
@@ -2319,42 +2301,9 @@
     });
   }
 
-  // ===== 靈石快速增減：小區域二次確認彈窗 =====
-  // 跟 openModal／closeModal（玉簡彈窗）分開一組：那個是整頁遮罩，這個要小、
-  // 而且釘在按下去的那顆按鈕旁邊，不能整頁蓋住。
-  function closeStonePop(){
-    const p = document.getElementById("stonePop");
-    if(p) p.remove();
-    if(closeStonePop._out){ document.removeEventListener("mousedown", closeStonePop._out, true); closeStonePop._out = null; }
-    if(closeStonePop._esc){ document.removeEventListener("keydown", closeStonePop._esc); closeStonePop._esc = null; }
-  }
-  function positionStonePop(pop, anchor){
-    const r = anchor.getBoundingClientRect();
-    const pw = pop.offsetWidth, ph = pop.offsetHeight;
-    let left = r.left + r.width / 2 - pw / 2;
-    left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
-    let top = r.bottom + 8;
-    if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8); // 螢幕下緣放不下就翻到按鈕上方
-    pop.style.left = left + "px";
-    pop.style.top = top + "px";
-  }
-  function openStonePop(anchor, html, onMount){
-    closeStonePop();
-    const pop = document.createElement("div");
-    pop.className = "stone-pop"; pop.id = "stonePop";
-    pop.innerHTML = html;
-    document.body.appendChild(pop);
-    positionStonePop(pop, anchor);
-    requestAnimationFrame(() => pop.classList.add("show"));
-    closeStonePop._out = e => { if(!pop.contains(e.target) && e.target !== anchor) closeStonePop(); };
-    document.addEventListener("mousedown", closeStonePop._out, true);
-    closeStonePop._esc = e => { if(e.key === "Escape") closeStonePop(); };
-    document.addEventListener("keydown", closeStonePop._esc);
-    if(onMount) onMount(pop);
-  }
-
-  // 實際套用一筆靈石增減（彈窗按下「確定套用」後才會呼叫），跟直接改數字欄共用同一套
-  // before/after 記錄與日誌格式，也一併更新「復原上一筆」。
+  // 實際套用一筆靈石增減（快速按鈕／自訂輸入都直接呼叫，不再另外跳二次確認——
+  // 按錯了馬上按對應的反向數字就能抵銷，靠下面的「復原上一筆」保底），跟直接改
+  // 數字欄共用同一套 before/after 記錄與日誌格式。
   async function applyStoneDelta(key, delta){
     if(!delta) return false;
     const before = num(stones[key]);
@@ -2649,64 +2598,32 @@
           renderHallStats();
         }
 
-        // 靈石快速增減：按下面額按鈕先跳小視窗二次確認，按下「確定套用」才真的寫入
+        // 靈石快速增減：直接套用，不跳二次確認——按錯了馬上按對應的反向數字
+        // 抵銷就好，二次確認反而妨礙連續點擊；保底靠下面的「復原上一筆」。
         if(action === "stone-quick"){
           const key = btn.dataset.stone;
           const delta = parseInt(btn.dataset.delta, 10) || 0;
           if(!delta) return;
           const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
-          const before = num(stones[key]);
-          const after = Math.max(0, before + delta);
-          const sign = delta > 0 ? "plus" : "minus";
           const signTxt = delta > 0 ? "+" : "";
-          const blocked = after === before && delta < 0;
-          openStonePop(btn, `
-            <div class="sp-title">${escapeHtml(label)}　<b class="${sign}">${signTxt}${delta.toLocaleString()}</b></div>
-            <div class="sp-sub">${before.toLocaleString()} → ${after.toLocaleString()}${blocked ? "（已經是 0，扣不下去）" : ""}</div>
-            <div class="sp-actions">
-              <button class="btn" data-pop="cancel">取消</button>
-              <button class="btn gold" data-pop="confirm" ${blocked ? "disabled" : ""}>確定套用</button>
-            </div>`, pop => {
-            pop.querySelector('[data-pop="cancel"]').onclick = closeStonePop;
-            pop.querySelector('[data-pop="confirm"]').onclick = async () => {
-              const okBtn = pop.querySelector('[data-pop="confirm"]');
-              okBtn.disabled = true;
-              const ok = await applyStoneDelta(key, delta);
-              closeStonePop();
-              if(ok) flash(`已套用：${label} ${signTxt}${delta.toLocaleString()}`, false);
-            };
-          });
+          if(delta < 0 && num(stones[key]) <= 0){ flash(`${label} 已經是 0，扣不下去`, true); return; }
+          const ok = await applyStoneDelta(key, delta);
+          if(ok) flash(`已套用：${label} ${signTxt}${delta.toLocaleString()}`, false);
+          else flash("寫入失敗，請再試一次", true);
           return;
         }
         if(action === "stone-custom"){
           const key = btn.dataset.stone;
           const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
           const before = num(stones[key]);
-          openStonePop(btn, `
-            <div class="sp-title">${escapeHtml(label)}　自訂增減</div>
-            <input type="number" class="sp-input" id="spCustomInput" placeholder="正數增加、負數減少">
-            <div class="sp-sub" id="spCustomPreview">目前 ${before.toLocaleString()}</div>
-            <div class="sp-actions">
-              <button class="btn" data-pop="cancel">取消</button>
-              <button class="btn gold" data-pop="confirm">確定套用</button>
-            </div>`, pop => {
-            const inputEl = pop.querySelector("#spCustomInput");
-            const preview = pop.querySelector("#spCustomPreview");
-            inputEl.oninput = () => {
-              const d = parseInt(inputEl.value, 10) || 0;
-              const after = Math.max(0, before + d);
-              preview.textContent = d ? `${before.toLocaleString()} → ${after.toLocaleString()}` : `目前 ${before.toLocaleString()}`;
-            };
-            pop.querySelector('[data-pop="cancel"]').onclick = closeStonePop;
-            pop.querySelector('[data-pop="confirm"]').onclick = async () => {
-              const d = parseInt(inputEl.value, 10) || 0;
-              if(!d){ inputEl.focus(); return; }
-              const ok = await applyStoneDelta(key, d);
-              closeStonePop();
-              if(ok) flash(`已套用：${label} ${d > 0 ? "+" : ""}${d.toLocaleString()}`, false);
-            };
-            setTimeout(() => inputEl.focus(), 30);
-          });
+          const input = prompt(`${label}　自訂增減（正數增加、負數減少，目前 ${before.toLocaleString()}）：`);
+          if(input === null) return;
+          const d = parseInt(input, 10) || 0;
+          if(!d) return;
+          if(d < 0 && before <= 0){ flash(`${label} 已經是 0，扣不下去`, true); return; }
+          const ok = await applyStoneDelta(key, d);
+          if(ok) flash(`已套用：${label} ${d > 0 ? "+" : ""}${d.toLocaleString()}`, false);
+          else flash("寫入失敗，請再試一次", true);
           return;
         }
         if(action === "stone-undo"){
