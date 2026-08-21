@@ -62,6 +62,20 @@
     box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
   }
   .nav-link.current{ color:#1D1712; background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; }
+
+  /* ===== 繁簡切換 ===== */
+  .script-switch{
+    display:flex; gap:0; border:1px solid var(--border); border-radius:20px; overflow:hidden; flex-shrink:0;
+  }
+  .script-switch button{
+    border:none; background:var(--paper); color:var(--ink-faint2);
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12px; letter-spacing:1px;
+    padding:5px 12px; cursor:pointer; transition:background .2s, color .2s;
+  }
+  .script-switch button + button{ border-left:1px solid var(--border); }
+  .script-switch button.active{ background:var(--vermillion); color:#F5E9DD; }
+  .script-switch button:not(.active):hover{ background:var(--paper-3); color:var(--ink); }
+
   .auth-box{ display:flex; align-items:center; gap:12px; }
   .btn-discord{
     display:flex; align-items:center; gap:6px; background:#5865F2; color:#fff; border:none;
@@ -684,6 +698,11 @@
     <a class="nav-link" href="library.html">藏經閣</a>
   </div>
 
+  <div class="script-switch ignore-opencc" role="group" aria-label="繁簡切換">
+    <button type="button" data-mode="trad">繁</button>
+    <button type="button" data-mode="simp">簡</button>
+  </div>
+
   <div class="auth-box">
     <div class="auth-logged-out">
       <button class="btn-discord" id="discordLoginBtn">
@@ -713,6 +732,14 @@
 </div>
 
 <div class="save-status" id="saveStatus">已自動儲存</div>
+
+<!-- 繁簡切換獨立一個 module，不跟下面連 Firebase 的那個共用同一份 import 圖：
+     ES module 的靜態 import 只要有一個載入失敗，整個 module 都不會執行，
+     繁簡切換明明跟 Firebase 無關，不該被 CDN 連不上的問題一起拖垮。 -->
+<script type="module">
+  import { initScriptMode } from "./script-mode.js";
+  initScriptMode();
+</script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";

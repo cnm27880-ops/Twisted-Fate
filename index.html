@@ -444,11 +444,23 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   </main>
 </div>
 
+<!-- 繁簡切換獨立一個 module，不跟下面連 Firebase 的那個共用同一份 import 圖：
+     ES module 的靜態 import 只要有一個載入失敗，整個 module 都不會執行，
+     繁簡切換明明跟 Firebase 無關，不該被 CDN 連不上的問題一起拖垮。 -->
+<script type="module">
+  import { initScriptMode } from "./script-mode.js";
+  initScriptMode();
+</script>
+
 <script type="module">
   // Firebase modular SDK：只載入實際用到的 app + database 模組，
   // 比舊的 compat 全量包輕巧許多（本頁不需要 auth）
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  // 繁簡切換的啟動（initScriptMode）搬到獨立的 module（見上方 <script> 標籤），
+  // 這裡只匯入下面各處會呼叫到的 applyScriptMode——兩邊指向同一個 script-mode.js
+  // 模組實例，狀態是共用的。
+  import { applyScriptMode } from "./script-mode.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -461,80 +473,6 @@ button, .tree-head, .search-box, input, [data-clickable], a {
   };
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-
-  // ===== 繁簡切換 =====
-  // 資料庫內容理論上都以繁體儲存，但條目可能是編輯時忘記轉換、直接貼上簡體文字存進去的，
-  // 不能保證每一筆都真的是繁體。opencc-js 內建的 HTMLConverter 是「轉換一次、之後只能復原成
-  // 原文」的單向設計：若原文其實已經是簡體，切到「繁體」模式時 restore() 只會退回那段簡體原文，
-  // 畫面完全沒變化，就是使用者回報「原本是簡體的文字切換好像沒生效」的原因。
-  // 改成每次都用「目前顯示模式所需要的方向」直接正規化目前畫面上的文字：
-  // 顯示繁體用簡轉繁、顯示簡體用繁轉簡，不管文字原本是哪種字體，轉換後都會落在正確的目標字體，
-  // 前後多次切換也不會累積誤差（繁體/簡體字再轉一次同方向基本上是不動點）。
-  const SCRIPT_MODE_KEY = "tf_script_mode_v1";
-  let scriptMode = localStorage.getItem(SCRIPT_MODE_KEY) === "simp" ? "simp" : "trad";
-
-  // 繁簡辭典（opencc-js full 版）改成延遲載入。
-  // 以前是寫在最上面的頂層 import，只要 CDN 連不上或很慢，整份 module 都不會執行，
-  // 規則書會整個空白、永遠停在「載入規則中…」。現在辭典是額外的加分項：
-  // 沒載到就照資料庫原本的繁體顯示，規則書照樣讀得到。
-  let toTradConverter = null, toSimpConverter = null;
-  const OPENCC_URL = "https://cdn.jsdelivr.net/npm/opencc-js@1.4.1/dist/esm/full.js";
-  async function loadOpenCC(){
-    try{
-      // 也擋住「連得上但一直沒回應」的情況：逾時就當作載不到，
-      // 否則切換鈕會一直可按卻沒有反應，使用者只會覺得壞掉。
-      const OpenCC = (await Promise.race([
-        import(OPENCC_URL),
-        new Promise((_, rej) => setTimeout(() => rej(new Error("opencc timeout")), 8000))
-      ])).default;
-      toTradConverter = OpenCC.Converter({ from: "cn", to: "tw" });
-      toSimpConverter = OpenCC.Converter({ from: "tw", to: "cn" });
-      applyScriptMode();                       // 辭典到了再把整頁轉一次
-    }catch(e){
-      console.warn("繁簡辭典載入失敗，改以資料庫原文（繁體）顯示", e);
-      scriptMode = "trad";
-      document.querySelectorAll(".script-switch button[data-mode]").forEach(btn => {
-        btn.disabled = true;
-        btn.title = "繁簡辭典載入失敗（可能是網路或 CDN 問題），目前僅顯示繁體";
-      });
-      applyScriptMode();
-    }
-  }
-
-  function convertTextNodes(node, converter){
-    if(node.nodeType === Node.ELEMENT_NODE){
-      if(node.classList.contains("ignore-opencc")) return; // .script-switch 開關本身文字不轉換
-      if(node.tagName === "SCRIPT" || node.tagName === "STYLE") return;
-      if(node.hasAttribute("placeholder")) node.setAttribute("placeholder", converter(node.getAttribute("placeholder")));
-      if(node.hasAttribute("title")) node.setAttribute("title", converter(node.getAttribute("title")));
-      if(node.hasAttribute("aria-label")) node.setAttribute("aria-label", converter(node.getAttribute("aria-label")));
-      node.childNodes.forEach(child => convertTextNodes(child, converter));
-    } else if(node.nodeType === Node.TEXT_NODE && node.nodeValue){
-      node.nodeValue = converter(node.nodeValue);
-    }
-  }
-
-  function applyScriptMode(){
-    const converter = scriptMode === "simp" ? toSimpConverter : toTradConverter;
-    if(converter) convertTextNodes(document.body, converter);   // 辭典還沒到就先照原文顯示
-    document.body.setAttribute("lang", scriptMode === "simp" ? "zh-CN" : "zh-TW");
-    document.querySelectorAll(".script-switch button[data-mode]").forEach(btn => {
-      btn.classList.toggle("active", btn.getAttribute("data-mode") === scriptMode);
-    });
-  }
-
-  document.querySelectorAll(".script-switch button[data-mode]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const mode = btn.getAttribute("data-mode");
-      if(mode === scriptMode) return;
-      scriptMode = mode;
-      localStorage.setItem(SCRIPT_MODE_KEY, scriptMode);
-      applyScriptMode();
-    });
-  });
-
-  applyScriptMode();
-  loadOpenCC();
 
   let chapters = {};
   let modules = {};
