@@ -34,15 +34,17 @@
   h1,h2,h3,.serif{ font-family:"Noto Serif TC",serif; }
 
   /* 紙紋雜訊 */
+  /* mix-blend-mode 疊在 fixed 滿版層上，滾動時如果沒獨立合成層，
+     每一幀都要跟底下捲動中的內容重新混合，手機上容易卡頓；用 will-change 拉成獨立層。 */
   body::before{
     content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity:.5; mix-blend-mode:multiply;
+    opacity:.5; mix-blend-mode:multiply; will-change:transform;
   }
   body::after{
     content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background:radial-gradient(ellipse 1100px 750px at 50% 0%, rgba(var(--path-tint-rgb), var(--path-tint-alpha)) 0%, transparent 80%);
-    transition:background 0.6s ease;
+    transition:background 0.6s ease; will-change:transform;
   }
 
   .watermark{
@@ -377,7 +379,7 @@
   /* ===== 太極陰陽魚環 ===== */
   .taiji-core { position: relative; width: 240px; height: 240px; }
   .taiji-rings { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .bagua-ring { fill: var(--gold-deep); opacity: .38; transform-origin: 120px 120px; animation: baguaSpin 90s linear infinite; }
+  .bagua-ring { fill: var(--gold-deep); opacity: .38; transform-origin: 120px 120px; animation: baguaSpin 90s linear infinite; will-change: transform; }
   @keyframes baguaSpin { to { transform: rotate(360deg); } }
 
   .ring-groove { fill: none; stroke-width: 20; stroke-linecap: round; stroke: rgba(59,44,20,.15); }
@@ -405,7 +407,7 @@
     display: flex; align-items: center; justify-content: center;
     transition: border-color .5s ease, box-shadow .5s ease;
   }
-  .karma-plate .yy { position: absolute; inset: -14%; width: 128%; height: 128%; opacity: .2; transform-origin: 50% 50%; animation: baguaSpin 150s linear infinite reverse; }
+  .karma-plate .yy { position: absolute; inset: -14%; width: 128%; height: 128%; opacity: .2; transform-origin: 50% 50%; animation: baguaSpin 150s linear infinite reverse; will-change: transform; }
   .yy-dark { fill: var(--karma-color, var(--ink-dim)); }
   .yy-dot-a { fill: var(--paper); }
   .yy-dot-b { fill: var(--karma-color, var(--ink-dim)); }
@@ -1004,9 +1006,11 @@
   }
 
   // 拆法二：用「短標題自成一行、下面接說明」寫的能力（種族特性常見）
+  // 「.」不算排除用的標點——「1. 短標題」這種編號小標題也要能被認成標題，
+  // 這樣它才會在下面被判定為「底下沒內容」而濾掉，不會殘留在前一張卡片的內文裡。
   function isPlainHeading(line){
     if(!line || RB_BULLET.test(line)) return false;
-    if(/[:：。，、；！？!?,.]/.test(line)) return false;
+    if(/[:：。，、；！？!?,]/.test(line)) return false;
     return Array.from(line).length <= 12;
   }
   function splitPlainHeadings(lines){
@@ -1018,16 +1022,51 @@
       else if(cur) cur.lines.push(raw);
       else preamble.push(raw);
     }
-    // 每個標題底下都要真的有內容，否則多半是誤判
-    if(abilities.length < 2 || abilities.some(a => !a.lines.some(l => l.trim()))) return null;
-    return { abilities, preamble };
+    // 標題底下完全沒內容的（緊接著又是另一個標題行，例如編號小標或分類大標），
+    // 代表它不是真正要獨立成卡的標題，直接濾掉即可，不影響其他標題正常拆分。
+    const real = abilities.filter(a => a.lines.some(l => l.trim()));
+    if(real.length < 2) return null;
+    return { abilities: real, preamble };
   }
 
-  // 只有「帶等級的能力」與「短標題＋說明」會被拆成一塊一塊。
-  // 單行的「項目：說明」條列（如 引氣入體 的消耗／效果、基礎資訊的護甲／武器）
-  // 是同一件事底下的屬性，維持在同一張卡裡用條列呈現才讀得懂。
+  // 拆法三：「短標題：完整說明」整句寫在同一行的能力（神獸血統等擇一天賦常見）。
+  // 說明一定要有句號才算數，跟「項目：簡短數值」（如「消耗：170 靈力」「火：根骨」
+  // 這種條列或對照表）分開——後者要留在同一張卡裡，不能拆成一堆兩三個字的空卡片。
+  const RB_INLINE_HEAD = /^([^\s:：]{1,12})[:：]\s*(\S.*)$/;
+  function isInlineHeadLine(line){
+    if(!line || RB_BULLET.test(line)) return false;
+    const m = line.match(RB_INLINE_HEAD);
+    return !!(m && !/[:：。，、；！？!?,.]/.test(m[1]) && m[2].includes("。"));
+  }
+  function splitInlineHeadings(lines){
+    const abilities = []; const preamble = []; let cur = null;
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line){ if(cur) cur.lines.push(""); else preamble.push(raw); continue; }
+      if(isInlineHeadLine(line)){
+        const m = line.match(RB_INLINE_HEAD);
+        cur = { title: m[1].trim(), lines: [m[2]] }; abilities.push(cur);
+      } else if(cur) cur.lines.push(raw);
+      else preamble.push(raw);
+    }
+    return abilities.length >= 2 ? { abilities, preamble } : null;
+  }
+
+  // 先用「帶等級的能力」或「短標題＋說明」抓大結構，再對每張卡自己的內文
+  // 試一次「短標題：完整說明」，把裡面擇一並列的天賦（如血統、恩賜）再拆成一塊一塊。
+  // 單行的「項目：簡短數值」條列（如 引氣入體 的消耗／效果、基礎資訊的護甲／武器）
+  // 沒有句號、不會被拆法三命中，仍維持在同一張卡裡用條列呈現才讀得懂。
   function rbSplitGroup(lines){
-    return splitLeveledAbilities(lines) || splitPlainHeadings(lines);
+    const primary = splitLeveledAbilities(lines) || splitPlainHeadings(lines);
+    if(!primary) return splitInlineHeadings(lines);
+    const abilities = [];
+    for(const ab of primary.abilities){
+      const inner = splitInlineHeadings(ab.lines);
+      if(!inner){ abilities.push(ab); continue; }
+      if(inner.preamble.some(l => l.trim())) abilities.push({ title: ab.title, level: ab.level, lines: inner.preamble });
+      abilities.push(...inner.abilities);
+    }
+    return { abilities, preamble: primary.preamble };
   }
 
   function rbAbilityCardHtml(title, bodyHtml, accent, level){

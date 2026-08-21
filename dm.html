@@ -22,10 +22,12 @@
     font-family:"LXGW WenKai TC","Noto Serif TC",serif; min-height:100vh; position:relative;
   }
   h1,h2,h3{ font-family:"Noto Serif TC",serif; }
+  /* mix-blend-mode 疊在 fixed 滿版層上，滾動時如果沒獨立合成層，
+     每一幀都要跟底下捲動中的內容重新混合，手機上容易卡頓；用 will-change 拉成獨立層。 */
   body::before{
     content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity:.5; mix-blend-mode:multiply;
+    opacity:.5; mix-blend-mode:multiply; will-change:transform;
   }
   .watermark{
     position:fixed; top:-10px; right:-60px; z-index:0; pointer-events:none; user-select:none;
@@ -75,6 +77,7 @@
   .role-badge.dm{ background:var(--vermillion); color:#F5E4D3; }
   .role-badge.elder{ background:var(--gold-deep); color:var(--paper); }
   .role-badge.guest{ background:var(--paper-3); color:var(--ink-faint2); }
+  .role-badge.sandbox{ background:var(--jade); color:#EAF5F0; }
 
   .btn{
     display:inline-flex; align-items:center; gap:5px; background:var(--paper);
@@ -202,7 +205,7 @@
 
   .block-title{
     font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink);
-    margin:0 0 16px; display:flex; align-items:center; gap:10px;
+    margin:0 0 16px; display:flex; align-items:center; flex-wrap:wrap; gap:10px;
     border-bottom:2px solid var(--border); padding-bottom:8px;
   }
   .block-title::before{ content:""; display:block; width:6px; height:22px; background:var(--vermillion); border-radius:3px; }
@@ -261,6 +264,41 @@
   }
   .stone-value:focus{ outline:none; border-bottom-color:var(--gold); }
   .stone-value:disabled{ border-bottom-color:transparent; }
+
+  /* 靈石快速增減：卡片下方一排小按鈕，點下去先跳小視窗二次確認才真的送出 */
+  .stone-quick{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
+  .sq-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:5px; }
+  .sq-chip{
+    font-family:inherit; font-size:11px; font-weight:700; padding:4px 7px; border-radius:4px;
+    border:1px solid var(--border); background:var(--paper); color:var(--ink-dim); cursor:pointer;
+    transition:background .15s, border-color .15s; -webkit-tap-highlight-color:transparent;
+  }
+  .sq-chip:hover{ background:var(--paper-3); }
+  .sq-chip.plus{ border-color:rgba(45,90,76,.35); color:var(--jade); }
+  .sq-chip.plus:hover{ background:rgba(45,90,76,.1); border-color:var(--jade); }
+  .sq-chip.minus{ border-color:rgba(156,43,34,.3); color:var(--vermillion-bright); }
+  .sq-chip.minus:hover{ background:rgba(156,43,34,.08); border-color:var(--vermillion); }
+  .sq-chip.sq-custom{ display:block; margin:6px auto 0; color:var(--ink-faint2); }
+
+  /* 小區域二次確認彈窗：固定在點擊的按鈕旁邊，不是整頁遮罩 */
+  .stone-pop{
+    position:fixed; z-index:500; background:var(--paper-2); border:1px solid var(--gold);
+    border-radius:8px; padding:12px 14px; box-shadow:0 10px 30px rgba(0,0,0,.24);
+    width:220px; max-width:calc(100vw - 16px);
+    opacity:0; transform:translateY(-4px); transition:opacity .12s ease, transform .12s ease;
+  }
+  .stone-pop.show{ opacity:1; transform:none; }
+  .stone-pop .sp-title{ font-weight:700; font-size:14px; margin-bottom:4px; }
+  .stone-pop .sp-title b.plus{ color:var(--jade); }
+  .stone-pop .sp-title b.minus{ color:var(--vermillion-bright); }
+  .stone-pop .sp-sub{ font-size:12px; color:var(--ink-faint2); margin-bottom:10px; }
+  .stone-pop .sp-input{
+    width:100%; box-sizing:border-box; padding:7px 9px; margin-bottom:8px; font-size:14px;
+    border:1px solid var(--border); border-radius:5px; font-family:inherit; color:var(--ink);
+  }
+  .stone-pop .sp-input:focus{ outline:none; border-color:var(--gold); }
+  .stone-pop .sp-actions{ display:flex; justify-content:flex-end; gap:8px; }
+  .stone-pop .sp-actions .btn{ font-size:12px; padding:5px 12px; }
 
   /* ===== 日誌 ===== */
   .log-list{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; overflow:hidden; max-height:420px; overflow-y:auto; }
@@ -591,6 +629,28 @@
     font-size:13px; font-weight:700; padding:10px 16px; border-radius:6px; margin-bottom:20px; line-height:1.7;
   }
   .notice.info{ background:rgba(45,90,76,.08); border-color:rgba(45,90,76,.3); color:var(--jade); }
+  .notice.sandbox-optin{
+    background:rgba(45,90,76,.08); border-color:rgba(45,90,76,.3); color:var(--ink-dim);
+    font-weight:400; margin-top:10px;
+  }
+  .notice.sandbox-optin b{ color:var(--jade); }
+
+  /* ===== 沙盒模式橫幅 ===== */
+  .sandbox-banner{
+    display:flex; align-items:center; flex-wrap:wrap; gap:10px 16px;
+    background:linear-gradient(90deg, rgba(45,90,76,.14), rgba(45,90,76,.05));
+    border:1px solid rgba(45,90,76,.4); border-radius:6px;
+    padding:10px 16px; margin-bottom:20px; font-size:13px; line-height:1.7; color:var(--ink-dim);
+  }
+  .sandbox-banner .sb-text{ flex:1 1 260px; }
+  .sandbox-banner .sb-text b{ color:var(--jade); }
+  .sandbox-banner .sb-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .sandbox-banner .btn{ font-size:12px; padding:5px 10px; }
+  .sandbox-banner .sb-release{
+    background:transparent; border:none; color:var(--ink-faint2); font-size:11px;
+    text-decoration:underline; cursor:pointer; padding:4px 2px;
+  }
+  .sandbox-banner .sb-release:hover{ color:var(--vermillion-bright); }
 
   .save-status{
     position:fixed; bottom:20px; right:20px; font-size:13px; font-weight:700; color:#fff; background:var(--jade);
@@ -692,6 +752,24 @@
   let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
   let syncError = null;
 
+  // ===== 沙盒模式 =====
+  // 尚未取得正式天道／長老授權時，可以自行啟用一份跟真實資料完全隔離的沙盒
+  // （所有讀寫都改走 sandbox/{ownerId}/ 底下），用來試用、調整介面而不動到宗門的真實帳目。
+  // 持有人身分（sandboxOwner）寫在資料庫的最外層，跨裝置都認得同一人；
+  // 「目前是否開著」則是純本機的開關，換一台裝置預設是關的，需要再開一次。
+  const SANDBOX_LOCAL_KEY = "tf_dm_sandbox_on";
+  let sandboxOwner = null;         // { id, name } 或 null；一律走真實路徑，不受沙盒開關影響
+  let sandboxOwnerLoaded = false;
+  let discordAuthChecked = false;  // Discord 登入狀態（含「確定是訪客」）判定完成
+  let sandboxOn = localStorage.getItem(SANDBOX_LOCAL_KEY) === "1";
+  let dataSubscribed = false;
+  let dataUnsubs = [];
+  let lastSandboxActive = false;
+
+  // 靈石快速增減：可套用的整數面額（下面另有「自訂」可輸入任意數字）
+  const STONE_QUICK_AMOUNTS = [100, 1000, 10000, 100000];
+  let lastStoneChange = null; // { key, before, after } 供「復原上一筆」使用，僅存在本次瀏覽階段
+
   let activeTab = "tab-warehouse";
   let warehouseCat = "丹藥";
   let rosterFilter = "";
@@ -742,10 +820,16 @@
       try{ discordUser = await fetchDiscordUser(token); }
       catch(e){ localStorage.removeItem(DISCORD_TOKEN_KEY); discordUser = null; }
     }
+    discordAuthChecked = true;
+    maybeResubscribe();
     renderAuth(); renderAll(true);
   }
 
+  // 沙盒開著、而且登入的正是沙盒持有人本人，才算數——換人登入或沒開關，一律回真實權限。
+  function sandboxActive(){ return sandboxOn && !!discordUser && !!sandboxOwner && discordUser.id === sandboxOwner.id; }
+
   function myRole(){
+    if(sandboxActive()) return "DM"; // 沙盒模式直接視同天道，不看（也可能還沒有的）沙盒管理員名單
     if(!discordUser) return null;
     const a = admins[discordUser.id];
     return a ? a.role : null;
@@ -762,8 +846,9 @@
       document.getElementById("authName").textContent = discordUser.name;
       const badge = document.getElementById("roleBadge");
       const r = myRole();
-      badge.textContent = r === "DM" ? "天道" : (r === "Elder" ? "長老" : "弟子（唯讀）");
-      badge.className = "role-badge " + (r === "DM" ? "dm" : (r === "Elder" ? "elder" : "guest"));
+      const sb = sandboxActive();
+      badge.textContent = sb ? "天道（沙盒）" : (r === "DM" ? "天道" : (r === "Elder" ? "長老" : "弟子（唯讀）"));
+      badge.className = "role-badge " + (sb ? "sandbox" : (r === "DM" ? "dm" : (r === "Elder" ? "elder" : "guest")));
     }
   }
 
@@ -771,8 +856,13 @@
   document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
 
   // ===== 資料同步 =====
+  // 沙盒模式開啟時，把所有路徑改成 sandbox/{ownerId}/ 底下的隔離副本；
+  // sandboxOwner 自己例外——它必須一直讀寫真實路徑，否則無從得知「沙盒到底是誰的」。
+  function dbPath(path){ return sandboxActive() ? `sandbox/${sandboxOwner.id}/${path}` : path; }
+  function dref(path){ return ref(db, dbPath(path)); }
+
   function watch(path, onData, key){
-    onValue(ref(db, path), snap => {
+    return onValue(dref(path), snap => {
       onData(snap.val() || {});
       if(key) loaded[key] = true;
       syncError = null;
@@ -783,15 +873,64 @@
       renderAll(true);
     });
   }
-  watch("admins",     v => admins = v,    "admins");
-  watch("warehouse",  v => warehouse = v, "warehouse");
-  watch("stones",     v => stones = v);
-  watch("warehouseLogs", v => logs = v);
-  watch("roster",     v => roster = v,    "roster");
-  watch("treasury",   v => treasury = v,  "treasury");
-  watch("characters", v => chars = v,     "chars");
-  watch("itemRequests", v => itemRequests = v);
-  watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean));
+
+  // 訂閱庫房／花名冊等九項主資料。沙盒開關切換時會整批取消重訂，
+  // 改連到（或連回）對應路徑，並讓 loaded 重新歸零，畫面短暫顯示「連線中」而不是誤用舊資料。
+  function subscribeAllData(){
+    dataUnsubs.forEach(u => { try{ u(); }catch(e){} });
+    dataUnsubs = [];
+    loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
+    dataUnsubs.push(watch("admins",     v => admins = v,    "admins"));
+    dataUnsubs.push(watch("warehouse",  v => warehouse = v, "warehouse"));
+    dataUnsubs.push(watch("stones",     v => stones = v));
+    dataUnsubs.push(watch("warehouseLogs", v => logs = v));
+    dataUnsubs.push(watch("roster",     v => roster = v,    "roster"));
+    dataUnsubs.push(watch("treasury",   v => treasury = v,  "treasury"));
+    dataUnsubs.push(watch("characters", v => chars = v,     "chars"));
+    dataUnsubs.push(watch("itemRequests", v => itemRequests = v));
+    dataUnsubs.push(watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean)));
+  }
+
+  // 要等「登入狀態」與「沙盒持有人是誰」都確定了，才知道該連真實路徑還是沙盒路徑，
+  // 避免連錯一次又要整批重連。這兩項哪個晚到，就由它觸發第一次訂閱。
+  function trySubscribeData(){
+    if(dataSubscribed || !discordAuthChecked || !sandboxOwnerLoaded) return;
+    dataSubscribed = true;
+    lastSandboxActive = sandboxActive();
+    subscribeAllData();
+  }
+  function maybeResubscribe(){
+    if(!dataSubscribed){ trySubscribeData(); return; }
+    const now = sandboxActive();
+    if(now !== lastSandboxActive){ lastSandboxActive = now; subscribeAllData(); }
+  }
+
+  // 沙盒持有人是誰，這一項一律讀真實路徑（不能被自己所屬的沙盒開關影響到）。
+  onValue(ref(db, "sandboxOwner"), snap => {
+    const v = snap.val();
+    sandboxOwner = (v && v.id) ? v : null;
+    sandboxOwnerLoaded = true;
+    maybeResubscribe();
+    renderAuth(); renderAll();
+  });
+
+  // 把「當下的真實資料」複製一份進沙盒，測試起來才有實感；admins／warehouseLogs／
+  // itemRequests 不複製——前者沙盒模式已經直接視同天道不需要，後兩者從空的開始更乾淨。
+  const SANDBOX_CLONE_PATHS = ["warehouse", "stones", "treasury", "roster", "characters", "tabletOrder"];
+  async function seedSandboxFromReal(uid){
+    const snaps = await Promise.all(SANDBOX_CLONE_PATHS.map(p => get(ref(db, p))));
+    const updates = {};
+    SANDBOX_CLONE_PATHS.forEach((p, i) => { updates[`sandbox/${uid}/${p}`] = snaps[i].val(); });
+    await update(ref(db), updates);
+  }
+
+  // 開關沙盒模式：純本機狀態，換裝置要重開一次；每次切換都要整批重連對應路徑的資料。
+  function setSandboxOn(on){
+    sandboxOn = on;
+    try{ localStorage.setItem(SANDBOX_LOCAL_KEY, on ? "1" : "0"); }catch(e){}
+    maybeResubscribe();
+    renderAuth(); renderAll(true);
+  }
 
   // ===== 共用工具 =====
   // 全站不使用系統 emoji：所有圖示皆為手繪風格的 inline SVG（單色描線、無填色）。
@@ -856,7 +995,7 @@
     const batch = pendingSaves; pendingSaves = [];
     lastLocalWriteAt = Date.now();
     try{
-      for(const [path, value] of batch) await set(ref(db, path), value);
+      for(const [path, value] of batch) await set(dref(path), value);
       flash("已自動儲存", false);
     }catch(e){
       console.error("save error", e);
@@ -866,8 +1005,8 @@
   async function writeNow(path, value){
     lastLocalWriteAt = Date.now();
     try{
-      if(value === null) await remove(ref(db, path));
-      else await set(ref(db, path), value);
+      if(value === null) await remove(dref(path));
+      else await set(dref(path), value);
       flash("已儲存", false);
       return true;
     }catch(e){
@@ -887,7 +1026,7 @@
 
   async function writeLog(text, delta){
     if(!discordUser) return;
-    const r = push(ref(db, "warehouseLogs"));
+    const r = push(dref("warehouseLogs"));
     try{
       await set(r, { ts: Date.now(), actor: discordUser.name, text, delta: delta == null ? null : delta });
     }catch(e){ console.warn("log write failed", e); }
@@ -917,6 +1056,7 @@
 
     const editable = canEdit();
     area.innerHTML = `
+      ${sandboxBannerHtml()}
       ${adminNoticeHtml()}
       <div class="tabs">
         <button class="tab-btn" data-tab="tab-warehouse">【宗門庫房】</button>
@@ -1039,26 +1179,92 @@
     `;
   }
 
-  function adminNoticeHtml(){
-    if(!discordUser){
-      return `<div class="notice">目前為訪客唯讀模式。登入 Discord 後，若你的身分已被天道授權，即可編輯庫房與花名冊。</div>`;
+  // 沙盒模式的「啟用／開啟」入口：只有還沒被別人領走、或本來就是自己領走的，才會顯示；
+  // 別人領走的沙盒不關這個訪客的事，安靜地不顯示即可，避免誤導。
+  function sandboxOptInHtml(){
+    if(!sandboxOwnerLoaded) return "";
+    if(!sandboxOwner){
+      return `<div class="notice sandbox-optin">
+        <b>沙盒模式</b>：想在正式取得授權前，先試用天道功能？可以啟用一份跟真實資料完全隔離的沙盒
+        （所有讀寫都在你自己的副本上，不會動到宗門的真實帳目），僅限你自己使用。
+        <div style="margin-top:8px;"><button class="btn jade" data-action="claim-sandbox">啟用沙盒模式</button></div>
+      </div>`;
     }
-    if(Object.keys(admins).length === 0){
-      return `<div class="notice">尚未設定任何管理員。第一位設定者將成為天道，可再授權其他長老。
-        <div style="margin-top:8px;"><button class="btn gold" data-action="claim-dm">將我設為天道</button></div></div>`;
-    }
-    if(!canEdit()){
-      return `<div class="notice">你目前是「弟子」身分，僅能檢視。若需編輯權限，請將下方玉簡 ID 交給天道授權：
-        <div class="uid-box" data-action="copy-uid">${escapeHtml(discordUser.id)}</div></div>`;
+    if(sandboxOwner.id === discordUser.id){
+      return `<div class="notice sandbox-optin">
+        <b>沙盒模式</b>：你是這份沙盒的持有人，目前是關閉狀態。
+        <div style="margin-top:8px;"><button class="btn jade" data-action="sandbox-on">開啟沙盒模式</button></div>
+      </div>`;
     }
     return "";
   }
 
+  function adminNoticeHtml(){
+    if(!discordUser){
+      return `<div class="notice">目前為訪客唯讀模式。登入 Discord 後，若你的身分已被天道授權，即可編輯庫房與花名冊。</div>`;
+    }
+    if(sandboxActive()) return ""; // 沙盒模式下已經視同天道，不需要再顯示任何取得權限的提示
+    if(Object.keys(admins).length === 0){
+      return `<div class="notice">尚未設定任何管理員。第一位設定者將成為天道，可再授權其他長老。
+        <div style="margin-top:8px;"><button class="btn gold" data-action="claim-dm">將我設為天道</button></div></div>`
+        + sandboxOptInHtml();
+    }
+    if(!canEdit()){
+      return `<div class="notice">你目前是「弟子」身分，僅能檢視。若需編輯權限，請將下方玉簡 ID 交給天道授權：
+        <div class="uid-box" data-action="copy-uid">${escapeHtml(discordUser.id)}</div></div>`
+        + sandboxOptInHtml();
+    }
+    return "";
+  }
+
+  // 沙盒模式進行中的常駐橫幅：任何分頁都看得到，避免忘記自己在測試資料裡。
+  function sandboxBannerHtml(){
+    if(!sandboxActive()) return "";
+    return `<div class="sandbox-banner">
+      <span class="sb-text">🧪 <b>沙盒模式進行中</b>——這裡看到、修改的都是只屬於你的測試資料，不會影響真實宗門。</span>
+      <span class="sb-actions">
+        <button class="btn" data-action="sandbox-reset">重置為真實資料快照</button>
+        <button class="btn" data-action="sandbox-off">結束沙盒模式</button>
+        <button class="sb-release" data-action="sandbox-release" title="徹底放棄沙盒持有人身分">放棄持有人身分</button>
+      </span>
+    </div>`;
+  }
+
   // ===== 宗門庫房 =====
+  // 100 → "100"，1000 → "1千"，10000 → "1萬"，100000 → "10萬"：快速增減按鈕上的精簡標籤。
+  function fmtAmt(n){
+    if(n >= 10000) return (n / 10000) + "萬";
+    if(n >= 1000) return (n / 1000) + "千";
+    return String(n);
+  }
+  function stoneUndoBtnHtml(){
+    if(!lastStoneChange) return "";
+    const label = (STONE_KEYS.find(x => x.k === lastStoneChange.key) || {}).label || "";
+    return `<button class="btn" data-action="stone-undo" style="font-size:12px;padding:5px 10px;">
+      ↩ 復原上一筆（${escapeHtml(label)} ${num(lastStoneChange.after).toLocaleString()}→${num(lastStoneChange.before).toLocaleString()}）</button>`;
+  }
+  function refreshStoneUndo(){
+    const el = document.getElementById("stoneUndoSlot");
+    if(el){ el.innerHTML = stoneUndoBtnHtml(); wireEvents(el); }
+  }
+
+  function stoneQuickHtml(key, editable){
+    if(!editable) return "";
+    const minus = STONE_QUICK_AMOUNTS.slice().reverse()
+      .map(a => `<button type="button" class="sq-chip minus" data-action="stone-quick" data-stone="${key}" data-delta="${-a}">−${fmtAmt(a)}</button>`).join("");
+    const plus = STONE_QUICK_AMOUNTS
+      .map(a => `<button type="button" class="sq-chip plus" data-action="stone-quick" data-stone="${key}" data-delta="${a}">+${fmtAmt(a)}</button>`).join("");
+    return `<div class="stone-quick">
+        <div class="sq-row">${minus}${plus}</div>
+        <button type="button" class="sq-chip sq-custom" data-action="stone-custom" data-stone="${key}">自訂增減</button>
+      </div>`;
+  }
+
   function warehouseHtml(editable){
     return `
       <div class="block-title">靈石總帳<span class="spacer"></span>
-        ${editable ? `<span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">直接修改數字即可，變更會寫入下方日誌</span>` : ""}
+        <span id="stoneUndoSlot">${stoneUndoBtnHtml()}</span>
+        ${editable ? `<span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">可直接改數字，或用卡片下方按鈕快速增減</span>` : ""}
       </div>
       <div class="stone-grid">
         ${STONE_KEYS.map(s => `
@@ -1066,6 +1272,7 @@
             <div class="stone-label">${s.label}</div>
             <input class="stone-value" type="number" data-stone="${s.k}"
               value="${num(stones[s.k])}" ${editable?"":"disabled"}>
+            ${stoneQuickHtml(s.k, editable)}
           </div>`).join("")}
       </div>
 
@@ -1687,7 +1894,7 @@
         if(qty > stock && !confirm(`庫房現存僅 ${stock} 份，仍要提出 ${qty} 份的申請嗎？`)) return;
         if(!reason){ flash("請寫下申請理由，長老才好定奪", true); reasonEl.focus(); return; }
 
-        const r = push(ref(db, "itemRequests"));
+        const r = push(dref("itemRequests"));
         const ok = await writeNow("itemRequests/" + r.key, {
           itemId, itemName, qty,
           charId, charName: c.name || "未命名角色",
@@ -1762,7 +1969,7 @@
     const reason = req.reason || "－";
     try{
       lastLocalWriteAt = Date.now();
-      const treSnap = await get(ref(db, "treasury/" + req.itemId));
+      const treSnap = await get(dref("treasury/" + req.itemId));
       const tre = treSnap.val();
       if(!tre){ alert(`多寶閣已無【${req.itemName || "此法寶"}】，無法賜下。`); return; }
 
@@ -1771,7 +1978,7 @@
       if(holder && holder !== charName &&
          !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。\n\n仍要改賜給「${charName}」嗎？`)) return;
 
-      const charSnap = await get(ref(db, "characters/" + req.charId));
+      const charSnap = await get(dref("characters/" + req.charId));
       const char = charSnap.val();
       if(!char){ alert(`找不到弟子「${charName}」的角色卡，可能已被刪除。`); return; }
 
@@ -1793,8 +2000,8 @@
         desc
       });
 
-      await update(ref(db, "treasury/" + req.itemId), { holder: charName });
-      await update(ref(db, "characters/" + req.charId), {
+      await update(dref("treasury/" + req.itemId), { holder: charName });
+      await update(dref("characters/" + req.charId), {
         itemsList,
         updatedAt: Date.now(),
         updatedBy: (discordUser && discordUser.name) || "內務堂"
@@ -1802,7 +2009,7 @@
       if(treasury[req.itemId]) treasury[req.itemId].holder = charName;
 
       await writeLog(`內務長老 將 多寶閣法寶【${tre.name || req.itemName || "未命名法寶"}】 賜予 弟子 ${charName} (理由：${reason})`, null);
-      await remove(ref(db, "itemRequests/" + reqId));
+      await remove(dref("itemRequests/" + reqId));
       delete itemRequests[reqId];
 
       flash(`已賜下法寶【${tre.name || req.itemName || "法寶"}】`, false);
@@ -1822,7 +2029,7 @@
     const reason = req.reason || "－";
     try{
       lastLocalWriteAt = Date.now();
-      const itemSnap = await get(ref(db, "warehouse/" + req.itemId));
+      const itemSnap = await get(dref("warehouse/" + req.itemId));
       const item = itemSnap.val();
       if(!item){ alert(`庫房已無【${req.itemName || "此物資"}】，無法賜下。`); return; }
       const have = num(item.qty);
@@ -1831,7 +2038,7 @@
         return;
       }
 
-      const charSnap = await get(ref(db, "characters/" + req.charId));
+      const charSnap = await get(dref("characters/" + req.charId));
       const char = charSnap.val();
       if(!char){ alert(`找不到弟子「${req.charName || "未命名"}」的角色卡，可能已被刪除。`); return; }
 
@@ -1842,8 +2049,8 @@
         desc: "數量: " + qty + "。理由: " + reason
       });
 
-      await update(ref(db, "warehouse/" + req.itemId), { qty: have - qty });
-      await update(ref(db, "characters/" + req.charId), {
+      await update(dref("warehouse/" + req.itemId), { qty: have - qty });
+      await update(dref("characters/" + req.charId), {
         itemsList,
         updatedAt: Date.now(),
         updatedBy: (discordUser && discordUser.name) || "內務堂"
@@ -1851,7 +2058,7 @@
       if(warehouse[req.itemId]) warehouse[req.itemId].qty = have - qty;
 
       await writeLog(`內務長老 將 【${req.itemName || "未命名物資"} x${qty}】 賜予 弟子 ${req.charName || "未命名角色"} (理由：${reason})`, -qty);
-      await remove(ref(db, "itemRequests/" + reqId));
+      await remove(dref("itemRequests/" + reqId));
       delete itemRequests[reqId];
 
       flash(`已賜下【${req.itemName || "物資"} x${qty}】`, false);
@@ -1874,7 +2081,7 @@
     if(!confirm(`確定駁回「${req.applicantName || "此弟子"}」所請之${label}？`)) return;
     try{
       lastLocalWriteAt = Date.now();
-      await remove(ref(db, "itemRequests/" + reqId));
+      await remove(dref("itemRequests/" + reqId));
       delete itemRequests[reqId];
       await writeLog(`內務長老 駁回 弟子 ${req.charName || "未命名角色"} 所請之 ${label}`, null);
       flash("已駁回此卷", false);
@@ -1981,11 +2188,11 @@
     if(!confirm(`要匯入 ${rows.length} ${noun}嗎？\n\n已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
 
     const payload = {};
-    rows.forEach(row => { payload[push(ref(db, kind === "roster" ? "roster" : "warehouse")).key] = row; });
+    rows.forEach(row => { payload[push(dref(kind === "roster" ? "roster" : "warehouse")).key] = row; });
     btn.disabled = true;
     try{
       lastLocalWriteAt = Date.now();
-      await update(ref(db, isRoster ? "roster" : "warehouse"), payload);
+      await update(dref(isRoster ? "roster" : "warehouse"), payload);
       Object.assign(isRoster ? roster : warehouse, payload);
       await writeLog(`匯入${isRoster ? "弟子花名冊" : "倉儲物資"} ${rows.length} 筆`, null);
       flash(`已匯入 ${rows.length} ${noun}`, false);
@@ -2063,6 +2270,61 @@
     });
   }
 
+  // ===== 靈石快速增減：小區域二次確認彈窗 =====
+  // 跟 openModal／closeModal（玉簡彈窗）分開一組：那個是整頁遮罩，這個要小、
+  // 而且釘在按下去的那顆按鈕旁邊，不能整頁蓋住。
+  function closeStonePop(){
+    const p = document.getElementById("stonePop");
+    if(p) p.remove();
+    if(closeStonePop._out){ document.removeEventListener("mousedown", closeStonePop._out, true); closeStonePop._out = null; }
+    if(closeStonePop._esc){ document.removeEventListener("keydown", closeStonePop._esc); closeStonePop._esc = null; }
+  }
+  function positionStonePop(pop, anchor){
+    const r = anchor.getBoundingClientRect();
+    const pw = pop.offsetWidth, ph = pop.offsetHeight;
+    let left = r.left + r.width / 2 - pw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+    let top = r.bottom + 8;
+    if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8); // 螢幕下緣放不下就翻到按鈕上方
+    pop.style.left = left + "px";
+    pop.style.top = top + "px";
+  }
+  function openStonePop(anchor, html, onMount){
+    closeStonePop();
+    const pop = document.createElement("div");
+    pop.className = "stone-pop"; pop.id = "stonePop";
+    pop.innerHTML = html;
+    document.body.appendChild(pop);
+    positionStonePop(pop, anchor);
+    requestAnimationFrame(() => pop.classList.add("show"));
+    closeStonePop._out = e => { if(!pop.contains(e.target) && e.target !== anchor) closeStonePop(); };
+    document.addEventListener("mousedown", closeStonePop._out, true);
+    closeStonePop._esc = e => { if(e.key === "Escape") closeStonePop(); };
+    document.addEventListener("keydown", closeStonePop._esc);
+    if(onMount) onMount(pop);
+  }
+
+  // 實際套用一筆靈石增減（彈窗按下「確定套用」後才會呼叫），跟直接改數字欄共用同一套
+  // before/after 記錄與日誌格式，也一併更新「復原上一筆」。
+  async function applyStoneDelta(key, delta){
+    if(!delta) return false;
+    const before = num(stones[key]);
+    const after = Math.max(0, before + delta);
+    if(after === before) return false;
+    stones[key] = after;
+    const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
+    const ok = await writeNow("stones/" + key, after);
+    if(ok){
+      writeLog(`${label} ${before.toLocaleString()} ➔ ${after.toLocaleString()}`, after - before);
+      lastStoneChange = { key, before, after };
+      const box = document.querySelector(`input[data-stone="${key}"]`);
+      if(box) box.value = after;
+      refreshStoneUndo();
+      renderHallStats();
+    }
+    return ok;
+  }
+
   function wireEvents(area){
     // 分類 / 階級 / 搜尋
     area.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
@@ -2100,16 +2362,19 @@
       refreshRosterTable();
     };
 
-    // 靈石
-    area.querySelectorAll("[data-stone]").forEach(input => {
+    // 靈石：直接改數字（快速增減按鈕另外走 stone-quick / stone-custom action）
+    area.querySelectorAll("input[data-stone]").forEach(input => {
       const key = input.dataset.stone;
       const before = num(stones[key]);
       input.onchange = async () => {
         const after = num(input.value);
+        if(after === before) return;
         stones[key] = after;
-        if(await writeNow("stones/" + key, after) && after !== before){
-          const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
+        const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
+        if(await writeNow("stones/" + key, after)){
           writeLog(`${label} ${before.toLocaleString()} ➔ ${after.toLocaleString()}`, after - before);
+          lastStoneChange = { key, before, after };
+          refreshStoneUndo();
         }
       };
     });
@@ -2178,6 +2443,61 @@
           renderAll(true);
           return;
         }
+
+        // 沙盒模式：僅供啟用者本人試用，跟真實資料完全隔離
+        if(action === "claim-sandbox"){
+          if(!discordUser) return;
+          if(sandboxOwner){ flash("沙盒模式已經有人啟用了", true); return; }
+          btn.disabled = true;
+          try{
+            await set(ref(db, "sandboxOwner"), { id: discordUser.id, name: discordUser.name });
+            await seedSandboxFromReal(discordUser.id);
+            setSandboxOn(true);
+            flash("沙盒模式已啟用，資料已複製一份真實快照", false);
+          }catch(e){
+            console.error("claim sandbox error", e);
+            flash("啟用失敗：" + (e && e.message ? e.message : e), true);
+            btn.disabled = false;
+          }
+          return;
+        }
+        if(action === "sandbox-on"){
+          if(!(discordUser && sandboxOwner && sandboxOwner.id === discordUser.id)) return;
+          setSandboxOn(true);
+          return;
+        }
+        if(action === "sandbox-off"){
+          setSandboxOn(false);
+          return;
+        }
+        if(action === "sandbox-reset"){
+          if(!sandboxActive()) return;
+          if(!confirm("要清掉目前的沙盒資料，重新複製一份最新的真實快照嗎？\n\n沙盒裡目前的測試內容將會被覆蓋。")) return;
+          btn.disabled = true;
+          try{
+            await seedSandboxFromReal(discordUser.id);
+            flash("沙盒資料已重置", false);
+            renderAll(true);
+          }catch(e){
+            console.error("reset sandbox error", e);
+            flash("重置失敗：" + (e && e.message ? e.message : e), true);
+            btn.disabled = false;
+          }
+          return;
+        }
+        if(action === "sandbox-release"){
+          if(!(discordUser && sandboxOwner && sandboxOwner.id === discordUser.id)) return;
+          if(!confirm("確定放棄沙盒模式持有人身分？\n\n放棄後沙盒功能會回到「尚未有人啟用」的狀態，之後可以再次啟用（會是全新的一份快照）。")) return;
+          try{
+            await remove(ref(db, "sandboxOwner"));
+            setSandboxOn(false);
+          }catch(e){
+            console.error("release sandbox error", e);
+            flash("放棄失敗：" + (e && e.message ? e.message : e), true);
+          }
+          return;
+        }
+
         if(action === "import-roster" || action === "import-warehouse"){
           if(!isDM()){ flash("只有天道可以匯入基礎資料", true); return; }
           await importSeed(action === "import-roster" ? "roster" : "warehouse", btn);
@@ -2249,7 +2569,7 @@
         }
 
         if(action === "add-item"){
-          const r = push(ref(db, "warehouse"));
+          const r = push(dref("warehouse"));
           const fresh = { category: warehouseCat, name:"", qty:0, effect:"" };
           warehouse[r.key] = fresh;
           await writeNow("warehouse/" + r.key, fresh);
@@ -2279,8 +2599,88 @@
           if(box) box.value = after;
           renderHallStats();
         }
+
+        // 靈石快速增減：按下面額按鈕先跳小視窗二次確認，按下「確定套用」才真的寫入
+        if(action === "stone-quick"){
+          const key = btn.dataset.stone;
+          const delta = parseInt(btn.dataset.delta, 10) || 0;
+          if(!delta) return;
+          const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
+          const before = num(stones[key]);
+          const after = Math.max(0, before + delta);
+          const sign = delta > 0 ? "plus" : "minus";
+          const signTxt = delta > 0 ? "+" : "";
+          const blocked = after === before && delta < 0;
+          openStonePop(btn, `
+            <div class="sp-title">${escapeHtml(label)}　<b class="${sign}">${signTxt}${delta.toLocaleString()}</b></div>
+            <div class="sp-sub">${before.toLocaleString()} → ${after.toLocaleString()}${blocked ? "（已經是 0，扣不下去）" : ""}</div>
+            <div class="sp-actions">
+              <button class="btn" data-pop="cancel">取消</button>
+              <button class="btn gold" data-pop="confirm" ${blocked ? "disabled" : ""}>確定套用</button>
+            </div>`, pop => {
+            pop.querySelector('[data-pop="cancel"]').onclick = closeStonePop;
+            pop.querySelector('[data-pop="confirm"]').onclick = async () => {
+              const okBtn = pop.querySelector('[data-pop="confirm"]');
+              okBtn.disabled = true;
+              const ok = await applyStoneDelta(key, delta);
+              closeStonePop();
+              if(ok) flash(`已套用：${label} ${signTxt}${delta.toLocaleString()}`, false);
+            };
+          });
+          return;
+        }
+        if(action === "stone-custom"){
+          const key = btn.dataset.stone;
+          const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
+          const before = num(stones[key]);
+          openStonePop(btn, `
+            <div class="sp-title">${escapeHtml(label)}　自訂增減</div>
+            <input type="number" class="sp-input" id="spCustomInput" placeholder="正數增加、負數減少">
+            <div class="sp-sub" id="spCustomPreview">目前 ${before.toLocaleString()}</div>
+            <div class="sp-actions">
+              <button class="btn" data-pop="cancel">取消</button>
+              <button class="btn gold" data-pop="confirm">確定套用</button>
+            </div>`, pop => {
+            const inputEl = pop.querySelector("#spCustomInput");
+            const preview = pop.querySelector("#spCustomPreview");
+            inputEl.oninput = () => {
+              const d = parseInt(inputEl.value, 10) || 0;
+              const after = Math.max(0, before + d);
+              preview.textContent = d ? `${before.toLocaleString()} → ${after.toLocaleString()}` : `目前 ${before.toLocaleString()}`;
+            };
+            pop.querySelector('[data-pop="cancel"]').onclick = closeStonePop;
+            pop.querySelector('[data-pop="confirm"]').onclick = async () => {
+              const d = parseInt(inputEl.value, 10) || 0;
+              if(!d){ inputEl.focus(); return; }
+              const ok = await applyStoneDelta(key, d);
+              closeStonePop();
+              if(ok) flash(`已套用：${label} ${d > 0 ? "+" : ""}${d.toLocaleString()}`, false);
+            };
+            setTimeout(() => inputEl.focus(), 30);
+          });
+          return;
+        }
+        if(action === "stone-undo"){
+          if(!lastStoneChange) return;
+          const { key, before, after } = lastStoneChange;
+          if(num(stones[key]) !== after &&
+             !confirm("這筆靈石在復原前又被改過，仍要復原成上一筆變動之前的數字嗎？")) return;
+          const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
+          stones[key] = before;
+          if(await writeNow("stones/" + key, before)){
+            writeLog(`復原：${label} ${after.toLocaleString()} ➔ ${before.toLocaleString()}`, before - after);
+            lastStoneChange = null;
+            const box = document.querySelector(`input[data-stone="${key}"]`);
+            if(box) box.value = before;
+            refreshStoneUndo();
+            renderHallStats();
+            flash("已復原", false);
+          }
+          return;
+        }
+
         if(action === "add-treasure"){
-          const r = push(ref(db, "treasury"));
+          const r = push(dref("treasury"));
           await writeNow("treasury/" + r.key, { name:"", quote:"", rank:"", type:"", holder:"", appearance:"", coreEffect:"", specialEffect:"", condition:"", upgrade:"", upgradeEffect:"" });
           renderAll(true);
         }
@@ -2291,7 +2691,7 @@
           renderAll(true);
         }
         if(action === "add-member"){
-          const r = push(ref(db, "roster"));
+          const r = push(dref("roster"));
           const fresh = { name:"", rank: rosterRank === "全部" ? "記名" : rosterRank, title:"", root:"", job:"", path:"", realm:"", master:"" };
           roster[r.key] = fresh;
           await writeNow("roster/" + r.key, fresh);
