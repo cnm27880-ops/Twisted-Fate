@@ -62,6 +62,20 @@
     box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
   }
   .nav-link.current{ color:#1D1712; background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; }
+
+  /* ===== 繁簡切換 ===== */
+  .script-switch{
+    display:flex; gap:0; border:1px solid var(--border); border-radius:20px; overflow:hidden; flex-shrink:0;
+  }
+  .script-switch button{
+    border:none; background:var(--paper); color:var(--ink-faint2);
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12px; letter-spacing:1px;
+    padding:5px 12px; cursor:pointer; transition:background .2s, color .2s;
+  }
+  .script-switch button + button{ border-left:1px solid var(--border); }
+  .script-switch button.active{ background:var(--vermillion); color:#F5E9DD; }
+  .script-switch button:not(.active):hover{ background:var(--paper-3); color:var(--ink); }
+
   .auth-box{ display:flex; align-items:center; gap:12px; }
   .btn-discord{
     display:flex; align-items:center; gap:6px; background:#5865F2; color:#fff; border:none;
@@ -684,6 +698,11 @@
     <a class="nav-link" href="library.html">藏經閣</a>
   </div>
 
+  <div class="script-switch ignore-opencc" role="group" aria-label="繁簡切換">
+    <button type="button" data-mode="trad">繁</button>
+    <button type="button" data-mode="simp">簡</button>
+  </div>
+
   <div class="auth-box">
     <div class="auth-logged-out">
       <button class="btn-discord" id="discordLoginBtn">
@@ -713,6 +732,14 @@
 </div>
 
 <div class="save-status" id="saveStatus">已自動儲存</div>
+
+<!-- 繁簡切換獨立一個 module，不跟下面連 Firebase 的那個共用同一份 import 圖：
+     ES module 的靜態 import 只要有一個載入失敗，整個 module 都不會執行，
+     繁簡切換明明跟 Firebase 無關，不該被 CDN 連不上的問題一起拖垮。 -->
+<script type="module">
+  import { initScriptMode } from "./script-mode.js";
+  initScriptMode();
+</script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -906,12 +933,20 @@
   }
 
   // 沙盒持有人是誰，這一項一律讀真實路徑（不能被自己所屬的沙盒開關影響到）。
+  // 一定要處理錯誤分支：資料庫規則如果還沒放行 sandboxOwner 這個路徑，讀取會被拒絕，
+  // 若沒有這個 catch，sandboxOwnerLoaded 永遠不會變 true，會害整個大殿卡在「連線中」出不來。
   onValue(ref(db, "sandboxOwner"), snap => {
     const v = snap.val();
     sandboxOwner = (v && v.id) ? v : null;
     sandboxOwnerLoaded = true;
     maybeResubscribe();
     renderAuth(); renderAll();
+  }, err => {
+    console.warn("sandboxOwner sync error（可能是資料庫規則還沒放行這個路徑）", err);
+    sandboxOwner = null;
+    sandboxOwnerLoaded = true;
+    maybeResubscribe();
+    renderAll(true);
   });
 
   // 把「當下的真實資料」複製一份進沙盒，測試起來才有實感；admins／warehouseLogs／
@@ -922,6 +957,20 @@
     const updates = {};
     SANDBOX_CLONE_PATHS.forEach((p, i) => { updates[`sandbox/${uid}/${p}`] = snaps[i].val(); });
     await update(ref(db), updates);
+  }
+
+  // 沙盒模式讀寫的是全新的 sandboxOwner／sandbox 這兩個路徑，資料庫規則如果只放行
+  // 現有的 admins／warehouse／stones… 等既有路徑，這裡就會被拒絕。用專門的提示取代
+  // 一般的「寫入失敗」，把該加的規則直接寫出來，天道不用另外來問。
+  function explainSandboxPermissionError(e){
+    const msg = String((e && (e.code || e.message)) || e || "");
+    if(/permission_denied|permission denied/i.test(msg)){
+      alert("沙盒模式啟用失敗：資料庫規則還沒放行 sandboxOwner／sandbox 這兩個新路徑。\n\n"
+        + "請到 Firebase 主控台的 Realtime Database → 規則，比照現有的 admins／warehouse 等路徑，"
+        + "為 sandboxOwner 與 sandbox 各加一條讀寫規則（通常是 auth != null），儲存後再試一次即可。");
+    } else {
+      flash("啟用失敗：" + msg, true);
+    }
   }
 
   // 開關沙盒模式：純本機狀態，換裝置要重開一次；每次切換都要整批重連對應路徑的資料。
@@ -2456,7 +2505,7 @@
             flash("沙盒模式已啟用，資料已複製一份真實快照", false);
           }catch(e){
             console.error("claim sandbox error", e);
-            flash("啟用失敗：" + (e && e.message ? e.message : e), true);
+            explainSandboxPermissionError(e);
             btn.disabled = false;
           }
           return;

@@ -124,6 +124,19 @@
     box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
   }
 
+  /* ===== 繁簡切換 ===== */
+  .script-switch{
+    display:flex; gap:0; border:1px solid var(--border); border-radius:20px; overflow:hidden; flex-shrink:0;
+  }
+  .script-switch button{
+    border:none; background:var(--paper); color:var(--ink-faint2);
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12px; letter-spacing:1px;
+    padding:5px 12px; cursor:pointer; transition:background .2s, color .2s;
+  }
+  .script-switch button + button{ border-left:1px solid var(--border); }
+  .script-switch button.active{ background:var(--vermillion); color:#F5E9DD; }
+  .script-switch button:not(.active):hover{ background:var(--paper-3); color:var(--ink); }
+
   /* ===== 主容器 ===== */
   .layout { max-width: 1200px; margin: 0 auto; padding: 30px 20px 100px; position: relative; z-index: 1; }
 
@@ -629,6 +642,11 @@
     <a class="nav-link" href="dm.html">宗門大殿</a>
   </div>
 
+  <div class="script-switch ignore-opencc" role="group" aria-label="繁簡切換">
+    <button type="button" data-mode="trad">繁</button>
+    <button type="button" data-mode="simp">簡</button>
+  </div>
+
   <div class="char-select-wrap">
     <select id="charSelect" class="btn" style="appearance:auto; padding:6px 24px 6px 12px;">
       <option value="">-- 選擇角色卡 --</option>
@@ -665,6 +683,14 @@
 </div>
 
 <div class="save-status" id="saveStatus">已自動儲存</div>
+
+<!-- 繁簡切換獨立一個 module，不跟下面連 Firebase 的那個共用同一份 import 圖：
+     ES module 的靜態 import 只要有一個載入失敗，整個 module 都不會執行，
+     繁簡切換明明跟 Firebase 無關，不該被 CDN 連不上的問題一起拖垮。 -->
+<script type="module">
+  import { initScriptMode } from "./script-mode.js";
+  initScriptMode();
+</script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -798,7 +824,7 @@
   function normalizeChar(raw){
     const c = clone(raw) || {};
     const str = k => { c[k] = c[k] == null ? "" : String(c[k]); };
-    ["ownerId","ownerName","name","player","title","race","path","job","root","realm",
+    ["ownerId","ownerName","name","player","title","race","raceVariant","path","job","root","realm",
      "languages","skills","notes","notes_race","notes_path","notes_job","backgroundText","updatedBy",
      "portrait"].forEach(str);
     c.karma = num(c.karma); c.ac = num(c.ac); c.speed = num(c.speed); c.hpTemp = num(c.hpTemp);
@@ -1064,7 +1090,9 @@
       const inner = splitInlineHeadings(ab.lines);
       if(!inner){ abilities.push(ab); continue; }
       if(inner.preamble.some(l => l.trim())) abilities.push({ title: ab.title, level: ab.level, lines: inner.preamble });
-      abilities.push(...inner.abilities);
+      // 拆法三拆出來的這幾張，是同一個 ab.title 底下擇一的選項（如血統、天賦），
+      // 標記所屬群組，讓角色卡「種族特質」可以只顯示玩家選到的那一項。
+      abilities.push(...inner.abilities.map(v => Object.assign({}, v, { variantGroup: ab.title })));
     }
     return { abilities, preamble: primary.preamble };
   }
@@ -1099,6 +1127,34 @@
     flushBullets(); return html.join("");
   }
 
+  // 種族規則書裡「擇一亞種／血統」的群組（拆法三標記的 variantGroup）：找出第一個
+  // 有這種群組的段落，回傳群組名稱與可選項目，讓角色卡的種族欄位旁邊能多開一個選單。
+  // 沒有這種群組的種族（大多數）回傳 null，選單就不會出現。
+  function raceVariantInfo(raceValue){
+    if(!raceValue || !(chaptersLoaded && modulesLoaded)) return null;
+    const m = findRulebookModule("種族", raceValue);
+    if(!m || !m.content) return null;
+    const sections = parseRuleSections(m.content).filter(s => s.title && !RB_SKIP_TITLE.test(s.title));
+    const groups = sections.length > 0
+      ? sections
+      : [{ title: "", lines: String(m.content).replace(/\r/g, "").split("\n") }];
+    for(const g of groups){
+      const split = rbSplitGroup(g.lines);
+      if(!split) continue;
+      const variants = split.abilities.filter(ab => ab.variantGroup);
+      if(variants.length) return { groupLabel: variants[0].variantGroup, options: variants.map(v => v.title) };
+    }
+    return null;
+  }
+
+  function raceVariantTagHtml(char, dis){
+    const info = raceVariantInfo(char.race);
+    if(!info) return "";
+    const opts = info.options.map(o => `<option value="${attr(o)}" ${char.raceVariant === o ? "selected" : ""}>${escapeHtml(o)}</option>`).join("");
+    return `<div class="h-tag">${escapeHtml(info.groupLabel)}
+      <select class="tag-input" data-f="raceVariant" ${dis}><option value="">-- 請選擇 --</option>${opts}</select></div>`;
+  }
+
   function rulebookBlocksHtml(category, value, showRaw){
     if(!value) return `<div class="rb-hint">請先在上方選擇${escapeHtml(category)}，此處會自動載入規則書內容。</div>`;
     if(!(chaptersLoaded && modulesLoaded)) return `<div class="rb-hint">規則書載入中……可按上方的 ↻ 重新讀取。</div>`;
@@ -1119,13 +1175,31 @@
       ? sections
       : [{ title: "", lines: String(m.content).replace(/\r/g, "").split("\n") }];
 
+    // 種族分頁才需要「擇一亞種只顯示玩家選的那個」；道途／職業維持全部顯示，不受影響。
+    const chosenVariant = category === "種族" ? ((currentChar() || {}).raceVariant || "") : "";
+
     const cards = groups.map(g => {
       const split = rbSplitGroup(g.lines);
       if(!split) return rbAbilityCardHtml(g.title || (m.title || value), rbSectionBody(g.lines), nextAccent());
       const pre = rbSectionBody(split.preamble);
+      const seenVariantGroups = new Set();
+      const abilitiesHtml = split.abilities.map(ab => {
+        if(!ab.variantGroup) return rbAbilityCardHtml(ab.title, rbSectionBody(ab.lines), nextAccent(), ab.level);
+        // 同一個 variantGroup 底下有好幾張卡，只在第一張出現的位置處理一次
+        // （顯示選到的那張，或是提示還沒選），其餘同群組的卡直接跳過。
+        if(seenVariantGroups.has(ab.variantGroup)) return "";
+        seenVariantGroups.add(ab.variantGroup);
+        if(!chosenVariant){
+          const count = split.abilities.filter(a => a.variantGroup === ab.variantGroup).length;
+          return `<div class="rb-card rb-lead" style="--rb-accent:var(--vermillion)"><div class="rb-body">
+            <p class="rb-p">這個種族有 ${count} 種可選的「${escapeHtml(ab.variantGroup)}」，請先在上方選擇你的分支，這裡才會顯示對應的特質。</p></div></div>`;
+        }
+        const chosen = split.abilities.find(a => a.variantGroup === ab.variantGroup && a.title === chosenVariant);
+        return chosen ? rbAbilityCardHtml(chosen.title, rbSectionBody(chosen.lines), nextAccent(), chosen.level) : "";
+      }).join("");
       return (g.title ? `<div class="rb-group">${escapeHtml(g.title)}<span class="rb-group-n">${split.abilities.length} 項</span></div>` : "")
         + (pre ? `<div class="rb-card rb-lead" style="--rb-accent:var(--gold-deep)"><div class="rb-body">${pre}</div></div>` : "")
-        + split.abilities.map(ab => rbAbilityCardHtml(ab.title, rbSectionBody(ab.lines), nextAccent(), ab.level)).join("");
+        + abilitiesHtml;
     }).join("");
 
     if(!cards){
@@ -1574,6 +1648,7 @@
           <div class="header-tags">
             <div class="h-tag">境界 ${rulebookInputHtml("realm", char.realm, getRulebookOptions("境界"), dis)}</div>
             <div class="h-tag">種族 ${rulebookInputHtml("race", char.race, getRulebookOptions("種族"), dis)}</div>
+            <span id="raceVariantSlot">${raceVariantTagHtml(char, dis)}</span>
             <div class="h-tag">道途 ${rulebookInputHtml("path", char.path, getRulebookOptions("道途"), dis)}</div>
             <div class="h-tag">職業 ${rulebookInputHtml("job", char.job, getRulebookOptions("職業"), dis)}</div>
             <button class="h-refresh" data-action="reload-rulebook" title="重新讀取規則書">↻</button>
@@ -2181,6 +2256,13 @@
         const box = document.getElementById("rbBox-path"); if(box) box.innerHTML = rulebookBlocksHtml("道途", char.path, rbRawOpen["道途"]);
       }
       if(field === "race"){
+        // 換了種族，原本選的亞種／血統多半已經不適用，一併清掉，選單也要重新產生
+        // （不同種族的選項不一樣，換種族後可能整個消失或換一批選項）。
+        if(char.raceVariant) setPath(char, "raceVariant", "");
+        const slot = document.getElementById("raceVariantSlot"); if(slot) slot.innerHTML = raceVariantTagHtml(char, isOwner(char) ? "" : "disabled");
+        const box = document.getElementById("rbBox-race"); if(box) box.innerHTML = rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"]);
+      }
+      if(field === "raceVariant"){
         const box = document.getElementById("rbBox-race"); if(box) box.innerHTML = rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"]);
       }
       if(field === "job"){
