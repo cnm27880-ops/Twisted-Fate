@@ -214,8 +214,12 @@
   }
   .tab-btn.active .tab-dot{ background:var(--vermillion-bright); }
   @keyframes dotPulse{ 0%,100%{ box-shadow:0 0 4px rgba(156,43,34,.4); } 50%{ box-shadow:0 0 13px rgba(181,55,43,.9); } }
-  .tab-panel{ display:none; animation:fadeIn .3s; }
+  /* 淡入動畫只掛在 .swap 上，由「使用者按分頁鈕」時才加。
+     以前是無條件掛在 .tab-panel 上，於是資料一同步、面板被重建，
+     動畫就從頭再播一次——那就是每次宗門大殿有改動時整個畫面閃一下的原因。 */
+  .tab-panel{ display:none; }
   .tab-panel.active{ display:block; }
+  .tab-panel.active.swap{ animation:fadeIn .3s; }
   @keyframes fadeIn{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:translateY(0);} }
 
   .block-title{
@@ -327,6 +331,20 @@
   .realm-bar{ height:100%; background:linear-gradient(90deg,var(--gold-deep),var(--gold)); }
   .realm-detail{ font-size:12px; color:var(--ink-faint2); line-height:1.9; }
   .realm-detail span{ display:inline-block; margin-right:10px; }
+
+  /* 花名冊「境界」欄：連動角色卡時顯示卡上的值 + 一顆切換連動的鎖鏈鈕 */
+  .realm-cell{ display:flex; align-items:center; gap:4px; }
+  .realm-cell input{ flex:1; min-width:0; }
+  .realm-linked{
+    flex:1; min-width:0; padding:5px 8px; border-radius:4px;
+    background:rgba(45,90,76,.10); border:1px solid rgba(45,90,76,.30); color:var(--jade);
+    font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .realm-linked.miss{ background:rgba(156,43,34,.06); border-color:rgba(156,43,34,.26); color:var(--vermillion-bright); font-weight:400; }
+  .link-toggle{ flex-shrink:0; opacity:.4; }
+  .link-toggle.on{ opacity:1; color:var(--jade); }
+  .link-toggle:hover{ opacity:1; }
+  .link-toggle svg{ width:14px; height:14px; }
 
   .realm-chip{
     display:inline-flex; align-items:center; gap:6px; padding:4px 6px 4px 11px; border-radius:14px;
@@ -875,11 +893,11 @@
       onData(snap.val() || {});
       if(key) loaded[key] = true;
       syncError = null;
-      renderAuth(); renderAll();
+      renderAuth(); requestRender();
     }, err => {
       console.error(path + " sync error", err);
       syncError = err;
-      renderAll(true);
+      requestRender(true);
     });
   }
 
@@ -893,9 +911,9 @@
     dataUnsubs.push(watch("warehouse",  v => warehouse = v, "warehouse"));
     dataUnsubs.push(watch("stones",     v => stones = v));
     dataUnsubs.push(watch("warehouseLogs", v => logs = v));
-    dataUnsubs.push(watch("roster",     v => roster = v,    "roster"));
+    dataUnsubs.push(watch("roster",     v => { roster = v; _charNameIdx = null; }, "roster"));
     dataUnsubs.push(watch("treasury",   v => treasury = v,  "treasury"));
-    dataUnsubs.push(watch("characters", v => chars = v,     "chars"));
+    dataUnsubs.push(watch("characters", v => { chars = v; _charNameIdx = null; }, "chars"));
     dataUnsubs.push(watch("itemRequests", v => itemRequests = v));
     dataUnsubs.push(watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean)));
   }
@@ -1065,28 +1083,58 @@
 
   let lastLocalWriteAt = 0;
 
+  // 內容一模一樣就不要重寫 innerHTML：整塊 DOM 被丟掉重建，捲軸、焦點、動畫全部重來，
+  // 看起來就是畫面閃一下。九個 onValue 監聽器各自都會觸發渲染，其中大部分算出來的
+  // HTML 跟上一輪完全相同，這一關就把那些多餘的重畫全擋掉了。
+  function paint(el, html){
+    if(!el) return false;
+    if(el.__tfHtml === html) return false;
+    el.__tfHtml = html;
+    el.innerHTML = html;
+    return true;
+  }
+
+  // 同一個事件迴圈裡若有好幾個路徑同時回報變動（例如改一次庫房會同時動到
+  // warehouse 與 warehouseLogs），合併成一次渲染，不要一次改動畫兩三遍。
+  let renderQueued = false, renderQueuedForce = false;
+  function requestRender(force){
+    if(force) renderQueuedForce = true;
+    if(renderQueued) return;
+    renderQueued = true;
+    requestAnimationFrame(() => {
+      renderQueued = false;
+      const f = renderQueuedForce; renderQueuedForce = false;
+      renderAll(f);
+    });
+  }
+
   // ===== 主渲染 =====
   function renderAll(force){
     const area = document.getElementById("mainArea");
 
     if(syncError){
-      area.innerHTML = `<div class="notice">連線失敗：${escapeHtml(syncError.message || String(syncError))}<br>
-        請確認 Firebase 匿名登入已啟用，且 Realtime Database 規則允許讀寫。</div>`;
+      paint(area, `<div class="notice">連線失敗：${escapeHtml(syncError.message || String(syncError))}<br>
+        請確認 Firebase 匿名登入已啟用，且 Realtime Database 規則允許讀寫。</div>`);
       return;
     }
     if(!(loaded.warehouse && loaded.roster && loaded.treasury && loaded.chars && loaded.admins)){
-      area.innerHTML = `<div class="notice info">連線中……</div>`;
+      paint(area, `<div class="notice info">連線中……</div>`);
       return;
     }
     // 內務堂總帳只有純顯示、沒有輸入框，先畫它才不會被下面的「正在輸入時不重繪」擋住；
     // 否則長老在編輯庫房時新進來的調用申請，警訊數字會一直停在舊值。
     renderHallStats();
 
-    // 正在輸入時不要整頁重繪（會打斷打字），除非是明確的按鈕操作
-    if(!force && (Date.now() - lastLocalWriteAt < 2500 || area.contains(document.activeElement))) return;
+    // 正在輸入時不要整頁重繪（會打斷打字），除非是明確的按鈕操作。
+    // 只認「真的在編輯的欄位」：以前是整個 mainArea 只要含有焦點就跳過，
+    // 但按鈕按完焦點會留在按鈕上，於是點過任何一顆鈕之後，別人改的資料
+    // 就再也同步不進畫面了（例如弟子在角色卡上突破，名冊卻一直不更新）。
+    const ae = document.activeElement;
+    const typing = !!ae && area.contains(ae) && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT");
+    if(!force && (Date.now() - lastLocalWriteAt < 2500 || typing)) return;
 
     const editable = canEdit();
-    area.innerHTML = `
+    const changed = paint(area, `
       ${sandboxBannerHtml()}
       ${adminNoticeHtml()}
       <div class="tabs">
@@ -1105,7 +1153,8 @@
       <div class="tab-panel" id="tab-combat">${combatHtml()}</div>
       ${editable ? `<div class="tab-panel" id="tab-requests">${requestsHtml()}</div>` : ""}
       ${isDM() ? `<div class="tab-panel" id="tab-admin">${adminHtml()}</div>` : ""}
-    `;
+    `);
+    if(!changed) return;   // 內容跟上一輪一模一樣，DOM 沒被換掉，事件也還在，不必重綁
 
     if(!document.getElementById(activeTab)) activeTab = "tab-warehouse";
     area.querySelectorAll(".tab-btn").forEach(btn => {
@@ -1113,7 +1162,12 @@
       btn.onclick = () => {
         activeTab = btn.dataset.tab;
         area.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-        area.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
+        // 淡入動畫只在真的換分頁時播（見 .tab-panel.active.swap）
+        area.querySelectorAll(".tab-panel").forEach(p => {
+          const on = p.id === activeTab;
+          p.classList.toggle("active", on);
+          p.classList.toggle("swap", on);
+        });
       };
     });
     area.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
@@ -1170,7 +1224,7 @@
           ? `<div class="lp-alert"><span class="urgent">內務堂稟報：</span>${escapeHtml(notes.join("、"))}，宜早作打算。</div>`
           : `<div class="lp-alert quiet">符紙靜默，四下無事。庫房充盈，弟子安康。</div>`);
 
-    document.getElementById("hallStats").innerHTML = `
+    paint(document.getElementById("hallStats"), `
       <div class="ledger-head">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
       <div class="ledger">
         <div class="ledger-panel">
@@ -1207,7 +1261,7 @@
           </div>
         </div>
       </div>
-    `;
+    `);
   }
 
   // 沙盒模式的「啟用／開啟」入口：只有還沒被別人領走、或本來就是自己領走的，才會顯示；
@@ -1439,6 +1493,36 @@
   }
 
   // ===== 花名冊 =====
+  // 花名冊的境界跟角色卡連動：弟子在角色卡上突破了，名冊這一欄自動跟著走，
+  // 不必兩邊各改一次，也不會再出現「卡上金丹、名冊還寫築基」的落差。
+  //
+  // 對應方式是姓名精準比對（花名冊的姓名 ←→ 角色卡的角色尊名）。同名有兩張以上的卡
+  // 就不自動連動——寧可讓長老手動填，也不要連到錯的人身上。
+  // 想自己填的那一列，按境界欄旁邊的鎖鏈鈕切成「手動」即可（存成 realmLink:"manual"）。
+  function charNameIndex(){
+    const idx = new Map();
+    Object.values(chars).forEach(c => {
+      if(!c || typeof c !== "object") return;
+      const n = String(c.name || "").trim();
+      if(!n) return;
+      if(idx.has(n)) idx.set(n, null);        // 同名多張卡：一律不自動連動
+      else idx.set(n, c);
+    });
+    return idx;
+  }
+  let _charNameIdx = null;
+  function linkedCharFor(m){
+    if(!m || m.realmLink === "manual") return null;
+    if(!_charNameIdx) _charNameIdx = charNameIndex();
+    return _charNameIdx.get(String(m.name || "").trim()) || null;
+  }
+  // 有連動就以角色卡為準；角色卡上還沒填境界，就退回名冊自己記的那一筆
+  function memberRealm(m){
+    const c = linkedCharFor(m);
+    const fromCard = c ? String(c.realm || "").trim() : "";
+    return fromCard || String((m && m.realm) || "").trim();
+  }
+
   function majorRealm(realm){
     const r = (realm || "").trim();
     if(!r) return "未記錄";
@@ -1470,14 +1554,16 @@
   }
 
   function rosterHtml(editable){
+    _charNameIdx = null;                 // 每次重畫都用最新的角色卡重建對應表
     const all = rosterEntries();
     // 境界統計：以境界前兩字分組（煉氣／築基／金丹…），並保留完整子境界細分
     const groups = {};
     all.forEach(([,m]) => {
-      const g = majorRealm(m.realm);
+      const realm = memberRealm(m);      // 有連動角色卡的以卡上為準
+      const g = majorRealm(realm);
       if(!groups[g]) groups[g] = { count:0, detail:{} };
       groups[g].count++;
-      const full = (m.realm || "").trim() || "未記錄";
+      const full = realm || "未記錄";
       groups[g].detail[full] = (groups[g].detail[full] || 0) + 1;
     });
     const maxCount = Math.max(1, ...Object.values(groups).map(g => g.count));
@@ -1517,7 +1603,10 @@
       </div>
       <div class="notice info" style="font-weight:400;">
         上面的境界卡可以點：點「未記錄」就只列出沒填境界的弟子，不必在名冊裡一列列翻。
-        名冊裡沒填的欄位會用虛線框標起來，排序也可以改成依境界或依職業。
+        名冊裡沒填的欄位會用虛線框標起來，排序也可以改成依境界或依職業。<br>
+        <b>境界連動</b>：名冊姓名和角色卡的角色尊名一樣時，境界一欄會直接顯示<b>角色卡上的境界</b>（綠底那格），
+        玩家在卡上突破就自動跟著更新，這裡不必再改一次；上面的統計、排序與篩選也都是照連動後的境界計算。
+        要改回自己填的話，按那一格旁邊的鎖鏈鈕即可。同名有兩張以上角色卡時不會自動連動，以免連錯人。
       </div>
       <div class="sub-tabs">
         <button class="sub-tab ${rosterRank==="全部"?"active":""}" data-rank="全部">全部（${all.length}）</button>
@@ -1532,7 +1621,7 @@
     // 沒填的職業排最後，不要跟有填的混在一起
     const jobKey = m => String(m.job || "").trim() || "\uFFFF";
     const byRealm = dir => (a, b) => {
-      const x = realmScore(a[1].realm), y = realmScore(b[1].realm);
+      const x = realmScore(memberRealm(a[1])), y = realmScore(memberRealm(b[1]));
       if(x === y) return byName(a, b);
       if(!isFinite(x)) return 1;          // 未填境界的兩個方向都墊底
       if(!isFinite(y)) return -1;
@@ -1548,12 +1637,13 @@
   })();
 
   function rosterTableHtml(editable){
+    _charNameIdx = null;
     const filtered = rosterEntries().filter(([,m]) => {
       if(rosterRank !== "全部" && (m.rank || "記名") !== rosterRank) return false;
-      if(rosterRealmFilter && majorRealm(m.realm) !== rosterRealmFilter) return false;
+      if(rosterRealmFilter && majorRealm(memberRealm(m)) !== rosterRealmFilter) return false;
       if(!rosterFilter) return true;
       // 搜「未記錄」也要找得到沒填境界的人，不然那一格永遠翻不出來
-      const hay = [m.name, m.title, m.root, m.job, m.path, m.realm, m.master, majorRealm(m.realm)]
+      const hay = [m.name, m.title, m.root, m.job, m.path, memberRealm(m), m.master, majorRealm(memberRealm(m))]
         .join(" ").toLowerCase();
       return hay.includes(rosterFilter.toLowerCase());
     }).sort(ROSTER_SORTERS[rosterSort] || ROSTER_SORTERS.rank);
@@ -1583,12 +1673,33 @@
                   <td><input class="${String(m.root||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="root" value="${attr(m.root)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
                   <td><input class="${String(m.job||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="job" value="${attr(m.job)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
                   <td><input data-r="${id}" data-prop="path" value="${attr(m.path)}" placeholder="－" ${editable?"":"disabled"}></td>
-                  <td><input class="${String(m.realm||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="realm" value="${attr(m.realm)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
+                  <td>${realmCellHtml(id, m, editable)}</td>
                   <td><input data-r="${id}" data-prop="master" value="${attr(m.master)}" placeholder="－" ${editable?"":"disabled"}></td>
                   ${editable ? `<td><button class="btn-icon" data-action="del-member" data-id="${id}" title="移出花名冊">${SVG.cross()}</button></td>` : ""}
                 </tr>`).join("")}
           </tbody>
         </table>`;
+  }
+
+  // 境界欄：連動到角色卡時顯示卡上的境界（不可直接改，改角色卡即可），
+  // 旁邊的鎖鏈鈕可以切成手動填寫（例如卡上還沒寫、或這位是同名的另一個人）。
+  function realmCellHtml(id, m, editable){
+    const linked = linkedCharFor(m);
+    if(linked){
+      const realm = String(linked.realm || "").trim();
+      return `<div class="realm-cell">
+        <span class="realm-linked${realm ? "" : " miss"}"
+          title="與角色卡【${attr(linked.name)}】連動，境界請到角色卡上修改">${escapeHtml(realm || "角色卡尚未填寫")}</span>
+        ${editable ? `<button class="btn-icon link-toggle on" data-action="unlink-realm" data-id="${id}"
+          title="改為手動填寫，不再跟角色卡連動">${SVG.chain()}</button>` : ""}
+      </div>`;
+    }
+    const canRelink = !!(editable && m.realmLink === "manual" && (_charNameIdx || charNameIndex()).get(String(m.name || "").trim()));
+    return `<div class="realm-cell">
+      <input class="${String(m.realm||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="realm" value="${attr(m.realm)}" placeholder="未記錄" ${editable?"":"disabled"}>
+      ${canRelink ? `<button class="btn-icon link-toggle" data-action="relink-realm" data-id="${id}"
+        title="改回跟同名角色卡連動">${SVG.chain()}</button>` : ""}
+    </div>`;
   }
 
   // ===== 天機閣分析 (原簡報分析) =====
@@ -2413,7 +2524,8 @@
       const handler = () => {
         if(roster[id]) roster[id][prop] = input.value;
         scheduleSave(`roster/${id}/${prop}`, input.value);
-        if(prop === "realm" || prop === "rank"){
+        // 改姓名可能讓這一列跟某張角色卡連動（或不再連動），境界欄也要重畫
+        if(prop === "realm" || prop === "rank" || prop === "name"){
           // 境界統計與分頁計數要跟著更新，但延後到使用者離開輸入框再重繪
           clearTimeout(wireEvents._statTimer);
           wireEvents._statTimer = setTimeout(() => {
@@ -2669,6 +2781,25 @@
           delete roster[btn.dataset.id];
           await writeNow("roster/" + btn.dataset.id, null);
           refreshRosterTable(); refreshCounts(); renderHallStats();
+        }
+        // 境界連動：解除後這一列改回自己填，重新連動則以同名角色卡為準
+        if(action === "unlink-realm" || action === "relink-realm"){
+          const rid = btn.dataset.id;
+          const m = roster[rid];
+          if(!m) return;
+          if(action === "unlink-realm"){
+            // 解除當下把角色卡上的境界抄進來當起點，才不會突然變成空白
+            const cur = memberRealm(m);
+            m.realmLink = "manual";
+            if(cur) m.realm = cur;
+            await writeNow("roster/" + rid, m);
+            flash(`「${m.name || "此弟子"}」的境界改為手動填寫`, false);
+          } else {
+            m.realmLink = "auto";
+            await writeNow("roster/" + rid, m);
+            flash(`「${m.name || "此弟子"}」的境界已改回跟角色卡連動`, false);
+          }
+          renderAll(true);   // 上面的境界統計卡也要跟著重算，不能只換表格
         }
       };
     });
