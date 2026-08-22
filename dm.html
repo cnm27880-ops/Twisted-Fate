@@ -922,8 +922,12 @@
   let chars = {};           // 角色卡（本命玉牌用）
   let itemRequests = {};    // id -> { itemId, itemName, qty, charId, charName, reason, applicantId, applicantName, ts }
   let tabletOrder = [];     // 本命玉牌的排列順序（角色卡 id 陣列），由天道排定
-  let sect = {};            // { name, level, reputation, formation, enemies:[] } 門派基本資料
-  let facilities = {};      // id -> 宗門設施（見 seed-data.js 的 FACILITY_SEED）
+  // 山門殿宇的資料以 seed-data.js 的 SECT_SEED／FACILITY_SEED 為預設值，Firebase 只存「改過的地方」：
+  //   facilities/_sect        → 門派卷宗被改過的欄位
+  //   facilities/<建築 id>    → 那座建築被改過的欄位；{ removed:true } 代表已拆除
+  //   facilities/<push key>   → 天道自建、不在預設清單裡的建築
+  // 這樣一上線資料就在，不必先請人按匯入，也不需要為此另外開一個資料庫節點。
+  let facilityEdits = {};
   let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
   let syncError = null;
 
@@ -1064,8 +1068,7 @@
     dataUnsubs.push(watch("characters", v => { chars = v; _charNameIdx = null; }, "chars"));
     dataUnsubs.push(watch("itemRequests", v => itemRequests = v));
     dataUnsubs.push(watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean)));
-    dataUnsubs.push(watch("sect",       v => sect = v));
-    dataUnsubs.push(watch("facilities", v => facilities = v));
+    dataUnsubs.push(watch("facilities", v => facilityEdits = v));
   }
 
   // 要等「登入狀態」與「沙盒持有人是誰」都確定了，才知道該連真實路徑還是沙盒路徑，
@@ -1101,7 +1104,7 @@
 
   // 把「當下的真實資料」複製一份進沙盒，測試起來才有實感；admins／warehouseLogs／
   // itemRequests 不複製——前者沙盒模式已經直接視同天道不需要，後兩者從空的開始更乾淨。
-  const SANDBOX_CLONE_PATHS = ["warehouse", "stones", "treasury", "roster", "characters", "tabletOrder", "sect", "facilities"];
+  const SANDBOX_CLONE_PATHS = ["warehouse", "stones", "treasury", "roster", "characters", "tabletOrder", "facilities"];
   async function seedSandboxFromReal(uid){
     const snaps = await Promise.all(SANDBOX_CLONE_PATHS.map(p => get(ref(db, p))));
     const updates = {};
@@ -1868,9 +1871,28 @@
   const gradeLabel = g => (STONE_KEYS.find(x => x.k === g) || {}).label || "中品靈石";
   const gradeShort = g => gradeLabel(g).replace("靈石", "");
 
+  // 預設清單疊上修改，再接上天道自建的建築。順序固定：預設的照 FACILITY_SEED，自建的排後面。
   function facilityEntries(){
-    return Object.entries(facilities).filter(([,f]) => f && typeof f === "object");
+    const edits = facilityEdits && typeof facilityEdits === "object" ? facilityEdits : {};
+    const out = [];
+    FACILITY_SEED.forEach(base => {
+      const e = edits[base.id];
+      if(e && e.removed) return;                       // 已被拆除
+      out.push([base.id, Object.assign({}, base, e && typeof e === "object" ? e : {})]);
+    });
+    Object.entries(edits).forEach(([id, e]) => {
+      if(id.startsWith("_")) return;                   // _sect 之類的保留鍵不是建築
+      if(FACILITY_SEED.some(b => b.id === id)) return; // 上面已經處理過
+      if(e && typeof e === "object" && !e.removed) out.push([id, e]);
+    });
+    return out;
   }
+  // 被拆除的預設建築：留著讓天道可以重建，不然按錯一次就再也回不來
+  function removedFacilities(){
+    const edits = facilityEdits && typeof facilityEdits === "object" ? facilityEdits : {};
+    return FACILITY_SEED.filter(b => edits[b.id] && edits[b.id].removed);
+  }
+  function isSeedFacility(id){ return FACILITY_SEED.some(b => b.id === id); }
 
   // 把設施的開銷依「每月／單次」分別按靈石等級加總。
   // 各等級是分開結算的（沒有假設任何兌換率），所以回傳的是 { low:n, mid:n, ... }。
@@ -1899,12 +1921,17 @@
     return worst;   // null＝目前沒有任何每月開銷
   }
 
+  // 門派卷宗＝SECT_SEED 疊上 facilities/_sect 裡改過的欄位
+  function sectData(){
+    const e = facilityEdits && facilityEdits._sect;
+    return Object.assign({}, SECT_SEED, (e && typeof e === "object") ? e : {});
+  }
   function sectField(k, fallback){
-    const v = sect && sect[k];
+    const v = sectData()[k];
     return v == null || v === "" ? (fallback == null ? "" : fallback) : v;
   }
   function sectEnemies(){
-    const e = sect && sect.enemies;
+    const e = sectData().enemies;
     if(Array.isArray(e)) return e.filter(Boolean);
     if(e && typeof e === "object") return Object.values(e).filter(Boolean);
     return String(e || "").split(/[、,，\s]+/).filter(Boolean);
@@ -1912,7 +1939,6 @@
 
   // 頂部橫幅：門派等級、聲望、護山大陣、每月總支出、還能撐幾個月
   function sectBannerHtml(){
-    if(!sect || !Object.keys(sect).length) return "";
     const need = upkeepTotals("month");
     const costText = STONE_KEYS.filter(x => need[x.k] > 0)
       .map(x => `<span>${escapeHtml(gradeShort(x.k))}<b>${need[x.k].toLocaleString()}</b></span>`).join("") || `<span>無</span>`;
@@ -1965,6 +1991,7 @@
     // 不排序：Firebase 的 push key 本身就是時序，維持匯入／新建的順序最好認，
     // 照筆劃排反而會把山門、藏經閣這些有主從關係的建築打散。
     const list = facilityEntries();
+    const gone = removedFacilities();
     const monthNeed = upkeepTotals("month");
     const onceList = facilityEntries().filter(([,f]) => f.upkeepKind === "once");
     const left = monthsLeft();
@@ -1974,8 +2001,6 @@
       <div class="block-title">門派卷宗<span class="spacer"></span>
         <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">上方橫幅即時同步這裡的內容</span>
       </div>
-      ${!(sect && Object.keys(sect).length) ? `<div class="notice info" style="font-weight:400;">
-        還沒有門派資料。天道可以到【權限管理】按「匯入宗門設施」，把門派資料與 11 座建築一次寫進來。</div>` : ""}
       <div class="sect-form">
         <label class="sf-field"><span>門派名稱</span>
           <input data-s="name" value="${attr(sectField("name"))}" placeholder="例：無相門" ${editable?"":"disabled"}></label>
@@ -2031,6 +2056,10 @@
       <div class="block-title" style="margin-top:30px;">殿宇建築<span class="spacer"></span>
         ${editable ? `<button class="btn gold" data-action="add-facility">＋ 新建殿宇</button>` : ""}
       </div>
+      ${gone.length && editable ? `<div class="notice info" style="font-weight:400;">
+        已拆除的殿宇：${gone.map(b => `<button type="button" class="btn" style="font-size:12px;padding:3px 9px;margin:0 4px;"
+          data-action="restore-facility" data-id="${attr(b.id)}">↩ 重建${escapeHtml(b.name)}</button>`).join("")}
+      </div>` : ""}
       ${list.length === 0
         ? `<div class="notice info" style="font-weight:400;">尚無建築資料。</div>`
         : `<div class="facility-grid">${list
@@ -2689,30 +2718,22 @@
     const have = new Set(Object.values(warehouse).map(whKey));
     return WAREHOUSE_SEED.filter(w => !have.has(whKey(w)));
   }
-  // 設施以「名稱」為準，已經有同名建築就略過；門派卷宗本身只在完全空白時才寫入
-  function pendingFacilities(){
-    const have = new Set(Object.values(facilities).map(f => String((f && f.name) || "").trim()));
-    return FACILITY_SEED.filter(f => !have.has(f.name));
-  }
-  function sectIsEmpty(){ return !sect || Object.keys(sect).length === 0; }
 
   function importPanelHtml(){
-    const r = pendingRoster().length, w = pendingWarehouse().length, f = pendingFacilities().length;
+    const r = pendingRoster().length, w = pendingWarehouse().length;
     return `
       <div class="admin-panel" style="margin-top:22px;">
         <div style="font-weight:700; margin-bottom:6px;">基礎資料匯入</div>
         <div style="font-size:13px; color:var(--ink-faint2); line-height:1.8; margin-bottom:12px;">
-          把長老團與各級弟子的花名冊、倉儲的丹藥／法器／材料／符咒，以及門派卷宗與 11 座殿宇建築一次寫進資料庫。<br>
-          <b>不會覆蓋現有資料</b>：同階級同名的弟子、同分類同名的物資、同名的建築都會自動略過，重複按也不會產生重複條目；
-          門派卷宗（名稱／等級／聲望／護山大陣／敵對勢力）只有在完全空白時才會寫入。
+          把長老團與各級弟子的花名冊、以及倉儲的丹藥／法器／材料／符咒一次寫進資料庫。<br>
+          （【山門殿宇】的門派卷宗與殿宇建築不在這裡：那些是程式內建的預設值，一開站就在，不必匯入。）<br>
+          <b>不會覆蓋現有資料</b>：同階級同名的弟子、同分類同名的物資都會自動略過，重複按也不會產生重複條目。
         </div>
         <div class="filter-row">
           <button class="btn gold" data-action="import-roster" ${r ? "" : "disabled"}>
             匯入弟子花名冊${r ? `（尚缺 ${r} 位）` : "（已全部匯入）"}</button>
           <button class="btn gold" data-action="import-warehouse" ${w ? "" : "disabled"}>
             匯入倉儲物資${w ? `（尚缺 ${w} 項）` : "（已全部匯入）"}</button>
-          <button class="btn gold" data-action="import-facilities" ${(f || sectIsEmpty()) ? "" : "disabled"}>
-            匯入宗門設施${(f || sectIsEmpty()) ? `（尚缺 ${f} 座${sectIsEmpty() ? "＋門派卷宗" : ""}）` : "（已全部匯入）"}</button>
         </div>
       </div>`;
   }
@@ -2737,33 +2758,6 @@
       renderAll(true);
     }catch(e){
       console.error("import error", e);
-      flash("匯入失敗：" + (e && e.message ? e.message : e), true);
-      btn.disabled = false;
-    }
-  }
-
-  // 設施與門派卷宗一起匯入：建築逐座比對名稱略過重複，門派卷宗只在空白時才寫。
-  async function importFacilities(btn){
-    const rows = pendingFacilities();
-    const withSect = sectIsEmpty();
-    if(rows.length === 0 && !withSect){ flash("宗門設施已經是最新的了", false); return; }
-    const what = [rows.length ? `${rows.length} 座建築` : "", withSect ? "門派卷宗" : ""].filter(Boolean).join("與");
-    if(!confirm(`要匯入${what}嗎？\n\n同名的建築會自動略過，現有資料不會被覆蓋。`)) return;
-
-    const payload = {};
-    rows.forEach(row => { payload[push(dref("facilities")).key] = row; });
-    btn.disabled = true;
-    try{
-      lastLocalWriteAt = Date.now();
-      if(rows.length) await update(dref("facilities"), payload);
-      if(withSect) await set(dref("sect"), SECT_SEED);
-      Object.assign(facilities, payload);
-      if(withSect) sect = JSON.parse(JSON.stringify(SECT_SEED));
-      await writeLog(`匯入宗門設施：${what}`, null);
-      flash(`已匯入${what}`, false);
-      renderAll(true);
-    }catch(e){
-      console.error("import facilities error", e);
       flash("匯入失敗：" + (e && e.message ? e.message : e), true);
       btn.disabled = false;
     }
@@ -2986,8 +2980,9 @@
         const value = prop === "enemies"
           ? input.value.split(/[、,，]+/).map(x => x.trim()).filter(Boolean)
           : (prop === "reputation" ? num(input.value) : input.value);
-        sect[prop] = value;
-        scheduleSave(`sect/${prop}`, value);
+        if(!facilityEdits._sect || typeof facilityEdits._sect !== "object") facilityEdits._sect = {};
+        facilityEdits._sect[prop] = value;
+        scheduleSave(`facilities/_sect/${prop}`, value);
         renderHallStats();      // 上方橫幅即時跟著改
       };
     });
@@ -2997,7 +2992,9 @@
       const id = input.dataset.f, prop = input.dataset.prop;
       const handler = () => {
         const value = (prop === "upkeepQty" || prop === "capNow" || prop === "capMax") ? num(input.value) : input.value;
-        if(facilities[id]) facilities[id][prop] = value;
+        // 只寫被改動的那一格；預設清單裡的建築在第一次被改到時才會在資料庫留下紀錄
+        if(!facilityEdits[id] || typeof facilityEdits[id] !== "object") facilityEdits[id] = {};
+        facilityEdits[id][prop] = value;
         scheduleSave(`facilities/${id}/${prop}`, value);
         // 開銷相關的欄位一改，上方橫幅和結算區的數字都要重算
         if(prop === "upkeepQty" || prop === "upkeepGrade" || prop === "upkeepKind"){
@@ -3108,11 +3105,6 @@
         if(action === "import-roster" || action === "import-warehouse"){
           if(!isDM()){ flash("只有天道可以匯入基礎資料", true); return; }
           await importSeed(action === "import-roster" ? "roster" : "warehouse", btn);
-          return;
-        }
-        if(action === "import-facilities"){
-          if(!isDM()){ flash("只有天道可以匯入基礎資料", true); return; }
-          await importFacilities(btn);
           return;
         }
         if(action === "grant"){
@@ -3276,26 +3268,47 @@
           const fresh = { name:"", level: sectField("level", ""), spec:"", fn:"",
             upkeepKind:"month", upkeepGrade:"mid", upkeepQty:0,
             tokens:[], limit:"", capNow:null, capMax:null, capUnit:"" };
-          facilities[r.key] = fresh;
+          facilityEdits[r.key] = fresh;
           await writeNow("facilities/" + r.key, fresh);
           renderAll(true);
         }
         if(action === "del-facility"){
-          const f = facilities[btn.dataset.id] || {};
-          if(!confirm(`確定拆除「${f.name || "此建築"}」？\n\n這一座的規格、功能與開銷都會從宗門卷宗上抹去。`)) return;
-          delete facilities[btn.dataset.id];
-          await writeNow("facilities/" + btn.dataset.id, null);
+          const id = btn.dataset.id;
+          const f = (facilityEntries().find(([k]) => k === id) || [])[1] || {};
+          if(!confirm(`確定拆除「${f.name || "此建築"}」？`
+            + (isSeedFacility(id)
+                ? "\n\n這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
+                : "\n\n這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
+          if(isSeedFacility(id)){
+            // 預設建築不能直接刪掉：鍵一消失就會被預設清單重新變出來，
+            // 改成寫一筆 removed 記號蓋住它，也才留得住「重建」這條路。
+            facilityEdits[id] = { removed: true };
+            await writeNow("facilities/" + id, { removed: true });
+          } else {
+            delete facilityEdits[id];
+            await writeNow("facilities/" + id, null);
+          }
+          renderAll(true);
+        }
+        if(action === "restore-facility"){
+          const id = btn.dataset.id;
+          const base = FACILITY_SEED.find(b => b.id === id);
+          if(!base) return;
+          if(!confirm(`重建「${base.name}」？\n\n會恢復成預設的規格與開銷。`)) return;
+          delete facilityEdits[id];
+          await writeNow("facilities/" + id, null);   // 拿掉 removed 記號，預設值就回來了
           renderAll(true);
         }
         if(action === "edit-tokens"){
           const id = btn.dataset.id;
-          const f = facilities[id];
+          const f = (facilityEntries().find(([k]) => k === id) || [])[1];
           if(!f) return;
           const cur = toList(f.tokens).join("、");
           const next = prompt(`「${f.name || "此建築"}」的進入信物（用頓號分隔，留空表示不需信物）：`, cur);
           if(next === null) return;
           const arr = next.split(/[、,，]+/).map(x => x.trim()).filter(Boolean);
-          f.tokens = arr;
+          if(!facilityEdits[id] || typeof facilityEdits[id] !== "object") facilityEdits[id] = {};
+          facilityEdits[id].tokens = arr;
           await writeNow(`facilities/${id}/tokens`, arr);
           renderAll(true);
         }
@@ -3308,7 +3321,7 @@
           await settleStones(owe, "結算本月設施消耗");
         }
         if(action === "settle-once"){
-          const f = facilities[btn.dataset.id];
+          const f = (facilityEntries().find(([k]) => k === btn.dataset.id) || [])[1];
           if(!f) return;
           const qty = num(f.upkeepQty), grade = f.upkeepGrade || "mid";
           if(qty <= 0){ flash("這座建築沒有設定單次消耗", false); return; }

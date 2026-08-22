@@ -188,7 +188,7 @@ export const WAREHOUSE_SEED = [
 ];
 
 // ===== 宗門基本資料 =====
-// 門派層級的資訊：等級、聲望、護山大陣、敵對勢力。匯入後同樣以 Firebase 為準。
+// 同樣是預設值而非匯入種子；天道改過的欄位存在 facilities/_sect 底下，疊在這上面。
 export const SECT_SEED = {
   name: "無相門",
   level: "三級",
@@ -198,18 +198,23 @@ export const SECT_SEED = {
 };
 
 // ===== 宗門設施 =====
+// 這份清單不是「匯入用的種子」，而是宗門設施的預設內容本身：宗門大殿一開就照著它畫，
+// 不需要任何人先按匯入。Firebase 的 facilities 節點只存「改過的地方」——
+// 天道改了哪一格就寫哪一格，程式讀的時候把它疊在這份預設值上面。
+// 所以 id 必須是固定不變的，改了會讓既有的修改對不回原本那座建築。
+//
 // upkeepKind：month＝每月固定開銷、once＝用一次扣一次、none＝不需靈石
 // upkeepGrade 對應靈石國庫的四個等級鍵（low／mid／high／extreme）
 // capMax 有填的才會畫容量條（目前只有靈獸園與修練道場有明確上限）
 export const FACILITY_SEED = [
   {
-    name: "山門", level: "三級", spec: "護山大陣：五行幻獸大陣",
+    id: "gate", name: "山門", level: "三級", spec: "護山大陣：五行幻獸大陣",
     fn: "幻化出四階靈獸，主動困住並攻擊陣中生靈，對築基大圓滿以下修為有效。",
     upkeepKind: "month", upkeepGrade: "mid", upkeepQty: 500,
     tokens: [], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "靈獸園", level: "三級", spec: "靈獸數量 6/20",
+    id: "beastGarden", name: "靈獸園", level: "三級", spec: "靈獸數量 6/20",
     fn: "馴化四階以下靈獸，並提高其進階速度二倍。",
     upkeepKind: "month", upkeepGrade: "low", upkeepQty: 5000,
     tokens: ["馭獸令牌"],
@@ -217,55 +222,55 @@ export const FACILITY_SEED = [
     capNow: 6, capMax: 20, capUnit: "隻"
   },
   {
-    name: "養蟲房", level: "三級", spec: "1 棟房子",
+    id: "insectHouse", name: "養蟲房", level: "三級", spec: "1 棟房子",
     fn: "馴服四階級四階以下奇蟲，並提高進階速度二倍。",
     upkeepKind: "month", upkeepGrade: "low", upkeepQty: 8000,
     tokens: ["掌門腰牌", "養蟲房令牌"], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "修練道場", level: "三級", spec: "容納 50 人",
+    id: "dojo", name: "修練道場", level: "三級", spec: "容納 50 人",
     fn: "提高築基中期以下修士修練速度三成、築基中期以上無作用。",
     upkeepKind: "month", upkeepGrade: "mid", upkeepQty: 40,
     tokens: [], limit: "", capNow: null, capMax: 50, capUnit: "人"
   },
   {
-    name: "練功房", level: "三級", spec: "1 間",
+    id: "masterHall", name: "練功房", level: "三級", spec: "1 間",
     fn: "可提升掌門修練速度五成。",
     upkeepKind: "month", upkeepGrade: "low", upkeepQty: 8000,
     tokens: ["掌門鐵板指"], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "參悟室", level: "三級", spec: "1 間房間",
+    id: "insightRoom", name: "參悟室", level: "三級", spec: "1 間房間",
     fn: "提升築基成功機率 3 成。",
     upkeepKind: "once", upkeepGrade: "mid", upkeepQty: 5000,
     tokens: ["掌門腰牌", "參悟室令牌"], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "藏經閣", level: "三級", spec: "4 間房間",
+    id: "scriptureTower", name: "藏經閣", level: "三級", spec: "4 間房間",
     fn: "每月生成高階功法秘笈一本、可修復神通法術功法秘笈一本；每月生成三階丹方、器方、符方各一份，可修復四階丹方、器方、符方，可修復晉國範圍內藏寶圖。",
     upkeepKind: "month", upkeepGrade: "mid", upkeepQty: 400,
     tokens: ["掌門板指", "藏經閣令牌"], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "靈田", level: "三級", spec: "30 畝",
+    id: "spiritField", name: "靈田", level: "三級", spec: "30 畝",
     fn: "提高農作物生長週期四倍，每個月收穫二次，每次產量九千斤。",
     upkeepKind: "month", upkeepGrade: "mid", upkeepQty: 10,
     tokens: [], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "靈藥圃", level: "三級", spec: "四畝",
+    id: "herbGarden", name: "靈藥圃", level: "三級", spec: "四畝",
     fn: "加速四階以下靈藥生長速度六倍。加速四階靈藥生長速度三倍。四階以上無效果。",
     upkeepKind: "month", upkeepGrade: "mid", upkeepQty: 50,
     tokens: ["掌門腰牌", "靈藥圃令牌"], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "煉丹房", level: "三級", spec: "1 棟房子",
+    id: "alchemyHall", name: "煉丹房", level: "三級", spec: "1 棟房子",
     fn: "四階以下靈丹成丹率百分之百。四階靈丹成丹率提升百分之三十。五階靈丹成丹率提升百分之十。五階以上無效果。",
     upkeepKind: "month", upkeepGrade: "low", upkeepQty: 8000,
     tokens: ["掌門腰牌", "煉丹房令牌"], limit: "", capNow: null, capMax: null, capUnit: ""
   },
   {
-    name: "制符室", level: "三級", spec: "1 棟房子",
+    id: "talismanRoom", name: "制符室", level: "三級", spec: "1 棟房子",
     fn: "四階符咒成功率提升三成，五階符咒成功率提升一成，五階以上無效果。",
     upkeepKind: "month", upkeepGrade: "low", upkeepQty: 8000,
     tokens: ["掌門腰牌", "制符室令牌"], limit: "", capNow: null, capMax: null, capUnit: ""
