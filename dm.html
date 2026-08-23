@@ -196,6 +196,31 @@
   .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:18px; color:#FF9E82; margin:0 4px; }
   .lp-alert .lp-more{ display:block; margin-top:5px; font-size:11.5px; color:rgba(232,202,130,.62); }
   .lp-alert.quiet{ font-size:12.5px; color:rgba(232,202,130,.62); }
+  .ledger-panel.sect-profile-panel{ border-color:rgba(140,107,39,.62); box-shadow:inset 0 0 26px rgba(140,107,39,.2),0 4px 16px rgba(0,0,0,.4); }
+  .sect-profile-wrap{ position:relative; z-index:1; }
+  .sect-profile-main{ display:flex; align-items:flex-start; gap:10px; }
+  .sect-profile-seal{ display:flex; align-items:center; justify-content:center; width:37px; height:44px; flex-shrink:0; border:1px solid rgba(232,202,130,.55); border-radius:3px 3px 10px 10px; color:#E8CA82; background:linear-gradient(160deg,rgba(140,107,39,.38),rgba(45,32,16,.58)); box-shadow:inset 0 0 10px rgba(232,202,130,.12),0 0 10px rgba(140,107,39,.18); }
+  .sect-profile-seal svg{ width:22px; height:22px; }
+  .sect-profile-name{ display:block; color:#F8EDD1; font-family:"Noto Serif TC",serif; font-size:21px; line-height:1.2; font-weight:900; letter-spacing:2px; }
+  .sect-profile-meta{ display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+  .sect-profile-badge{ display:inline-flex; align-items:center; border:1px solid rgba(232,202,130,.28); border-radius:3px; padding:3px 6px; color:#C9A75E; font-size:10.5px; letter-spacing:1px; }
+  .sect-profile-badge.reputation{ color:#9FC0AC; border-color:rgba(159,192,172,.32); }
+  .sect-profile-row{ display:flex; align-items:baseline; gap:7px; margin-top:12px; padding-top:9px; border-top:1px dashed rgba(232,202,130,.15); color:#F0DCA4; font-size:12px; line-height:1.65; }
+  .sect-profile-row .sect-label{ flex-shrink:0; color:#C9A75E; font-size:10px; letter-spacing:2px; }
+  .sect-profile-row .sect-value{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sect-enemy-label{ display:block; margin-top:11px; color:rgba(232,202,130,.48); font-size:10px; letter-spacing:2px; }
+  .sect-enemy-list{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .sect-enemy-chip{ display:inline-flex; align-items:center; max-width:100%; border:1px solid rgba(181,55,43,.42); border-radius:2px; padding:3px 6px; background:rgba(156,43,34,.14); color:#E8B19F; font-size:10.5px; line-height:1.3; }
+  .sect-profile-edit{ display:block; margin-top:10px; padding:4px 0; border:0; background:transparent; color:rgba(232,202,130,.56); font:700 10.5px inherit; letter-spacing:1px; text-decoration:underline; cursor:pointer; }
+  .sect-profile-edit:hover{ color:#F8EDD1; }
+  .sect-profile-editor-note{ margin:-4px 0 12px; color:rgba(232,202,130,.62); font-size:11.5px; line-height:1.75; }
+  .sect-enemy-editor{ display:grid; gap:7px; }
+  .sect-enemy-row{ display:flex; align-items:center; gap:6px; }
+  .sect-enemy-row .modal-field{ flex:1; min-width:0; }
+  .sect-enemy-remove{ width:28px; height:28px; flex-shrink:0; border:1px solid rgba(232,202,130,.2); border-radius:3px; background:rgba(0,0,0,.22); color:#D98977; cursor:pointer; }
+  .sect-enemy-remove:hover{ border-color:var(--vermillion-bright); background:rgba(156,43,34,.2); }
+  .sect-profile-editor-actions{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; margin-top:16px; }
+  .sect-profile-editor-actions .btn{ flex:0 0 auto; }
 
   /* ===== 頁籤 ===== */
   .tabs{ display:flex; gap:8px; border-bottom:3px solid var(--gold-deep); margin-bottom:24px; overflow-x:auto; scrollbar-width:none; }
@@ -638,6 +663,10 @@
   .catalog-editor-grid input:focus,.catalog-editor-grid select:focus,.catalog-editor-grid textarea:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.14); }
   .catalog-editor-foot{ display:flex; justify-content:flex-end; gap:7px; margin-top:10px; }
   .catalog-editor-foot .btn{ padding:6px 10px; font-size:11px; }
+  .facility-profile-strip{ position:relative; z-index:1; display:flex; flex-wrap:wrap; align-items:center; gap:6px 11px; margin-top:15px; padding-top:12px; border-top:1px solid rgba(232,202,130,.15); color:rgba(232,202,130,.72); font-size:11.5px; line-height:1.5; }
+  .facility-profile-strip b{ color:#F3E3BC; font-family:"Noto Serif TC",serif; font-size:13px; }
+  .facility-profile-strip .profile-divider{ color:rgba(232,202,130,.26); }
+  .facility-profile-strip .profile-formation{ color:#C9A75E; }
   .facility-ledger-total{ margin:14px 0 10px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:24px; color:var(--ink); }
   .facility-ledger-total small{ font-family:inherit; font-weight:400; font-size:12px; color:var(--ink-faint2); margin-left:5px; }
   .facility-cost-line{ display:flex; justify-content:space-between; gap:8px; padding:7px 0; border-bottom:1px dashed var(--border); font-size:12px; color:var(--ink-faint2); }
@@ -816,6 +845,9 @@
     .catalog-editor-head{ align-items:flex-start; flex-direction:column; }
     .catalog-editor-head span{ margin-left:0; }
     .facility-ledger-count{ display:none; }
+    .facility-profile-strip{ gap:4px 8px; font-size:11px; }
+    .sect-profile-name{ font-size:19px; }
+    .sect-profile-edit{ margin-top:8px; }
     .facility-detail-cell.wide{ grid-column:auto; }
     .facility-stat strong{ font-size:20px; }
     .facility-toolbar{ gap:6px; }
@@ -887,7 +919,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, get, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  import { ROSTER_SEED, WAREHOUSE_SEED, FACILITY_SEED, BEAST_SEED } from "./seed-data.js";
+  import { ROSTER_SEED, WAREHOUSE_SEED, FACILITY_SEED, BEAST_SEED, SECT_PROFILE_SEED } from "./seed-data.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -920,6 +952,7 @@
   let tabletOrder = [];     // 本命玉牌的排列順序（角色卡 id 陣列），由天道排定
   let facilities = {};      // id -> 宗門設施；與種子資料合併，Firebase 優先
   let beasts = {};          // id -> 五行御獸玉牌；與種子資料合併，Firebase 優先
+  let sectProfile = {};     // 無相門宗門檔案；Firebase 優先、種子作預設
   let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
   let syncError = null;
 
@@ -1074,6 +1107,7 @@
     dataUnsubs.push(watch("itemRequests", v => itemRequests = v));
     dataUnsubs.push(watchOptional("facilities", v => facilities = v));
     dataUnsubs.push(watchOptional("beasts", v => beasts = v));
+    dataUnsubs.push(watchOptional("sectProfile", v => sectProfile = v));
     dataUnsubs.push(watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean)));
   }
 
@@ -1198,6 +1232,16 @@
   }
   function currentFacilities(){ return mergeCatalog(FACILITY_SEED, facilities).filter(f => f.active !== false); }
   function currentBeasts(){ return mergeCatalog(BEAST_SEED, beasts).filter(b => b.active !== false); }
+  function currentSectProfile(){
+    const merged = { ...SECT_PROFILE_SEED, ...(sectProfile || {}) };
+    const hasStoredEnemies = !!(sectProfile && Object.prototype.hasOwnProperty.call(sectProfile, "enemyFactions"));
+    const rawEnemies = hasStoredEnemies
+      ? (Array.isArray(sectProfile.enemyFactions) ? sectProfile.enemyFactions : Object.values(sectProfile.enemyFactions || {}))
+      : SECT_PROFILE_SEED.enemyFactions;
+    merged.enemyFactions = rawEnemies.map(x => String(x || "").trim()).filter(Boolean);
+    merged.reputation = Math.max(0, Math.floor(num(merged.reputation)));
+    return merged;
+  }
   function facilityCostText(f){
     if(f.costKind === "perUse") return `${num(f.perUseMid).toLocaleString()} 塊中品靈石／次`;
     if(num(f.monthlyLow) > 0 && num(f.monthlyMid) > 0) return `${num(f.monthlyLow).toLocaleString()} 下品／月 · ${num(f.monthlyMid).toLocaleString()} 中品／月`;
@@ -1332,7 +1376,7 @@
   }
 
   // ===== 【內務堂：宗門底蘊】=====
-  // 三面玉牌：左為靈石國庫、中為近期流水、右為傳音警訊。
+  // 三面玉牌：左為靈石國庫、中為近期流水、右為無相門宗門檔案。
   function fmtLogTime(ts){
     const d = new Date(num(ts));
     return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
@@ -1342,41 +1386,89 @@
       .filter(([,r]) => r && typeof r === "object")
       .sort((a,b) => num(a[1].ts) - num(b[1].ts));
   }
+  function sectProfileCardHtml(){
+    const p = currentSectProfile();
+    return `<div class="ledger-panel sect-profile-panel">
+      <div class="lp-head">${SVG.shield()}<span>宗門檔案</span></div>
+      <div class="sect-profile-wrap">
+        <div class="sect-profile-main">
+          <div class="sect-profile-seal">${SVG.yinyang()}</div>
+          <div>
+            <span class="sect-profile-name">${escapeHtml(p.name)}</span>
+            <div class="sect-profile-meta">
+              <span class="sect-profile-badge">${escapeHtml(p.level)}</span>
+              <span class="sect-profile-badge reputation">聲望 ${p.reputation.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+        <div class="sect-profile-row"><span class="sect-label">護山大陣</span><span class="sect-value">${escapeHtml(p.guardianFormation)}</span></div>
+        <span class="sect-enemy-label">敵對勢力 · ${p.enemyFactions.length}</span>
+        <div class="sect-enemy-list">${p.enemyFactions.map(e => `<span class="sect-enemy-chip">${escapeHtml(e)}</span>`).join("")}</div>
+        ${canEdit() ? `<button type="button" class="sect-profile-edit" id="sectProfileEdit">編修宗門檔案</button>` : ""}
+      </div>
+    </div>`;
+  }
+  function sectEnemyRowsHtml(enemies, canEditEnemies){
+    return (enemies.length ? enemies : [""]).map((enemy, i) => `<div class="sect-enemy-row">
+      <input class="modal-field" data-enemy-input="${i}" value="${attr(enemy)}" placeholder="敵對勢力名稱" ${canEditEnemies ? "" : "disabled"}>
+      <button type="button" class="sect-enemy-remove" data-enemy-remove="${i}" ${canEditEnemies ? "" : "disabled"} aria-label="移除敵對勢力">×</button>
+    </div>`).join("");
+  }
+  function openSectProfileModal(){
+    if(!canEdit()) return;
+    const p = currentSectProfile();
+    const dm = isDM();
+    openModal(`
+      <div class="modal-title">${SVG.shield()}<span>編修宗門檔案</span></div>
+      <div class="modal-sub">無相門的基本身分資料會同步至宗門大殿與宗門設施頁。</div>
+      <label class="modal-label">門派名稱<input class="modal-field" data-sect-field="name" value="${attr(p.name)}"></label>
+      <label class="modal-label">門派等級<input class="modal-field" data-sect-field="level" value="${attr(p.level)}"></label>
+      <label class="modal-label">門派聲望<input class="modal-field" type="number" min="0" step="1" data-sect-field="reputation" value="${p.reputation}"></label>
+      <label class="modal-label">護山大陣<input class="modal-field" data-sect-field="guardianFormation" value="${attr(p.guardianFormation)}"></label>
+      <label class="modal-label">敵對勢力</label>
+      <div class="sect-profile-editor-note">${dm ? "天道可新增、刪除與修改敵對勢力。" : "敵對勢力僅天道可修改；授權長老可修改其他宗門檔案欄位。"}</div>
+      <div class="sect-enemy-editor" id="sectEnemyEditor">${sectEnemyRowsHtml(p.enemyFactions, dm)}</div>
+      ${dm ? `<button type="button" class="btn" id="sectEnemyAdd">＋ 新增敵對勢力</button>` : ""}
+      <div class="sect-profile-editor-actions"><button class="btn" data-modal="close">作罷</button><button class="btn gold" id="sectProfileSave">儲存宗門檔案</button></div>`, el => {
+        el.querySelector('[data-modal="close"]').onclick = closeModal;
+        const enemyEditor = el.querySelector("#sectEnemyEditor");
+        const renderEnemyRows = () => { enemyEditor.innerHTML = sectEnemyRowsHtml(readEnemyInputs(), dm); bindEnemyRows(); };
+        const readEnemyInputs = () => [...enemyEditor.querySelectorAll("[data-enemy-input]")].map(x => x.value.trim()).filter(Boolean);
+        const bindEnemyRows = () => {
+          enemyEditor.querySelectorAll("[data-enemy-remove]").forEach(btn => btn.onclick = () => {
+            if(!dm) return;
+            const next = readEnemyInputs(); next.splice(Number(btn.dataset.enemyRemove), 1); enemyEditor.innerHTML = sectEnemyRowsHtml(next, dm); bindEnemyRows();
+          });
+        };
+        bindEnemyRows();
+        const addEnemy = el.querySelector("#sectEnemyAdd");
+        if(addEnemy) addEnemy.onclick = () => { const next = readEnemyInputs(); next.push(""); enemyEditor.innerHTML = sectEnemyRowsHtml(next, dm); bindEnemyRows(); enemyEditor.lastElementChild?.querySelector("input")?.focus(); };
+        el.querySelector("#sectProfileSave").onclick = async () => {
+          const next = {
+            ...p,
+            name: el.querySelector('[data-sect-field="name"]').value.trim(),
+            level: el.querySelector('[data-sect-field="level"]').value.trim(),
+            reputation: Math.max(0, Math.floor(num(el.querySelector('[data-sect-field="reputation"]').value))),
+            guardianFormation: el.querySelector('[data-sect-field="guardianFormation"]').value.trim(),
+            enemyFactions: dm ? readEnemyInputs() : p.enemyFactions,
+            updatedAt: Date.now(), updatedBy: discordUser ? discordUser.name : "天道"
+          };
+          if(!next.name || !next.level || !next.guardianFormation){ flash("門派名稱、等級與護山大陣不可留白", true); return; }
+          const ok = await writeNow("sectProfile", next);
+          if(ok){ sectProfile = next; closeModal(); renderHallStats(); renderAll(true); }
+        };
+      });
+  }
 
   function renderHallStats(){
-    const items = Object.values(warehouse);
     const stoneTotal = STONE_KEYS.reduce((s,x) => s + num(stones[x.k]), 0);
     const stoneParts = STONE_KEYS
       .map(s => `<span>${escapeHtml(s.label.replace("靈石",""))}<b>${num(stones[s.k]).toLocaleString()}</b></span>`)
       .join("");
-
-    // 近期流水：庫房日誌最新三筆
     const recent = Object.values(logs)
       .filter(l => l && typeof l === "object")
       .sort((a,b) => num(b.ts) - num(a.ts))
       .slice(0, 3);
-
-    // 警訊：待批核申請 > 見底物資 > 低存量 > 重傷弟子
-    const reqCount = pendingRequests().length;
-    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
-    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
-    const wounded = Object.values(chars).filter(c => {
-      const mx = num(c.hp && c.hp.max);
-      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
-    }).length;
-
-    const notes = [];
-    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已然見底`);
-    if(lowStock > 0) notes.push(`${lowStock} 項物資存量不足三份`);
-    if(wounded > 0) notes.push(`${wounded} 名弟子本命玉牌將裂`);
-
-    const alarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
-    const alertBody = reqCount > 0
-      ? `<div class="lp-alert"><span class="urgent">長老請注意：有</span><b>${reqCount}</b><span class="urgent">筆調用申請待批核</span>
-           ${notes.length ? `<span class="lp-more">另：${escapeHtml(notes.join("、"))}。</span>` : ""}</div>`
-      : (notes.length
-          ? `<div class="lp-alert"><span class="urgent">內務堂稟報：</span>${escapeHtml(notes.join("、"))}，宜早作打算。</div>`
-          : `<div class="lp-alert quiet">符紙靜默，四下無事。庫房充盈，弟子安康。</div>`);
 
     document.getElementById("hallStats").innerHTML = `
       <div class="ledger-head">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
@@ -1391,31 +1483,19 @@
             </div>
           </div>
         </div>
-
         <div class="ledger-panel">
           <div class="lp-head">${SVG.scroll()}<span>近期流水</span></div>
           ${recent.length === 0
             ? `<div class="lp-empty">帳冊尚無墨跡，庫房未見進出。</div>`
             : `<ul class="lp-flow">${recent.map(l => {
                 const d = num(l.delta);
-                return `<li>
-                  <span class="lf-time">${fmtLogTime(l.ts)}</span>
-                  <span class="lf-actor">${escapeHtml(l.actor || "無名")}</span>
-                  <span class="lf-text">${escapeHtml(l.text || "")}</span>
-                  ${d ? `<span class="lf-delta ${d > 0 ? "plus" : "minus"}">${d > 0 ? "+" : ""}${d.toLocaleString()}</span>` : ""}
-                </li>`;
+                return `<li><span class="lf-time">${fmtLogTime(l.ts)}</span><span class="lf-actor">${escapeHtml(l.actor || "無名")}</span><span class="lf-text">${escapeHtml(l.text || "")}</span>${d ? `<span class="lf-delta ${d > 0 ? "plus" : "minus"}">${d > 0 ? "+" : ""}${d.toLocaleString()}</span>` : ""}</li>`;
               }).join("")}</ul>`}
         </div>
-
-        <div class="ledger-panel${alarm ? " alarm" : ""}">
-          <div class="lp-head">${SVG.talisman()}<span>傳音警訊</span></div>
-          <div class="lp-talisman">
-            ${SVG.talisman("talisman-sigil")}
-            ${alertBody}
-          </div>
-        </div>
-      </div>
-    `;
+        ${sectProfileCardHtml()}
+      </div>`;
+    const edit = document.getElementById("sectProfileEdit");
+    if(edit) edit.onclick = openSectProfileModal;
   }
 
   // 沙盒模式的「啟用／開啟」入口：只有還沒被別人領走、或本來就是自己領走的，才會顯示；
@@ -1440,7 +1520,7 @@
 
   function adminNoticeHtml(){
     if(!discordUser){
-      return `<div class="notice">目前為訪客唯讀模式。登入 Discord 後，若你的身分已被天道授權，即可編輯庫房與花名冊。</div>`;
+      return `<div class="notice">目前為訪客唯讀模式。登入 Discord 後，若你的身分已被天道授權，即可編輯庫房、花名冊、宗門檔案與設施資料。</div>`;
     }
     if(sandboxActive()) return ""; // 沙盒模式下已經視同天道，不需要再顯示任何取得權限的提示
     if(Object.keys(admins).length === 0){
@@ -1449,7 +1529,7 @@
         + sandboxOptInHtml();
     }
     if(!canEdit()){
-      return `<div class="notice">你目前是「弟子」身分，僅能檢視。若需編輯權限，請將下方玉簡 ID 交給天道授權：
+      return `<div class="notice">你目前是「弟子」身分，僅能檢視宗門檔案與設施資料。若需編輯權限，請將下方玉簡 ID 交給天道授權：
         <div class="uid-box" data-action="copy-uid">${escapeHtml(discordUser.id)}</div></div>`
         + sandboxOptInHtml();
     }
@@ -1620,6 +1700,7 @@
     const totals = facilityTotals();
     const activeFacilities = currentFacilities();
     const activeBeasts = currentBeasts();
+    const profile = currentSectProfile();
     const editable = canEdit();
     return `
       <div class="block-title">宗門設施<span class="spacer"></span>
@@ -1629,6 +1710,9 @@
         <section class="facility-hero">
           <div class="facility-kicker">宗門建制 · 第三級</div>
           <h2>山門、道場與百工諸房</h2>
+          <div class="facility-profile-strip">
+            <b>${escapeHtml(profile.name)}</b><span class="profile-divider">·</span><span>${escapeHtml(profile.level)}</span><span class="profile-divider">·</span><span>聲望 ${profile.reputation.toLocaleString()}</span><span class="profile-divider">·</span><span class="profile-formation">護山陣：${escapeHtml(profile.guardianFormation)}</span>
+          </div>
           <div class="facility-stats">
             <div class="facility-stat"><strong>${activeFacilities.length}</strong><span>座設施</span></div>
             <div class="facility-stat"><strong>${tokenStock ? num(tokenStock.qty).toLocaleString() : "—"}</strong><span>馭獸令牌庫存</span></div>

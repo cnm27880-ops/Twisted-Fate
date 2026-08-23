@@ -211,3 +211,12 @@ export const BEAST_SEED = [
   {id:"sky-crane", name:"一階飛天鶴", root:"風", realm:"築基期", skill:"飛得很快。飛天鶴真的飛得很快。", status:"巡天中", element:"wind", icon:"spark", active:true, order:50},
   {id:"flame-lion", name:"三階烈焰獅", root:"火", realm:"築基後期", skill:"燒起來了！烈焰獅口中噴火，把三十尺內的獵物都燒起來了。", status:"睡覺中", element:"fire", icon:"gourd", active:true, order:60}
 ];
+
+
+export const SECT_PROFILE_SEED = {
+  name: "無相門",
+  level: "三級",
+  reputation: 10500,
+  guardianFormation: "五行幻獸大陣",
+  enemyFactions: ["六道聯盟", "血手堂", "虎嘯門", "反虎嘯門大聯盟", "羅睺教"]
+};
