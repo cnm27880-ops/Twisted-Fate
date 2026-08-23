@@ -186,3 +186,28 @@ export const WAREHOUSE_SEED = [
   {"category":"符咒","name":"二品護身符","qty":5,"effect":""},
   {"category":"符咒","name":"三品岩甲符","qty":3,"effect":"能在身體表面形成岩石鎧甲"},
 ];
+
+
+// 宗門設施／五行御獸玉牌種子資料：首次匯入後以 Firebase 對應路徑為準，網站上的編輯不會回寫本檔案。
+export const FACILITY_SEED = [
+  {id:"gate", name:"三級山門", level:"三級山門", category:"防禦", tone:"vermillion", icon:"shield", type:"護山大陣", focus:"五行幻獸大陣主動困敵並反擊", detail:"幻化出四階靈獸，主動困住並攻擊陣中生靈，對築基大圓滿以下修為有效。", entry:"無", note:"護山大陣：五行幻獸大陣", costKind:"monthly", monthlyLow:0, monthlyMid:500, active:true, order:10},
+  {id:"beast-garden", name:"三級靈獸園", level:"三級靈獸園", category:"馴養", tone:"jade", icon:"spark", type:"靈獸馴化", focus:"馴化四階以下靈獸，進階速度 ×2", detail:"馴化四階以下靈獸，並提高其進階速度二倍。", entry:"馭獸令牌", note:"每塊馭獸令牌需綁定一隻靈獸；僅持有馭獸令牌者方能使喚靈獸。", costKind:"monthly", monthlyLow:5000, monthlyMid:0, active:true, order:20},
+  {id:"insect-house", name:"三級養蟲房", level:"三級養蟲房", category:"馴養", tone:"jade", icon:"lotus", type:"奇蟲馴服", focus:"馴服四階以下奇蟲，進階速度 ×2", detail:"馴服四階以下奇蟲，並提高進階速度二倍。", entry:"掌門腰牌、養蟲房令牌", note:"建築規格：1 棟房子。", costKind:"monthly", monthlyLow:8000, monthlyMid:0, active:true, order:30},
+  {id:"training-field", name:"三級修練道場", level:"三級修練道場", category:"修行", tone:"jade", icon:"spark", type:"多人修練", focus:"築基中期以下修士修練速度 +30%", detail:"可容納 50 人；提高築基中期以下修士修練速度三成，築基中期以上無作用。", entry:"無", note:"容納人數：50 人。", costKind:"monthly", monthlyLow:0, monthlyMid:40, active:true, order:40},
+  {id:"master-room", name:"三級練功房", level:"三級練功房", category:"修行", tone:"gold", icon:"bolt", type:"掌門專用", focus:"掌門修練速度 +50%", detail:"可提升掌門修練速度五成。", entry:"掌門鐵板指", note:"建築規格：1 間。", costKind:"monthly", monthlyLow:8000, monthlyMid:0, active:true, order:50},
+  {id:"insight-room", name:"三級參悟室", level:"三級參悟室", category:"修行", tone:"purple", icon:"yinyang", type:"築基參悟", focus:"築基成功機率 +30%", detail:"提升築基成功機率三成。此項為單次使用消耗。", entry:"掌門腰牌、參悟室令牌", note:"建築規格：1 間房間。", costKind:"perUse", monthlyLow:0, monthlyMid:0, perUseMid:5000, active:true, order:60},
+  {id:"scripture-pavilion", name:"三級藏經閣", level:"三級藏經閣", category:"典藏", tone:"gold", icon:"scroll", type:"功法典藏", focus:"每月生成秘笈、丹方、器方與符方", detail:"每月生成高階功法秘笈一本、可修復神通法術功法秘笈一本；每月生成三階丹方、器方、符方各一份；可修復四階丹方、器方、符方與晉國範圍內藏寶圖。", entry:"掌門板指、藏經閣令牌", note:"建築規格：4 間房間。", costKind:"monthly", monthlyLow:0, monthlyMid:400, active:true, order:70},
+  {id:"spirit-field", name:"三級靈田", level:"三級靈田", category:"生產", tone:"jade", icon:"yinyang", type:"農作生產", focus:"生長週期 ×4，每月收穫二次", detail:"建築面積 30 畝；提高農作物生長週期四倍，每個月收穫二次，每次產量九千斤。", entry:"無", note:"建築面積：30 畝。", costKind:"monthly", monthlyLow:0, monthlyMid:10, active:true, order:80},
+  {id:"herb-garden", name:"三級靈藥圃", level:"三級靈藥圃", category:"生產", tone:"jade", icon:"lotus", type:"靈藥培植", focus:"四階以下靈藥生長速度 ×6", detail:"加速四階以下靈藥生長速度六倍；加速四階靈藥生長速度三倍；四階以上無效果。", entry:"掌門腰牌、靈藥圃令牌", note:"建築面積：4 畝。", costKind:"monthly", monthlyLow:0, monthlyMid:50, active:true, order:90},
+  {id:"alchemy-room", name:"三級煉丹房", level:"三級煉丹房", category:"生產", tone:"vermillion", icon:"gourd", type:"煉丹工坊", focus:"四階以下靈丹成丹率 100%", detail:"四階以下靈丹成丹率百分之百；四階靈丹成丹率提升百分之三十；五階靈丹成丹率提升百分之十；五階以上無效果。", entry:"掌門腰牌、煉丹房令牌", note:"建築規格：1 棟房子。", costKind:"monthly", monthlyLow:8000, monthlyMid:0, active:true, order:100},
+  {id:"talisman-room", name:"三級制符室", level:"三級制符室", category:"生產", tone:"gold", icon:"talisman", type:"制符工坊", focus:"四階符咒成功率 +30%", detail:"四階符咒成功率提升三成；五階符咒成功率提升一成；五階以上無效果。", entry:"掌門腰牌、制符室令牌", note:"建築規格：1 棟房子。", costKind:"monthly", monthlyLow:8000, monthlyMid:0, active:true, order:110}
+];
+
+export const BEAST_SEED = [
+  {id:"earth-worm", name:"一階翻土蚯", root:"土", realm:"煉氣期", skill:"很會翻土。蚯蚓不翻土，要幹嘛？", status:"翻土中", element:"earth", icon:"yinyang", active:true, order:10},
+  {id:"patrol-hound", name:"一階巡狩犬", root:"金", realm:"煉氣期", skill:"危險感知。敵人靠近宗門時，發出全山都聽得見的叫聲示警。", status:"巡山中", element:"metal", icon:"shield", active:true, order:20},
+  {id:"treasure-rat", name:"一階尋寶鼠", root:"金", realm:"煉氣期", skill:"可找尋方圓十公尺內天上地下的寶藏。", status:"尋寶中", element:"metal", icon:"spark", active:true, order:30},
+  {id:"herb-rabbit", name:"一階採藥兔", root:"木", realm:"煉氣期", skill:"每日可採集一株稀有靈草。", status:"採藥中", element:"wood", icon:"lotus", active:true, order:40},
+  {id:"sky-crane", name:"一階飛天鶴", root:"風", realm:"築基期", skill:"飛得很快。飛天鶴真的飛得很快。", status:"巡天中", element:"wind", icon:"spark", active:true, order:50},
+  {id:"flame-lion", name:"三階烈焰獅", root:"火", realm:"築基後期", skill:"燒起來了！烈焰獅口中噴火，把三十尺內的獵物都燒起來了。", status:"睡覺中", element:"fire", icon:"gourd", active:true, order:60}
+];
