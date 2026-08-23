@@ -551,6 +551,18 @@
   table.sheet-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
   table.sheet-table input { width: 100%; background: transparent; border: none; color: var(--ink); font-family: inherit; font-size: 14px; padding: 4px; }
   table.sheet-table input:focus { background: var(--paper); outline: none; border-radius: 4px; }
+  #tab-spells .table-scroll{ overflow-x:auto; overflow-y:visible; }
+  #tab-spells table.sheet-table{ min-width:980px; table-layout:fixed; }
+  #tab-spells table.sheet-table th:nth-child(1){ width:22%; }
+  #tab-spells table.sheet-table th:nth-child(2){ width:17%; }
+  #tab-spells table.sheet-table th:nth-child(3){ width:18%; }
+  #tab-spells table.sheet-table th:nth-child(4){ width:27%; }
+  #tab-spells table.sheet-table th:nth-child(5){ width:16%; }
+  #tab-spells table.sheet-table td{ vertical-align:top; white-space:normal; word-break:break-word; overflow-wrap:anywhere; }
+  #tab-spells .spell-cell-text{ min-height:30px; padding:4px; color:var(--ink); font-size:14px; line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; }
+  #tab-spells .spell-cell-text.empty{ color:var(--ink-faint2); }
+  #tab-spells .spell-cell-input{ width:100%; min-height:34px; resize:vertical; overflow:hidden; background:transparent; border:1px solid transparent; border-radius:4px; color:var(--ink); font-family:inherit; font-size:14px; line-height:1.7; padding:4px; }
+  #tab-spells .spell-cell-input:focus{ background:var(--paper); outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
 
   .item-cards { display: grid; grid-template-columns: 1fr; gap: 16px; }
   .item-card { background: var(--paper-2); border: 1px solid var(--border); border-left: 4px solid var(--jade); border-radius: 6px; padding: 16px; position: relative; }
@@ -1893,7 +1905,12 @@
 
   function spellRowHtml(gIdx, rIdx, row, editable){
     row = padRow(row, 5); let tds = "";
-    for(let c=0; c<5; c++){ tds += `<td><input value="${attr(row[c])}" data-sg="${gIdx}" data-sr="${rIdx}" data-sc="${c}" ${editable?"":"disabled"}></td>`; }
+    for(let c=0; c<5; c++){
+      const value = String(row[c] || "");
+      tds += editable
+        ? `<td><textarea class="spell-cell-input" rows="2" data-sg="${gIdx}" data-sr="${rIdx}" data-sc="${c}">${attr(value)}</textarea></td>`
+        : `<td><div class="spell-cell-text${value ? "" : " empty"}">${value ? attr(value) : "—"}</div></td>`;
+    }
     if(editable) tds += `<td><button class="btn-icon" data-action="del-spellrow" data-gidx="${gIdx}" data-ridx="${rIdx}">✕</button></td>`;
     return `<tr>${tds}</tr>`;
   }
