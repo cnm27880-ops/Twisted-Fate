@@ -305,8 +305,7 @@
   .stone-value:focus{ outline:none; border-bottom-color:var(--gold); }
   .stone-value:disabled{ border-bottom-color:transparent; }
 
-  /* 靈石快速增減：卡片下方一排小按鈕，點下去直接套用（不跳二次確認，按錯了
-     按對應的反向數字馬上抵銷即可，靠「復原上一筆」保底） */
+  /* 靈石快速增減：一般庫房調整仍可直接套用；設施月耗則另走確認彈窗。 */
   .stone-quick{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
   .sq-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:5px; }
   .sq-chip{
@@ -606,36 +605,53 @@
   .sd-foot .sd-ts{ margin-right:auto; font-size:11px; color:var(--ink-faint2); letter-spacing:1px; }
 
   /* ===== 宗門設施 ===== */
-  .facility-overview{
-    display:grid; grid-template-columns:minmax(0,1.65fr) minmax(260px,.95fr); gap:16px;
-    margin-bottom:22px;
-  }
-  .facility-hero{
-    position:relative; overflow:hidden; min-height:198px; padding:22px 24px; border-radius:8px;
-    background:linear-gradient(135deg,#18231D 0%,#0B110D 68%,#211A10 100%);
-    border:1px solid var(--gold-deep); color:#F3E8CC;
-    box-shadow:0 8px 22px rgba(0,0,0,.18), inset 0 0 32px rgba(140,107,39,.13);
-  }
+  .facility-overview{ display:grid; grid-template-columns:minmax(0,1.65fr) minmax(280px,.95fr); gap:16px; margin-bottom:22px; }
+  .facility-hero{ position:relative; overflow:hidden; min-height:198px; padding:22px 24px; border-radius:10px; background:linear-gradient(135deg,#18231D 0%,#0B110D 68%,#211A10 100%); border:1px solid var(--gold-deep); color:#F3E8CC; box-shadow:0 8px 22px rgba(0,0,0,.18),inset 0 0 32px rgba(140,107,39,.13); }
   .facility-hero::after{ content:"建"; position:absolute; right:8px; bottom:-48px; font-family:"Zhi Mang Xing",cursive; font-size:210px; line-height:1; color:var(--gold); opacity:.11; pointer-events:none; }
   .facility-kicker{ position:relative; z-index:1; display:flex; align-items:center; gap:8px; color:#C9A75E; font-size:11px; letter-spacing:3px; font-weight:700; }
   .facility-kicker::before{ content:""; width:26px; height:1px; background:var(--gold); }
-  .facility-hero h2{ position:relative; z-index:1; margin:10px 0 5px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:25px; letter-spacing:2px; color:#F8EDD1; }
-  .facility-hero p{ position:relative; z-index:1; max-width:580px; margin:0; font-size:13px; line-height:1.85; color:rgba(232,202,130,.74); }
-  .facility-stats{ position:relative; z-index:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; margin-top:18px; padding-top:13px; border-top:1px solid rgba(232,202,130,.15); }
-  .facility-stat strong{ display:block; font-family:"Noto Serif TC",serif; font-size:22px; line-height:1.1; color:#F3E3BC; }
-  .facility-stat span{ display:block; margin-top:4px; font-size:11px; color:rgba(232,202,130,.58); letter-spacing:1px; }
-  .facility-ledger{
-    padding:18px 20px; border-radius:8px; background:linear-gradient(160deg,var(--paper-2),var(--paper-3));
-    border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,.05);
-  }
+  .facility-hero h2{ position:relative; z-index:1; margin:12px 0 0; font-family:"Noto Serif TC",serif; font-weight:900; font-size:25px; letter-spacing:2px; color:#F8EDD1; }
+  .facility-stats{ position:relative; z-index:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; margin-top:27px; padding-top:14px; border-top:1px solid rgba(232,202,130,.15); }
+  .facility-stat strong{ display:block; font-family:"Noto Serif TC",serif; font-size:23px; line-height:1.1; color:#F3E3BC; }
+  .facility-stat span{ display:block; margin-top:5px; font-size:11px; color:rgba(232,202,130,.58); letter-spacing:1px; }
+  .facility-ledger{ padding:18px 20px; border-radius:10px; background:linear-gradient(160deg,var(--paper-2),var(--paper-3)); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,.05); }
   .facility-ledger-head{ display:flex; align-items:center; gap:8px; color:var(--gold-deep); font-family:"Noto Serif TC",serif; font-weight:900; letter-spacing:2px; }
-  .facility-deduct-row{ display:flex; gap:7px; flex-wrap:wrap; margin-top:13px; }
-  .facility-deduct{ display:inline-flex; align-items:center; gap:5px; border:1px solid rgba(156,43,34,.28); border-radius:4px; padding:6px 8px; background:rgba(156,43,34,.06); color:var(--vermillion-bright); font-family:inherit; font-size:11px; font-weight:700; cursor:pointer; transition:background .18s,border-color .18s,transform .16s; }
-  .facility-deduct:hover{ background:rgba(156,43,34,.13); border-color:var(--vermillion); }
+  .facility-ledger-head svg{ width:17px; height:17px; }
+  .facility-ledger-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:14px; }
+  .facility-cost-metric{ position:relative; padding:10px 11px; border:1px solid rgba(140,107,39,.2); border-radius:6px; background:rgba(255,255,255,.22); }
+  .facility-cost-metric.per-use{ grid-column:1/-1; background:rgba(156,43,34,.045); border-color:rgba(156,43,34,.2); }
+  .facility-cost-metric strong{ display:block; color:var(--ink); font-family:"Noto Serif TC",serif; font-size:21px; line-height:1.15; }
+  .facility-cost-metric span{ display:block; margin-top:4px; color:var(--ink-faint2); font-size:10.5px; letter-spacing:1px; }
+  .facility-deduct-row{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-top:13px; }
+  .facility-deduct{ min-width:0; display:flex; align-items:center; justify-content:center; gap:5px; border:1px solid rgba(156,43,34,.28); border-radius:5px; padding:8px 6px; background:linear-gradient(145deg,rgba(156,43,34,.08),rgba(140,107,39,.06)); color:var(--vermillion-bright); font-family:inherit; font-size:10.5px; font-weight:700; line-height:1.35; cursor:pointer; transition:background .18s,border-color .18s,transform .16s,box-shadow .18s; }
+  .facility-deduct svg{ width:14px; height:14px; flex-shrink:0; }
+  .facility-deduct:hover{ background:linear-gradient(145deg,rgba(156,43,34,.15),rgba(140,107,39,.12)); border-color:var(--vermillion); box-shadow:0 3px 10px rgba(156,43,34,.12); }
   .facility-deduct:active{ transform:scale(.97); }
   .facility-deduct:disabled{ cursor:wait; opacity:.55; }
-  .facility-ledger-head svg{ width:17px; height:17px; }
-  .facility-ledger-count{ margin-left:auto; color:var(--ink-faint2); font-family:inherit; font-size:10px; font-weight:400; letter-spacing:1px; white-space:nowrap; }
+  .facility-ledger-note{ margin-top:11px; font-size:11px; line-height:1.7; color:var(--vermillion-bright); }
+  .facility-confirm-modal{ max-width:470px; text-align:center; }
+  .facility-confirm-crest{ display:flex; align-items:center; justify-content:center; width:58px; height:58px; margin:3px auto 13px; border:1px solid rgba(232,202,130,.55); border-radius:50%; color:#E8CA82; background:radial-gradient(circle,rgba(140,107,39,.42),rgba(9,15,11,.18) 68%); box-shadow:0 0 20px rgba(232,202,130,.14),inset 0 0 14px rgba(232,202,130,.1); }
+  .facility-confirm-crest svg{ width:29px; height:29px; }
+  .facility-confirm-lead{ color:#F8EDD1; font-family:"Noto Serif TC",serif; font-size:17px; font-weight:900; letter-spacing:2px; }
+  .facility-confirm-amount{ margin:13px 0 14px; color:#C9A75E; font-size:12px; line-height:1.8; }
+  .facility-confirm-amount strong{ display:block; color:#F3E3BC; font-family:"Noto Serif TC",serif; font-size:31px; line-height:1.15; text-shadow:0 0 15px rgba(232,202,130,.28); }
+  .facility-confirm-detail{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:12px; padding:10px; border:1px solid rgba(232,202,130,.16); border-radius:5px; background:rgba(0,0,0,.2); color:rgba(232,202,130,.68); font-size:11px; }
+  .facility-confirm-detail b{ display:block; margin-top:3px; color:#F0DCA4; font-family:"Noto Serif TC",serif; font-size:14px; }
+  .qi-spend-overlay{ position:fixed; inset:0; z-index:500; display:flex; align-items:center; justify-content:center; pointer-events:none; animation:qiOverlayIn .18s ease-out forwards; }
+  .qi-spend-card{ position:relative; min-width:260px; padding:22px 28px 20px; overflow:hidden; border:1px solid rgba(232,202,130,.62); border-radius:8px; background:linear-gradient(145deg,rgba(19,29,22,.97),rgba(8,12,10,.98)); box-shadow:0 18px 50px rgba(0,0,0,.46),inset 0 0 32px rgba(140,107,39,.16); text-align:center; animation:qiSpendRise .75s cubic-bezier(.23,1,.32,1) forwards; }
+  .qi-spend-card::before{ content:""; position:absolute; left:-20%; right:-20%; top:50%; height:1px; background:linear-gradient(90deg,transparent,rgba(232,202,130,.75),transparent); box-shadow:0 0 15px rgba(232,202,130,.6); animation:qiSweep 1s ease-out forwards; }
+  .qi-spend-orb{ position:relative; z-index:1; display:flex; align-items:center; justify-content:center; width:50px; height:50px; margin:0 auto 8px; border:1px solid #C9A75E; border-radius:50%; color:#F3E3BC; background:radial-gradient(circle,rgba(232,202,130,.36),rgba(140,107,39,.14) 50%,transparent 72%); box-shadow:0 0 24px rgba(232,202,130,.34); animation:qiOrbPulse .9s ease-out; }
+  .qi-spend-orb svg{ width:25px; height:25px; }
+  .qi-spend-symbol{ position:absolute; z-index:0; top:22px; left:50%; color:rgba(232,202,130,.15); font-family:"Zhi Mang Xing",cursive; font-size:68px; line-height:1; transform:translateX(-50%); }
+  .qi-spend-title{ position:relative; z-index:1; color:#F8EDD1; font-family:"Noto Serif TC",serif; font-size:17px; font-weight:900; letter-spacing:2px; }
+  .qi-spend-copy{ position:relative; z-index:1; margin-top:6px; color:#C9A75E; font-size:11px; letter-spacing:1px; }
+  .qi-spend-copy b{ color:#F0DCA4; font-family:"Noto Serif TC",serif; font-size:16px; }
+  @keyframes qiOverlayIn{ from{opacity:0;} to{opacity:1;} }
+  @keyframes qiSpendRise{ from{ opacity:0; transform:translateY(14px) scale(.96); } to{ opacity:1; transform:none; } }
+  @keyframes qiOrbPulse{ 0%{ transform:scale(.72); box-shadow:0 0 0 rgba(232,202,130,0); } 58%{ transform:scale(1.08); box-shadow:0 0 30px rgba(232,202,130,.6); } 100%{ transform:scale(1); box-shadow:0 0 24px rgba(232,202,130,.34); } }
+  @keyframes qiSweep{ from{ transform:translateX(-45%) scaleX(.4); opacity:0; } 45%{ opacity:1; } to{ transform:translateX(45%) scaleX(1.2); opacity:0; } }
+  @media(prefers-reduced-motion:reduce){ .qi-spend-overlay,.qi-spend-card,.qi-spend-orb,.qi-spend-card::before{ animation:none; } }
+
   .facility-manager{ margin-top:25px; border:1px solid rgba(140,107,39,.32); border-radius:8px; background:linear-gradient(160deg,rgba(140,107,39,.08),rgba(255,255,255,.18)); overflow:hidden; }
   .facility-manager summary{ list-style:none; padding:15px 17px; color:var(--gold-deep); font-family:"Noto Serif TC",serif; font-size:15px; font-weight:900; letter-spacing:1px; cursor:pointer; }
   .facility-manager summary::-webkit-details-marker{ display:none; }
@@ -663,44 +679,31 @@
   .catalog-editor-grid input:focus,.catalog-editor-grid select:focus,.catalog-editor-grid textarea:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.14); }
   .catalog-editor-foot{ display:flex; justify-content:flex-end; gap:7px; margin-top:10px; }
   .catalog-editor-foot .btn{ padding:6px 10px; font-size:11px; }
-  .facility-profile-strip{ position:relative; z-index:1; display:flex; flex-wrap:wrap; align-items:center; gap:6px 11px; margin-top:15px; padding-top:12px; border-top:1px solid rgba(232,202,130,.15); color:rgba(232,202,130,.72); font-size:11.5px; line-height:1.5; }
-  .facility-profile-strip b{ color:#F3E3BC; font-family:"Noto Serif TC",serif; font-size:13px; }
-  .facility-profile-strip .profile-divider{ color:rgba(232,202,130,.26); }
-  .facility-profile-strip .profile-formation{ color:#C9A75E; }
-  .facility-ledger-total{ margin:14px 0 10px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:24px; color:var(--ink); }
-  .facility-ledger-total small{ font-family:inherit; font-weight:400; font-size:12px; color:var(--ink-faint2); margin-left:5px; }
-  .facility-cost-line{ display:flex; justify-content:space-between; gap:8px; padding:7px 0; border-bottom:1px dashed var(--border); font-size:12px; color:var(--ink-faint2); }
-  .facility-cost-line:last-of-type{ border-bottom:none; }
-  .facility-cost-line b{ color:var(--ink-dim); font-family:"Noto Serif TC",serif; }
-  .facility-ledger-note{ margin-top:11px; font-size:11px; line-height:1.7; color:var(--vermillion-bright); }
   .facility-toolbar{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:15px; }
   .facility-toolbar .toolbar-label{ margin-right:3px; color:var(--ink-faint2); font-size:12px; font-weight:700; letter-spacing:1px; }
   .facility-filter{ background:var(--paper-2); border:1px solid var(--border); border-radius:20px; padding:6px 14px; color:var(--ink-faint2); font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:background .18s,border-color .18s,color .18s; }
   .facility-filter:hover{ border-color:var(--gold); background:var(--paper-3); }
   .facility-filter.active{ border-color:var(--vermillion); background:var(--vermillion); color:#F5E9DD; }
-  .facility-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
-  .facility-card{
-    min-width:0; position:relative; display:flex; flex-direction:column; padding:16px 17px 14px; text-align:left;
-    border:1px solid var(--border); border-radius:8px; background:var(--paper-2); color:var(--ink); cursor:pointer;
-    box-shadow:0 3px 10px rgba(0,0,0,.035); transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
-  }
-  .facility-card:hover,.facility-card:focus-visible{ transform:translateY(-2px); border-color:var(--gold); box-shadow:0 8px 20px rgba(0,0,0,.1); outline:none; }
-  .facility-card::before{ content:""; position:absolute; left:0; top:12px; bottom:12px; width:3px; border-radius:0 3px 3px 0; background:var(--gold); }
-  .facility-card.vermillion::before{ background:var(--vermillion); }
-  .facility-card.jade::before{ background:var(--jade); }
-  .facility-card.purple::before{ background:#7C3AED; }
-  .facility-card-head{ display:flex; align-items:center; gap:9px; min-width:0; }
-  .facility-icon{ width:19px; height:19px; flex-shrink:0; color:var(--gold-deep); }
-  .facility-card.jade .facility-icon{ color:var(--jade); }
-  .facility-card.vermillion .facility-icon{ color:var(--vermillion-bright); }
-  .facility-card.purple .facility-icon{ color:#7C3AED; }
-  .facility-level{ font-size:10.5px; color:var(--gold-deep); letter-spacing:1px; white-space:nowrap; }
-  .facility-type{ margin-left:auto; overflow:hidden; color:var(--ink-faint2); font-size:10.5px; white-space:nowrap; text-overflow:ellipsis; }
-  .facility-card h3{ margin:12px 0 5px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:var(--ink); }
-  .facility-focus{ min-height:38px; margin:0; color:var(--ink-dim); font-size:13px; line-height:1.65; }
-  .facility-card-foot{ display:flex; align-items:center; gap:8px; margin-top:13px; padding-top:10px; border-top:1px dashed var(--border); }
+  .facility-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  .facility-card{ --facility-accent:var(--gold); min-width:0; position:relative; display:flex; flex-direction:column; padding:17px 17px 14px; text-align:left; overflow:hidden; border:1px solid color-mix(in srgb,var(--facility-accent) 38%,var(--border)); border-radius:9px; background:linear-gradient(150deg,#F5EBD7 0%,var(--paper-2) 68%,#E4D4B5 100%); color:var(--ink); cursor:pointer; box-shadow:0 5px 14px rgba(67,49,21,.07),inset 0 0 0 2px rgba(255,255,255,.22); transition:transform .2s cubic-bezier(.23,1,.32,1),box-shadow .2s ease,border-color .2s ease; }
+  .facility-card::before{ content:""; position:absolute; left:10px; right:10px; top:0; height:3px; background:linear-gradient(90deg,transparent,var(--facility-accent),transparent); opacity:.85; }
+  .facility-card::after{ content:"令"; position:absolute; right:-7px; bottom:-24px; font-family:"Zhi Mang Xing",cursive; font-size:102px; line-height:1; color:color-mix(in srgb,var(--facility-accent) 28%,transparent); opacity:.18; pointer-events:none; }
+  .facility-card:hover,.facility-card:focus-visible{ transform:translateY(-3px); border-color:var(--facility-accent); box-shadow:0 11px 24px color-mix(in srgb,var(--facility-accent) 18%,rgba(67,49,21,.12)),inset 0 0 0 2px rgba(255,255,255,.3); outline:none; }
+  .facility-card.vermillion{ --facility-accent:var(--vermillion-bright); }
+  .facility-card.jade{ --facility-accent:var(--jade); }
+  .facility-card.purple{ --facility-accent:#7C3AED; }
+  .facility-card-head{ position:relative; z-index:1; display:flex; align-items:flex-start; gap:11px; min-width:0; }
+  .facility-emblem{ display:flex; align-items:center; justify-content:center; width:43px; height:43px; flex-shrink:0; border:1px solid color-mix(in srgb,var(--facility-accent) 60%,#B59B68); border-radius:12px 4px 12px 4px; background:linear-gradient(145deg,rgba(255,255,255,.55),color-mix(in srgb,var(--facility-accent) 12%,transparent)); color:var(--facility-accent); box-shadow:inset 0 0 0 2px rgba(255,255,255,.2),0 3px 8px rgba(67,49,21,.08); }
+  .facility-emblem .facility-icon{ width:23px; height:23px; color:currentColor; }
+  .facility-card-heading{ min-width:0; flex:1; }
+  .facility-card-heading-top{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .facility-category{ display:inline-flex; padding:3px 6px; border:1px solid color-mix(in srgb,var(--facility-accent) 48%,var(--border)); border-radius:2px; color:var(--facility-accent); font-size:10px; font-weight:900; letter-spacing:1px; }
+  .facility-level{ color:var(--ink-faint2); font-size:10.5px; letter-spacing:1px; white-space:nowrap; }
+  .facility-card h3{ margin:8px 0 0; font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; line-height:1.35; color:var(--ink); }
+  .facility-focus{ position:relative; z-index:1; min-height:43px; margin:14px 0 0; color:var(--ink-dim); font-size:13px; line-height:1.7; }
+  .facility-card-foot{ position:relative; z-index:1; display:flex; align-items:center; gap:8px; margin-top:14px; padding-top:10px; border-top:1px dashed color-mix(in srgb,var(--facility-accent) 28%,var(--border)); }
   .facility-cost{ flex:1; color:var(--gold-deep); font-size:11.5px; font-weight:700; line-height:1.5; }
-  .facility-more{ display:inline-flex; align-items:center; gap:3px; flex-shrink:0; color:var(--vermillion-bright); font-size:11px; font-weight:700; }
+  .facility-more{ display:inline-flex; align-items:center; gap:3px; flex-shrink:0; color:var(--facility-accent); font-size:11px; font-weight:900; }
   .facility-more svg{ width:13px; height:13px; }
   .facility-beast-section{ margin-top:28px; padding-top:20px; border-top:2px solid var(--border); }
   .facility-section-head{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:13px; }
@@ -844,8 +847,7 @@
     .catalog-editor-grid label.wide{ grid-column:auto; }
     .catalog-editor-head{ align-items:flex-start; flex-direction:column; }
     .catalog-editor-head span{ margin-left:0; }
-    .facility-ledger-count{ display:none; }
-    .facility-profile-strip{ gap:4px 8px; font-size:11px; }
+    .facility-deduct-row{ grid-template-columns:1fr; }
     .sect-profile-name{ font-size:19px; }
     .sect-profile-edit{ margin-top:8px; }
     .facility-detail-cell.wide{ grid-column:auto; }
@@ -1468,7 +1470,7 @@
     const recent = Object.values(logs)
       .filter(l => l && typeof l === "object")
       .sort((a,b) => num(b.ts) - num(a.ts))
-      .slice(0, 3);
+      .slice(0, 5);
 
     document.getElementById("hallStats").innerHTML = `
       <div class="ledger-head">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
@@ -1566,15 +1568,16 @@
     return list.map(f => `
       <div class="facility-card ${escapeHtml(f.tone || "gold")}" role="button" tabindex="0" data-facility="${attr(f.id)}" aria-label="查看${attr(f.name)}詳情">
         <div class="facility-card-head">
-          ${facilityIcon(f.icon)}
-          <span class="facility-level">${escapeHtml(f.level || "未分級")}</span>
-          <span class="facility-type">${escapeHtml(f.type || f.category || "宗門設施")}</span>
+          <span class="facility-emblem">${facilityIcon(f.icon)}</span>
+          <div class="facility-card-heading">
+            <div class="facility-card-heading-top"><span class="facility-category">${escapeHtml(f.category || "宗門設施")}</span><span class="facility-level">${escapeHtml(f.level || "未分級")}</span></div>
+            <h3>${escapeHtml(f.name || "未命名設施")}</h3>
+          </div>
         </div>
-        <h3>${escapeHtml(f.name || "未命名設施")}</h3>
         <p class="facility-focus">${escapeHtml(f.focus || "尚未填寫功能摘要")}</p>
         <div class="facility-card-foot">
           <span class="facility-cost">${escapeHtml(facilityCostText(f))}</span>
-          <span class="facility-more">詳情 ${SVG.chevronR()}</span>
+          <span class="facility-more">查看令冊 ${SVG.chevronR()}</span>
         </div>
       </div>`).join("");
   }
@@ -1700,7 +1703,6 @@
     const totals = facilityTotals();
     const activeFacilities = currentFacilities();
     const activeBeasts = currentBeasts();
-    const profile = currentSectProfile();
     const editable = canEdit();
     return `
       <div class="block-title">宗門設施<span class="spacer"></span>
@@ -1710,24 +1712,22 @@
         <section class="facility-hero">
           <div class="facility-kicker">宗門建制 · 第三級</div>
           <h2>山門、道場與百工諸房</h2>
-          <div class="facility-profile-strip">
-            <b>${escapeHtml(profile.name)}</b><span class="profile-divider">·</span><span>${escapeHtml(profile.level)}</span><span class="profile-divider">·</span><span>聲望 ${profile.reputation.toLocaleString()}</span><span class="profile-divider">·</span><span class="profile-formation">護山陣：${escapeHtml(profile.guardianFormation)}</span>
-          </div>
           <div class="facility-stats">
             <div class="facility-stat"><strong>${activeFacilities.length}</strong><span>座設施</span></div>
             <div class="facility-stat"><strong>${tokenStock ? num(tokenStock.qty).toLocaleString() : "—"}</strong><span>馭獸令牌庫存</span></div>
           </div>
         </section>
         <aside class="facility-ledger">
-          <div class="facility-ledger-head">${SVG.stone()}<span>每月設施消耗靈石</span><small class="facility-ledger-count">${activeFacilities.length} 座運轉中</small></div>
-          <div class="facility-ledger-total">${totals.low.toLocaleString()} <small>下品靈石／月</small></div>
-          <div class="facility-cost-line"><span>中品靈石／月</span><b>${totals.mid.toLocaleString()} 枚</b></div>
-          <div class="facility-cost-line"><span>下品靈石／月</span><b>${totals.low.toLocaleString()} 枚</b></div>
-          <div class="facility-cost-line"><span>參悟室／次</span><b>${totals.perUseMid.toLocaleString()} 中品</b></div>
+          <div class="facility-ledger-head">${SVG.stone()}<span>每月設施消耗靈石</span></div>
+          <div class="facility-ledger-grid">
+            <div class="facility-cost-metric"><strong>${totals.low.toLocaleString()}</strong><span>下品靈石／月</span></div>
+            <div class="facility-cost-metric"><strong>${totals.mid.toLocaleString()}</strong><span>中品靈石／月</span></div>
+            <div class="facility-cost-metric per-use"><strong>${totals.perUseMid.toLocaleString()}</strong><span>參悟室單次中品靈石</span></div>
+          </div>
           ${editable ? `<div class="facility-deduct-row">
-            <button class="facility-deduct" data-action="facility-deduct" data-stone="mid" data-amount="${totals.mid}" data-label="每月中品設施消耗" ${totals.mid > 0 ? "" : "disabled"}>− 扣中品月耗</button>
-            <button class="facility-deduct" data-action="facility-deduct" data-stone="low" data-amount="${totals.low}" data-label="每月下品設施消耗" ${totals.low > 0 ? "" : "disabled"}>− 扣下品月耗</button>
-            <button class="facility-deduct" data-action="facility-deduct" data-stone="mid" data-amount="${totals.perUseMid}" data-label="參悟室一次消耗" ${totals.perUseMid > 0 ? "" : "disabled"}>− 參悟室扣一次</button>
+            <button class="facility-deduct" data-action="facility-deduct" data-stone="mid" data-amount="${totals.mid}" data-label="每月中品設施消耗" ${totals.mid > 0 ? "" : "disabled"}>${SVG.grant()}<span>結算中品月耗</span></button>
+            <button class="facility-deduct" data-action="facility-deduct" data-stone="low" data-amount="${totals.low}" data-label="每月下品設施消耗" ${totals.low > 0 ? "" : "disabled"}>${SVG.grant()}<span>結算下品月耗</span></button>
+            <button class="facility-deduct" data-action="facility-deduct" data-stone="mid" data-amount="${totals.perUseMid}" data-label="參悟室一次消耗" ${totals.perUseMid > 0 ? "" : "disabled"}>${SVG.grant()}<span>結算參悟一回</span></button>
           </div>` : `<div class="facility-ledger-note">※ 僅天道或授權長老可執行靈石扣除。</div>`}
         </aside>
       </div>
@@ -2828,12 +2828,11 @@
     });
   }
 
-  // 實際套用一筆靈石增減（快速按鈕／自訂輸入都直接呼叫，不再另外跳二次確認——
-  // 按錯了馬上按對應的反向數字就能抵銷，靠下面的「復原上一筆」保底），跟直接改
-  // 數字欄共用同一套 before/after 記錄與日誌格式。
-  async function applyStoneDelta(key, delta){
+  // 實際套用一筆靈石增減；設施結算確認與一般庫房快速增減共用這套 before/after 記錄。
+  async function applyStoneDelta(key, delta, requireFull = false){
     if(!delta) return false;
     const before = num(stones[key]);
+    if(requireFull && delta < 0 && before < Math.abs(delta)) return false;
     const after = Math.max(0, before + delta);
     if(after === before) return false;
     stones[key] = after;
@@ -2846,8 +2845,72 @@
       if(box) box.value = after;
       refreshStoneUndo();
       renderHallStats();
+    } else {
+      // 寫入失敗時把本地暫存值還原，避免確認彈窗關閉後畫面先顯示錯誤餘額。
+      stones[key] = before;
     }
     return ok;
+  }
+  function playFacilitySpendEffect(label, amount, key, balance){
+    const overlay = document.createElement("div");
+    overlay.className = "qi-spend-overlay";
+    overlay.innerHTML = `<div class="qi-spend-card" role="status" aria-live="polite">
+      <span class="qi-spend-symbol">靈</span>
+      <span class="qi-spend-orb">${SVG.stone()}</span>
+      <div class="qi-spend-title">靈石已歸帳</div>
+      <div class="qi-spend-copy">${escapeHtml(label)}　<b>−${amount.toLocaleString()}</b><br>${escapeHtml((STONE_KEYS.find(s => s.k === key) || {}).label || key)}餘額 ${balance.toLocaleString()}</div>
+    </div>`;
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 1500);
+  }
+  function openFacilityDeductConfirm(btn){
+    if(!canEdit()) return;
+    const key = btn.dataset.stone;
+    const amount = Math.max(0, Math.floor(num(btn.dataset.amount)));
+    const label = btn.dataset.label || "設施消耗";
+    if(!amount) return;
+    const before = num(stones[key]);
+    if(before < amount){
+      flash(`${label}不足：目前僅有 ${before.toLocaleString()}，需要 ${amount.toLocaleString()}`, true);
+      return;
+    }
+    const stoneLabel = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
+    openModal(`<div class="facility-confirm-modal">
+      <div class="facility-confirm-crest">${SVG.stone()}</div>
+      <div class="facility-confirm-lead">確認結算宗門靈石</div>
+      <div class="facility-confirm-amount"><strong>−${amount.toLocaleString()}</strong>${escapeHtml(stoneLabel)} · ${escapeHtml(label)}</div>
+      <div class="facility-confirm-detail"><div>扣除前餘額<b>${before.toLocaleString()}</b></div><div>結算後餘額<b>${(before - amount).toLocaleString()}</b></div></div>
+      <div class="modal-sub">靈石將由宗門庫房撥出，並記入近期流水。確認後才會完成扣除。</div>
+      <div class="modal-foot"><button class="btn" data-modal="cancel">暫不結算</button><button class="btn gold" data-modal="submit">${SVG.grant()}落印扣除</button></div>
+    </div>`, el => {
+      el.querySelector('[data-modal="cancel"]').onclick = closeModal;
+      el.querySelector('[data-modal="submit"]').onclick = async submit => {
+        submit.disabled = true;
+        const liveBefore = num(stones[key]);
+        if(liveBefore < amount){
+          closeModal();
+          renderAll(true);
+          flash(`${label}餘額已變動：目前僅有 ${liveBefore.toLocaleString()}，無法結算 ${amount.toLocaleString()}`, true);
+          return;
+        }
+        const ok = await applyStoneDelta(key, -amount, true);
+        if(!ok){
+          if(num(stones[key]) < amount){
+            closeModal();
+            renderAll(true);
+            flash(`${label}餘額已變動，未完成扣除`, true);
+          } else {
+            submit.disabled = false;
+            flash("寫入失敗，請稍後再試", true);
+          }
+          return;
+        }
+        closeModal();
+        playFacilitySpendEffect(label, amount, key, liveBefore - amount);
+        renderAll(true);
+        flash(`已完成：${label} ${amount.toLocaleString()} 枚`, false);
+      };
+    });
   }
 
   function wireEvents(area){
@@ -3100,19 +3163,7 @@
         if(!canEdit()) return;
 
         if(action === "facility-deduct"){
-          const key = btn.dataset.stone;
-          const amount = Math.max(0, Math.floor(num(btn.dataset.amount)));
-          const label = btn.dataset.label || "設施消耗";
-          if(!amount) return;
-          const before = num(stones[key]);
-          if(before < amount){
-            flash(`${label}不足：目前僅有 ${before.toLocaleString()}，需要 ${amount.toLocaleString()}`, true);
-            return;
-          }
-          btn.disabled = true;
-          const ok = await applyStoneDelta(key, -amount);
-          btn.disabled = false;
-          if(ok) flash(`已扣除${label} ${amount.toLocaleString()} 枚`, false);
+          openFacilityDeductConfirm(btn);
           return;
         }
 
@@ -3199,8 +3250,7 @@
           renderHallStats();
         }
 
-        // 靈石快速增減：直接套用，不跳二次確認——按錯了馬上按對應的反向數字
-        // 抵銷就好，二次確認反而妨礙連續點擊；保底靠下面的「復原上一筆」。
+        // 一般靈石快速增減仍直接套用；設施消耗已在上方走確認彈窗。
         if(action === "stone-quick"){
           const key = btn.dataset.stone;
           const delta = parseInt(btn.dataset.delta, 10) || 0;
