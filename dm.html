@@ -108,109 +108,89 @@
 
   .layout{ max-width:1280px; margin:0 auto; padding:30px 20px 100px; position:relative; z-index:1; }
 
-  /* ===== 大色塊標題 ===== */
-  .hall-header{
+  /* ===== 宗門總綱牌匾 (頂部橫幅整合) ===== */
+  .sect-banner{
     background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
-    border:2px solid var(--gold); border-radius:8px; padding:26px 36px; color:var(--paper);
+    border:2px solid var(--gold); border-radius:8px; padding:24px 32px; color:var(--paper);
     margin-bottom:26px; position:relative; overflow:hidden;
     box-shadow:0 10px 30px rgba(0,0,0,.15), inset 0 0 40px rgba(140,107,39,.1);
+    display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
   }
-  .hall-header::after{
-    content:"殿"; position:absolute; right:-16px; top:-46px;
-    font-family:"Zhi Mang Xing",cursive; font-size:230px; color:var(--gold); opacity:.15; pointer-events:none;
+  .sect-banner::after{
+    content:"宗"; position:absolute; right:10%; top:-60px;
+    font-family:"Zhi Mang Xing",cursive; font-size:240px; color:var(--gold); opacity:.08; pointer-events:none;
   }
-  .hall-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:36px; color:#F8EDD1; text-shadow:0 2px 6px rgba(0,0,0,.8); position:relative; z-index:1; }
-  .hall-sub{ margin-top:6px; font-size:14px; color:#E8CA82; letter-spacing:1px; position:relative; z-index:1; }
-  .hall-stats{ margin-top:18px; position:relative; z-index:1; }
+  .sb-left { position:relative; z-index:1; display:flex; flex-direction:column; gap:8px; }
+  .sb-right { position:relative; z-index:1; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
 
-  /* ===== 內務堂：宗門底蘊 ===== */
+  .sb-title-row { display:flex; align-items:baseline; gap:12px; }
+  .sb-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:36px; color:#F8EDD1; text-shadow:0 2px 6px rgba(0,0,0,.8); }
+  .sb-level{
+    padding:2px 8px; border-radius:10px;
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12px; letter-spacing:1px;
+    background:rgba(232,202,130,.14); border:1px solid rgba(232,202,130,.34); color:#F0DCA4; vertical-align:middle;
+  }
+  .sb-sub{ font-size:13px; color:#E8CA82; letter-spacing:1px; }
+
+  .sb-info-group { display:flex; flex-direction:column; gap:4px; border-left:1px dashed rgba(232,202,130,.3); padding-left:16px; }
+  .sb-label{ font-size:11px; letter-spacing:2px; color:#C9A75E; }
+  .sb-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:#F8EDD1; }
+  .sb-value.danger{ color:#FF9E82; text-shadow:0 0 8px rgba(255,158,130,.4); }
+  .sb-cost-row { display:flex; gap:12px; font-size:13px; color:rgba(232,202,130,.8); }
+  .sb-cost-row b { font-family:"Noto Serif TC",serif; color:#F0DCA4; margin-left:4px; font-size:15px; }
+
+  /* ===== 內務堂：靈石與流水 (縮減版) ===== */
   .ledger-head{
     display:flex; align-items:center; gap:9px; margin-bottom:12px;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:#E8CA82;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:var(--ink);
   }
   .ledger-head svg{ width:17px; height:17px; flex-shrink:0; opacity:.9; }
-  .ledger-head .lh-rule{ flex:1; height:1px; background:linear-gradient(90deg,rgba(232,202,130,.36),transparent); }
+  .ledger-head .lh-rule{ flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
   
-  .top-panels { display: flex; flex-direction: column; gap: 14px; }
-  
-  .sect-banner{
-    display:flex; flex-wrap:wrap; align-items:center; gap:16px 22px;
-    padding:13px 18px; border-radius:5px;
-    background:linear-gradient(150deg, rgba(31,26,18,.94) 0%, rgba(11,9,6,.96) 100%);
-    border:1px solid var(--gold-deep);
-    box-shadow:inset 0 0 24px rgba(140,107,39,.16), 0 4px 14px rgba(0,0,0,.34);
-    transition:border-color .45s ease, box-shadow .45s ease;
-  }
-  .sect-banner.alarm{ border-color:rgba(200,70,52,.55); box-shadow:inset 0 0 26px rgba(140,30,22,.24), 0 4px 16px rgba(0,0,0,.4); }
-  .sb-main{ display:flex; align-items:center; gap:12px; flex-shrink:0; }
-  .sb-sigil{ width:34px; height:34px; flex-shrink:0; color:rgba(201,167,94,.85); }
-  .sb-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:21px; color:#F8EDD1; line-height:1.2; }
-  .sb-level{
-    margin-left:8px; padding:2px 8px; border-radius:10px; vertical-align:middle;
-    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:11.5px; letter-spacing:1px;
-    background:rgba(232,202,130,.14); border:1px solid rgba(232,202,130,.34); color:#F0DCA4;
-  }
-  .sb-formation{ margin-top:3px; font-size:11.5px; letter-spacing:2px; color:rgba(232,202,130,.68); }
-  .sb-cells{ display:flex; flex-wrap:wrap; gap:10px 22px; flex:1; min-width:0; }
-  .sb-cell{ min-width:78px; }
-  .sb-cell.wide{ min-width:130px; }
-  .sb-label{ font-size:10.5px; letter-spacing:3px; color:#C9A75E; }
-  .sb-value{ margin-top:3px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; color:#F8EDD1; line-height:1.25; }
-  .sb-value.danger{ color:#FF9E82; }
-  .sb-note{ margin-top:2px; font-size:10.5px; color:rgba(232,202,130,.55); }
-  .sb-cost{ margin-top:4px; font-size:12px; color:rgba(232,202,130,.75); line-height:1.8; }
-  .sb-cost span{ display:inline-block; margin-right:11px; white-space:nowrap; }
-  .sb-cost b{ color:#F0DCA4; font-family:"Noto Serif TC",serif; margin-left:4px; }
-  .sb-enemies{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; width:100%; padding-top:10px; border-top:1px dashed rgba(232,202,130,.16); }
-  .sb-enemies .sb-label{ margin-right:5px; }
-  .sb-foe{
-    padding:2px 9px; border-radius:3px; font-size:11.5px;
-    background:rgba(156,43,34,.22); border:1px solid rgba(222,139,119,.42); color:#F0BCAF;
-  }
-
-  .ledger{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .ledger{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; margin-bottom: 24px; }
   @media(max-width:800px){ .ledger{ grid-template-columns:1fr; } }
   .ledger-panel{
     position:relative; overflow:hidden; padding:14px 17px 15px; border-radius:5px;
-    background:linear-gradient(150deg, rgba(21,28,23,.94) 0%, rgba(7,11,9,.96) 100%);
-    border:1px solid var(--gold-deep);
-    box-shadow:inset 0 0 24px rgba(140,107,39,.13), 0 4px 14px rgba(0,0,0,.34);
-    transition:box-shadow .45s ease, border-color .45s ease;
+    background:linear-gradient(150deg, rgba(21,28,23,.03) 0%, rgba(7,11,9,.05) 100%);
+    border:1px solid var(--border);
+    box-shadow:inset 0 0 24px rgba(140,107,39,.03);
   }
-  .ledger-panel::after{
-    content:""; position:absolute; inset:3px; border:1px solid rgba(232,202,130,.12);
-    border-radius:3px; pointer-events:none;
-  }
-  .lp-head{ display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:3px; color:#C9A75E; margin-bottom:9px; }
+  .lp-head{ display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:3px; color:var(--gold-deep); margin-bottom:9px; font-weight:700; }
   .lp-head svg{ width:14px; height:14px; flex-shrink:0; }
 
   .lp-stone{ display:flex; align-items:center; gap:13px; }
-  .stone-sigil{ width:44px; height:44px; flex-shrink:0; color:#8FE3C0; animation:stoneBreath 4.6s ease-in-out infinite; }
-  @keyframes stoneBreath{
-    0%,100%{ opacity:.68; filter:drop-shadow(0 0 3px rgba(143,227,192,.28)); }
-    50%{ opacity:1; filter:drop-shadow(0 0 11px rgba(143,227,192,.7)); }
-  }
-  .lp-total{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:31px; line-height:1.12; color:#F8EDD1; text-shadow:0 0 16px rgba(232,202,130,.3); }
-  .lp-total .lp-unit{ font-family:inherit; font-weight:400; font-size:12px; letter-spacing:2px; color:#C9A75E; margin-left:6px; }
-  .lp-breakdown{ margin-top:8px; font-size:11.5px; color:rgba(232,202,130,.7); line-height:1.9; }
+  .stone-sigil{ width:44px; height:44px; flex-shrink:0; color:var(--jade); opacity:0.8; }
+  .lp-total{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:31px; line-height:1.12; color:var(--ink); }
+  .lp-total .lp-unit{ font-family:inherit; font-weight:400; font-size:12px; letter-spacing:2px; color:var(--ink-faint2); margin-left:6px; }
+  .lp-breakdown{ margin-top:8px; font-size:11.5px; color:var(--ink-dim); line-height:1.9; }
   .lp-breakdown span{ display:inline-block; margin-right:11px; white-space:nowrap; }
-  .lp-breakdown b{ color:#F0DCA4; font-family:"Noto Serif TC",serif; margin-left:3px; }
+  .lp-breakdown b{ color:var(--ink); font-family:"Noto Serif TC",serif; margin-left:3px; }
 
-  .lp-talisman{ display:flex; gap:13px; align-items:flex-start; }
-  .talisman-sigil{ width:36px; height:50px; flex-shrink:0; color:rgba(201,167,94,.75); }
-  .ledger-panel.alarm{ border-color:rgba(200,70,52,.55); box-shadow:inset 0 0 26px rgba(140,30,22,.25), 0 4px 16px rgba(0,0,0,.4); }
-  .ledger-panel.alarm .talisman-sigil{ color:#E8654B; animation:talismanPulse 2.6s ease-in-out infinite; }
+  .lp-flow{ margin:0; padding:0; list-style:none; }
+  .lp-flow li{
+    display:flex; gap:9px; align-items:baseline; padding:6px 0; font-size:12.5px; line-height:1.65;
+    color:var(--ink-dim); border-bottom:1px dashed var(--border);
+  }
+  .lp-flow li:last-child{ border-bottom:none; }
+  .lf-time{ font-size:10.5px; color:var(--ink-faint2); flex-shrink:0; font-family:"Noto Serif TC",serif; }
+  .lf-actor{ color:var(--vermillion); flex-shrink:0; font-weight: 700; }
+  .lf-text{ flex:1; }
+  .lf-delta{ font-family:"Noto Serif TC",serif; font-weight:900; }
+  .lf-delta.plus{ color:var(--jade); } .lf-delta.minus{ color:var(--vermillion-bright); }
+  .lp-empty{ font-size:12px; color:var(--ink-faint2); padding:10px 0; line-height:1.8; }
+
+  .lp-talisman{ display:flex; gap:13px; align-items:flex-start; padding: 12px 16px; background: rgba(156,43,34,.05); border: 1px solid rgba(156,43,34,.2); border-radius: 6px; margin-bottom: 24px; }
+  .talisman-sigil{ width:30px; height:30px; flex-shrink:0; color:var(--vermillion-bright); animation:talismanPulse 2.6s ease-in-out infinite; }
   @keyframes talismanPulse{
     0%,100%{ filter:drop-shadow(0 0 2px rgba(232,101,75,.35)); opacity:.85; }
-    50%{ filter:drop-shadow(0 0 13px rgba(232,101,75,.95)); opacity:1; }
+    50%{ filter:drop-shadow(0 0 8px rgba(232,101,75,.6)); opacity:1; }
   }
-  .lp-alert{ font-size:13px; line-height:1.85; color:#F0DCA4; }
-  .lp-alert .urgent{ color:#F8D4C6; }
-  .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:18px; color:#FF9E82; margin:0 4px; }
-  .lp-alert .lp-more{ display:block; margin-top:5px; font-size:11.5px; color:rgba(232,202,130,.62); }
-  .lp-alert.quiet{ font-size:12.5px; color:rgba(232,202,130,.62); }
+  .lp-alert{ font-size:13px; line-height:1.85; color:var(--ink); flex:1; }
+  .lp-alert .urgent{ color:var(--vermillion-bright); font-weight:700; }
+  .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:16px; color:var(--vermillion-bright); margin:0 4px; }
+  .lp-alert .lp-more{ display:block; margin-top:2px; font-size:12px; color:var(--ink-dim); }
 
-  /* ===== 山門殿宇分頁 ===== */
+  /* ===== 山門殿宇分頁 (圖紙風) ===== */
   .sect-form{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px 16px; margin-bottom:6px; }
   .sf-field{ display:flex; flex-direction:column; gap:4px; }
   .sf-field.wide{ grid-column:span 2; }
@@ -223,90 +203,89 @@
   .sf-field input:focus, .sf-field input:hover{ outline:none; border-bottom-color:var(--gold); }
   .sf-field input:disabled{ color:var(--ink-dim); }
 
-  .upkeep-box{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:16px 18px; }
-  .uk-row{ display:flex; flex-wrap:wrap; gap:18px 34px; align-items:flex-start; }
-  .uk-cell{ min-width:170px; }
-  .uk-cell.act{ margin-left:auto; display:flex; flex-direction:column; align-items:flex-start; gap:7px; }
-  .uk-label{ font-size:11px; letter-spacing:3px; color:var(--ink-faint2); margin-bottom:5px; }
-  .uk-value{ font-size:14px; color:var(--ink); line-height:1.7; }
-  .uk-value b{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--gold-deep); margin:0 3px; }
-  .uk-value span{ display:inline-block; margin-right:12px; white-space:nowrap; }
-  .uk-value.danger b{ color:var(--vermillion-bright); }
-  .uk-note{ margin-top:4px; font-size:11.5px; color:var(--ink-faint2); line-height:1.7; max-width:340px; }
-  .uk-once{ margin-top:16px; padding-top:14px; border-top:1px dashed var(--border); }
-  .uk-once-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:6px 0; }
-  .uk-once-name{ font-family:"Noto Serif TC",serif; font-weight:700; color:var(--ink); }
-  .uk-once-cost{ font-size:13px; color:var(--gold-deep); font-weight:700; }
+  .upkeep-box{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:16px 18px; display:flex; flex-wrap:wrap; align-items:center; gap:20px; justify-content:space-between; }
+  .uk-once-list { display:flex; gap:12px; flex-wrap:wrap; flex:1; }
+  .uk-once-row{ display:flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--border); padding:6px 12px; border-radius:20px; }
+  .uk-once-name{ font-family:"Noto Serif TC",serif; font-weight:700; color:var(--ink); font-size:13px; }
+  .uk-once-cost{ font-size:12px; color:var(--gold-deep); font-weight:700; }
+  .uk-btn-area { display:flex; gap:10px; }
 
-  .facility-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
+  .facility-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; align-items:start; }
   .facility-card{
-    display:flex; flex-direction:column; gap:12px;
-    background:var(--paper-2); border:1px solid var(--border); border-radius:4px; padding:20px 20px 16px;
+    display:flex; flex-direction:column;
+    background:var(--paper-2); border:1px solid var(--border); border-radius:4px; padding:24px 20px 16px;
     position:relative; box-shadow:0 4px 10px rgba(0,0,0,.03);
   }
+  /* 圖紙底紋 */
   .facility-card::before{
     content:""; position:absolute; inset:6px; border:1px solid rgba(140,107,39,.15);
     border-radius:2px; pointer-events:none;
   }
-  .fc-head{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
-  .fc-level{
-    flex:0 0 auto; width:auto; min-width:44px; text-align:center; padding:3px 8px; border-radius:3px;
-    background:rgba(184,58,44,.08); border:1px solid var(--vermillion-bright); color:var(--vermillion-bright);
-    font-family:"Noto Serif TC",serif; font-size:12px; font-weight:900; letter-spacing:2px; transform:rotate(-4deg);
-    transition:transform .2s, border-color .2s;
+  .fc-head{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; margin-bottom:12px; }
+  /* 赤紅印章風格等級 */
+  .fc-level-seal{
+    position:absolute; top:-12px; left:-12px; width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent; border:2px solid var(--vermillion-bright); border-radius:4px;
+    color:var(--vermillion-bright); font-family:"Ma Shan Zheng",cursive; font-size:16px;
+    transform:rotate(-8deg); z-index:2; opacity:0.85; cursor:pointer;
   }
-  .fc-level:focus{ transform:rotate(0deg); outline:none; background:rgba(184,58,44,.15); }
+  .fc-level-seal input {
+    background:transparent; border:none; width:100%; text-align:center; color:inherit;
+    font-family:inherit; font-size:inherit; padding:0; cursor:pointer;
+  }
+  .fc-level-seal input:focus { outline:none; }
   .fc-name{
     flex:1; min-width:0; background:transparent; border:none; border-bottom:1px solid transparent;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); padding:2px 0;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); padding:2px 0; margin-left: 28px;
     transition:border-color .2s;
   }
   .fc-name:focus, .fc-name:hover{ outline:none; border-bottom-color:var(--gold); }
-  .fc-del-btn{ position:absolute; top:-6px; right:-6px; opacity:.5; transition:opacity .2s; }
+  .fc-del-btn{ position:absolute; top:-6px; right:-6px; opacity:.5; transition:opacity .2s; z-index:3; }
   .facility-card:hover .fc-del-btn{ opacity:1; }
   
   .fc-spec input{
     width:100%; background:transparent; border:none; border-bottom:1px solid transparent;
-    font-family:inherit; font-size:13px; color:var(--ink-faint2); padding:3px 0; transition:border-color .2s;
+    font-family:inherit; font-size:13px; color:var(--ink-faint2); padding:3px 0; margin-bottom:8px; transition:border-color .2s; position:relative; z-index:1;
   }
   .fc-spec input:focus, .fc-spec input:hover{ outline:none; border-bottom-color:rgba(140,107,39,.4); }
   
-  .fc-cap{ display:flex; align-items:center; gap:9px; position:relative; z-index:1; margin-top:4px; }
-  .fc-cap-track{ flex:1; height:6px; background:rgba(0,0,0,.08); border-radius:3px; overflow:hidden; }
-  .fc-cap-bar{ height:100%; background:linear-gradient(90deg,var(--jade),#5FA98C); }
+  /* 水墨風容量條 */
+  .fc-cap{ display:flex; align-items:center; gap:9px; position:relative; z-index:1; margin-bottom:12px; }
+  .fc-cap-track{ flex:1; height:4px; background:transparent; border-bottom:1px dashed rgba(45,90,76,.3); position:relative; }
+  .fc-cap-bar{ position:absolute; left:0; top:-1px; height:3px; background:var(--jade); border-radius:2px; box-shadow:0 0 4px rgba(45,90,76,.4); }
   .fc-cap-text{ font-size:11.5px; font-weight:700; color:var(--jade); white-space:nowrap; }
   
   .fc-fn{
     width:100%; min-height:60px; resize:none; overflow:hidden; background:transparent; border:none;
-    font-family:inherit; font-size:14px; line-height:1.75; color:var(--ink); padding:0; position:relative; z-index:1;
+    font-family:inherit; font-size:14px; line-height:1.75; color:var(--ink); padding:0; margin-bottom:12px; position:relative; z-index:1;
   }
   .fc-fn:focus{ outline:none; }
   
   .fc-limit-btn{
     align-self:flex-start; background:transparent; border:none; color:var(--gold-deep); font-size:12px;
-    font-weight:700; cursor:pointer; padding:0; opacity:.7; transition:opacity .2s; position:relative; z-index:1;
+    font-weight:700; cursor:pointer; padding:0; opacity:.7; transition:opacity .2s; position:relative; z-index:1; margin-bottom:12px;
   }
   .fc-limit-btn:hover{ opacity:1; }
-  .fc-limit-box{ display:none; flex-direction:column; gap:6px; position:relative; z-index:1; margin-top:4px; padding:10px; background:rgba(140,107,39,.05); border-radius:4px; }
+  .fc-limit-box{ display:none; flex-direction:column; gap:6px; position:relative; z-index:1; margin-bottom:12px; padding:10px; background:rgba(140,107,39,.05); border-radius:4px; border-left:2px solid var(--gold); }
   .fc-limit-box.show{ display:flex; }
-  .fc-limit-tag{ align-self:flex-start; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; letter-spacing:1px; background:var(--vermillion); color:#F8EDD1; }
+  .fc-limit-tag{ font-size:11px; font-weight:700; letter-spacing:1px; color:var(--gold-deep); }
   .fc-limit-box textarea{
     width:100%; min-height:40px; resize:none; overflow:hidden; background:transparent; border:none;
     font-family:inherit; font-size:13px; line-height:1.7; color:var(--ink-dim); padding:0;
   }
   .fc-limit-box textarea:focus{ outline:none; }
   
-  .fc-foot{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:auto; padding-top:14px; position:relative; z-index:1; }
+  .fc-foot{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:auto; padding-top:14px; position:relative; z-index:1; border-top:1px dashed var(--border); }
   .fc-tag{
-    display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:700;
-    background:var(--paper); border:1px solid rgba(140,107,39,.3); color:var(--ink-dim);
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--ink-dim);
   }
   .fc-tag select, .fc-tag input{
     background:transparent; border:none; font-family:inherit; font-size:12px; font-weight:700; color:var(--gold-deep); padding:0; text-align:center;
   }
   .fc-tag select:focus, .fc-tag input:focus{ outline:none; }
   .fc-tag input{ width:40px; border-bottom:1px dashed var(--gold); }
-  .fc-tag svg{ width:12px; height:12px; color:var(--gold-deep); }
+  .fc-tag svg{ width:14px; height:14px; color:var(--gold-deep); }
   
   /* ===== 頁籤 ===== */
   .tabs{ display:flex; gap:8px; border-bottom:3px solid var(--gold-deep); margin-bottom:24px; overflow-x:auto; scrollbar-width:none; }
@@ -509,89 +488,79 @@
   }
   .filter-select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
 
-  /* ===== 萬獸園 ===== */
-  .beast-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
+  /* ===== 萬獸園 (五行玉牌風) ===== */
+  .beast-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
   .beast-card{
-    background:var(--paper-2); border:1px solid var(--border); border-radius:8px;
-    overflow:hidden; position:relative; box-shadow:0 4px 12px rgba(0,0,0,.04);
+    background:linear-gradient(160deg, rgba(28,35,30,0.9), rgba(10,15,12,0.95));
+    border:1px solid var(--beast-color); border-radius:6px;
+    overflow:hidden; position:relative; padding:16px 18px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
   }
-  .beast-head{
-    padding:14px 16px; position:relative; display:flex; align-items:center; gap:12px;
-    border-bottom:3px solid var(--beast-color);
-  }
-  .beast-head::before{
+  .beast-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 0 24px rgba(0,0,0,0.5); }
+  
+  /* 靈根光暈與底紋 */
+  .beast-card::before{
     content:""; position:absolute; inset:0; z-index:0;
-    background:linear-gradient(135deg, var(--ink), #2A2520); opacity:.95;
+    background: radial-gradient(circle at top right, var(--beast-color), transparent 60%); opacity:0.1; pointer-events:none;
   }
-  .beast-head::after{
-    content:attr(data-root); position:absolute; right:-10px; top:-20px; z-index:0;
-    font-family:"Zhi Mang Xing",cursive; font-size:100px; color:var(--beast-color); opacity:.15; pointer-events:none;
+  .beast-card::after{
+    content:attr(data-root); position:absolute; right:10px; bottom:-10px; z-index:0;
+    font-family:"Zhi Mang Xing",cursive; font-size:140px; color:var(--beast-color); opacity:0.06; pointer-events:none;
   }
-  .beast-name-wrap{ position:relative; z-index:1; flex:1; min-width:0; }
+  
+  .beast-head{ position:relative; z-index:1; display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .beast-name-wrap{ flex:1; min-width:0; }
   .beast-name{
-    width:100%; background:transparent; border:none; color:#F8EDD1;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; padding:0; margin-bottom:2px;
+    width:100%; background:transparent; border:none; color:#F3E8CC;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; padding:0; text-shadow:0 1px 4px rgba(0,0,0,.8);
   }
   .beast-name:focus{ outline:none; border-bottom:1px solid var(--beast-color); }
-  .beast-realm{ font-size:12.5px; color:var(--beast-color); letter-spacing:1px; }
   
-  .beast-body{ padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
-  .beast-skill-box{
-    background:rgba(0,0,0,.04); border:1px dashed var(--border); border-radius:6px;
-    padding:12px 14px; position:relative;
+  /* 境界與狀態木籤 */
+  .beast-tags { display:flex; gap:8px; margin-top:4px; }
+  .beast-realm{
+    background:rgba(0,0,0,0.4); border:1px solid rgba(232,202,130,0.2); border-radius:3px;
+    padding:2px 8px; font-size:11px; color:#C9A75E; letter-spacing:1px; text-align:center;
   }
-  .beast-skill-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:14px; color:var(--beast-color); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
-  .beast-skill-title::before{ content:""; display:block; width:4px; height:12px; background:var(--beast-color); border-radius:2px; }
-  .beast-skill-desc{ width:100%; background:transparent; border:none; resize:none; overflow:hidden; font-family:inherit; font-size:13px; line-height:1.7; color:var(--ink-dim); padding:0; }
+  .beast-status {
+    background:rgba(232,202,130,0.1); border:1px solid rgba(232,202,130,0.3); border-radius:3px;
+    padding:2px 8px; font-size:11px; color:#F0DCA4; letter-spacing:1px; flex:1; text-align:center;
+  }
+  .beast-realm:focus, .beast-status:focus { outline:none; border-color:var(--beast-color); }
+
+  .beast-body{ position:relative; z-index:1; margin-top:16px; }
+  
+  /* 本命神通框 */
+  .beast-skill-box{ position:relative; padding:12px; text-align:center; }
+  .beast-skill-box::before, .beast-skill-box::after {
+    content: "《"; position:absolute; top:50%; transform:translateY(-50%);
+    font-family:"Noto Serif TC",serif; font-size:24px; color:var(--beast-color); opacity:0.6;
+  }
+  .beast-skill-box::before { left: 0; }
+  .beast-skill-box::after { content: "》"; right: 0; }
+  
+  .beast-skill-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:12px; color:var(--beast-color); margin-bottom:4px; letter-spacing:2px; }
+  .beast-skill-desc{
+    width:calc(100% - 40px); margin:0 auto; background:transparent; border:none; resize:none; overflow:hidden;
+    font-family:"LXGW WenKai TC",serif; font-size:14px; line-height:1.7; color:#DCCFA8; padding:0; text-align:center;
+  }
   .beast-skill-desc:focus{ outline:none; }
   
-  .beast-meta{ display:flex; gap:10px; flex-wrap:wrap; }
-  .beast-meta select, .beast-meta input{
-    background:var(--paper); border:1px solid var(--border); border-radius:4px; padding:5px 8px;
-    font-family:inherit; font-size:12.5px; color:var(--ink);
-  }
-  .beast-meta select:focus, .beast-meta input:focus{ outline:none; border-color:var(--gold); }
-  .beast-del{ position:absolute; top:8px; right:8px; z-index:2; color:rgba(255,255,255,.4); background:transparent; border:none; cursor:pointer; padding:4px; border-radius:50%; line-height:0; }
+  .beast-del{ position:absolute; top:12px; right:12px; z-index:2; color:rgba(232,202,130,0.4); background:transparent; border:none; cursor:pointer; padding:4px; border-radius:50%; line-height:0; transition:color 0.2s; }
   .beast-del svg{ width:16px; height:16px; }
-  .beast-del:hover{ background:rgba(255,255,255,.1); color:#ff8a80; }
+  .beast-del:hover{ color:#ff8a80; }
 
-  /* ===== 多寶閣卡片 ===== */
-  .treasure-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; }
-  .treasure-card{
-    background:var(--paper-2); border:1px solid var(--border); border-left:5px solid var(--gold);
-    border-radius:8px; padding:0; overflow:hidden; position:relative;
-    box-shadow:0 4px 10px rgba(0,0,0,.04);
+  /* 隱藏原生 select 的外觀，使其更像一個純文字標籤 */
+  .beast-root-select {
+    position: absolute; opacity: 0; width: 40px; height: 30px; top: 12px; left: 12px; cursor: pointer; z-index: 2;
   }
-  .treasure-head{ background:linear-gradient(135deg,var(--ink),#2A2520); padding:14px 16px; position:relative; }
-  .treasure-name{
-    width:100%; background:transparent; border:none; color:#F8EDD1;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; padding:0;
-    text-shadow:0 1px 4px rgba(0,0,0,.8);
-  }
-  .treasure-name:focus{ outline:none; border-bottom:1px solid var(--gold); }
-  .treasure-quote{
-    width:100%; background:transparent; border:none; color:#E8CA82; font-family:inherit;
-    font-size:12.5px; font-style:italic; padding:4px 0 0; margin-top:2px;
-  }
-  .treasure-quote:focus{ outline:none; border-bottom:1px dashed rgba(232,202,130,.5); }
-  .treasure-meta{ display:flex; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-  .treasure-meta select, .treasure-meta input{
-    background:var(--paper); border:1px solid var(--border); border-radius:4px; padding:4px 8px;
-    font-family:inherit; font-size:12.5px; color:var(--ink-dim); font-weight:700;
-  }
-  .treasure-body{ padding:12px 16px; }
-  .tf-row{ margin-bottom:10px; }
-  .tf-label{ display:block; font-size:11.5px; font-weight:700; color:var(--gold-deep); letter-spacing:1px; margin-bottom:3px; }
-  .tf-input{
-    width:100%; background:var(--paper); border:1px solid var(--border); border-radius:5px;
-    padding:7px 10px; font-family:inherit; font-size:13.5px; color:var(--ink); line-height:1.7; resize:vertical;
-  }
-  .tf-input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
-  .treasure-del{ position:absolute; top:12px; right:12px; color:rgba(245,233,221,.6); z-index:2; }
-  .treasure-del:hover{ color:#ff8a80; }
-  .rank-tag{
-    display:inline-block; padding:2px 10px; border-radius:3px; font-size:11.5px; font-weight:900;
-    background:var(--gold-deep); color:var(--paper); letter-spacing:1px;
+  .beast-root-display {
+    position: absolute; top: 12px; left: 12px; z-index: 1; width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--beast-color); border-radius: 50%;
+    color: var(--beast-color); font-family: "Ma Shan Zheng", cursive; font-size: 14px;
+    pointer-events: none;
   }
 
   /* ===== 本命玉牌殿 ===== */
@@ -858,16 +827,8 @@
   </div>
 </nav>
 
-<div class="layout">
-  <div class="hall-header">
-    <div class="hall-title">宗門大殿</div>
-    <div class="hall-sub">內務堂總帳 · 庫房、卷宗與本命玉牌即時同步</div>
-    <div class="hall-stats" id="hallStats"></div>
-  </div>
-
-  <div id="mainArea">
-    <div class="notice info" id="loadingNotice">連線中……</div>
-  </div>
+<div class="layout" id="mainArea">
+  <div class="notice info" id="loadingNotice" style="margin-top: 40px;">連線中……</div>
 </div>
 
 <div class="save-status" id="saveStatus">已自動儲存</div>
@@ -1152,7 +1113,9 @@
     grip: cls => svg(`<path d="M9.2 6.4h.01M9.2 12h.01M9.2 17.6h.01M14.8 6.4h.01M14.8 12h.01M14.8 17.6h.01"/>`, cls),
     vault: cls => svg(`<path d="M3.6 9.4 12 3.6l8.4 5.8"/><path d="M5.4 9.4v10.4h13.2V9.4"/><path d="M9.6 19.8v-5.6h4.8v5.6"/>`, cls),
     gate: cls => svg(`<path d="M2.6 7.4h18.8"/><path d="M4.6 5.2h14.8"/><path d="M5.8 7.4v13M18.2 7.4v13"/><path d="M9.4 7.4v13M14.6 7.4v13"/><path d="M2.8 20.4h18.4"/>`, cls),
-    token: cls => svg(`<rect x="6.4" y="3.2" width="11.2" height="17.6" rx="2.2"/><path d="M9.4 7.6h5.2M9.4 11h5.2"/><circle cx="12" cy="16.2" r="1.6"/>`, cls)
+    token: cls => svg(`<rect x="6.4" y="3.2" width="11.2" height="17.6" rx="2.2"/><path d="M9.4 7.6h5.2M9.4 11h5.2"/><circle cx="12" cy="16.2" r="1.6"/>`, cls),
+    eye: cls => svg(`<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>`, cls),
+    book: cls => svg(`<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>`, cls)
   };
   const CRACK_SVG = `<svg class="jt-crack" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M0 28 13 39 7 54l12 11"/><path d="M100 24 88 35l6 15-10 11"/><path d="M41 100 47 88l-7-9"/><path d="M8 0l6 13"/></svg>`;
 
@@ -1241,7 +1204,6 @@
       paint(area, `<div class="notice info">連線中……</div>`);
       return;
     }
-    renderHallStats();
 
     const ae = document.activeElement;
     const typing = !!ae && area.contains(ae) && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT");
@@ -1251,6 +1213,7 @@
     const changed = paint(area, `
       ${sandboxBannerHtml()}
       ${adminNoticeHtml()}
+      ${sectBannerHtml()}
       <div class="tabs">
         <button class="tab-btn" data-tab="tab-sect">【山門殿宇】</button>
         <button class="tab-btn" data-tab="tab-warehouse">【宗門庫房】</button>
@@ -1301,84 +1264,6 @@
     return Object.entries(itemRequests)
       .filter(([,r]) => r && typeof r === "object")
       .sort((a,b) => num(a[1].ts) - num(b[1].ts));
-  }
-
-  function renderHallStats(){
-    const items = Object.values(warehouse);
-    const stoneTotal = STONE_KEYS.reduce((s,x) => s + num(stones[x.k]), 0);
-    const stoneParts = STONE_KEYS
-      .map(s => `<span>${escapeHtml(s.label.replace("靈石",""))}<b>${num(stones[s.k]).toLocaleString()}</b></span>`)
-      .join("");
-
-    const recent = Object.values(logs)
-      .filter(l => l && typeof l === "object")
-      .sort((a,b) => num(b.ts) - num(a.ts))
-      .slice(0, 3);
-
-    const reqCount = pendingRequests().length;
-    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
-    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
-    const wounded = Object.values(chars).filter(c => {
-      const mx = num(c.hp && c.hp.max);
-      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
-    }).length;
-
-    const notes = [];
-    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已然見底`);
-    if(lowStock > 0) notes.push(`${lowStock} 項物資存量不足三份`);
-    if(wounded > 0) notes.push(`${wounded} 名弟子本命玉牌將裂`);
-
-    const alarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
-    const alertBody = reqCount > 0
-      ? `<div class="lp-alert"><span class="urgent">長老請注意：有</span><b>${reqCount}</b><span class="urgent">筆調用申請待批核</span>
-           ${notes.length ? `<span class="lp-more">另：${escapeHtml(notes.join("、"))}。</span>` : ""}</div>`
-      : (notes.length
-          ? `<div class="lp-alert"><span class="urgent">內務堂稟報：</span>${escapeHtml(notes.join("、"))}，宜早作打算。</div>`
-          : `<div class="lp-alert quiet">符紙靜默，四下無事。庫房充盈，弟子安康。</div>`);
-
-    paint(document.getElementById("hallStats"), `
-      <div class="top-panels">
-        ${sectBannerHtml()}
-        <div>
-          <div class="ledger-head">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
-          <div class="ledger">
-            <div class="ledger-panel">
-              <div class="lp-head">${SVG.stone()}<span>靈石庫藏</span></div>
-              <div class="lp-stone">
-                ${SVG.stone("stone-sigil")}
-                <div>
-                  <div class="lp-total">${stoneTotal.toLocaleString()}<span class="lp-unit">枚</span></div>
-                  <div class="lp-breakdown">${stoneParts}</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="ledger-panel">
-              <div class="lp-head">${SVG.scroll()}<span>近期流水</span></div>
-              ${recent.length === 0
-                ? `<div class="lp-empty">帳冊尚無墨跡，庫房未見進出。</div>`
-                : `<ul class="lp-flow">${recent.map(l => {
-                    const d = num(l.delta);
-                    return `<li>
-                      <span class="lf-time">${fmtLogTime(l.ts)}</span>
-                      <span class="lf-actor">${escapeHtml(l.actor || "無名")}</span>
-                      <span class="lf-text">${escapeHtml(l.text || "")}</span>
-                      ${d ? `<span class="lf-delta ${d > 0 ? "plus" : "minus"}">${d > 0 ? "+" : ""}${d.toLocaleString()}</span>` : ""}
-                    </li>`;
-                  }).join("")}</ul>`}
-            </div>
-
-            <div class="ledger-panel${alarm ? " alarm" : ""}">
-              <div class="lp-head">${SVG.talisman()}<span>傳音警訊</span></div>
-              <div class="lp-talisman">
-                ${SVG.talisman("talisman-sigil")}
-                ${alertBody}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `);
   }
 
   function sandboxOptInHtml(){
@@ -1501,27 +1386,59 @@
     const left = monthsLeft();
     const lowOnStones = left && left.months <= 2;
     const enemies = sectEnemies();
+    
+    // 警訊計算
+    const items = Object.values(warehouse);
+    const reqCount = pendingRequests().length;
+    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
+    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
+    const wounded = Object.values(chars).filter(c => {
+      const mx = num(c.hp && c.hp.max);
+      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
+    }).length;
+
+    const notes = [];
+    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已見底`);
+    if(lowStock > 0) notes.push(`${lowStock} 項物資不足三份`);
+    if(wounded > 0) notes.push(`${wounded} 名弟子玉牌將裂`);
+    
+    const hasAlarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
+    
     return `
-      <div class="sect-banner${lowOnStones ? " alarm" : ""}">
-        <div class="sb-main">
-          ${SVG.gate("sb-sigil")}
-          <div>
-            <div class="sb-name">${escapeHtml(sectField("name", "本門"))}<span class="sb-level">${escapeHtml(sectField("level", "－"))}</span></div>
-            <div class="sb-formation">護山大陣 ${escapeHtml(sectField("formation", "－"))}</div>
+      <div class="sect-banner">
+        <div class="sb-left">
+          <div class="sb-title-row">
+            ${SVG.gate("sb-sigil")}
+            <span class="sb-name">${escapeHtml(sectField("name", "本門"))}</span>
+            <span class="sb-level">${escapeHtml(sectField("level", "－"))}</span>
+          </div>
+          <div class="sb-sub">護山大陣：${escapeHtml(sectField("formation", "－"))}</div>
+          ${enemies.length ? `<div class="sb-sub" style="margin-top:4px;">敵對勢力：${enemies.map(e => escapeHtml(e)).join("、")}</div>` : ""}
+        </div>
+        
+        <div class="sb-right">
+          <div class="sb-info-group">
+            <span class="sb-label">門派聲望</span>
+            <span class="sb-value">${num(sectField("reputation", 0)).toLocaleString()}</span>
+          </div>
+          <div class="sb-info-group">
+            <span class="sb-label">殿宇建築</span>
+            <span class="sb-value">${facilityEntries().length} 座</span>
+          </div>
+          <div class="sb-info-group">
+            <span class="sb-label">每月開銷</span>
+            <span class="sb-cost-row">${costText}</span>
+          </div>
+          <div class="sb-info-group">
+            <span class="sb-label">庫存可支撐</span>
+            <span class="sb-value ${lowOnStones || hasAlarm ? "danger" : ""}">${left === null ? "－" : left.months.toLocaleString() + " 個月"}</span>
+            <span class="sb-cost-row" style="font-size:11px; margin-top:2px;">
+              ${hasAlarm ? `<b style="color:#FF9E82; margin-left:0;">內務堂有警訊！</b>` : (left === null ? "" : `${escapeHtml(gradeShort(left.key))}最先見底`)}
+            </span>
           </div>
         </div>
-        <div class="sb-cells">
-          <div class="sb-cell"><div class="sb-label">門派聲望</div><div class="sb-value">${num(sectField("reputation", 0)).toLocaleString()}</div></div>
-          <div class="sb-cell"><div class="sb-label">殿宇建築</div><div class="sb-value">${facilityEntries().length}</div></div>
-          <div class="sb-cell wide"><div class="sb-label">每月開銷</div><div class="sb-cost">${costText}</div></div>
-          <div class="sb-cell wide"><div class="sb-label">庫存可支撐</div>
-            <div class="sb-value ${lowOnStones ? "danger" : ""}">${left === null ? "－" : left.months.toLocaleString() + " 個月"}</div>
-            ${left === null ? "" : `<div class="sb-note">${escapeHtml(gradeShort(left.key))}最先見底</div>`}
-          </div>
-        </div>
-        ${enemies.length ? `<div class="sb-enemies"><span class="sb-label">敵對勢力</span>${
-          enemies.map(e => `<span class="sb-foe">${escapeHtml(e)}</span>`).join("")}</div>` : ""}
-      </div>`;
+      </div>
+    `;
   }
 
   function beastEntries(){
@@ -1565,7 +1482,7 @@
 
       <div class="block-title" style="margin-top:30px;">本月開銷結算<span class="spacer"></span></div>
       <div class="upkeep-box">
-        <div class="uk-row">
+        <div class="uk-row" style="flex:1;">
           <div class="uk-cell">
             <div class="uk-label">每月固定開銷</div>
             <div class="uk-value">${STONE_KEYS.filter(x => monthNeed[x.k] > 0)
@@ -1577,21 +1494,24 @@
               left === null ? "－" : `<b>${left.months.toLocaleString()}</b> 個月`}</div>
             ${left === null ? "" : `<div class="uk-note">${escapeHtml(gradeLabel(left.key))}庫存 ${left.have.toLocaleString()}，每月要用 ${left.per.toLocaleString()}，最先見底</div>`}
           </div>
-          ${editable ? `<div class="uk-cell act">
-            <button class="btn gold" data-action="settle-upkeep">結算本月設施消耗</button>
-            ${lastSettle ? `<button class="btn" data-action="undo-settle" style="font-size:12px;padding:5px 10px;">↩ 撤銷「${escapeHtml(lastSettle.label)}」</button>` : ""}
-            <div class="uk-note">按下去會直接從庫藏扣除上面的數額，並在流水帳留一筆；扣錯了可以馬上按撤銷。</div>
-          </div>` : ""}
         </div>
-        ${onceList.length ? `<div class="uk-once">
-          <div class="uk-label">用一次扣一次</div>
+        ${editable ? `<div class="uk-btn-area">
+          <button class="btn gold" data-action="settle-upkeep">結算本月設施消耗</button>
+          ${lastSettle ? `<button class="btn" data-action="undo-settle" style="font-size:12px;padding:5px 10px;">↩ 撤銷「${escapeHtml(lastSettle.label)}」</button>` : ""}
+        </div>` : ""}
+      </div>
+      
+      ${onceList.length ? `
+      <div class="upkeep-box" style="margin-top:12px; padding: 12px 18px;">
+        <div class="uk-label" style="margin-bottom:0; min-width:100px;">用一次扣一次</div>
+        <div class="uk-once-list">
           ${onceList.map(([id,f]) => `<div class="uk-once-row">
             <span class="uk-once-name">${escapeHtml(f.name || "未命名建築")}</span>
             <span class="uk-once-cost">${escapeHtml(gradeShort(f.upkeepGrade))} ${num(f.upkeepQty).toLocaleString()}</span>
-            ${editable ? `<button class="btn" data-action="settle-once" data-id="${id}">開啟一次並扣除</button>` : ""}
+            ${editable ? `<button class="btn-icon" data-action="settle-once" data-id="${id}" title="開啟一次並扣除" style="margin-left:4px; color:var(--jade);">${SVG.grant()}</button>` : ""}
           </div>`).join("")}
-        </div>` : ""}
-      </div>
+        </div>
+      </div>` : ""}
 
       <div class="block-title" style="margin-top:30px;">殿宇建築<span class="spacer"></span>
         ${editable ? `<button class="btn gold" data-action="add-facility">＋ 新建殿宇</button>` : ""}
@@ -1622,8 +1542,12 @@
     return `
       <div class="facility-card">
         ${editable ? `<button class="btn-icon fc-del-btn" data-action="del-facility" data-id="${id}" title="拆除">${SVG.cross()}</button>` : ""}
+        
+        <label class="fc-level-seal" title="${editable ? '修改等級' : '等級'}">
+          <input data-f="${id}" data-prop="level" value="${attr(f.level)}" placeholder="等級" ${dis}>
+        </label>
+        
         <div class="fc-head">
-          <input class="fc-level" data-f="${id}" data-prop="level" value="${attr(f.level)}" placeholder="等級" ${dis}>
           <input class="fc-name" data-f="${id}" data-prop="name" value="${attr(f.name)}" placeholder="建築名稱" ${dis}>
         </div>
         <div class="fc-spec">
@@ -1638,7 +1562,7 @@
         ${limit || editable ? `
           <button type="button" class="fc-limit-btn" data-action="toggle-limit" data-id="${id}" style="${limit ? 'display:none;' : ''}">＋ 寫入限制與要求</button>
           <div class="fc-limit-box ${limit ? 'show' : ''}" id="limit-box-${id}">
-            <span class="fc-limit-tag">限制</span>
+            <span class="fc-limit-tag">限制與要求</span>
             <textarea class="auto-resize" data-f="${id}" data-prop="limit" placeholder="寫入限制或升級要求" ${dis}>${attr(limit)}</textarea>
           </div>
         ` : ""}
@@ -1666,17 +1590,20 @@
     return `
       <div class="beast-card" style="--beast-color: ${color};" data-root="${root}">
         ${editable ? `<button class="beast-del" data-action="del-beast" data-id="${id}" title="移除">${SVG.cross()}</button>` : ""}
+        
+        <label class="beast-root-display" title="靈根：${attr(b.root)}">${root}</label>
+        ${editable ? `<input class="beast-root-select" data-b="${id}" data-prop="root" value="${attr(b.root)}" title="修改靈根">` : ""}
+
         <div class="beast-head">
           <div class="beast-name-wrap">
             <input class="beast-name" data-b="${id}" data-prop="name" value="${attr(b.name)}" placeholder="靈獸名稱" ${dis}>
-            <input class="beast-realm" data-b="${id}" data-prop="realm" value="${attr(b.realm)}" placeholder="境界（例：煉氣期）" ${dis}>
+            <div class="beast-tags">
+              <input class="beast-realm" data-b="${id}" data-prop="realm" value="${attr(b.realm)}" placeholder="境界" ${dis}>
+              <input class="beast-status" data-b="${id}" data-prop="status" value="${attr(b.status)}" placeholder="目前狀態" ${dis}>
+            </div>
           </div>
         </div>
         <div class="beast-body">
-          <div class="beast-meta">
-            <input data-b="${id}" data-prop="root" value="${attr(b.root)}" placeholder="靈根" style="width:60px; text-align:center;" ${dis}>
-            <input data-b="${id}" data-prop="status" value="${attr(b.status)}" placeholder="目前狀態（例：正在睡覺）" style="flex:1;" ${dis}>
-          </div>
           <div class="beast-skill-box">
             <div class="beast-skill-title">本命神通</div>
             <textarea class="beast-skill-desc auto-resize" data-b="${id}" data-prop="skill" placeholder="神通描述" ${dis}>${attr(b.skill)}</textarea>
@@ -1715,8 +1642,79 @@
   }
 
   function warehouseHtml(editable){
+    const items = Object.values(warehouse);
+    const stoneTotal = STONE_KEYS.reduce((s,x) => s + num(stones[x.k]), 0);
+    const stoneParts = STONE_KEYS
+      .map(s => `<span>${escapeHtml(s.label.replace("靈石",""))}<b>${num(stones[s.k]).toLocaleString()}</b></span>`)
+      .join("");
+    
+    const recent = Object.values(logs)
+      .filter(l => l && typeof l === "object")
+      .sort((a,b) => num(b.ts) - num(a.ts))
+      .slice(0, 3);
+      
+    const reqCount = pendingRequests().length;
+    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
+    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
+    const wounded = Object.values(chars).filter(c => {
+      const mx = num(c.hp && c.hp.max);
+      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
+    }).length;
+
+    const notes = [];
+    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已見底`);
+    if(lowStock > 0) notes.push(`${lowStock} 項物資不足三份`);
+    if(wounded > 0) notes.push(`${wounded} 名弟子玉牌將裂`);
+
+    const alarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
+    const alertBody = reqCount > 0
+      ? `<div class="lp-alert"><span class="urgent">長老請注意：有</span><b>${reqCount}</b><span class="urgent">筆調用申請待批核</span>
+           ${notes.length ? `<span class="lp-more">另：${escapeHtml(notes.join("、"))}。</span>` : ""}</div>`
+      : (notes.length
+          ? `<div class="lp-alert"><span class="urgent">內務堂稟報：</span>${escapeHtml(notes.join("、"))}，宜早作打算。</div>`
+          : `<div class="lp-alert quiet">符紙靜默，四下無事。庫房充盈，弟子安康。</div>`);
+
     return `
-      <div class="block-title">靈石總帳<span class="spacer"></span>
+      <div class="ledger-head" style="margin-top:8px;">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
+      <div class="ledger">
+        <div class="ledger-panel">
+          <div class="lp-head">${SVG.stone()}<span>靈石庫藏</span></div>
+          <div class="lp-stone">
+            ${SVG.stone("stone-sigil")}
+            <div>
+              <div class="lp-total">${stoneTotal.toLocaleString()}<span class="lp-unit">枚</span></div>
+              <div class="lp-breakdown">${stoneParts}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ledger-panel">
+          <div class="lp-head">${SVG.scroll()}<span>近期流水</span></div>
+          ${recent.length === 0
+            ? `<div class="lp-empty">帳冊尚無墨跡，庫房未見進出。</div>`
+            : `<ul class="lp-flow">${recent.map(l => {
+                const d = num(l.delta);
+                return `<li>
+                  <span class="lf-time">${fmtLogTime(l.ts)}</span>
+                  <span class="lf-actor">${escapeHtml(l.actor || "無名")}</span>
+                  <span class="lf-text">${escapeHtml(l.text || "")}</span>
+                  ${d ? `<span class="lf-delta ${d > 0 ? "plus" : "minus"}">${d > 0 ? "+" : ""}${d.toLocaleString()}</span>` : ""}
+                </li>`;
+              }).join("")}</ul>`}
+        </div>
+
+        <div class="ledger-panel${alarm ? " alarm" : ""}" style="grid-column: 1 / -1; padding: 12px 18px;">
+          <div class="lp-talisman" style="margin-bottom:0; padding:0; background:transparent; border:none;">
+            ${SVG.talisman("talisman-sigil")}
+            <div style="display:flex; flex-direction:column; justify-content:center;">
+               <div class="lp-head" style="margin-bottom:2px; color:var(--vermillion-bright);">傳音警訊</div>
+               ${alertBody}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="block-title">靈石操作<span class="spacer"></span>
         <span id="stoneUndoSlot">${stoneUndoBtnHtml()}</span>
         ${editable ? `<span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">可直接改數字，或用卡片下方按鈕快速增減</span>` : ""}
       </div>
@@ -2057,6 +2055,8 @@
 
     if(charList.length === 0) return `<div class="notice info" style="font-weight:400;">尚無角色卡資料，天機閣無法進行推演。</div>`;
 
+    const pct = (cur, mx) => { const c = num(cur), m = num(mx); return m <= 0 ? null : Math.max(0, Math.min(100, c/m*100)); };
+
     const topQi = [...charList].filter(c => num(c.qi?.max) > 0).sort((a,b) => num(b.qi?.max) - num(a.qi?.max)).slice(0, 5);
     
     // 宗門百藝榜
@@ -2358,7 +2358,7 @@
         const reason = (reasonEl.value || "").trim();
         if(!c){ flash("找不到該角色卡", true); return; }
         if(qty <= 0){ flash("請填寫正確的數量", true); qtyEl.focus(); return; }
-        if(qty > stock && !confirm(`庫房現存僅 ${stock} 份，仍要提出 ${qty} 份的申請嗎？`)) return;
+        if(qty > stock && !confirm("庫房現存僅 " + stock + " 份，仍要提出 " + qty + " 份的申請嗎？")) return;
         if(!reason){ flash("請寫下申請理由，長老才好定奪", true); reasonEl.focus(); return; }
 
         const r = push(dref("itemRequests"));
@@ -2440,7 +2440,7 @@
       const holder = String(tre.holder || "").trim();
       const charName = req.charName || "未命名角色";
       if(holder && holder !== charName &&
-         !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。\n\n仍要改賜給「${charName}」嗎？`)) return;
+         !confirm("【" + (tre.name || req.itemName) + "】目前記在「" + holder + "」名下。\n\n仍要改賜給「" + charName + "」嗎？")) return;
 
       const charSnap = await get(dref("characters/" + req.charId));
       const char = charSnap.val();
@@ -2497,7 +2497,7 @@
       if(!item){ alert(`庫房已無【${req.itemName || "此物資"}】，無法賜下。`); return; }
       const have = num(item.qty);
       if(have < qty){
-        alert(`庫存不足，無法賜下。\n\n【${item.name || req.itemName}】現存 ${have}，申請 ${qty}。`);
+        alert("庫存不足，無法賜下。\n\n【" + (item.name || req.itemName) + "】現存 " + have + "，申請 " + qty + "。");
         return;
       }
 
@@ -2646,7 +2646,7 @@
     const rows = isRoster ? pendingRoster() : pendingWarehouse();
     const noun = isRoster ? "位弟子" : "項物資";
     if(rows.length === 0){ flash(isRoster ? "花名冊已經是最新的了" : "倉儲已經是最新的了", false); return; }
-    if(!confirm(`要匯入 ${rows.length} ${noun}嗎？\n\n已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
+    if(!confirm("要匯入 " + rows.length + " " + noun + "嗎？\n\n已存在的條目會自動略過，現有資料不會被覆蓋。")) return;
 
     const payload = {};
     rows.forEach(row => { payload[push(dref(kind === "roster" ? "roster" : "warehouse")).key] = row; });
@@ -2867,7 +2867,7 @@
       const handler = () => {
         if(beasts[id]) beasts[id][prop] = input.value;
         scheduleSave(`beasts/${id}/${prop}`, input.value);
-        if(prop === 'root') renderAll(false);
+        if(prop === 'root') renderAll(false); 
       };
       input.oninput = handler;
     });
@@ -3150,10 +3150,10 @@
         if(action === "del-facility"){
           const id = btn.dataset.id;
           const f = (facilityEntries().find(([k]) => k === id) || [])[1] || {};
-          if(!confirm(`確定拆除「${f.name || "此建築"}」？`
+          if(!confirm("確定拆除「" + (f.name || "此建築") + "」？\n\n"
             + (isSeedFacility(id)
-                ? "\n\n這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
-                : "\n\n這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
+                ? "這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
+                : "這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
           if(isSeedFacility(id)){
             facilityEdits[id] = { removed: true };
             await writeNow("facilities/" + id, { removed: true });
@@ -3209,8 +3209,8 @@
         }
         if(action === "undo-settle"){
           if(!lastSettle) return;
-          if(!confirm(`撤銷「${lastSettle.label}」？\n\n${lastSettle.entries
-            .map(e => `${gradeLabel(e.key)} ${num(stones[e.key]).toLocaleString()} ➔ ${e.before.toLocaleString()}`).join("\n")}`)) return;
+          if(!confirm("撤銷「" + lastSettle.label + "」？\n\n" + lastSettle.entries
+            .map(e => `${gradeLabel(e.key)} ${num(stones[e.key]).toLocaleString()} ➔ ${e.before.toLocaleString()}`).join("\n"))) return;
           for(const e of lastSettle.entries){
             stones[e.key] = e.before;
             await writeNow("stones/" + e.key, e.before);
