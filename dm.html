@@ -123,7 +123,7 @@
   .hall-sub{ margin-top:6px; font-size:14px; color:#E8CA82; letter-spacing:1px; position:relative; z-index:1; }
   .hall-stats{ margin-top:18px; position:relative; z-index:1; }
 
-  /* ===== 內務堂：宗門底蘊 (精簡版) ===== */
+  /* ===== 內務堂：宗門底蘊 ===== */
   .ledger-head{
     display:flex; align-items:center; gap:9px; margin-bottom:12px;
     font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:#E8CA82;
@@ -131,7 +131,6 @@
   .ledger-head svg{ width:17px; height:17px; flex-shrink:0; opacity:.9; }
   .ledger-head .lh-rule{ flex:1; height:1px; background:linear-gradient(90deg,rgba(232,202,130,.36),transparent); }
   
-  /* 山門橫幅與底蘊面板併攏 */
   .top-panels { display: flex; flex-direction: column; gap: 14px; }
   
   .sect-banner{
@@ -211,7 +210,7 @@
   .lp-alert .lp-more{ display:block; margin-top:5px; font-size:11.5px; color:rgba(232,202,130,.62); }
   .lp-alert.quiet{ font-size:12.5px; color:rgba(232,202,130,.62); }
 
-  /* ===== 山門殿宇分頁 (圖紙風) ===== */
+  /* ===== 山門殿宇分頁 ===== */
   .sect-form{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px 16px; margin-bottom:6px; }
   .sf-field{ display:flex; flex-direction:column; gap:4px; }
   .sf-field.wide{ grid-column:span 2; }
@@ -245,13 +244,11 @@
     background:var(--paper-2); border:1px solid var(--border); border-radius:4px; padding:20px 20px 16px;
     position:relative; box-shadow:0 4px 10px rgba(0,0,0,.03);
   }
-  /* 圖紙底紋 */
   .facility-card::before{
     content:""; position:absolute; inset:6px; border:1px solid rgba(140,107,39,.15);
     border-radius:2px; pointer-events:none;
   }
   .fc-head{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
-  /* 赤紅印章風格等級 */
   .fc-level{
     flex:0 0 auto; width:auto; min-width:44px; text-align:center; padding:3px 8px; border-radius:3px;
     background:rgba(184,58,44,.08); border:1px solid var(--vermillion-bright); color:var(--vermillion-bright);
@@ -300,7 +297,6 @@
   .fc-limit-box textarea:focus{ outline:none; }
   
   .fc-foot{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:auto; padding-top:14px; position:relative; z-index:1; }
-  /* 竹簡小標籤取代下拉選單 */
   .fc-tag{
     display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:700;
     background:var(--paper); border:1px solid rgba(140,107,39,.3); color:var(--ink-dim);
@@ -474,7 +470,6 @@
   .board-card { background: var(--paper-2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   .board-head { padding: 12px 16px; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 16px; display: flex; align-items: center; gap: 8px; letter-spacing: 1px; }
   .board-head.qi { background: linear-gradient(135deg, #1A2E26 0%, #091410 100%); color: #A6F0CA; border-bottom: 2px solid var(--jade); }
-  .board-head.hp { background: linear-gradient(135deg, #3A1C1A 0%, #1A0A09 100%); color: #F0B3A6; border-bottom: 2px solid var(--vermillion); }
   .board-head.good { background: linear-gradient(135deg, #352B18 0%, #17120A 100%); color: #F3E3BC; border-bottom: 2px solid #C8A035; }
   .board-head.bad { background: linear-gradient(135deg, #2D1A3A 0%, #13091A 100%); color: #D8BCF3; border-bottom: 2px solid #7C3AED; }
   .board-head.treasure { background: linear-gradient(135deg, #3A3228 0%, #18140E 100%); color: #E8CA82; border-bottom: 2px solid var(--gold-deep); }
@@ -866,7 +861,7 @@
 <div class="layout">
   <div class="hall-header">
     <div class="hall-title">宗門大殿</div>
-    <div class="hall-sub">內務堂總帳　·　庫房、卷宗與本命玉牌即時同步</div>
+    <div class="hall-sub">內務堂總帳 · 庫房、卷宗與本命玉牌即時同步</div>
     <div class="hall-stats" id="hallStats"></div>
   </div>
 
@@ -886,7 +881,20 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, get, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  import { ROSTER_SEED, WAREHOUSE_SEED, SECT_SEED, FACILITY_SEED, BEAST_SEED } from "./seed-data.js";
+  import * as SEED_DATA from "./seed-data.js";
+
+  const ROSTER_SEED = SEED_DATA.ROSTER_SEED || [];
+  const WAREHOUSE_SEED = SEED_DATA.WAREHOUSE_SEED || [];
+  const SECT_SEED = SEED_DATA.SECT_SEED || {};
+  const FACILITY_SEED = SEED_DATA.FACILITY_SEED || [];
+  const BEAST_SEED = SEED_DATA.BEAST_SEED || [
+    { id: "beast_1", name: "一階翻土蚯", root: "土", realm: "煉氣期", status: "翻土中", skill: "很會翻土。蚯蚓不翻土，要幹嘛？" },
+    { id: "beast_2", name: "一階巡狩犬", root: "金", realm: "煉氣期", status: "巡山中", skill: "危險感知。敵人靠近宗門時，發出全山都聽得見的叫聲示警。" },
+    { id: "beast_3", name: "一階尋寶鼠", root: "金", realm: "煉氣期", status: "尋寶中", skill: "可找尋方圓十公尺內天上地下的寶藏。" },
+    { id: "beast_4", name: "一階採藥兔", root: "木", realm: "煉氣期", status: "採藥中", skill: "每日可採集一株稀有靈草。" },
+    { id: "beast_5", name: "一階飛天鶴", root: "風", realm: "築基期", status: "盤旋中", skill: "飛得很快。飛天鶴真的飛得很快。" },
+    { id: "beast_6", name: "三階烈焰獅", root: "火", realm: "築基後期", status: "守護陣眼", skill: "燒起來了！烈焰獅口中噴火，把三十尺內的獵物都燒起來了。" }
+  ];
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -918,7 +926,7 @@
   let itemRequests = {};    
   let tabletOrder = [];     
   let facilityEdits = {};
-  let beasts = {};          // 新增靈獸資料
+  let beasts = {};          
   let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false, beasts:false };
   let syncError = null;
 
@@ -962,6 +970,12 @@
     "暗": "#453A2A",
     "光": "#F5E9DD"
   };
+
+  function countBy(list, fn){
+    const out = {};
+    list.forEach(item => { const k = (fn(item) || "").trim() || "未記錄"; out[k] = (out[k] || 0) + 1; });
+    return out;
+  }
 
   function discordLogin(){
     const url = new URL("https://discord.com/oauth2/authorize");
@@ -1138,9 +1152,7 @@
     grip: cls => svg(`<path d="M9.2 6.4h.01M9.2 12h.01M9.2 17.6h.01M14.8 6.4h.01M14.8 12h.01M14.8 17.6h.01"/>`, cls),
     vault: cls => svg(`<path d="M3.6 9.4 12 3.6l8.4 5.8"/><path d="M5.4 9.4v10.4h13.2V9.4"/><path d="M9.6 19.8v-5.6h4.8v5.6"/>`, cls),
     gate: cls => svg(`<path d="M2.6 7.4h18.8"/><path d="M4.6 5.2h14.8"/><path d="M5.8 7.4v13M18.2 7.4v13"/><path d="M9.4 7.4v13M14.6 7.4v13"/><path d="M2.8 20.4h18.4"/>`, cls),
-    token: cls => svg(`<rect x="6.4" y="3.2" width="11.2" height="17.6" rx="2.2"/><path d="M9.4 7.6h5.2M9.4 11h5.2"/><circle cx="12" cy="16.2" r="1.6"/>`, cls),
-    eye: cls => svg(`<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>`, cls),
-    book: cls => svg(`<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>`, cls)
+    token: cls => svg(`<rect x="6.4" y="3.2" width="11.2" height="17.6" rx="2.2"/><path d="M9.4 7.6h5.2M9.4 11h5.2"/><circle cx="12" cy="16.2" r="1.6"/>`, cls)
   };
   const CRACK_SVG = `<svg class="jt-crack" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M0 28 13 39 7 54l12 11"/><path d="M100 24 88 35l6 15-10 11"/><path d="M41 100 47 88l-7-9"/><path d="M8 0l6 13"/></svg>`;
 
@@ -1222,8 +1234,7 @@
     const area = document.getElementById("mainArea");
 
     if(syncError){
-      paint(area, `<div class="notice">連線失敗：${escapeHtml(syncError.message || String(syncError))}<br>
-        請確認 Firebase 匿名登入已啟用，且 Realtime Database 規則允許讀寫。</div>`);
+      paint(area, `<div class="notice">連線失敗：${escapeHtml(syncError.message || String(syncError))}<br>請確認 Firebase 匿名登入已啟用，且 Realtime Database 規則允許讀寫。</div>`);
       return;
     }
     if(!(loaded.warehouse && loaded.roster && loaded.treasury && loaded.chars && loaded.admins && loaded.beasts)){
@@ -1374,8 +1385,7 @@
     if(!sandboxOwnerLoaded) return "";
     if(!sandboxOwner){
       return `<div class="notice sandbox-optin">
-        <b>沙盒模式</b>：想在正式取得授權前，先試用天道功能？可以啟用一份跟真實資料完全隔離的沙盒
-        （所有讀寫都在你自己的副本上，不會動到宗門的真實帳目），僅限你自己使用。
+        <b>沙盒模式</b>：想在正式取得授權前，先試用天道功能？可以啟用一份跟真實資料完全隔離的沙盒（所有讀寫都在你自己的副本上，不會動到宗門的真實帳目），僅限你自己使用。
         <div style="margin-top:8px;"><button class="btn jade" data-action="claim-sandbox">啟用沙盒模式</button></div>
       </div>`;
     }
@@ -1497,7 +1507,7 @@
           ${SVG.gate("sb-sigil")}
           <div>
             <div class="sb-name">${escapeHtml(sectField("name", "本門"))}<span class="sb-level">${escapeHtml(sectField("level", "－"))}</span></div>
-            <div class="sb-formation">護山大陣　${escapeHtml(sectField("formation", "－"))}</div>
+            <div class="sb-formation">護山大陣 ${escapeHtml(sectField("formation", "－"))}</div>
           </div>
         </div>
         <div class="sb-cells">
@@ -1959,7 +1969,7 @@
 
   const ROSTER_SORTERS = (() => {
     const byName = (a, b) => String(a[1].name || "").localeCompare(String(b[1].name || ""), "zh-Hant");
-    const jobKey = m => String(m.job || "").trim() || "￿";
+    const jobKey = m => String(m.job || "").trim() || "\uFFFF";
     const byRealm = dir => (a, b) => {
       const x = realmScore(memberRealm(a[1])), y = realmScore(memberRealm(b[1]));
       if(x === y) return byName(a, b);
@@ -2047,14 +2057,9 @@
 
     if(charList.length === 0) return `<div class="notice info" style="font-weight:400;">尚無角色卡資料，天機閣無法進行推演。</div>`;
 
-    const pct = (cur, mx) => { const c = num(cur), m = num(mx); return m <= 0 ? null : Math.max(0, Math.min(100, c/m*100)); };
-
-    const lowHp = charList.map(c => ({ c, p: pct(c.hp && c.hp.current, c.hp && c.hp.max) }))
-      .filter(x => x.p != null && x.p <= 30).sort((a,b) => a.p - b.p);
-
     const topQi = [...charList].filter(c => num(c.qi?.max) > 0).sort((a,b) => num(b.qi?.max) - num(a.qi?.max)).slice(0, 5);
     
-    // 宗門百藝榜 (取代命懸一線)
+    // 宗門百藝榜
     const topJobs = countBy(rosterList, m => m.job);
     const jobArray = Object.entries(topJobs)
       .filter(([k]) => k !== "未記錄" && k)
@@ -2164,7 +2169,7 @@
           <span class="jt-realm">${escapeHtml(c.realm || "－")}</span>
         </div>
         <div class="jt-meta">${escapeHtml([c.race, c.path, c.job].filter(Boolean).join(" · ") || "－")}
-          ${c.player ? `　<span class="jt-player">${escapeHtml(c.player)}</span>` : ""}</div>
+          ${c.player ? ` <span class="jt-player">${escapeHtml(c.player)}</span>` : ""}</div>
 
         <div class="jt-line hp">
           <div class="jt-line-label">
@@ -2321,12 +2326,11 @@
 
     openModal(`
       <div class="modal-title">${SVG.request()}<span>領物申請</span></div>
-      <div class="modal-sub">向內務堂呈遞【${escapeHtml(itemName)}】的調用申請。庫房現存 ${stock.toLocaleString()} 份，
-        申請將送入【待批核卷宗】，待長老賜下。</div>
+      <div class="modal-sub">向內務堂呈遞【${escapeHtml(itemName)}】的調用申請。庫房現存 ${stock.toLocaleString()} 份，申請將送入【待批核卷宗】，待長老賜下。</div>
 
       <label class="modal-label">賜予何人</label>
       <select class="modal-field" id="reqChar">
-        ${mine.map(([id,c]) => `<option value="${attr(id)}">${escapeHtml(c.name || "未命名角色")}${c.realm ? `　（${escapeHtml(c.realm)}）` : ""}</option>`).join("")}
+        ${mine.map(([id,c]) => `<option value="${attr(id)}">${escapeHtml(c.name || "未命名角色")}${c.realm ? ` （${escapeHtml(c.realm)}）` : ""}</option>`).join("")}
       </select>
 
       <label class="modal-label">請求數量</label>
@@ -2436,9 +2440,7 @@
       const holder = String(tre.holder || "").trim();
       const charName = req.charName || "未命名角色";
       if(holder && holder !== charName &&
-         !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。
-
-仍要改賜給「${charName}」嗎？`)) return;
+         !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。\n\n仍要改賜給「${charName}」嗎？`)) return;
 
       const charSnap = await get(dref("characters/" + req.charId));
       const char = charSnap.val();
@@ -2453,8 +2455,7 @@
         tre.upgrade ? "升級：" + tre.upgrade : "",
         tre.upgradeEffect ? "升級效果：" + tre.upgradeEffect : "",
         "賜下理由：" + reason
-      ].filter(Boolean).join("
-");
+      ].filter(Boolean).join("\n");
 
       const itemsList = readItemsList(char);
       itemsList.push({
@@ -2496,9 +2497,7 @@
       if(!item){ alert(`庫房已無【${req.itemName || "此物資"}】，無法賜下。`); return; }
       const have = num(item.qty);
       if(have < qty){
-        alert(`庫存不足，無法賜下。
-
-【${item.name || req.itemName}】現存 ${have}，申請 ${qty}。`);
+        alert(`庫存不足，無法賜下。\n\n【${item.name || req.itemName}】現存 ${have}，申請 ${qty}。`);
         return;
       }
 
@@ -2647,9 +2646,7 @@
     const rows = isRoster ? pendingRoster() : pendingWarehouse();
     const noun = isRoster ? "位弟子" : "項物資";
     if(rows.length === 0){ flash(isRoster ? "花名冊已經是最新的了" : "倉儲已經是最新的了", false); return; }
-    if(!confirm(`要匯入 ${rows.length} ${noun}嗎？
-
-已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
+    if(!confirm(`要匯入 ${rows.length} ${noun}嗎？\n\n已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
 
     const payload = {};
     rows.forEach(row => { payload[push(dref(kind === "roster" ? "roster" : "warehouse")).key] = row; });
@@ -2754,14 +2751,10 @@
     const summary = items.map(i => `${gradeLabel(i.key)} ${i.qty.toLocaleString()}`).join("、");
     const short = items.filter(i => num(stones[i.key]) < i.qty);
     const warn = short.length
-      ? `
-
-注意：${short.map(i => `${gradeLabel(i.key)}只有 ${num(stones[i.key]).toLocaleString()}`).join("、")}，`
+      ? `\n\n注意：${short.map(i => `${gradeLabel(i.key)}只有 ${num(stones[i.key]).toLocaleString()}`).join("、")}，`
         + "不足的部分只會扣到 0 為止，差額請自行記帳。"
       : "";
-    if(!confirm(`${label}？
-
-將從庫藏扣除：${summary}${warn}`)) return false;
+    if(!confirm(`${label}？\n\n將從庫藏扣除：${summary}${warn}`)) return false;
 
     const entries = [];
     for(const i of items){
@@ -2874,7 +2867,7 @@
       const handler = () => {
         if(beasts[id]) beasts[id][prop] = input.value;
         scheduleSave(`beasts/${id}/${prop}`, input.value);
-        if(prop === 'root') renderAll(false); // 靈根改變時更新邊框顏色
+        if(prop === 'root') renderAll(false);
       };
       input.oninput = handler;
     });
@@ -2966,9 +2959,7 @@
         }
         if(action === "sandbox-reset"){
           if(!sandboxActive()) return;
-          if(!confirm("要清掉目前的沙盒資料，重新複製一份最新的真實快照嗎？
-
-沙盒裡目前的測試內容將會被覆蓋。")) return;
+          if(!confirm("要清掉目前的沙盒資料，重新複製一份最新的真實快照嗎？\n\n沙盒裡目前的測試內容將會被覆蓋。")) return;
           btn.disabled = true;
           try{
             await seedSandboxFromReal(discordUser.id);
@@ -2983,9 +2974,7 @@
         }
         if(action === "sandbox-release"){
           if(!(discordUser && sandboxOwner && sandboxOwner.id === discordUser.id)) return;
-          if(!confirm("確定放棄沙盒模式持有人身分？
-
-放棄後沙盒功能會回到「尚未有人啟用」的狀態，之後可以再次啟用（會是全新的一份快照）。")) return;
+          if(!confirm("確定放棄沙盒模式持有人身分？\n\n放棄後沙盒功能會回到「尚未有人啟用」的狀態，之後可以再次啟用（會是全新的一份快照）。")) return;
           try{
             await remove(ref(db, "sandboxOwner"));
             setSandboxOn(false);
@@ -3017,14 +3006,8 @@
           if(isMe){
             const isLast = Object.keys(admins).length <= 1;
             const msg = isLast
-              ? "確定移除自己的權限？
-
-你是目前唯一的管理員，移除後宗門大殿會回到「尚未設定任何管理員」狀態，"
-                + "畫面上會重新出現「將我設為天道」按鈕，你隨時可以再取回權限。"
-              : "確定移除自己的權限？
-
-移除後你將變回唯讀的弟子身分，"
-                + "若要再取得權限，需請其他天道重新授權給你。";
+              ? "確定移除自己的權限？\n\n你是目前唯一的管理員，移除後宗門大殿會回到「尚未設定任何管理員」狀態，畫面上會重新出現「將我設為天道」按鈕，你隨時可以再取回權限。"
+              : "確定移除自己的權限？\n\n移除後你將變回唯讀的弟子身分，若要再取得權限，需請其他天道重新授權給你。";
             if(!confirm(msg)) return;
           } else {
             if(!confirm("確定撤銷此人的管理權限？")) return;
@@ -3113,7 +3096,7 @@
           const key = btn.dataset.stone;
           const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
           const before = num(stones[key]);
-          const input = prompt(`${label}　自訂增減（正數增加、負數減少，目前 ${before.toLocaleString()}）：`);
+          const input = prompt(`${label} 自訂增減（正數增加、負數減少，目前 ${before.toLocaleString()}）：`);
           if(input === null) return;
           const d = parseInt(input, 10) || 0;
           if(!d) return;
@@ -3169,12 +3152,8 @@
           const f = (facilityEntries().find(([k]) => k === id) || [])[1] || {};
           if(!confirm(`確定拆除「${f.name || "此建築"}」？`
             + (isSeedFacility(id)
-                ? "
-
-這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
-                : "
-
-這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
+                ? "\n\n這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
+                : "\n\n這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
           if(isSeedFacility(id)){
             facilityEdits[id] = { removed: true };
             await writeNow("facilities/" + id, { removed: true });
@@ -3188,9 +3167,7 @@
           const id = btn.dataset.id;
           const base = FACILITY_SEED.find(b => b.id === id);
           if(!base) return;
-          if(!confirm(`重建「${base.name}」？
-
-會恢復成預設的規格與開銷。`)) return;
+          if(!confirm(`重建「${base.name}」？\n\n會恢復成預設的規格與開銷。`)) return;
           delete facilityEdits[id];
           await writeNow("facilities/" + id, null);   
           renderAll(true);
@@ -3232,11 +3209,8 @@
         }
         if(action === "undo-settle"){
           if(!lastSettle) return;
-          if(!confirm(`撤銷「${lastSettle.label}」？
-
-${lastSettle.entries
-            .map(e => `${gradeLabel(e.key)} ${num(stones[e.key]).toLocaleString()} ➔ ${e.before.toLocaleString()}`).join("
-")}`)) return;
+          if(!confirm(`撤銷「${lastSettle.label}」？\n\n${lastSettle.entries
+            .map(e => `${gradeLabel(e.key)} ${num(stones[e.key]).toLocaleString()} ➔ ${e.before.toLocaleString()}`).join("\n")}`)) return;
           for(const e of lastSettle.entries){
             stones[e.key] = e.before;
             await writeNow("stones/" + e.key, e.before);
