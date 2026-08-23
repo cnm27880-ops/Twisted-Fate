@@ -110,10 +110,18 @@
 
   /* ===== 宗門總綱牌匾 (頂部橫幅整合) ===== */
   .sect-banner{
+  /* ===== 宗門總綱牌匾 (頂部橫幅整合) ===== */
+  .sect-banner{
     background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
+    border:2px solid var(--gold); border-radius:8px; padding:24px 32px; color:var(--paper);
     border:2px solid var(--gold); border-radius:8px; padding:24px 32px; color:var(--paper);
     margin-bottom:26px; position:relative; overflow:hidden;
     box-shadow:0 10px 30px rgba(0,0,0,.15), inset 0 0 40px rgba(140,107,39,.1);
+    display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
+  }
+  .sect-banner::after{
+    content:"宗"; position:absolute; right:10%; top:-60px;
+    font-family:"Zhi Mang Xing",cursive; font-size:240px; color:var(--gold); opacity:.08; pointer-events:none;
     display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
   }
   .sect-banner::after{
@@ -138,19 +146,84 @@
   .sb-value.danger{ color:#FF9E82; text-shadow:0 0 8px rgba(255,158,130,.4); }
   .sb-cost-row { display:flex; gap:12px; font-size:13px; color:rgba(232,202,130,.8); }
   .sb-cost-row b { font-family:"Noto Serif TC",serif; color:#F0DCA4; margin-left:4px; font-size:15px; }
+  .sb-left { position:relative; z-index:1; display:flex; flex-direction:column; gap:8px; }
+  .sb-right { position:relative; z-index:1; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
 
+  .sb-title-row { display:flex; align-items:baseline; gap:12px; }
+  .sb-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:36px; color:#F8EDD1; text-shadow:0 2px 6px rgba(0,0,0,.8); }
+  .sb-level{
+    padding:2px 8px; border-radius:10px;
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12px; letter-spacing:1px;
+    background:rgba(232,202,130,.14); border:1px solid rgba(232,202,130,.34); color:#F0DCA4; vertical-align:middle;
+  }
+  .sb-sub{ font-size:13px; color:#E8CA82; letter-spacing:1px; }
+
+  .sb-info-group { display:flex; flex-direction:column; gap:4px; border-left:1px dashed rgba(232,202,130,.3); padding-left:16px; }
+  .sb-label{ font-size:11px; letter-spacing:2px; color:#C9A75E; }
+  .sb-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:#F8EDD1; }
+  .sb-value.danger{ color:#FF9E82; text-shadow:0 0 8px rgba(255,158,130,.4); }
+  .sb-cost-row { display:flex; gap:12px; font-size:13px; color:rgba(232,202,130,.8); }
+  .sb-cost-row b { font-family:"Noto Serif TC",serif; color:#F0DCA4; margin-left:4px; font-size:15px; }
+
+  /* ===== 內務堂：宗門底蘊 ===== */
   /* ===== 內務堂：靈石與流水 (縮減版) ===== */
   .ledger-head{
     display:flex; align-items:center; gap:9px; margin-bottom:12px;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:var(--ink);
     font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:var(--ink);
   }
   .ledger-head svg{ width:17px; height:17px; flex-shrink:0; opacity:.9; }
   .ledger-head .lh-rule{ flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
   
   .ledger{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; margin-bottom: 24px; }
+  .ledger-head .lh-rule{ flex:1; height:1px; background:linear-gradient(90deg,rgba(232,202,130,.36),transparent); }
+  
+  .top-panels { display: flex; flex-direction: column; gap: 14px; }
+  
+  .sect-banner{
+    display:flex; flex-wrap:wrap; align-items:center; gap:16px 22px;
+    padding:13px 18px; border-radius:5px;
+    background:linear-gradient(150deg, rgba(31,26,18,.94) 0%, rgba(11,9,6,.96) 100%);
+    border:1px solid var(--gold-deep);
+    box-shadow:inset 0 0 24px rgba(140,107,39,.16), 0 4px 14px rgba(0,0,0,.34);
+    transition:border-color .45s ease, box-shadow .45s ease;
+  }
+  .sect-banner.alarm{ border-color:rgba(200,70,52,.55); box-shadow:inset 0 0 26px rgba(140,30,22,.24), 0 4px 16px rgba(0,0,0,.4); }
+  .sb-main{ display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  .sb-sigil{ width:34px; height:34px; flex-shrink:0; color:rgba(201,167,94,.85); }
+  .sb-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:21px; color:#F8EDD1; line-height:1.2; }
+  .sb-level{
+    margin-left:8px; padding:2px 8px; border-radius:10px; vertical-align:middle;
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:11.5px; letter-spacing:1px;
+    background:rgba(232,202,130,.14); border:1px solid rgba(232,202,130,.34); color:#F0DCA4;
+  }
+  .sb-formation{ margin-top:3px; font-size:11.5px; letter-spacing:2px; color:rgba(232,202,130,.68); }
+  .sb-cells{ display:flex; flex-wrap:wrap; gap:10px 22px; flex:1; min-width:0; }
+  .sb-cell{ min-width:78px; }
+  .sb-cell.wide{ min-width:130px; }
+  .sb-label{ font-size:10.5px; letter-spacing:3px; color:#C9A75E; }
+  .sb-value{ margin-top:3px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; color:#F8EDD1; line-height:1.25; }
+  .sb-value.danger{ color:#FF9E82; }
+  .sb-note{ margin-top:2px; font-size:10.5px; color:rgba(232,202,130,.55); }
+  .sb-cost{ margin-top:4px; font-size:12px; color:rgba(232,202,130,.75); line-height:1.8; }
+  .sb-cost span{ display:inline-block; margin-right:11px; white-space:nowrap; }
+  .sb-cost b{ color:#F0DCA4; font-family:"Noto Serif TC",serif; margin-left:4px; }
+  .sb-enemies{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; width:100%; padding-top:10px; border-top:1px dashed rgba(232,202,130,.16); }
+  .sb-enemies .sb-label{ margin-right:5px; }
+  .sb-foe{
+    padding:2px 9px; border-radius:3px; font-size:11.5px;
+    background:rgba(156,43,34,.22); border:1px solid rgba(222,139,119,.42); color:#F0BCAF;
+  }
+
+  .ledger{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   @media(max-width:800px){ .ledger{ grid-template-columns:1fr; } }
   .ledger-panel{
     position:relative; overflow:hidden; padding:14px 17px 15px; border-radius:5px;
+    background:linear-gradient(150deg, rgba(21,28,23,.03) 0%, rgba(7,11,9,.05) 100%);
+    border:1px solid var(--border);
+    box-shadow:inset 0 0 24px rgba(140,107,39,.03);
+  }
+  .lp-head{ display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:3px; color:var(--gold-deep); margin-bottom:9px; font-weight:700; }
     background:linear-gradient(150deg, rgba(21,28,23,.03) 0%, rgba(7,11,9,.05) 100%);
     border:1px solid var(--border);
     box-shadow:inset 0 0 24px rgba(140,107,39,.03);
@@ -163,9 +236,29 @@
   .lp-total{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:31px; line-height:1.12; color:var(--ink); }
   .lp-total .lp-unit{ font-family:inherit; font-weight:400; font-size:12px; letter-spacing:2px; color:var(--ink-faint2); margin-left:6px; }
   .lp-breakdown{ margin-top:8px; font-size:11.5px; color:var(--ink-dim); line-height:1.9; }
+  .stone-sigil{ width:44px; height:44px; flex-shrink:0; color:var(--jade); opacity:0.8; }
+  .lp-total{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:31px; line-height:1.12; color:var(--ink); }
+  .lp-total .lp-unit{ font-family:inherit; font-weight:400; font-size:12px; letter-spacing:2px; color:var(--ink-faint2); margin-left:6px; }
+  .lp-breakdown{ margin-top:8px; font-size:11.5px; color:var(--ink-dim); line-height:1.9; }
   .lp-breakdown span{ display:inline-block; margin-right:11px; white-space:nowrap; }
   .lp-breakdown b{ color:var(--ink); font-family:"Noto Serif TC",serif; margin-left:3px; }
+  .lp-breakdown b{ color:var(--ink); font-family:"Noto Serif TC",serif; margin-left:3px; }
 
+  .lp-flow{ margin:0; padding:0; list-style:none; }
+  .lp-flow li{
+    display:flex; gap:9px; align-items:baseline; padding:6px 0; font-size:12.5px; line-height:1.65;
+    color:var(--ink-dim); border-bottom:1px dashed var(--border);
+  }
+  .lp-flow li:last-child{ border-bottom:none; }
+  .lf-time{ font-size:10.5px; color:var(--ink-faint2); flex-shrink:0; font-family:"Noto Serif TC",serif; }
+  .lf-actor{ color:var(--vermillion); flex-shrink:0; font-weight: 700; }
+  .lf-text{ flex:1; }
+  .lf-delta{ font-family:"Noto Serif TC",serif; font-weight:900; }
+  .lf-delta.plus{ color:var(--jade); } .lf-delta.minus{ color:var(--vermillion-bright); }
+  .lp-empty{ font-size:12px; color:var(--ink-faint2); padding:10px 0; line-height:1.8; }
+
+  .lp-talisman{ display:flex; gap:13px; align-items:flex-start; padding: 12px 16px; background: rgba(156,43,34,.05); border: 1px solid rgba(156,43,34,.2); border-radius: 6px; margin-bottom: 24px; }
+  .talisman-sigil{ width:30px; height:30px; flex-shrink:0; color:var(--vermillion-bright); animation:talismanPulse 2.6s ease-in-out infinite; }
   .lp-flow{ margin:0; padding:0; list-style:none; }
   .lp-flow li{
     display:flex; gap:9px; align-items:baseline; padding:6px 0; font-size:12.5px; line-height:1.65;
@@ -184,7 +277,12 @@
   @keyframes talismanPulse{
     0%,100%{ filter:drop-shadow(0 0 2px rgba(232,101,75,.35)); opacity:.85; }
     50%{ filter:drop-shadow(0 0 8px rgba(232,101,75,.6)); opacity:1; }
+    50%{ filter:drop-shadow(0 0 8px rgba(232,101,75,.6)); opacity:1; }
   }
+  .lp-alert{ font-size:13px; line-height:1.85; color:var(--ink); flex:1; }
+  .lp-alert .urgent{ color:var(--vermillion-bright); font-weight:700; }
+  .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:16px; color:var(--vermillion-bright); margin:0 4px; }
+  .lp-alert .lp-more{ display:block; margin-top:2px; font-size:12px; color:var(--ink-dim); }
   .lp-alert{ font-size:13px; line-height:1.85; color:var(--ink); flex:1; }
   .lp-alert .urgent{ color:var(--vermillion-bright); font-weight:700; }
   .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:16px; color:var(--vermillion-bright); margin:0 4px; }
@@ -221,22 +319,19 @@
     content:""; position:absolute; inset:6px; border:1px solid rgba(140,107,39,.15);
     border-radius:2px; pointer-events:none;
   }
-  .fc-head{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; margin-bottom:12px; }
+  .fc-head{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
   /* 赤紅印章風格等級 */
-  .fc-level-seal{
-    position:absolute; top:-12px; left:-12px; width:44px; height:44px;
-    display:flex; align-items:center; justify-content:center;
-    background:transparent; border:2px solid var(--vermillion-bright); border-radius:4px;
-    color:var(--vermillion-bright); font-family:"Ma Shan Zheng",cursive; font-size:16px;
-    transform:rotate(-8deg); z-index:2; opacity:0.85; cursor:pointer;
+  .fc-level{
+    flex:0 0 auto; width:auto; min-width:44px; text-align:center; padding:3px 8px; border-radius:3px;
+    background:rgba(184,58,44,.08); border:1px solid var(--vermillion-bright); color:var(--vermillion-bright);
+    font-family:"Noto Serif TC",serif; font-size:12px; font-weight:900; letter-spacing:2px; transform:rotate(-4deg);
+    transition:transform .2s, border-color .2s;
   }
-  .fc-level-seal input {
-    background:transparent; border:none; width:100%; text-align:center; color:inherit;
-    font-family:inherit; font-size:inherit; padding:0; cursor:pointer;
-  }
+  .fc-level-seal input:focus { outline:none; }
   .fc-level-seal input:focus { outline:none; }
   .fc-name{
     flex:1; min-width:0; background:transparent; border:none; border-bottom:1px solid transparent;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); padding:2px 0; margin-left: 28px;
     font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); padding:2px 0; margin-left: 28px;
     transition:border-color .2s;
   }
@@ -276,8 +371,10 @@
   }
   .fc-limit-box textarea:focus{ outline:none; }
   
-  .fc-foot{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:auto; padding-top:14px; position:relative; z-index:1; border-top:1px dashed var(--border); }
+  .fc-foot{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:auto; padding-top:14px; position:relative; z-index:1; }
+  /* 竹簡小標籤取代下拉選單 */
   .fc-tag{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--ink-dim);
     display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--ink-dim);
   }
   .fc-tag select, .fc-tag input{
@@ -285,6 +382,7 @@
   }
   .fc-tag select:focus, .fc-tag input:focus{ outline:none; }
   .fc-tag input{ width:40px; border-bottom:1px dashed var(--gold); }
+  .fc-tag svg{ width:14px; height:14px; color:var(--gold-deep); }
   .fc-tag svg{ width:14px; height:14px; color:var(--gold-deep); }
   
   /* ===== 頁籤 ===== */
@@ -490,7 +588,19 @@
 
   /* ===== 萬獸園 (五行玉牌風) ===== */
   .beast-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
+  /* ===== 萬獸園 (五行玉牌風) ===== */
+  .beast-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
   .beast-card{
+    background:linear-gradient(160deg, rgba(28,35,30,0.9), rgba(10,15,12,0.95));
+    border:1px solid var(--beast-color); border-radius:6px;
+    overflow:hidden; position:relative; padding:16px 18px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .beast-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 0 24px rgba(0,0,0,0.5); }
+  
+  /* 靈根光暈與底紋 */
+  .beast-card::before{
     background:linear-gradient(160deg, rgba(28,35,30,0.9), rgba(10,15,12,0.95));
     border:1px solid var(--beast-color); border-radius:6px;
     overflow:hidden; position:relative; padding:16px 18px;
@@ -503,7 +613,11 @@
   .beast-card::before{
     content:""; position:absolute; inset:0; z-index:0;
     background: radial-gradient(circle at top right, var(--beast-color), transparent 60%); opacity:0.1; pointer-events:none;
+    background: radial-gradient(circle at top right, var(--beast-color), transparent 60%); opacity:0.1; pointer-events:none;
   }
+  .beast-card::after{
+    content:attr(data-root); position:absolute; right:10px; bottom:-10px; z-index:0;
+    font-family:"Zhi Mang Xing",cursive; font-size:140px; color:var(--beast-color); opacity:0.06; pointer-events:none;
   .beast-card::after{
     content:attr(data-root); position:absolute; right:10px; bottom:-10px; z-index:0;
     font-family:"Zhi Mang Xing",cursive; font-size:140px; color:var(--beast-color); opacity:0.06; pointer-events:none;
@@ -511,11 +625,26 @@
   
   .beast-head{ position:relative; z-index:1; display:flex; align-items:center; gap:12px; margin-bottom:12px; }
   .beast-name-wrap{ flex:1; min-width:0; }
+  
+  .beast-head{ position:relative; z-index:1; display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .beast-name-wrap{ flex:1; min-width:0; }
   .beast-name{
+    width:100%; background:transparent; border:none; color:#F3E8CC;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; padding:0; text-shadow:0 1px 4px rgba(0,0,0,.8);
     width:100%; background:transparent; border:none; color:#F3E8CC;
     font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; padding:0; text-shadow:0 1px 4px rgba(0,0,0,.8);
   }
   .beast-name:focus{ outline:none; border-bottom:1px solid var(--beast-color); }
+  
+  /* 境界與狀態木籤 */
+  .beast-tags { display:flex; gap:8px; margin-top:4px; }
+  .beast-realm{
+    background:rgba(0,0,0,0.4); border:1px solid rgba(232,202,130,0.2); border-radius:3px;
+    padding:2px 8px; font-size:11px; color:#C9A75E; letter-spacing:1px; text-align:center;
+  }
+  .beast-status {
+    background:rgba(232,202,130,0.1); border:1px solid rgba(232,202,130,0.3); border-radius:3px;
+    padding:2px 8px; font-size:11px; color:#F0DCA4; letter-spacing:1px; flex:1; text-align:center;
   
   /* 境界與狀態木籤 */
   .beast-tags { display:flex; gap:8px; margin-top:4px; }
@@ -544,17 +673,47 @@
   .beast-skill-desc{
     width:calc(100% - 40px); margin:0 auto; background:transparent; border:none; resize:none; overflow:hidden;
     font-family:"LXGW WenKai TC",serif; font-size:14px; line-height:1.7; color:#DCCFA8; padding:0; text-align:center;
+  .beast-realm:focus, .beast-status:focus { outline:none; border-color:var(--beast-color); }
+
+  .beast-body{ position:relative; z-index:1; margin-top:16px; }
+  
+  /* 本命神通框 */
+  .beast-skill-box{ position:relative; padding:12px; text-align:center; }
+  .beast-skill-box::before, .beast-skill-box::after {
+    content: "《"; position:absolute; top:50%; transform:translateY(-50%);
+    font-family:"Noto Serif TC",serif; font-size:24px; color:var(--beast-color); opacity:0.6;
   }
+  .beast-skill-box::before { left: 0; }
+  .beast-skill-box::after { content: "》"; right: 0; }
+  
+  .beast-skill-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:12px; color:var(--beast-color); margin-bottom:4px; letter-spacing:2px; }
+  .beast-skill-desc{
+    width:calc(100% - 40px); margin:0 auto; background:transparent; border:none; resize:none; overflow:hidden;
+    font-family:"LXGW WenKai TC",serif; font-size:14px; line-height:1.7; color:#DCCFA8; padding:0; text-align:center;
+  }
+  .beast-skill-desc:focus{ outline:none; }
+  
+  .beast-del{ position:absolute; top:12px; right:12px; z-index:2; color:rgba(232,202,130,0.4); background:transparent; border:none; cursor:pointer; padding:4px; border-radius:50%; line-height:0; transition:color 0.2s; }
   .beast-skill-desc:focus{ outline:none; }
   
   .beast-del{ position:absolute; top:12px; right:12px; z-index:2; color:rgba(232,202,130,0.4); background:transparent; border:none; cursor:pointer; padding:4px; border-radius:50%; line-height:0; transition:color 0.2s; }
   .beast-del svg{ width:16px; height:16px; }
   .beast-del:hover{ color:#ff8a80; }
+  .beast-del:hover{ color:#ff8a80; }
 
   /* 隱藏原生 select 的外觀，使其更像一個純文字標籤 */
   .beast-root-select {
     position: absolute; opacity: 0; width: 40px; height: 30px; top: 12px; left: 12px; cursor: pointer; z-index: 2;
+  /* 隱藏原生 select 的外觀，使其更像一個純文字標籤 */
+  .beast-root-select {
+    position: absolute; opacity: 0; width: 40px; height: 30px; top: 12px; left: 12px; cursor: pointer; z-index: 2;
   }
+  .beast-root-display {
+    position: absolute; top: 12px; left: 12px; z-index: 1; width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--beast-color); border-radius: 50%;
+    color: var(--beast-color); font-family: "Ma Shan Zheng", cursive; font-size: 14px;
+    pointer-events: none;
   .beast-root-display {
     position: absolute; top: 12px; left: 12px; z-index: 1; width: 24px; height: 24px;
     display: flex; align-items: center; justify-content: center;
@@ -827,8 +986,16 @@
   </div>
 </nav>
 
-<div class="layout" id="mainArea">
-  <div class="notice info" id="loadingNotice" style="margin-top: 40px;">連線中……</div>
+<div class="layout">
+  <div class="hall-header">
+    <div class="hall-title">宗門大殿</div>
+    <div class="hall-sub">內務堂總帳　·　庫房、卷宗與本命玉牌即時同步</div>
+    <div class="hall-stats" id="hallStats"></div>
+  </div>
+
+  <div id="mainArea">
+    <div class="notice info" id="loadingNotice">連線中……</div>
+  </div>
 </div>
 
 <div class="save-status" id="saveStatus">已自動儲存</div>
@@ -1404,14 +1571,34 @@
     
     const hasAlarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
     
+    
+    // 警訊計算
+    const items = Object.values(warehouse);
+    const reqCount = pendingRequests().length;
+    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
+    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
+    const wounded = Object.values(chars).filter(c => {
+      const mx = num(c.hp && c.hp.max);
+      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
+    }).length;
+
+    const notes = [];
+    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已見底`);
+    if(lowStock > 0) notes.push(`${lowStock} 項物資不足三份`);
+    if(wounded > 0) notes.push(`${wounded} 名弟子玉牌將裂`);
+    
+    const hasAlarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
+    
     return `
-      <div class="sect-banner">
-        <div class="sb-left">
-          <div class="sb-title-row">
-            ${SVG.gate("sb-sigil")}
-            <span class="sb-name">${escapeHtml(sectField("name", "本門"))}</span>
-            <span class="sb-level">${escapeHtml(sectField("level", "－"))}</span>
+      <div class="sect-banner${lowOnStones ? " alarm" : ""}">
+        <div class="sb-main">
+          ${SVG.gate("sb-sigil")}
+          <div>
+            <div class="sb-name">${escapeHtml(sectField("name", "本門"))}<span class="sb-level">${escapeHtml(sectField("level", "－"))}</span></div>
+            <div class="sb-formation">護山大陣　${escapeHtml(sectField("formation", "－"))}</div>
           </div>
+          <div class="sb-sub">護山大陣：${escapeHtml(sectField("formation", "－"))}</div>
+          ${enemies.length ? `<div class="sb-sub" style="margin-top:4px;">敵對勢力：${enemies.map(e => escapeHtml(e)).join("、")}</div>` : ""}
           <div class="sb-sub">護山大陣：${escapeHtml(sectField("formation", "－"))}</div>
           ${enemies.length ? `<div class="sb-sub" style="margin-top:4px;">敵對勢力：${enemies.map(e => escapeHtml(e)).join("、")}</div>` : ""}
         </div>
@@ -1420,7 +1607,30 @@
           <div class="sb-info-group">
             <span class="sb-label">門派聲望</span>
             <span class="sb-value">${num(sectField("reputation", 0)).toLocaleString()}</span>
+        
+        <div class="sb-right">
+          <div class="sb-info-group">
+            <span class="sb-label">門派聲望</span>
+            <span class="sb-value">${num(sectField("reputation", 0)).toLocaleString()}</span>
           </div>
+          <div class="sb-info-group">
+            <span class="sb-label">殿宇建築</span>
+            <span class="sb-value">${facilityEntries().length} 座</span>
+          </div>
+          <div class="sb-info-group">
+            <span class="sb-label">每月開銷</span>
+            <span class="sb-cost-row">${costText}</span>
+          </div>
+          <div class="sb-info-group">
+            <span class="sb-label">庫存可支撐</span>
+            <span class="sb-value ${lowOnStones || hasAlarm ? "danger" : ""}">${left === null ? "－" : left.months.toLocaleString() + " 個月"}</span>
+            <span class="sb-cost-row" style="font-size:11px; margin-top:2px;">
+              ${hasAlarm ? `<b style="color:#FF9E82; margin-left:0;">內務堂有警訊！</b>` : (left === null ? "" : `${escapeHtml(gradeShort(left.key))}最先見底`)}
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
           <div class="sb-info-group">
             <span class="sb-label">殿宇建築</span>
             <span class="sb-value">${facilityEntries().length} 座</span>
@@ -1483,6 +1693,7 @@
       <div class="block-title" style="margin-top:30px;">本月開銷結算<span class="spacer"></span></div>
       <div class="upkeep-box">
         <div class="uk-row" style="flex:1;">
+        <div class="uk-row" style="flex:1;">
           <div class="uk-cell">
             <div class="uk-label">每月固定開銷</div>
             <div class="uk-value">${STONE_KEYS.filter(x => monthNeed[x.k] > 0)
@@ -1505,11 +1716,25 @@
       <div class="upkeep-box" style="margin-top:12px; padding: 12px 18px;">
         <div class="uk-label" style="margin-bottom:0; min-width:100px;">用一次扣一次</div>
         <div class="uk-once-list">
+        </div>
+        ${editable ? `<div class="uk-btn-area">
+          <button class="btn gold" data-action="settle-upkeep">結算本月設施消耗</button>
+          ${lastSettle ? `<button class="btn" data-action="undo-settle" style="font-size:12px;padding:5px 10px;">↩ 撤銷「${escapeHtml(lastSettle.label)}」</button>` : ""}
+        </div>` : ""}
+      </div>
+      
+      ${onceList.length ? `
+      <div class="upkeep-box" style="margin-top:12px; padding: 12px 18px;">
+        <div class="uk-label" style="margin-bottom:0; min-width:100px;">用一次扣一次</div>
+        <div class="uk-once-list">
           ${onceList.map(([id,f]) => `<div class="uk-once-row">
             <span class="uk-once-name">${escapeHtml(f.name || "未命名建築")}</span>
             <span class="uk-once-cost">${escapeHtml(gradeShort(f.upkeepGrade))} ${num(f.upkeepQty).toLocaleString()}</span>
             ${editable ? `<button class="btn-icon" data-action="settle-once" data-id="${id}" title="開啟一次並扣除" style="margin-left:4px; color:var(--jade);">${SVG.grant()}</button>` : ""}
+            ${editable ? `<button class="btn-icon" data-action="settle-once" data-id="${id}" title="開啟一次並扣除" style="margin-left:4px; color:var(--jade);">${SVG.grant()}</button>` : ""}
           </div>`).join("")}
+        </div>
+      </div>` : ""}
         </div>
       </div>` : ""}
 
@@ -1542,6 +1767,11 @@
     return `
       <div class="facility-card">
         ${editable ? `<button class="btn-icon fc-del-btn" data-action="del-facility" data-id="${id}" title="拆除">${SVG.cross()}</button>` : ""}
+        
+        <label class="fc-level-seal" title="${editable ? '修改等級' : '等級'}">
+          <input data-f="${id}" data-prop="level" value="${attr(f.level)}" placeholder="等級" ${dis}>
+        </label>
+        
         
         <label class="fc-level-seal" title="${editable ? '修改等級' : '等級'}">
           <input data-f="${id}" data-prop="level" value="${attr(f.level)}" placeholder="等級" ${dis}>
@@ -2057,6 +2287,11 @@
 
     const pct = (cur, mx) => { const c = num(cur), m = num(mx); return m <= 0 ? null : Math.max(0, Math.min(100, c/m*100)); };
 
+    const pct = (cur, mx) => { const c = num(cur), m = num(mx); return m <= 0 ? null : Math.max(0, Math.min(100, c/m*100)); };
+
+    const lowHp = charList.map(c => ({ c, p: pct(c.hp && c.hp.current, c.hp && c.hp.max) }))
+      .filter(x => x.p != null && x.p <= 30).sort((a,b) => a.p - b.p);
+
     const topQi = [...charList].filter(c => num(c.qi?.max) > 0).sort((a,b) => num(b.qi?.max) - num(a.qi?.max)).slice(0, 5);
     
     // 宗門百藝榜
@@ -2440,7 +2675,9 @@
       const holder = String(tre.holder || "").trim();
       const charName = req.charName || "未命名角色";
       if(holder && holder !== charName &&
-         !confirm("【" + (tre.name || req.itemName) + "】目前記在「" + holder + "」名下。\n\n仍要改賜給「" + charName + "」嗎？")) return;
+         !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。
+
+仍要改賜給「${charName}」嗎？`)) return;
 
       const charSnap = await get(dref("characters/" + req.charId));
       const char = charSnap.val();
@@ -2497,7 +2734,9 @@
       if(!item){ alert(`庫房已無【${req.itemName || "此物資"}】，無法賜下。`); return; }
       const have = num(item.qty);
       if(have < qty){
-        alert("庫存不足，無法賜下。\n\n【" + (item.name || req.itemName) + "】現存 " + have + "，申請 " + qty + "。");
+        alert(`庫存不足，無法賜下。
+
+【${item.name || req.itemName}】現存 ${have}，申請 ${qty}。`);
         return;
       }
 
@@ -2646,7 +2885,9 @@
     const rows = isRoster ? pendingRoster() : pendingWarehouse();
     const noun = isRoster ? "位弟子" : "項物資";
     if(rows.length === 0){ flash(isRoster ? "花名冊已經是最新的了" : "倉儲已經是最新的了", false); return; }
-    if(!confirm("要匯入 " + rows.length + " " + noun + "嗎？\n\n已存在的條目會自動略過，現有資料不會被覆蓋。")) return;
+    if(!confirm(`要匯入 ${rows.length} ${noun}嗎？
+
+已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
 
     const payload = {};
     rows.forEach(row => { payload[push(dref(kind === "roster" ? "roster" : "warehouse")).key] = row; });
@@ -2867,7 +3108,7 @@
       const handler = () => {
         if(beasts[id]) beasts[id][prop] = input.value;
         scheduleSave(`beasts/${id}/${prop}`, input.value);
-        if(prop === 'root') renderAll(false); 
+        if(prop === 'root') renderAll(false); // 靈根改變時更新邊框顏色
       };
       input.oninput = handler;
     });
@@ -3151,9 +3392,14 @@
           const id = btn.dataset.id;
           const f = (facilityEntries().find(([k]) => k === id) || [])[1] || {};
           if(!confirm("確定拆除「" + (f.name || "此建築") + "」？\n\n"
+          if(!confirm("確定拆除「" + (f.name || "此建築") + "」？\n\n"
             + (isSeedFacility(id)
-                ? "這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
-                : "這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
+                ? "
+
+這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
+                : "
+
+這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
           if(isSeedFacility(id)){
             facilityEdits[id] = { removed: true };
             await writeNow("facilities/" + id, { removed: true });
@@ -3209,8 +3455,11 @@
         }
         if(action === "undo-settle"){
           if(!lastSettle) return;
-          if(!confirm("撤銷「" + lastSettle.label + "」？\n\n" + lastSettle.entries
-            .map(e => `${gradeLabel(e.key)} ${num(stones[e.key]).toLocaleString()} ➔ ${e.before.toLocaleString()}`).join("\n"))) return;
+          if(!confirm(`撤銷「${lastSettle.label}」？
+
+${lastSettle.entries
+            .map(e => `${gradeLabel(e.key)} ${num(stones[e.key]).toLocaleString()} ➔ ${e.before.toLocaleString()}`).join("
+")}`)) return;
           for(const e of lastSettle.entries){
             stones[e.key] = e.before;
             await writeNow("stones/" + e.key, e.before);
