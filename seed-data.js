@@ -276,3 +276,55 @@ export const FACILITY_SEED = [
     tokens: ["掌門腰牌", "制符室令牌"], limit: "", capNow: null, capMax: null, capUnit: ""
   }
 ];
+
+// ===== 靈獸預設資料 =====
+export const BEAST_SEED = [
+  {
+    id: "beast_1",
+    name: "一階翻土蚯",
+    root: "土",
+    realm: "煉氣期",
+    status: "翻土中",
+    skill: "很會翻土。蚯蚓不翻土，要幹嘛？"
+  },
+  {
+    id: "beast_2",
+    name: "一階巡狩犬",
+    root: "金",
+    realm: "煉氣期",
+    status: "巡山中",
+    skill: "危險感知。敵人靠近宗門時，發出全山都聽得見的叫聲示警。"
+  },
+  {
+    id: "beast_3",
+    name: "一階尋寶鼠",
+    root: "金",
+    realm: "煉氣期",
+    status: "尋寶中",
+    skill: "可找尋方圓十公尺內天上地下的寶藏。"
+  },
+  {
+    id: "beast_4",
+    name: "一階採藥兔",
+    root: "木",
+    realm: "煉氣期",
+    status: "採藥中",
+    skill: "每日可採集一株稀有靈草。"
+  },
+  {
+    id: "beast_5",
+    name: "一階飛天鶴",
+    root: "風",
+    realm: "築基期",
+    status: "盤旋中",
+    skill: "飛得很快。飛天鶴真的飛得很快。"
+  },
+  {
+    id: "beast_6",
+    name: "三階烈焰獅",
+    root: "火",
+    realm: "築基後期",
+    status: "守護陣眼",
+    skill: "燒起來了！烈焰獅口中噴火，把三十尺內的獵物都燒起來了。"
+  }
+];
