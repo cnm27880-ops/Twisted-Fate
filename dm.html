@@ -2829,9 +2829,10 @@
   }
 
   // 實際套用一筆靈石增減；設施結算確認與一般庫房快速增減共用這套 before/after 記錄。
-  async function applyStoneDelta(key, delta){
+  async function applyStoneDelta(key, delta, requireFull = false){
     if(!delta) return false;
     const before = num(stones[key]);
+    if(requireFull && delta < 0 && before < Math.abs(delta)) return false;
     const after = Math.max(0, before + delta);
     if(after === before) return false;
     stones[key] = after;
@@ -2885,10 +2886,27 @@
       el.querySelector('[data-modal="cancel"]').onclick = closeModal;
       el.querySelector('[data-modal="submit"]').onclick = async submit => {
         submit.disabled = true;
-        const ok = await applyStoneDelta(key, -amount);
-        if(!ok){ submit.disabled = false; return; }
+        const liveBefore = num(stones[key]);
+        if(liveBefore < amount){
+          closeModal();
+          renderAll(true);
+          flash(`${label}餘額已變動：目前僅有 ${liveBefore.toLocaleString()}，無法結算 ${amount.toLocaleString()}`, true);
+          return;
+        }
+        const ok = await applyStoneDelta(key, -amount, true);
+        if(!ok){
+          if(num(stones[key]) < amount){
+            closeModal();
+            renderAll(true);
+            flash(`${label}餘額已變動，未完成扣除`, true);
+          } else {
+            submit.disabled = false;
+            flash("寫入失敗，請稍後再試", true);
+          }
+          return;
+        }
         closeModal();
-        playFacilitySpendEffect(label, amount, key, before - amount);
+        playFacilitySpendEffect(label, amount, key, liveBefore - amount);
         renderAll(true);
         flash(`已完成：${label} ${amount.toLocaleString()} 枚`, false);
       };

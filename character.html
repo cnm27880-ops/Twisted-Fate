@@ -2207,7 +2207,11 @@
   }
   function refreshSpells(){
     const char = currentChar(); if(!char) return;
-    const host = document.getElementById("spellHost"); if(host) host.innerHTML = spellsHtml(char, isOwner(char));
+    const host = document.getElementById("spellHost");
+    if(host){
+      host.innerHTML = spellsHtml(char, isOwner(char));
+      resizeAllTextareas();
+    }
   }
   function refreshItems(){
     const char = currentChar(); if(!char) return;
