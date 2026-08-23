@@ -580,6 +580,102 @@
   .sd-foot{ display:flex; align-items:center; gap:9px; margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); }
   .sd-foot .sd-ts{ margin-right:auto; font-size:11px; color:var(--ink-faint2); letter-spacing:1px; }
 
+  /* ===== 宗門設施 ===== */
+  .facility-overview{
+    display:grid; grid-template-columns:minmax(0,1.65fr) minmax(260px,.95fr); gap:16px;
+    margin-bottom:22px;
+  }
+  .facility-hero{
+    position:relative; overflow:hidden; min-height:198px; padding:22px 24px; border-radius:8px;
+    background:linear-gradient(135deg,#18231D 0%,#0B110D 68%,#211A10 100%);
+    border:1px solid var(--gold-deep); color:#F3E8CC;
+    box-shadow:0 8px 22px rgba(0,0,0,.18), inset 0 0 32px rgba(140,107,39,.13);
+  }
+  .facility-hero::after{ content:"建"; position:absolute; right:8px; bottom:-48px; font-family:"Zhi Mang Xing",cursive; font-size:210px; line-height:1; color:var(--gold); opacity:.11; pointer-events:none; }
+  .facility-kicker{ position:relative; z-index:1; display:flex; align-items:center; gap:8px; color:#C9A75E; font-size:11px; letter-spacing:3px; font-weight:700; }
+  .facility-kicker::before{ content:""; width:26px; height:1px; background:var(--gold); }
+  .facility-hero h2{ position:relative; z-index:1; margin:10px 0 5px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:25px; letter-spacing:2px; color:#F8EDD1; }
+  .facility-hero p{ position:relative; z-index:1; max-width:580px; margin:0; font-size:13px; line-height:1.85; color:rgba(232,202,130,.74); }
+  .facility-stats{ position:relative; z-index:1; display:flex; gap:22px; flex-wrap:wrap; margin-top:18px; padding-top:13px; border-top:1px solid rgba(232,202,130,.15); }
+  .facility-stat strong{ display:block; font-family:"Noto Serif TC",serif; font-size:22px; line-height:1.1; color:#F3E3BC; }
+  .facility-stat span{ display:block; margin-top:4px; font-size:11px; color:rgba(232,202,130,.58); letter-spacing:1px; }
+  .facility-ledger{
+    padding:18px 20px; border-radius:8px; background:linear-gradient(160deg,var(--paper-2),var(--paper-3));
+    border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,.05);
+  }
+  .facility-ledger-head{ display:flex; align-items:center; gap:8px; color:var(--gold-deep); font-family:"Noto Serif TC",serif; font-weight:900; letter-spacing:2px; }
+  .facility-ledger-head svg{ width:17px; height:17px; }
+  .facility-ledger-total{ margin:14px 0 10px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:24px; color:var(--ink); }
+  .facility-ledger-total small{ font-family:inherit; font-weight:400; font-size:12px; color:var(--ink-faint2); margin-left:5px; }
+  .facility-cost-line{ display:flex; justify-content:space-between; gap:8px; padding:7px 0; border-bottom:1px dashed var(--border); font-size:12px; color:var(--ink-faint2); }
+  .facility-cost-line:last-of-type{ border-bottom:none; }
+  .facility-cost-line b{ color:var(--ink-dim); font-family:"Noto Serif TC",serif; }
+  .facility-ledger-note{ margin-top:11px; font-size:11px; line-height:1.7; color:var(--vermillion-bright); }
+  .facility-toolbar{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:15px; }
+  .facility-toolbar .toolbar-label{ margin-right:3px; color:var(--ink-faint2); font-size:12px; font-weight:700; letter-spacing:1px; }
+  .facility-filter{ background:var(--paper-2); border:1px solid var(--border); border-radius:20px; padding:6px 14px; color:var(--ink-faint2); font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:background .18s,border-color .18s,color .18s; }
+  .facility-filter:hover{ border-color:var(--gold); background:var(--paper-3); }
+  .facility-filter.active{ border-color:var(--vermillion); background:var(--vermillion); color:#F5E9DD; }
+  .facility-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+  .facility-card{
+    min-width:0; position:relative; display:flex; flex-direction:column; padding:16px 17px 14px; text-align:left;
+    border:1px solid var(--border); border-radius:8px; background:var(--paper-2); color:var(--ink); cursor:pointer;
+    box-shadow:0 3px 10px rgba(0,0,0,.035); transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  }
+  .facility-card:hover,.facility-card:focus-visible{ transform:translateY(-2px); border-color:var(--gold); box-shadow:0 8px 20px rgba(0,0,0,.1); outline:none; }
+  .facility-card::before{ content:""; position:absolute; left:0; top:12px; bottom:12px; width:3px; border-radius:0 3px 3px 0; background:var(--gold); }
+  .facility-card.vermillion::before{ background:var(--vermillion); }
+  .facility-card.jade::before{ background:var(--jade); }
+  .facility-card.purple::before{ background:#7C3AED; }
+  .facility-card-head{ display:flex; align-items:center; gap:9px; min-width:0; }
+  .facility-icon{ width:19px; height:19px; flex-shrink:0; color:var(--gold-deep); }
+  .facility-card.jade .facility-icon{ color:var(--jade); }
+  .facility-card.vermillion .facility-icon{ color:var(--vermillion-bright); }
+  .facility-card.purple .facility-icon{ color:#7C3AED; }
+  .facility-level{ font-size:10.5px; color:var(--gold-deep); letter-spacing:1px; white-space:nowrap; }
+  .facility-type{ margin-left:auto; overflow:hidden; color:var(--ink-faint2); font-size:10.5px; white-space:nowrap; text-overflow:ellipsis; }
+  .facility-card h3{ margin:12px 0 5px; font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:var(--ink); }
+  .facility-focus{ min-height:38px; margin:0; color:var(--ink-dim); font-size:13px; line-height:1.65; }
+  .facility-card-foot{ display:flex; align-items:center; gap:8px; margin-top:13px; padding-top:10px; border-top:1px dashed var(--border); }
+  .facility-cost{ flex:1; color:var(--gold-deep); font-size:11.5px; font-weight:700; line-height:1.5; }
+  .facility-more{ display:inline-flex; align-items:center; gap:3px; flex-shrink:0; color:var(--vermillion-bright); font-size:11px; font-weight:700; }
+  .facility-more svg{ width:13px; height:13px; }
+  .facility-beast-section{ margin-top:28px; padding-top:20px; border-top:2px solid var(--border); }
+  .facility-section-head{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:13px; }
+  .facility-section-head h3{ margin:0; font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; color:var(--ink); }
+  .facility-section-head p{ margin:0; color:var(--ink-faint2); font-size:12px; }
+  .beast-capacity{ display:flex; align-items:center; gap:10px; margin-bottom:13px; }
+  .beast-capacity-label{ flex-shrink:0; color:var(--jade); font-size:12px; font-weight:900; }
+  .beast-capacity-track{ flex:1; height:7px; overflow:hidden; background:var(--paper-3); border:1px solid var(--border); border-radius:4px; }
+  .beast-capacity-fill{ height:100%; width:30%; background:linear-gradient(90deg,var(--jade),#8FD6B1); }
+  .beast-capacity-count{ flex-shrink:0; color:var(--ink-dim); font-family:"Noto Serif TC",serif; font-size:13px; font-weight:900; }
+  .beast-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  .beast-card{ display:flex; align-items:flex-start; gap:10px; min-width:0; padding:12px; border:1px solid var(--border); border-radius:6px; background:linear-gradient(145deg,var(--paper-2),#F5EBD9); cursor:pointer; transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease; }
+  .beast-card:hover,.beast-card:focus-visible{ transform:translateY(-1px); border-color:var(--jade); box-shadow:0 5px 14px rgba(45,90,76,.1); outline:none; }
+  .beast-mark{ display:flex; align-items:center; justify-content:center; flex-shrink:0; width:31px; height:31px; border:1px solid rgba(45,90,76,.32); border-radius:50%; color:var(--jade); background:rgba(45,90,76,.08); }
+  .beast-mark svg{ width:17px; height:17px; }
+  .beast-copy{ min-width:0; }
+  .beast-name{ overflow:hidden; font-family:"Noto Serif TC",serif; font-weight:900; font-size:14px; white-space:nowrap; text-overflow:ellipsis; }
+  .beast-meta{ margin-top:2px; color:var(--ink-faint2); font-size:11px; }
+  .beast-skill{ overflow:hidden; margin-top:5px; color:var(--ink-dim); font-size:11.5px; line-height:1.5; white-space:nowrap; text-overflow:ellipsis; }
+  .facility-empty{ padding:22px; border:1px dashed var(--border); border-radius:7px; color:var(--ink-faint2); text-align:center; }
+  .facility-modal{ max-width:620px; }
+  .facility-modal .modal-title{ color:#F8EDD1; }
+  .facility-detail-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:16px 0 4px; }
+  .facility-detail-cell{ padding:10px 12px; border:1px solid rgba(232,202,130,.14); border-radius:4px; background:rgba(0,0,0,.2); }
+  .facility-detail-cell.wide{ grid-column:1 / -1; }
+  .facility-detail-label{ display:block; margin-bottom:3px; color:#C9A75E; font-size:10.5px; letter-spacing:2px; }
+  .facility-detail-value{ color:#F3E8CC; font-size:13px; line-height:1.75; }
+  .facility-modal .modal-sub{ margin-bottom:10px; }
+  .beast-modal-hero{ display:flex; align-items:center; gap:12px; padding:13px; border:1px solid rgba(45,90,76,.35); border-radius:5px; background:rgba(45,90,76,.11); }
+  .beast-modal-hero .beast-mark{ width:42px; height:42px; }
+  .beast-modal-hero .beast-mark svg{ width:22px; height:22px; }
+  .beast-modal-title{ color:#F8EDD1; font-family:"Noto Serif TC",serif; font-size:20px; font-weight:900; }
+  .beast-modal-meta{ margin-top:3px; color:#9FC0AC; font-size:12px; }
+  .beast-skill-box{ margin-top:15px; padding:13px 15px; border-left:3px solid var(--jade); background:rgba(45,90,76,.1); color:#E7F2E9; font-size:14px; line-height:1.85; }
+  .tab-count{ display:inline-flex; align-items:center; justify-content:center; min-width:19px; height:19px; margin-left:7px; padding:0 5px; border-radius:10px; background:rgba(140,107,39,.18); color:var(--gold-deep); font-size:11px; }
+  .tab-btn.active .tab-count{ background:var(--vermillion-bright); color:#F8EDD1; }
+
   /* ===== 玉簡彈窗 ===== */
   .modal-mask{
     position:fixed; inset:0; z-index:400; display:flex; align-items:center; justify-content:center;
@@ -656,10 +752,24 @@
   .save-status.show{ opacity:1; }
   .save-status.error{ background:var(--vermillion-bright); }
 
+  @media(max-width:1020px){
+    .facility-overview{ grid-template-columns:1fr; }
+    .facility-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .beast-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  }
   @media(max-width:700px){
     .layout{ padding:20px 14px 80px; }
     .hall-title{ font-size:26px; }
     .top-nav{ padding:10px 14px; }
+    .facility-hero{ min-height:0; padding:19px 18px; }
+    .facility-hero h2{ font-size:21px; }
+    .facility-ledger{ padding:16px 18px; }
+    .facility-grid,.beast-grid{ grid-template-columns:1fr; }
+    .facility-detail-grid{ grid-template-columns:1fr; }
+    .facility-detail-cell.wide{ grid-column:auto; }
+    .facility-stat strong{ font-size:20px; }
+    .facility-toolbar{ gap:6px; }
+    .facility-filter{ padding:6px 11px; }
   }
 </style>
 </head>
@@ -704,7 +814,7 @@
 <div class="layout">
   <div class="hall-header">
     <div class="hall-title">宗門大殿</div>
-    <div class="hall-sub">內務堂總帳　·　庫房、卷宗與本命玉牌即時同步</div>
+    <div class="hall-sub">內務堂總帳　·　設施、庫房、卷宗與本命玉牌即時同步</div>
     <div class="hall-stats" id="hallStats"></div>
   </div>
 
@@ -779,12 +889,13 @@
   const STONE_QUICK_AMOUNTS = [100, 1000, 10000, 100000];
   let lastStoneChange = null; // { key, before, after } 供「復原上一筆」使用，僅存在本次瀏覽階段
 
-  let activeTab = "tab-warehouse";
+  let activeTab = "tab-facilities";
   let warehouseCat = "丹藥";
   let rosterFilter = "";
   let rosterRank = "全部";
   let rosterSort = "rank";        // rank / realmDesc / realmAsc / job / name
   let rosterRealmFilter = "";     // 由境界統計卡點選；"未記錄" 代表沒填境界的那群
+  let facilityGroup = "全部";      // 宗門設施頁籤的分類篩選
 
   const WAREHOUSE_CATS = ["丹藥","法器","材料","符咒"];
   const RANKS = ["長老","真傳","內門","外門","記名"];
@@ -1009,6 +1120,29 @@
     // 庫房大門
     vault: cls => svg(`<path d="M3.6 9.4 12 3.6l8.4 5.8"/><path d="M5.4 9.4v10.4h13.2V9.4"/><path d="M9.6 19.8v-5.6h4.8v5.6"/>`, cls)
   };
+  const FACILITY_GROUPS = ["全部","防禦","馴養","修行","生產","典藏"];
+  const FACILITIES = [
+    { id:"gate", name:"三級山門", level:"三級山門", category:"防禦", tone:"vermillion", icon:"shield", type:"護山大陣", focus:"五行幻獸大陣主動困敵並反擊", cost:"500 塊中品靈石／月", detail:"幻化出四階靈獸，主動困住並攻擊陣中生靈，對築基大圓滿以下修為有效。", entry:"無", note:"護山大陣：五行幻獸大陣" },
+    { id:"beast-garden", name:"三級靈獸園", level:"三級靈獸園", category:"馴養", tone:"jade", icon:"spark", type:"靈獸馴化", focus:"馴化四階以下靈獸，進階速度 ×2", cost:"5,000 塊下品靈石／月", detail:"馴化四階以下靈獸，並提高其進階速度二倍。", entry:"馭獸令牌", note:"每塊馭獸令牌需綁定一隻靈獸；僅持有馭獸令牌者方能使喚靈獸。" },
+    { id:"insect-house", name:"三級養蟲房", level:"三級養蟲房", category:"馴養", tone:"jade", icon:"lotus", type:"奇蟲馴服", focus:"馴服四階以下奇蟲，進階速度 ×2", cost:"8,000 塊下品靈石／月", detail:"馴服四階以下奇蟲，並提高進階速度二倍。", entry:"掌門腰牌、養蟲房令牌", note:"建築規格：1 棟房子。" },
+    { id:"training-field", name:"三級修練道場", level:"三級修練道場", category:"修行", tone:"jade", icon:"spark", type:"多人修練", focus:"築基中期以下修士修練速度 +30%", cost:"40 塊中品靈石／月", detail:"可容納 50 人；提高築基中期以下修士修練速度三成，築基中期以上無作用。", entry:"無", note:"容納人數：50 人。" },
+    { id:"master-room", name:"三級練功房", level:"三級練功房", category:"修行", tone:"gold", icon:"bolt", type:"掌門專用", focus:"掌門修練速度 +50%", cost:"8,000 塊下品靈石／月", detail:"可提升掌門修練速度五成。", entry:"掌門鐵板指", note:"建築規格：1 間。" },
+    { id:"insight-room", name:"三級參悟室", level:"三級參悟室", category:"修行", tone:"purple", icon:"yinyang", type:"築基參悟", focus:"築基成功機率 +30%", cost:"5,000 塊中品靈石／次", detail:"提升築基成功機率三成。此項為單次使用消耗。", entry:"掌門腰牌、參悟室令牌", note:"建築規格：1 間房間。" },
+    { id:"scripture-pavilion", name:"三級藏經閣", level:"三級藏經閣", category:"典藏", tone:"gold", icon:"scroll", type:"功法典藏", focus:"每月生成秘笈、丹方、器方與符方", cost:"400 塊中品靈石／月", detail:"每月生成高階功法秘笈一本、可修復神通法術功法秘笈一本；每月生成三階丹方、器方、符方各一份；可修復四階丹方、器方、符方與晉國範圍內藏寶圖。", entry:"掌門板指、藏經閣令牌", note:"建築規格：4 間房間。" },
+    { id:"spirit-field", name:"三級靈田", level:"三級靈田", category:"生產", tone:"jade", icon:"yinyang", type:"農作生產", focus:"生長週期 ×4，每月收穫二次", cost:"10 塊中品靈石／月", detail:"建築面積 30 畝；提高農作物生長週期四倍，每個月收穫二次，每次產量九千斤。", entry:"無", note:"建築面積：30 畝。" },
+    { id:"herb-garden", name:"三級靈藥圃", level:"三級靈藥圃", category:"生產", tone:"jade", icon:"lotus", type:"靈藥培植", focus:"四階以下靈藥生長速度 ×6", cost:"50 塊中品靈石／月", detail:"加速四階以下靈藥生長速度六倍；加速四階靈藥生長速度三倍；四階以上無效果。", entry:"掌門腰牌、靈藥圃令牌", note:"建築面積：4 畝。" },
+    { id:"alchemy-room", name:"三級煉丹房", level:"三級煉丹房", category:"生產", tone:"vermillion", icon:"gourd", type:"煉丹工坊", focus:"四階以下靈丹成丹率 100%", cost:"8,000 塊下品靈石／月", detail:"四階以下靈丹成丹率百分之百；四階靈丹成丹率提升百分之三十；五階靈丹成丹率提升百分之十；五階以上無效果。", entry:"掌門腰牌、煉丹房令牌", note:"建築規格：1 棟房子。" },
+    { id:"talisman-room", name:"三級制符室", level:"三級制符室", category:"生產", tone:"gold", icon:"talisman", type:"制符工坊", focus:"四階符咒成功率 +30%", cost:"8,000 塊下品靈石／月", detail:"四階符咒成功率提升三成；五階符咒成功率提升一成；五階以上無效果。", entry:"掌門腰牌、制符室令牌", note:"建築規格：1 棟房子。" }
+  ];
+  const BEASTS = [
+    { id:"earth-worm", name:"一階翻土蚯", root:"土", realm:"煉氣期", skill:"很會翻土。蚯蚓不翻土，要幹嘛？", icon:"yinyang" },
+    { id:"patrol-hound", name:"一階巡狩犬", root:"金", realm:"煉氣期", skill:"危險感知。敵人靠近宗門時，發出全山都聽得見的叫聲示警。", icon:"shield" },
+    { id:"treasure-rat", name:"一階尋寶鼠", root:"金", realm:"煉氣期", skill:"可找尋方圓十公尺內天上地下的寶藏。", icon:"spark" },
+    { id:"herb-rabbit", name:"一階採藥兔", root:"木", realm:"煉氣期", skill:"每日可採集一株稀有靈草。", icon:"lotus" },
+    { id:"sky-crane", name:"一階飛天鶴", root:"風", realm:"築基期", skill:"飛得很快。飛天鶴真的飛得很快。", icon:"spark" },
+    { id:"flame-lion", name:"三階烈焰獅", root:"火", realm:"築基後期", skill:"燒起來了！烈焰獅口中噴火，把三十尺內的獵物都燒起來了。", icon:"gourd" }
+  ];
+
   // 玉牌裂痕（僅在瀕死時疊上）
   const CRACK_SVG = `<svg class="jt-crack" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M0 28 13 39 7 54l12 11"/><path d="M100 24 88 35l6 15-10 11"/><path d="M41 100 47 88l-7-9"/><path d="M8 0l6 13"/></svg>`;
 
@@ -1090,6 +1224,7 @@
       ${sandboxBannerHtml()}
       ${adminNoticeHtml()}
       <div class="tabs">
+        <button class="tab-btn" data-tab="tab-facilities">【宗門設施】<span class="tab-count">${FACILITIES.length}</span></button>
         <button class="tab-btn" data-tab="tab-warehouse">【宗門庫房】</button>
         <button class="tab-btn" data-tab="tab-treasury">【多寶閣】</button>
         <button class="tab-btn" data-tab="tab-roster">【弟子花名冊】</button>
@@ -1098,6 +1233,7 @@
         ${editable ? `<button class="tab-btn" data-tab="tab-requests">【待批核卷宗】${pendingRequests().length ? `<span class="tab-dot">${pendingRequests().length}</span>` : ""}</button>` : ""}
         ${isDM() ? `<button class="tab-btn" data-tab="tab-admin">【權限管理】</button>` : ""}
       </div>
+      <div class="tab-panel" id="tab-facilities">${facilitiesHtml()}</div>
       <div class="tab-panel" id="tab-warehouse">${warehouseHtml(editable)}</div>
       <div class="tab-panel" id="tab-treasury">${treasuryHtml(editable)}</div>
       <div class="tab-panel" id="tab-roster">${rosterHtml(editable)}</div>
@@ -1107,7 +1243,7 @@
       ${isDM() ? `<div class="tab-panel" id="tab-admin">${adminHtml()}</div>` : ""}
     `;
 
-    if(!document.getElementById(activeTab)) activeTab = "tab-warehouse";
+    if(!document.getElementById(activeTab)) activeTab = "tab-facilities";
     area.querySelectorAll(".tab-btn").forEach(btn => {
       btn.classList.toggle("active", btn.dataset.tab === activeTab);
       btn.onclick = () => {
@@ -1259,6 +1395,129 @@
         <button class="sb-release" data-action="sandbox-release" title="徹底放棄沙盒持有人身分">放棄持有人身分</button>
       </span>
     </div>`;
+  }
+
+  // ===== 宗門設施 =====
+  function facilityIcon(name, cls){
+    return typeof SVG[name] === "function" ? SVG[name](cls || "facility-icon") : SVG.spark(cls || "facility-icon");
+  }
+
+  function facilityGridHtml(){
+    const list = FACILITIES.filter(f => facilityGroup === "全部" || f.category === facilityGroup);
+    if(list.length === 0) return `<div class="facility-empty">此分類尚無設施資料。</div>`;
+    return list.map(f => `
+      <div class="facility-card ${f.tone}" role="button" tabindex="0" data-facility="${attr(f.id)}" aria-label="查看${attr(f.name)}詳情">
+        <div class="facility-card-head">
+          ${facilityIcon(f.icon)}
+          <span class="facility-level">${escapeHtml(f.level)}</span>
+          <span class="facility-type">${escapeHtml(f.type)}</span>
+        </div>
+        <h3>${escapeHtml(f.name)}</h3>
+        <p class="facility-focus">${escapeHtml(f.focus)}</p>
+        <div class="facility-card-foot">
+          <span class="facility-cost">${escapeHtml(f.cost)}</span>
+          <span class="facility-more">詳情 ${SVG.chevronR()}</span>
+        </div>
+      </div>`).join("");
+  }
+
+  function beastCardHtml(beast){
+    return `
+      <div class="beast-card" role="button" tabindex="0" data-beast="${attr(beast.id)}" aria-label="查看${attr(beast.name)}詳情">
+        <span class="beast-mark">${facilityIcon(beast.icon, "")}</span>
+        <span class="beast-copy">
+          <span class="beast-name">${escapeHtml(beast.name)}</span>
+          <span class="beast-meta">${escapeHtml(beast.root)}靈根　·　${escapeHtml(beast.realm)}</span>
+          <span class="beast-skill">${escapeHtml(beast.skill)}</span>
+        </span>
+      </div>`;
+  }
+
+  function facilitiesHtml(){
+    const tokenStock = Object.values(warehouse).find(i => i && i.name === "馭獸令牌");
+    const monthlyLow = 37000;
+    const monthlyMid = 1000;
+    return `
+      <div class="block-title">宗門設施<span class="spacer"></span>
+        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">點選卡片查看完整規格</span>
+      </div>
+      <div class="facility-overview">
+        <section class="facility-hero">
+          <div class="facility-kicker">宗門建制 · 第三級</div>
+          <h2>山門、道場與百工諸房</h2>
+          <p>將宗門日常運轉拆成五個清晰脈絡：防禦、馴養、修行、生產與典藏。主畫面只保留決策需要的摘要，完整限制與信物收進卡片詳情。</p>
+          <div class="facility-stats">
+            <div class="facility-stat"><strong>${FACILITIES.length}</strong><span>座設施</span></div>
+            <div class="facility-stat"><strong>6 / 20</strong><span>靈獸園名額</span></div>
+            <div class="facility-stat"><strong>${tokenStock ? num(tokenStock.qty).toLocaleString() : "—"}</strong><span>馭獸令牌庫存</span></div>
+          </div>
+        </section>
+        <aside class="facility-ledger">
+          <div class="facility-ledger-head">${SVG.stone()}<span>每月維運帳</span></div>
+          <div class="facility-ledger-total">${monthlyLow.toLocaleString()} <small>下品靈石／月</small></div>
+          <div class="facility-cost-line"><span>中品靈石</span><b>${monthlyMid.toLocaleString()} 枚／月</b></div>
+          <div class="facility-cost-line"><span>下品靈石</span><b>${monthlyLow.toLocaleString()} 枚／月</b></div>
+          <div class="facility-cost-line"><span>參悟室</span><b>5,000 中品／次</b></div>
+          <div class="facility-ledger-note">※ 不含材料、丹方、器方與符方等生產／修復成本。</div>
+        </aside>
+      </div>
+      <div class="facility-toolbar" role="toolbar" aria-label="設施分類">
+        <span class="toolbar-label">查看分區</span>
+        ${FACILITY_GROUPS.map(g => `<button type="button" class="facility-filter ${facilityGroup===g?"active":""}" data-facility-group="${attr(g)}">${escapeHtml(g)}${g === "全部" ? `（${FACILITIES.length}）` : `（${FACILITIES.filter(f=>f.category===g).length}）`}</button>`).join("")}
+      </div>
+      <div class="facility-grid" id="facilityGrid">${facilityGridHtml()}</div>
+      <section class="facility-beast-section">
+        <div class="facility-section-head"><h3>靈獸園 · 已入園靈獸</h3><p>完整本命技能點擊卡片查看</p></div>
+        <div class="beast-capacity">
+          <span class="beast-capacity-label">園區容量</span>
+          <span class="beast-capacity-track"><span class="beast-capacity-fill"></span></span>
+          <span class="beast-capacity-count">6 / 20</span>
+        </div>
+        <div class="beast-grid">${BEASTS.map(beastCardHtml).join("")}</div>
+      </section>`;
+  }
+
+  function openFacilityModal(id){
+    const f = FACILITIES.find(x => x.id === id);
+    if(!f) return;
+    openModal(`
+      <div class="modal-title">${facilityIcon(f.icon, "")}<span>${escapeHtml(f.name)}</span></div>
+      <div class="modal-sub">${escapeHtml(f.type)}　·　${escapeHtml(f.level)}</div>
+      <div class="facility-detail-grid">
+        <div class="facility-detail-cell wide"><span class="facility-detail-label">建築功能</span><span class="facility-detail-value">${escapeHtml(f.detail)}</span></div>
+        <div class="facility-detail-cell"><span class="facility-detail-label">${f.cost.includes("／次") ? "單次消耗" : "每月消耗"}</span><span class="facility-detail-value">${escapeHtml(f.cost)}</span></div>
+        <div class="facility-detail-cell"><span class="facility-detail-label">進入信物</span><span class="facility-detail-value">${escapeHtml(f.entry)}</span></div>
+        <div class="facility-detail-cell wide"><span class="facility-detail-label">建築備註</span><span class="facility-detail-value">${escapeHtml(f.note)}</span></div>
+      </div>
+      <div class="modal-foot"><button class="btn gold" data-modal="close">收起玉簡</button></div>`, el => {
+        el.querySelector(".modal-card").classList.add("facility-modal");
+        el.querySelector('[data-modal="close"]').onclick = closeModal;
+      });
+  }
+
+  function openBeastModal(id){
+    const beast = BEASTS.find(x => x.id === id);
+    if(!beast) return;
+    openModal(`
+      <div class="modal-title">${facilityIcon(beast.icon, "")}<span>靈獸詳錄</span></div>
+      <div class="modal-sub">三級靈獸園 · 已綁定靈獸名冊</div>
+      <div class="beast-modal-hero">
+        <span class="beast-mark">${facilityIcon(beast.icon, "")}</span>
+        <span><span class="beast-modal-title">${escapeHtml(beast.name)}</span><span class="beast-modal-meta">${escapeHtml(beast.root)}靈根　·　${escapeHtml(beast.realm)}</span></span>
+      </div>
+      <div class="beast-skill-box"><b>本命技能</b><br>${escapeHtml(beast.skill)}</div>
+      <div class="modal-foot"><button class="btn gold" data-modal="close">收起玉簡</button></div>`, el => {
+        el.querySelector(".modal-card").classList.add("facility-modal");
+        el.querySelector('[data-modal="close"]').onclick = closeModal;
+      });
+  }
+
+  function refreshFacilityGrid(){
+    const grid = document.getElementById("facilityGrid");
+    if(!grid) return;
+    grid.innerHTML = facilityGridHtml();
+    document.querySelectorAll("[data-facility-group]").forEach(btn => btn.classList.toggle("active", btn.dataset.facilityGroup === facilityGroup));
+    wireEvents(grid);
   }
 
   // ===== 宗門庫房 =====
@@ -2324,6 +2583,22 @@
   }
 
   function wireEvents(area){
+    // 宗門設施：分類只替換卡片區，避免頁面跳動；卡片詳情用彈窗承載完整資訊
+    area.querySelectorAll("[data-facility-group]").forEach(btn => btn.onclick = () => {
+      facilityGroup = btn.dataset.facilityGroup;
+      refreshFacilityGrid();
+    });
+    area.querySelectorAll("[data-facility]").forEach(card => {
+      const open = () => openFacilityModal(card.dataset.facility);
+      card.onclick = open;
+      card.onkeydown = e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } };
+    });
+    area.querySelectorAll("[data-beast]").forEach(card => {
+      const open = () => openBeastModal(card.dataset.beast);
+      card.onclick = open;
+      card.onkeydown = e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } };
+    });
+
     // 分類 / 階級 / 搜尋
     area.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
       warehouseCat = b.dataset.cat;
