@@ -71,7 +71,12 @@
     .top-nav { padding: 10px 14px; gap: 8px; }
     .nav-brand strong { display: none; }
     .nav-link { padding: 6px 11px; letter-spacing: 1px; }
-    .char-select-wrap { flex: 1 1 100%; }
+    /* 窄螢幕排成兩列：角色選單自己一列，繁簡鈕跟帳號那塊共用下一列，
+       這樣導覽列不會被拆成三四行把畫面吃掉。 */
+    .nav-user { gap: 8px; }
+    .nav-user .char-select-wrap { order: 1; flex: 1 1 100%; min-width: 0; }
+    .nav-user .script-switch { order: 2; }
+    .nav-user .auth-box { order: 3; margin-left: auto; }
     .char-select-wrap select { flex: 1; min-width: 0; }
     .auth-name { display: none; }
   }
@@ -85,10 +90,16 @@
   }
   .char-select-wrap { display: flex; align-items: center; gap: 12px; }
   .auth-box { display: flex; align-items: center; gap: 12px; }
+  /* 這一塊平常是 display:none，登入後由 JS 改成 flex。以前只在 HTML 上寫了 display:none，
+     沒有 align-items／gap，於是頭像、暱稱、登出鈕各自貼著基線，看起來就是歪的。 */
+  .auth-logged-in { align-items: center; gap: 10px; }
+  .auth-logged-in > * { flex-shrink: 0; }
   /* 角色切換和帳號資訊綁一起：空間不夠要換行時，兩塊一起整組換到下一行，
      不會變成登出按鈕自己孤伶伶擠在最後（例如看自己角色卡時多出的「刪除」
      按鈕，就會讓寬度剛好卡在臨界點，只有帳號那塊被擠開）。 */
-  .nav-user { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  /* 繁簡切換原本夾在「宗門大殿」和角色卡下拉選單中間，位置很突兀；
+     移進 .nav-user 之後就固定貼在右上角，跟角色選單、帳號資訊同一組。 */
+  .nav-user { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; justify-content: flex-end; }
 
   .btn-discord {
     display: flex; align-items: center; gap: 6px;
@@ -97,7 +108,10 @@
   }
   .btn-discord svg { width: 16px; height: 16px; fill: #fff; }
   .auth-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold); }
-  .auth-name { font-weight: 700; font-size: 13px; color: var(--ink); }
+  .auth-name {
+    font-weight: 700; font-size: 13px; line-height: 1.2; color: var(--ink);
+    max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
 
   .btn {
     display:inline-flex; align-items:center; gap:5px;
@@ -185,6 +199,17 @@
     background:rgba(156,43,34,.08); border:1px solid rgba(156,43,34,.28); color:var(--vermillion-bright);
     font-size:13px; font-weight:700; padding:8px 14px; border-radius:4px; margin-bottom:22px;
   }
+
+  /* 天道代寫別人的卡時的提示條：跟唯讀橫幅同一個位置，但用金色而非硃色，
+     一眼分得出「我改得動、但這不是我的卡」。 */
+  .proxy-banner{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:rgba(140,107,39,.10); border:1px solid rgba(140,107,39,.34); color:var(--gold-deep);
+    font-size:13px; font-weight:700; padding:8px 14px; border-radius:4px; margin-bottom:22px;
+  }
+  .proxy-banner .pb-owner{ color:var(--ink); }
+  .proxy-banner .spacer{ flex:1; }
+  .proxy-banner .btn{ padding:4px 10px; font-size:12px; }
 
   /* ===== 角色標題大色塊 ===== */
   .char-header-block {
@@ -467,6 +492,9 @@
   .block-title::before { content: ""; display: block; width: 6px; height: 22px; background: var(--vermillion); border-radius: 3px; flex-shrink: 0; }
   .block-sub{ font-size: 13px; font-weight: 400; color: var(--ink-faint2); letter-spacing: 1px; }
   .table-scroll{ overflow-x: auto; }
+  /* 欄位固定寬之後，螢幕太窄會把五欄壓成一字一行；給一個下限，
+     再窄就交給上面本來就有的橫向捲動。 */
+  .table-scroll > table.sheet-table{ min-width: 620px; }
 
   .field-group { margin-bottom: 16px; }
   .field-label { display: block; font-size: 13px; font-weight: 700; color: var(--ink-faint2); margin-bottom: 6px; }
@@ -546,11 +574,25 @@
   .manual-table-header input { background: transparent; border: none; color: var(--gold); font-family: inherit; font-weight: inherit; font-size: inherit; width: 300px; }
   .manual-table-header input:focus { outline: none; border-bottom: 1px solid var(--gold); }
 
-  table.sheet-table { width: 100%; border-collapse: collapse; }
-  table.sheet-table th { background: rgba(0,0,0,0.03); text-align: left; font-family: "Noto Serif TC", serif; font-weight: 700; color: var(--ink-dim); font-size: 13px; padding: 10px 12px; border-bottom: 2px solid var(--border); }
-  table.sheet-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-  table.sheet-table input { width: 100%; background: transparent; border: none; color: var(--ink); font-family: inherit; font-size: 14px; padding: 4px; }
-  table.sheet-table input:focus { background: var(--paper); outline: none; border-radius: 4px; }
+  /* 功法總錄的表格：自藏經閣抄進來的招式，「消耗動作」「傷害／效果」常常是一整段敘述，
+     單行 <input> 只會把後面的字裁掉，非得把游標移到底才知道到底寫了什麼。
+     改成固定欄寬（table-layout:fixed）＋ 會自動增高的 <textarea>：文字自己換行、
+     欄位跟著長高，抄進來就是排好的版，整段都看得到。 */
+  table.sheet-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.sheet-table th { background: rgba(0,0,0,0.03); text-align: left; font-family: "Noto Serif TC", serif; font-weight: 700; color: var(--ink-dim); font-size: 13px; padding: 10px 12px; border-bottom: 2px solid var(--border); overflow-wrap: anywhere; }
+  table.sheet-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.sheet-table input,
+  table.sheet-table textarea { width: 100%; background: transparent; border: none; color: var(--ink); font-family: inherit; font-size: 14px; padding: 4px; }
+  table.sheet-table textarea {
+    display: block; resize: none; overflow: hidden; min-height: 28px;
+    line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap;
+  }
+  /* 唯讀（別人的卡）時 textarea 預設會被瀏覽器打灰，這裡維持跟一般文字一樣的顏色，
+     否則整張功法表會突然變得很難讀。 */
+  table.sheet-table textarea[disabled],
+  table.sheet-table input[disabled] { color: var(--ink); -webkit-text-fill-color: var(--ink); opacity: 1; }
+  table.sheet-table input:focus,
+  table.sheet-table textarea:focus { background: var(--paper); outline: none; border-radius: 4px; }
 
   .item-cards { display: grid; grid-template-columns: 1fr; gap: 16px; }
   .item-card { background: var(--paper-2); border: 1px solid var(--border); border-left: 4px solid var(--jade); border-radius: 6px; padding: 16px; position: relative; }
@@ -647,12 +689,12 @@
     <a class="nav-link" href="dm.html">宗門大殿</a>
   </div>
 
-  <div class="script-switch ignore-opencc" role="group" aria-label="繁簡切換">
-    <button type="button" data-mode="trad">繁</button>
-    <button type="button" data-mode="simp">簡</button>
-  </div>
-
   <div class="nav-user">
+    <div class="script-switch ignore-opencc" role="group" aria-label="繁簡切換">
+      <button type="button" data-mode="trad">繁</button>
+      <button type="button" data-mode="simp">簡</button>
+    </div>
+
     <div class="char-select-wrap">
       <select id="charSelect" class="btn" style="appearance:auto; padding:6px 24px 6px 12px;">
         <option value="">-- 選擇角色卡 --</option>
@@ -702,7 +744,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase, ref, onValue, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, onValue, get, set, remove, push, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -782,6 +824,7 @@
   document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
 
   let allChars = {};
+  let admins = {};
   let currentCharId = null;
   let draft = null, draftId = null;
   let dirty = false, saving = false;
@@ -879,6 +922,18 @@
     return allChars[currentCharId] ? normalizeChar(allChars[currentCharId]) : null;
   }
   function isOwner(char){ return !!(discordUser && char && char.ownerId === discordUser.id); }
+
+  // 天道（DM）常常要幫人代寫角色卡，所以在這一頁擁有所有角色卡的編輯權，
+  // 也可以把手上代寫好的卡轉交給真正的玩家。權限名單跟宗門大殿共用同一個 admins 節點。
+  function myRole(){
+    if(!discordUser) return null;
+    const a = admins[discordUser.id];
+    return a ? a.role : null;
+  }
+  function isDM(){ return myRole() === "DM"; }
+  function canEditChar(char){ return !!(discordUser && char && (char.ownerId === discordUser.id || isDM())); }
+  // 「我不是卡主、但因為是天道才編得動」——畫面上要講清楚，免得以為在改自己的卡
+  function isProxyEditing(char){ return !!(char && canEditChar(char) && !isOwner(char)); }
 
   // 採用草稿時記下當下的儲物袋內容當基準：存檔前用它分辨
   // 「這筆物品是我自己刪掉的」還是「我在編輯期間長老從宗門大殿賜下來的」。
@@ -1243,6 +1298,14 @@
   // ============================================================
   // 角色卡清單 & 宗門大殿總覽
   // ============================================================
+  // 權限名單：只有「我的職權真的變了」才重畫，避免天道授權表一有風吹草動就打斷編輯
+  onValue(ref(db, "admins"), snap => {
+    const before = myRole();
+    admins = snap.val() || {};
+    if(myRole() === before) return;
+    renderCharLists(); renderSheet();
+  }, err => console.warn("admins sync error（權限名單讀不到就只當一般弟子）", err));
+
   const charsRef = ref(db, "characters");
   onValue(charsRef, snap => {
     charsSyncError = null;
@@ -1286,10 +1349,13 @@
         select.appendChild(group);
       }
     }
+    // 只列角色名（境界），不再附上 Discord 暱稱：卡多了以後每一列都是
+    // 「角色名（境界）(某某某)」，選單長到難以閱讀，而且等於把所有人的
+    // DC 帳號名攤在畫面上。要知道是誰的卡，開卡後看卡上的「玩家」欄即可。
     const others = Object.entries(allChars).filter(([,c]) => !discordUser || c.ownerId !== discordUser.id);
     if(others.length > 0){
       const group = document.createElement("optgroup"); group.label = "宗門其他角色";
-      others.forEach(([id,c]) => group.innerHTML += `<option value="${id}">${escapeHtml(label(c))} (${escapeHtml(c.player||"未知")})</option>`);
+      others.forEach(([id,c]) => group.innerHTML += `<option value="${id}">${escapeHtml(label(c))}</option>`);
       select.appendChild(group);
     }
     select.value = currentCharId || "";
@@ -1300,9 +1366,11 @@
     const btn = document.getElementById("btnDelChar");
     if(!btn) return;
     const char = currentChar();
-    const show = !!(discordUser && char && isOwner(char));
+    const show = !!(discordUser && char && canEditChar(char));
     btn.style.display = show ? "inline-flex" : "none";
-    if(show) btn.title = `刪除角色卡「${char.name || "未命名角色"}」`;
+    if(show) btn.title = isOwner(char)
+      ? `刪除角色卡「${char.name || "未命名角色"}」`
+      : `以天道權限刪除「${char.ownerName || "他人"}」的角色卡「${char.name || "未命名角色"}」`;
   }
 
   document.getElementById("charSelect").addEventListener("change", async (e) => {
@@ -1330,9 +1398,13 @@
 
   document.getElementById("btnDelChar").addEventListener("click", async () => {
     const char = currentChar();
-    if(!char || !isOwner(char)) return;
+    if(!char || !canEditChar(char)) return;
     const name = char.name || "未命名角色";
-    if(!confirm(`確定要刪除角色卡「${name}」嗎？\n\n這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`)) return;
+    // 刪別人的卡是天道權限，多提一次卡主是誰，避免手滑刪掉玩家的心血
+    const warn = isOwner(char)
+      ? `確定要刪除角色卡「${name}」嗎？\n\n這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`
+      : `這是「${char.ownerName || "其他弟子"}」的角色卡「${name}」，你正以天道權限刪除它。\n\n這個動作無法復原，卡上的功法、物品與筆記都會一起消失。確定要刪除嗎？`;
+    if(!confirm(warn)) return;
     const id = currentCharId;
     try{
       clearTimeout(saveTimer); dirty = false;
@@ -1361,8 +1433,25 @@
     const stoneTotal = ["low","mid","high","extreme"].reduce((s,k) => s + num(clanStones[k]), 0);
     if(items.length === 0 && members.length === 0 && stoneTotal === 0 && Object.keys(clanTreasury).length === 0 && Object.keys(clanLibrary).length === 0){ box.innerHTML = ""; return; }
     const catCount = c => items.filter(i => (i.category || "丹藥") === c).length;
+
+    // 境界分布跟宗門大殿的花名冊用同一套規則：名冊姓名對得上角色卡的，
+    // 以角色卡上的境界為準（同名多張卡就不連動，避免算到錯的人身上）。
+    const cardRealm = new Map();
+    Object.values(allChars).forEach(c => {
+      if(!c || typeof c !== "object") return;
+      const n = String(c.name || "").trim();
+      if(!n) return;
+      if(cardRealm.has(n)) cardRealm.set(n, null);
+      else cardRealm.set(n, String(c.realm || "").trim());
+    });
+    const memberRealm = m => {
+      if(!m || m.realmLink === "manual") return String((m && m.realm) || "").trim();
+      const linked = cardRealm.get(String(m.name || "").trim());
+      return linked || String(m.realm || "").trim();
+    };
+
     const realmGroups = {};
-    members.forEach(m => { const g = ((m.realm || "").trim() || "未記錄").slice(0, 2); realmGroups[g] = (realmGroups[g] || 0) + 1; });
+    members.forEach(m => { const g = (memberRealm(m) || "未記錄").slice(0, 2); realmGroups[g] = (realmGroups[g] || 0) + 1; });
     const realmText = Object.entries(realmGroups).sort((a,b) => b[1]-a[1]).map(([g,n]) => `<span>${escapeHtml(g)} <b>${n}</b></span>`).join("");
     box.innerHTML = `
       <div class="cs-box">
@@ -1396,7 +1485,7 @@
     clearTimeout(saveTimer);
     if(!currentCharId || !discordUser) return;
     const char = draft;
-    if(!char || draftId !== currentCharId || !isOwner(char)) return;
+    if(!char || draftId !== currentCharId || !canEditChar(char)) return;
     const id = currentCharId;
     saving = true; dirty = false;
     try{
@@ -1572,7 +1661,7 @@
   portraitInput.addEventListener("change", async () => {
     const file = portraitInput.files && portraitInput.files[0];
     portraitInput.value = ""; if(!file) return;
-    const char = currentChar(); if(!char || !isOwner(char)) return;
+    const char = currentChar(); if(!char || !canEditChar(char)) return;
     try{
       flashSaveStatus("處理立繪中……", false);
       char.portrait = await shrinkImage(file);
@@ -1605,7 +1694,7 @@
   function refreshPortrait(){
     const char = currentChar(); if(!char) return;
     const host = sheetEl.querySelector(".ch-portrait"); if(!host) return;
-    const tmp = document.createElement("div"); tmp.innerHTML = portraitHtml(char, isOwner(char)); host.replaceWith(tmp.firstElementChild);
+    const tmp = document.createElement("div"); tmp.innerHTML = portraitHtml(char, canEditChar(char)); host.replaceWith(tmp.firstElementChild);
   }
 
   function fitNumberInput(el, base){
@@ -1624,6 +1713,9 @@
 
   function resizeAllTextareas(){
     sheetEl.querySelectorAll('textarea').forEach(el => {
+      // 藏在沒被選到的分頁裡的 textarea 量不到高度（scrollHeight 是 0），
+      // 硬算會把它壓成 0px；切到那個分頁時本來就會再呼叫一次，這裡直接跳過。
+      if(el.offsetParent === null) return;
       el.style.height = 'auto';
       el.style.height = (el.scrollHeight) + 'px';
     });
@@ -1642,10 +1734,21 @@
     }
 
     applyPathTint(char); document.getElementById("watermark").textContent = (char.name || "卡").trim().charAt(0) || "卡";
-    const editable = isOwner(char); const dis = editable ? "" : "disabled";
+    const editable = canEditChar(char); const dis = editable ? "" : "disabled";
 
     sheetEl.innerHTML = `
       ${!editable ? `<div class="readonly-banner">唯讀模式：您正在檢視「${escapeHtml(char.name)}」的角色卡。</div>` : ""}
+      ${isProxyEditing(char) ? `<div class="proxy-banner">
+        <span>天道權限：你正在代為編輯</span>
+        <span class="pb-owner">「${escapeHtml(char.ownerName || "未留名")}」的角色卡</span>
+        <span class="spacer"></span>
+        <button class="btn gold-btn" data-action="transfer-char">轉交這張角色卡</button>
+      </div>` : ""}
+      ${isDM() && isOwner(char) ? `<div class="proxy-banner">
+        <span>這張卡目前掛在你名下</span>
+        <span class="spacer"></span>
+        <button class="btn" data-action="transfer-char">轉交給其他玩家</button>
+      </div>` : ""}
       <div class="char-header-block">
         <div class="ch-left">
           <div class="ch-nameline">
@@ -1879,6 +1982,10 @@
           </div>
           <div class="table-scroll">
           <table class="sheet-table">
+            <colgroup>
+              <col style="width:21%"><col style="width:12%"><col style="width:17%">
+              <col style="width:34%"><col style="width:16%">${editable?'<col style="width:40px">':''}
+            </colgroup>
             <thead><tr><th>技能名稱（門檻）</th><th>命中／豁免</th><th>消耗動作</th><th>傷害／效果</th><th>資源</th>${editable?'<th style="width:40px;"></th>':''}</tr></thead>
             <tbody>
               ${(group.spells || []).map((row, rIdx) => spellRowHtml(gIdx, rIdx, row, editable)).join("")}
@@ -1891,9 +1998,11 @@
       ${editable ? `<button class="btn gold-btn" data-action="add-spellgroup">＋ 新增一組功法表</button>` : ""}`;
   }
 
+  // 每一格用 textarea 而不是 input：抄進來的招式敘述可以直接換行攤開，
+  // 高度由 resizeAllTextareas()／輸入事件即時算，看不到捲軸也不會裁字。
   function spellRowHtml(gIdx, rIdx, row, editable){
     row = padRow(row, 5); let tds = "";
-    for(let c=0; c<5; c++){ tds += `<td><input value="${attr(row[c])}" data-sg="${gIdx}" data-sr="${rIdx}" data-sc="${c}" ${editable?"":"disabled"}></td>`; }
+    for(let c=0; c<5; c++){ tds += `<td><textarea rows="1" data-sg="${gIdx}" data-sr="${rIdx}" data-sc="${c}" ${editable?"":"disabled"}>${attr(row[c])}</textarea></td>`; }
     if(editable) tds += `<td><button class="btn-icon" data-action="del-spellrow" data-gidx="${gIdx}" data-ridx="${rIdx}">✕</button></td>`;
     return `<tr>${tds}</tr>`;
   }
@@ -2039,7 +2148,7 @@
 
   function openLibraryPicker(){
     const char = currentChar();
-    if(!char || !isOwner(char)){ flashSaveStatus("只有卡主可以取用功法", true); return; }
+    if(!char || !canEditChar(char)){ flashSaveStatus("只有卡主（或天道）可以取用功法", true); return; }
     libPickSearch = "";
     openModal(`
       <div class="modal-title">自藏經閣取用功法</div>
@@ -2065,7 +2174,7 @@
   function importArt(id){
     const char = currentChar();
     const art = clanLibrary[id];
-    if(!char || !isOwner(char) || !art) return;
+    if(!char || !canEditChar(char) || !art) return;
     const name = String(art.name || "").trim() || "未命名功法";
     if(canLearnArt(art, char) === false &&
        !confirm(`【${name}】限定的道途／職業和這張卡不符。\n\n仍要抄進功法總錄嗎？`)) return;
@@ -2078,6 +2187,108 @@
     flashSaveStatus(rows.length
       ? `已自藏經閣抄錄【${name}】，共 ${rows.length} 條`
       : `已自藏經閣抄錄【${name}】（這部功法還沒有寫任何招式）`, false);
+  }
+
+  // ===== 天道：把角色卡轉交給別人 =====
+  // 天道常常先幫玩家把卡建好、寫完，再把卡交回本人手上。
+  // 名單來源是「已授權的管理者」＋「目前有卡在身上的人」，兩邊都撈不到的話
+  // 也可以直接貼 Discord ID（跟宗門大殿授權管理員用的是同一組 ID）。
+  function knownUsers(){
+    const map = new Map();
+    Object.entries(admins).forEach(([id, a]) => {
+      if(id) map.set(id, String((a && a.name) || "").trim());
+    });
+    Object.values(allChars).forEach(c => {
+      if(!c || !c.ownerId) return;
+      const had = map.get(c.ownerId);
+      if(!had) map.set(c.ownerId, String(c.ownerName || c.player || "").trim());
+    });
+    if(discordUser) map.set(discordUser.id, discordUser.name);
+    return [...map.entries()]
+      .map(([id, name]) => ({ id, name: name || "（未留名）" }))
+      .sort((a, b) => a.name.localeCompare(b.name, "zh-Hant"));
+  }
+
+  function openTransferModal(){
+    const char = currentChar();
+    if(!char || !isDM()){ flashSaveStatus("只有天道可以轉交角色卡", true); return; }
+    const id = currentCharId;
+    const name = char.name || "未命名角色";
+    const others = knownUsers().filter(u => u.id !== char.ownerId);
+    openModal(`
+      <div class="modal-title">轉交角色卡</div>
+      <div class="modal-sub">把【${escapeHtml(name)}】的卡主換成另一個人。轉交之後，
+        對方就能自己編輯這張卡，你（天道）仍然改得動；原卡主則會變回唯讀。<br>
+        目前卡主：<b>${escapeHtml(char.ownerName || "未留名")}</b></div>
+      <label class="modal-label">接手的人</label>
+      <select class="modal-field" id="trTarget">
+        ${others.length
+          ? others.map(u => `<option value="${attr(u.id)}">${escapeHtml(u.name)}（${escapeHtml(u.id)}）</option>`).join("")
+          : ""}
+        <option value="__manual__">── 名單裡沒有，手動輸入 Discord ID ──</option>
+      </select>
+      <div id="trManual" style="display:none;">
+        <label class="modal-label">Discord 使用者 ID（純數字）</label>
+        <input class="modal-field" id="trId" placeholder="例：123456789012345678" autocomplete="off">
+        <label class="modal-label">顯示名稱</label>
+        <input class="modal-field" id="trName" placeholder="卡上要顯示的玩家名" autocomplete="off">
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-modal="cancel">作罷</button>
+        <button class="btn gold-btn" data-modal="ok">確定轉交</button>
+      </div>`, el => {
+      const sel = el.querySelector("#trTarget");
+      const manual = el.querySelector("#trManual");
+      const syncManual = () => {
+        const on = sel.value === "__manual__";
+        manual.style.display = on ? "block" : "none";
+        if(on) el.querySelector("#trId").focus();
+      };
+      if(others.length === 0) sel.value = "__manual__";
+      syncManual();
+      sel.onchange = syncManual;
+      el.querySelector('[data-modal="cancel"]').onclick = closeModal;
+      el.querySelector('[data-modal="ok"]').onclick = () => {
+        let targetId, targetName;
+        if(sel.value === "__manual__"){
+          targetId = el.querySelector("#trId").value.trim();
+          targetName = el.querySelector("#trName").value.trim();
+          if(!/^\d{5,}$/.test(targetId)){ alert("Discord 使用者 ID 應該是一串純數字，請再確認一次。"); return; }
+          if(!targetName){ alert("請填上要顯示在卡上的玩家名稱。"); return; }
+        } else {
+          targetId = sel.value;
+          const hit = others.find(u => u.id === targetId);
+          targetName = hit ? hit.name : targetId;
+        }
+        transferChar(id, targetId, targetName);
+      };
+    });
+  }
+
+  async function transferChar(id, targetId, targetName){
+    const char = allChars[id] ? normalizeChar(allChars[id]) : null;
+    if(!char || !isDM()){ flashSaveStatus("只有天道可以轉交角色卡", true); return; }
+    if(char.ownerId === targetId){ flashSaveStatus("這張卡本來就是他的", true); return; }
+    if(!confirm(`確定把「${char.name || "未命名角色"}」轉交給 ${targetName} 嗎？\n\n`
+      + `轉交後由對方持有這張卡；原卡主「${char.ownerName || "未留名"}」會變成唯讀。`)) return;
+
+    // 手上還有沒存的改動就先存起來，免得等一下讀回來的資料把它蓋掉
+    if(dirty && draftId === id) await doSave();
+    try{
+      const patch = { ownerId: targetId, ownerName: targetName, updatedAt: Date.now(), updatedBy: discordUser.name };
+      // 「玩家」欄本來是卡主名，但玩家可能自己改成別的稱呼；只有還維持原樣時才跟著換，
+      // 手動填過的內容一律保留。
+      if(!String(char.player || "").trim() || char.player === char.ownerName) patch.player = targetName;
+      await update(ref(db, "characters/" + id), patch);
+      Object.assign(allChars[id], patch);
+      if(draftId === id && draft) Object.assign(draft, patch);
+      closeModal();
+      renderCharLists(); renderSheet();
+      flashSaveStatus(`已將「${char.name || "未命名角色"}」轉交給 ${targetName}`, false);
+    }catch(e){
+      console.error("transfer error", e);
+      alert("轉交失敗：" + (e && e.message ? e.message : e));
+    }
   }
 
   // ===== 向內務堂請調法寶 =====
@@ -2115,7 +2326,7 @@
   function openTreasuryRequest(){
     const char = currentChar();
     if(!discordUser){ flashSaveStatus("請先以 Discord 登入，方能呈遞卷宗", true); return; }
-    if(!char || !isOwner(char)){ flashSaveStatus("只有卡主可以呈遞請調卷宗", true); return; }
+    if(!char || !canEditChar(char)){ flashSaveStatus("只有卡主（或天道）可以呈遞請調卷宗", true); return; }
     treasurePickSearch = ""; treasurePickId = null;
     openModal(`
       <div class="modal-title">向內務堂請調法寶</div>
@@ -2186,17 +2397,21 @@
 
   function refreshQuickActions(){
     const char = currentChar(); if(!char) return;
-    const host = document.getElementById("qaHost"); if(host) host.innerHTML = quickActionsHtml(char, isOwner(char));
+    const host = document.getElementById("qaHost"); if(host) host.innerHTML = quickActionsHtml(char, canEditChar(char));
   }
   function refreshSpells(){
     const char = currentChar(); if(!char) return;
-    const host = document.getElementById("spellHost"); if(host) host.innerHTML = spellsHtml(char, isOwner(char));
+    const host = document.getElementById("spellHost");
+    if(host){
+      host.innerHTML = spellsHtml(char, canEditChar(char));
+      resizeAllTextareas();   // 新抄進來的招式敘述要立刻攤開，不然會全部縮成一行
+    }
   }
   function refreshItems(){
     const char = currentChar(); if(!char) return;
     const host = document.getElementById("itemHost");
     if(host) {
-      host.innerHTML = itemsHtml(char, isOwner(char));
+      host.innerHTML = itemsHtml(char, canEditChar(char));
       resizeAllTextareas();
     }
   }
@@ -2204,7 +2419,7 @@
     const char = currentChar(); if(!char) return;
     const host = document.getElementById("noteHost");
     if(host) {
-      host.innerHTML = notesHtml(char, isOwner(char));
+      host.innerHTML = notesHtml(char, canEditChar(char));
       resizeAllTextareas();
     }
   }
@@ -2230,7 +2445,7 @@
       el.style.height = (el.scrollHeight) + "px";
     }
 
-    if(!char || !isOwner(char) || el.disabled) return;
+    if(!char || !canEditChar(char) || el.disabled) return;
 
     if(el.dataset.f){
       const field = el.dataset.f;
@@ -2266,7 +2481,7 @@
         // 換了種族，原本選的亞種／血統多半已經不適用，一併清掉，選單也要重新產生
         // （不同種族的選項不一樣，換種族後可能整個消失或換一批選項）。
         if(char.raceVariant) setPath(char, "raceVariant", "");
-        const slot = document.getElementById("raceVariantSlot"); if(slot) slot.innerHTML = raceVariantTagHtml(char, isOwner(char) ? "" : "disabled");
+        const slot = document.getElementById("raceVariantSlot"); if(slot) slot.innerHTML = raceVariantTagHtml(char, canEditChar(char) ? "" : "disabled");
         const box = document.getElementById("rbBox-race"); if(box) box.innerHTML = rulebookBlocksHtml("種族", char.race, rbRawOpen["種族"]);
       }
       if(field === "raceVariant"){
@@ -2307,7 +2522,7 @@
 
   sheetEl.addEventListener("click", (e) => {
     const char = currentChar();
-    const editable = isOwner(char);
+    const editable = canEditChar(char);
     
     // 點擊屬性卡切換熟練，但點擊輸入框時不觸發
     const statCard = e.target.closest(".stat-card");
@@ -2333,6 +2548,7 @@
     const action = btn.dataset.action;
 
     if(action === "reload-rulebook"){ reloadRulebook(); return; }
+    if(action === "transfer-char"){ openTransferModal(); return; }
     if(action === "rb-raw"){
       const cat = btn.dataset.cat; rbRawOpen[cat] = !rbRawOpen[cat];
       if(!char) return; const panel = RB_PANELS.find(p => p.cat === cat);
