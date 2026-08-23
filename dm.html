@@ -22,6 +22,9 @@
     font-family:"LXGW WenKai TC","Noto Serif TC",serif; min-height:100vh; position:relative;
   }
   h1,h2,h3{ font-family:"Noto Serif TC",serif; }
+  /* mix-blend-mode 疊在 fixed 滿版層上：這層本身不會動，不需要 will-change:transform；
+     曾經加過會強制拉成獨立合成層，結果部分手機瀏覽器的 mix-blend-mode 混合層隔離失敗，
+     整層直接蓋成一塊實色，比卡頓更嚴重，所以拿掉。 */
   body::before{
     content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -60,10 +63,16 @@
     box-shadow:0 4px 12px rgba(0,0,0,.26), inset 0 0 14px rgba(212,175,55,.22);
   }
   .nav-link.current{ color:#1D1712; background:linear-gradient(155deg,#E3C271,#B98F32); border-color:#F0DCA4; }
-  
+
   /* ===== 繁簡切換 ===== */
-  .script-switch{ display:flex; gap:0; border:1px solid var(--border); border-radius:20px; overflow:hidden; flex-shrink:0; }
-  .script-switch button{ border:none; background:var(--paper); color:var(--ink-faint2); font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12px; letter-spacing:1px; padding:5px 12px; cursor:pointer; transition:background .2s, color .2s; }
+  .script-switch{
+    display:flex; gap:0; border:1px solid var(--border); border-radius:20px; overflow:hidden; flex-shrink:0;
+  }
+  .script-switch button{
+    border:none; background:var(--paper); color:var(--ink-faint2);
+    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:12px; letter-spacing:1px;
+    padding:5px 12px; cursor:pointer; transition:background .2s, color .2s;
+  }
   .script-switch button + button{ border-left:1px solid var(--border); }
   .script-switch button.active{ background:var(--vermillion); color:#F5E9DD; }
   .script-switch button:not(.active):hover{ background:var(--paper-3); color:var(--ink); }
@@ -108,186 +117,86 @@
 
   .layout{ max-width:1280px; margin:0 auto; padding:30px 20px 100px; position:relative; z-index:1; }
 
-  /* ===== 宗門總綱牌匾 (頂部橫幅整合) ===== */
-  .sect-banner{
-    position:relative; overflow:hidden;
-    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px 22px;
-    padding:13px 18px; border-radius:5px;
-    background:linear-gradient(150deg, rgba(31,26,18,.94) 0%, rgba(11,9,6,.96) 100%);
-    border:1px solid var(--gold-deep);
-    box-shadow:inset 0 0 24px rgba(140,107,39,.16), 0 4px 14px rgba(0,0,0,.34);
-    transition:border-color .45s ease, box-shadow .45s ease;
+  /* ===== 大色塊標題（比照角色卡） ===== */
+  .hall-header{
+    background:linear-gradient(135deg, var(--ink) 0%, #2A2520 100%);
+    border:2px solid var(--gold); border-radius:8px; padding:26px 36px; color:var(--paper);
+    margin-bottom:26px; position:relative; overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.15), inset 0 0 40px rgba(140,107,39,.1);
   }
-  .sect-banner.alarm{ border-color:rgba(200,70,52,.55); box-shadow:inset 0 0 26px rgba(140,30,22,.24), 0 4px 16px rgba(0,0,0,.4); }
-  .sb-main{ position:relative; z-index:1; display:flex; align-items:center; gap:12px; flex-shrink:0; }
-  .sb-sigil{ width:34px; height:34px; flex-shrink:0; color:rgba(201,167,94,.85); }
-  .sb-name{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:21px; color:#F8EDD1; line-height:1.2; }
-  .sb-level{
-    margin-left:8px; padding:2px 8px; border-radius:10px; vertical-align:middle;
-    font-family:"LXGW WenKai TC",serif; font-weight:700; font-size:11.5px; letter-spacing:1px;
-    background:rgba(232,202,130,.14); border:1px solid rgba(232,202,130,.34); color:#F0DCA4;
+  .hall-header::after{
+    content:"殿"; position:absolute; right:-16px; top:-46px;
+    font-family:"Zhi Mang Xing",cursive; font-size:230px; color:var(--gold); opacity:.15; pointer-events:none;
   }
-  .sb-formation{ margin-top:3px; font-size:11.5px; letter-spacing:2px; color:rgba(232,202,130,.68); }
-  .sb-sub{ font-size:13px; color:#E8CA82; letter-spacing:1px; }
+  .hall-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:36px; color:#F8EDD1; text-shadow:0 2px 6px rgba(0,0,0,.8); position:relative; z-index:1; }
+  .hall-sub{ margin-top:6px; font-size:14px; color:#E8CA82; letter-spacing:1px; position:relative; z-index:1; }
+  .hall-stats{ margin-top:18px; position:relative; z-index:1; }
 
-  .sb-right { position:relative; z-index:1; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
-  .sb-info-group { display:flex; flex-direction:column; gap:4px; border-left:1px dashed rgba(232,202,130,.3); padding-left:16px; }
-  .sb-label{ font-size:11px; letter-spacing:2px; color:#C9A75E; }
-  .sb-value{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:18px; color:#F8EDD1; }
-  .sb-value.danger{ color:#FF9E82; text-shadow:0 0 8px rgba(255,158,130,.4); }
-  .sb-cost-row { display:flex; gap:12px; font-size:13px; color:rgba(232,202,130,.8); }
-  .sb-cost-row b { font-family:"Noto Serif TC",serif; color:#F0DCA4; margin-left:4px; font-size:15px; }
-
-  /* ===== 內務堂：靈石與流水 (縮減版) ===== */
+  /* ===== 內務堂：宗門底蘊 ===== */
   .ledger-head{
     display:flex; align-items:center; gap:9px; margin-bottom:12px;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:var(--ink);
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:15px; letter-spacing:4px; color:#E8CA82;
   }
   .ledger-head svg{ width:17px; height:17px; flex-shrink:0; opacity:.9; }
   .ledger-head .lh-rule{ flex:1; height:1px; background:linear-gradient(90deg,rgba(232,202,130,.36),transparent); }
-
-  .top-panels { display: flex; flex-direction: column; gap: 14px; }
-
-  .ledger{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  @media(max-width:800px){ .ledger{ grid-template-columns:1fr; } }
+  .ledger{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr) minmax(0,1.05fr); gap:14px; }
+  @media(max-width:960px){ .ledger{ grid-template-columns:1fr; } }
   .ledger-panel{
     position:relative; overflow:hidden; padding:14px 17px 15px; border-radius:5px;
-    background:linear-gradient(150deg, rgba(21,28,23,.03) 0%, rgba(7,11,9,.05) 100%);
-    border:1px solid var(--border);
-    box-shadow:inset 0 0 24px rgba(140,107,39,.03);
+    background:linear-gradient(150deg, rgba(21,28,23,.94) 0%, rgba(7,11,9,.96) 100%);
+    border:1px solid var(--gold-deep);
+    box-shadow:inset 0 0 24px rgba(140,107,39,.13), 0 4px 14px rgba(0,0,0,.34);
+    transition:box-shadow .45s ease, border-color .45s ease;
   }
-  .lp-head{ display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:3px; color:var(--gold-deep); margin-bottom:9px; font-weight:700; }
+  .ledger-panel::after{
+    content:""; position:absolute; inset:3px; border:1px solid rgba(232,202,130,.12);
+    border-radius:3px; pointer-events:none;
+  }
+  .lp-head{ display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:3px; color:#C9A75E; margin-bottom:9px; }
   .lp-head svg{ width:14px; height:14px; flex-shrink:0; }
 
   .lp-stone{ display:flex; align-items:center; gap:13px; }
-  .stone-sigil{ width:44px; height:44px; flex-shrink:0; color:var(--jade); opacity:0.8; }
-  .lp-total{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:31px; line-height:1.12; color:var(--ink); }
-  .lp-total .lp-unit{ font-family:inherit; font-weight:400; font-size:12px; letter-spacing:2px; color:var(--ink-faint2); margin-left:6px; }
-  .lp-breakdown{ margin-top:8px; font-size:11.5px; color:var(--ink-dim); line-height:1.9; }
+  .stone-sigil{ width:44px; height:44px; flex-shrink:0; color:#8FE3C0; animation:stoneBreath 4.6s ease-in-out infinite; }
+  @keyframes stoneBreath{
+    0%,100%{ opacity:.68; filter:drop-shadow(0 0 3px rgba(143,227,192,.28)); }
+    50%{ opacity:1; filter:drop-shadow(0 0 11px rgba(143,227,192,.7)); }
+  }
+  .lp-total{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:31px; line-height:1.12; color:#F8EDD1; text-shadow:0 0 16px rgba(232,202,130,.3); }
+  .lp-total .lp-unit{ font-family:inherit; font-weight:400; font-size:12px; letter-spacing:2px; color:#C9A75E; margin-left:6px; }
+  .lp-breakdown{ margin-top:8px; font-size:11.5px; color:rgba(232,202,130,.7); line-height:1.9; }
   .lp-breakdown span{ display:inline-block; margin-right:11px; white-space:nowrap; }
-  .lp-breakdown b{ color:var(--ink); font-family:"Noto Serif TC",serif; margin-left:3px; }
+  .lp-breakdown b{ color:#F0DCA4; font-family:"Noto Serif TC",serif; margin-left:3px; }
 
   .lp-flow{ margin:0; padding:0; list-style:none; }
   .lp-flow li{
     display:flex; gap:9px; align-items:baseline; padding:6px 0; font-size:12.5px; line-height:1.65;
-    color:var(--ink-dim); border-bottom:1px dashed var(--border);
+    color:#DCCFA8; border-bottom:1px dashed rgba(232,202,130,.13); animation:flowIn .45s ease-out both;
   }
   .lp-flow li:last-child{ border-bottom:none; }
-  .lf-time{ font-size:10.5px; color:var(--ink-faint2); flex-shrink:0; font-family:"Noto Serif TC",serif; }
-  .lf-actor{ color:var(--vermillion); flex-shrink:0; font-weight: 700; }
+  .lp-flow li:nth-child(2){ animation-delay:.07s; }
+  .lp-flow li:nth-child(3){ animation-delay:.14s; }
+  @keyframes flowIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:none; } }
+  .lf-time{ font-size:10.5px; color:rgba(232,202,130,.45); flex-shrink:0; font-family:"Noto Serif TC",serif; }
+  .lf-actor{ color:#E8CA82; flex-shrink:0; }
   .lf-text{ flex:1; }
   .lf-delta{ font-family:"Noto Serif TC",serif; font-weight:900; }
-  .lf-delta.plus{ color:var(--jade); } .lf-delta.minus{ color:var(--vermillion-bright); }
-  .lp-empty{ font-size:12px; color:var(--ink-faint2); padding:10px 0; line-height:1.8; }
+  .lf-delta.plus{ color:#7FD2A8; } .lf-delta.minus{ color:#F0836A; }
+  .lp-empty{ font-size:12px; color:rgba(232,202,130,.42); padding:10px 0; line-height:1.8; }
 
-  .lp-talisman{ display:flex; gap:13px; align-items:flex-start; padding: 12px 16px; background: rgba(156,43,34,.05); border: 1px solid rgba(156,43,34,.2); border-radius: 6px; margin-bottom: 24px; }
-  .talisman-sigil{ width:30px; height:30px; flex-shrink:0; color:var(--vermillion-bright); animation:talismanPulse 2.6s ease-in-out infinite; }
+  .lp-talisman{ display:flex; gap:13px; align-items:flex-start; }
+  .talisman-sigil{ width:36px; height:50px; flex-shrink:0; color:rgba(201,167,94,.75); }
+  .ledger-panel.alarm{ border-color:rgba(200,70,52,.55); box-shadow:inset 0 0 26px rgba(140,30,22,.25), 0 4px 16px rgba(0,0,0,.4); }
+  .ledger-panel.alarm .talisman-sigil{ color:#E8654B; animation:talismanPulse 2.6s ease-in-out infinite; }
   @keyframes talismanPulse{
     0%,100%{ filter:drop-shadow(0 0 2px rgba(232,101,75,.35)); opacity:.85; }
-    50%{ filter:drop-shadow(0 0 8px rgba(232,101,75,.6)); opacity:1; }
+    50%{ filter:drop-shadow(0 0 13px rgba(232,101,75,.95)); opacity:1; }
   }
-  .lp-alert{ font-size:13px; line-height:1.85; color:var(--ink); flex:1; }
-  .lp-alert .urgent{ color:var(--vermillion-bright); font-weight:700; }
-  .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:16px; color:var(--vermillion-bright); margin:0 4px; }
-  .lp-alert .lp-more{ display:block; margin-top:2px; font-size:12px; color:var(--ink-dim); }
+  .lp-alert{ font-size:13px; line-height:1.85; color:#F0DCA4; }
+  .lp-alert .urgent{ color:#F8D4C6; }
+  .lp-alert b{ font-family:"Noto Serif TC",serif; font-size:18px; color:#FF9E82; margin:0 4px; }
+  .lp-alert .lp-more{ display:block; margin-top:5px; font-size:11.5px; color:rgba(232,202,130,.62); }
+  .lp-alert.quiet{ font-size:12.5px; color:rgba(232,202,130,.62); }
 
-  /* ===== 山門殿宇分頁 (圖紙風) ===== */
-  .sect-form{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px 16px; margin-bottom:6px; }
-  .sf-field{ display:flex; flex-direction:column; gap:4px; }
-  .sf-field.wide{ grid-column:span 2; }
-  @media(max-width:640px){ .sf-field.wide{ grid-column:span 1; } }
-  .sf-field > span{ font-size:11px; letter-spacing:2px; color:var(--ink-faint2); }
-  .sf-field input{
-    background:transparent; border:none; border-bottom:1px solid transparent; border-radius:0;
-    padding:4px 0; font-family:inherit; font-size:16px; color:var(--ink); font-weight:700; transition:border-color .2s;
-  }
-  .sf-field input:focus, .sf-field input:hover{ outline:none; border-bottom-color:var(--gold); }
-  .sf-field input:disabled{ color:var(--ink-dim); }
-
-  .upkeep-box{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; padding:16px 18px; display:flex; flex-wrap:wrap; align-items:center; gap:20px; justify-content:space-between; }
-  .uk-once-list { display:flex; gap:12px; flex-wrap:wrap; flex:1; }
-  .uk-once-row{ display:flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--border); padding:6px 12px; border-radius:20px; }
-  .uk-once-name{ font-family:"Noto Serif TC",serif; font-weight:700; color:var(--ink); font-size:13px; }
-  .uk-once-cost{ font-size:12px; color:var(--gold-deep); font-weight:700; }
-  .uk-btn-area { display:flex; gap:10px; }
-
-  .facility-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; align-items:start; }
-  .facility-card{
-    display:flex; flex-direction:column;
-    background:var(--paper-2); border:1px solid var(--border); border-radius:4px; padding:24px 20px 16px;
-    position:relative; box-shadow:0 4px 10px rgba(0,0,0,.03);
-  }
-  /* 圖紙底紋 */
-  .facility-card::before{
-    content:""; position:absolute; inset:6px; border:1px solid rgba(140,107,39,.15);
-    border-radius:2px; pointer-events:none;
-  }
-  .fc-head{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
-  /* 赤紅印章風格等級 */
-  .fc-level{
-    flex:0 0 auto; width:auto; min-width:44px; text-align:center; padding:3px 8px; border-radius:3px;
-    background:rgba(184,58,44,.08); border:1px solid var(--vermillion-bright); color:var(--vermillion-bright);
-    font-family:"Noto Serif TC",serif; font-size:12px; font-weight:900; letter-spacing:2px; transform:rotate(-4deg);
-    transition:transform .2s, border-color .2s;
-  }
-  .fc-level-seal input:focus { outline:none; }
-  .fc-level-seal input:focus { outline:none; }
-  .fc-name{
-    flex:1; min-width:0; background:transparent; border:none; border-bottom:1px solid transparent;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); padding:2px 0; margin-left: 28px;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:22px; color:var(--ink); padding:2px 0; margin-left: 28px;
-    transition:border-color .2s;
-  }
-  .fc-name:focus, .fc-name:hover{ outline:none; border-bottom-color:var(--gold); }
-  .fc-del-btn{ position:absolute; top:-6px; right:-6px; opacity:.5; transition:opacity .2s; z-index:3; }
-  .facility-card:hover .fc-del-btn{ opacity:1; }
-  
-  .fc-spec input{
-    width:100%; background:transparent; border:none; border-bottom:1px solid transparent;
-    font-family:inherit; font-size:13px; color:var(--ink-faint2); padding:3px 0; margin-bottom:8px; transition:border-color .2s; position:relative; z-index:1;
-  }
-  .fc-spec input:focus, .fc-spec input:hover{ outline:none; border-bottom-color:rgba(140,107,39,.4); }
-  
-  /* 水墨風容量條 */
-  .fc-cap{ display:flex; align-items:center; gap:9px; position:relative; z-index:1; margin-bottom:12px; }
-  .fc-cap-track{ flex:1; height:4px; background:transparent; border-bottom:1px dashed rgba(45,90,76,.3); position:relative; }
-  .fc-cap-bar{ position:absolute; left:0; top:-1px; height:3px; background:var(--jade); border-radius:2px; box-shadow:0 0 4px rgba(45,90,76,.4); }
-  .fc-cap-text{ font-size:11.5px; font-weight:700; color:var(--jade); white-space:nowrap; }
-  
-  .fc-fn{
-    width:100%; min-height:60px; resize:none; overflow:hidden; background:transparent; border:none;
-    font-family:inherit; font-size:14px; line-height:1.75; color:var(--ink); padding:0; margin-bottom:12px; position:relative; z-index:1;
-  }
-  .fc-fn:focus{ outline:none; }
-  
-  .fc-limit-btn{
-    align-self:flex-start; background:transparent; border:none; color:var(--gold-deep); font-size:12px;
-    font-weight:700; cursor:pointer; padding:0; opacity:.7; transition:opacity .2s; position:relative; z-index:1; margin-bottom:12px;
-  }
-  .fc-limit-btn:hover{ opacity:1; }
-  .fc-limit-box{ display:none; flex-direction:column; gap:6px; position:relative; z-index:1; margin-bottom:12px; padding:10px; background:rgba(140,107,39,.05); border-radius:4px; border-left:2px solid var(--gold); }
-  .fc-limit-box.show{ display:flex; }
-  .fc-limit-tag{ font-size:11px; font-weight:700; letter-spacing:1px; color:var(--gold-deep); }
-  .fc-limit-box textarea{
-    width:100%; min-height:40px; resize:none; overflow:hidden; background:transparent; border:none;
-    font-family:inherit; font-size:13px; line-height:1.7; color:var(--ink-dim); padding:0;
-  }
-  .fc-limit-box textarea:focus{ outline:none; }
-  
-  .fc-foot{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:auto; padding-top:14px; position:relative; z-index:1; }
-  /* 竹簡小標籤取代下拉選單 */
-  .fc-tag{
-    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--ink-dim);
-    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--ink-dim);
-  }
-  .fc-tag select, .fc-tag input{
-    background:transparent; border:none; font-family:inherit; font-size:12px; font-weight:700; color:var(--gold-deep); padding:0; text-align:center;
-  }
-  .fc-tag select:focus, .fc-tag input:focus{ outline:none; }
-  .fc-tag input{ width:40px; border-bottom:1px dashed var(--gold); }
-  .fc-tag svg{ width:14px; height:14px; color:var(--gold-deep); }
-  .fc-tag svg{ width:14px; height:14px; color:var(--gold-deep); }
-  
   /* ===== 頁籤 ===== */
   .tabs{ display:flex; gap:8px; border-bottom:3px solid var(--gold-deep); margin-bottom:24px; overflow-x:auto; scrollbar-width:none; }
   .tabs::-webkit-scrollbar{ display:none; }
@@ -305,9 +214,8 @@
   }
   .tab-btn.active .tab-dot{ background:var(--vermillion-bright); }
   @keyframes dotPulse{ 0%,100%{ box-shadow:0 0 4px rgba(156,43,34,.4); } 50%{ box-shadow:0 0 13px rgba(181,55,43,.9); } }
-  .tab-panel{ display:none; }
+  .tab-panel{ display:none; animation:fadeIn .3s; }
   .tab-panel.active{ display:block; }
-  .tab-panel.active.swap{ animation:fadeIn .3s; }
   @keyframes fadeIn{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:translateY(0);} }
 
   .block-title{
@@ -330,6 +238,11 @@
 
   /* ===== 表格 ===== */
   .table-wrap{ background:var(--paper-2); border:1px solid var(--border); border-radius:8px; overflow-x:auto; overflow-y:hidden; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.03); }
+  .table-head-bar{
+    background:var(--ink); color:var(--gold); padding:12px 16px;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
   table.sheet-table{ width:100%; border-collapse:collapse; }
   table.sheet-table th{
     background:rgba(0,0,0,.03); text-align:left; font-family:"Noto Serif TC",serif; font-weight:700;
@@ -367,6 +280,8 @@
   .stone-value:focus{ outline:none; border-bottom-color:var(--gold); }
   .stone-value:disabled{ border-bottom-color:transparent; }
 
+  /* 靈石快速增減：卡片下方一排小按鈕，點下去直接套用（不跳二次確認，按錯了
+     按對應的反向數字馬上抵銷即可，靠「復原上一筆」保底） */
   .stone-quick{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
   .sq-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:5px; }
   .sq-chip{
@@ -401,6 +316,7 @@
   .realm-card:hover{ border-color:var(--gold); box-shadow:0 3px 12px rgba(0,0,0,.08); transform:translateY(-1px); }
   .realm-card.on{ border-color:var(--vermillion); box-shadow:0 0 0 2px rgba(156,43,34,.14); }
   .realm-card.on .realm-name{ color:var(--vermillion); }
+  /* 沒填境界的那一格：點下去就能把人揪出來，不用在名冊裡一列列翻 */
   .realm-card.unknown .realm-name{ color:var(--ink-faint2); }
   .realm-card.unknown .realm-bar{ background:linear-gradient(90deg,#8A7B63,#B5A585); }
 
@@ -411,19 +327,6 @@
   .realm-bar{ height:100%; background:linear-gradient(90deg,var(--gold-deep),var(--gold)); }
   .realm-detail{ font-size:12px; color:var(--ink-faint2); line-height:1.9; }
   .realm-detail span{ display:inline-block; margin-right:10px; }
-
-  .realm-cell{ display:flex; align-items:center; gap:4px; }
-  .realm-cell input{ flex:1; min-width:0; }
-  .realm-linked{
-    flex:1; min-width:0; padding:5px 8px; border-radius:4px;
-    background:rgba(45,90,76,.10); border:1px solid rgba(45,90,76,.30); color:var(--jade);
-    font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .realm-linked.miss{ background:rgba(156,43,34,.06); border-color:rgba(156,43,34,.26); color:var(--vermillion-bright); font-weight:400; }
-  .link-toggle{ flex-shrink:0; opacity:.4; }
-  .link-toggle.on{ opacity:1; color:var(--jade); }
-  .link-toggle:hover{ opacity:1; }
-  .link-toggle svg{ width:14px; height:14px; }
 
   .realm-chip{
     display:inline-flex; align-items:center; gap:6px; padding:4px 6px 4px 11px; border-radius:14px;
@@ -436,10 +339,12 @@
   }
   .realm-chip .chip-x:hover{ background:rgba(156,43,34,.18); }
   .realm-chip .chip-x svg{ width:11px; height:11px; }
+
+  /* 名冊裡沒填的欄位：留一道虛線提醒，翻名冊時一眼就看得到 */
   .sheet-table input.miss{ border:1px dashed rgba(156,43,34,.45); background:rgba(156,43,34,.04); }
   .sheet-table input.miss::placeholder{ color:rgba(156,43,34,.6); }
 
-  /* ===== 天機分析報告 ===== */
+  /* ===== 天機分析報告 (原簡報分析) ===== */
   .report-section { margin-bottom: 38px; }
   .report-section-title {
     font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 20px; color: var(--gold-deep);
@@ -450,17 +355,16 @@
   .board-card { background: var(--paper-2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   .board-head { padding: 12px 16px; font-family: "Noto Serif TC", serif; font-weight: 900; font-size: 16px; display: flex; align-items: center; gap: 8px; letter-spacing: 1px; }
   .board-head.qi { background: linear-gradient(135deg, #1A2E26 0%, #091410 100%); color: #A6F0CA; border-bottom: 2px solid var(--jade); }
+  .board-head.hp { background: linear-gradient(135deg, #3A1C1A 0%, #1A0A09 100%); color: #F0B3A6; border-bottom: 2px solid var(--vermillion); }
   .board-head.good { background: linear-gradient(135deg, #352B18 0%, #17120A 100%); color: #F3E3BC; border-bottom: 2px solid #C8A035; }
   .board-head.bad { background: linear-gradient(135deg, #2D1A3A 0%, #13091A 100%); color: #D8BCF3; border-bottom: 2px solid #7C3AED; }
-  .board-head.treasure { background: linear-gradient(135deg, #3A3228 0%, #18140E 100%); color: #E8CA82; border-bottom: 2px solid var(--gold-deep); }
-  
+
   .board-list { padding: 8px 10px; }
   .board-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px dashed var(--border); font-size: 14px; }
   .board-row:last-child { border-bottom: none; }
   .board-rank { font-weight: 900; font-family: "Noto Serif TC", serif; width: 28px; color: var(--ink-faint2); }
   .board-name { flex: 1; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
-  .board-val { font-weight: 900; font-family: "Noto Serif TC", serif; font-size: 14px; text-align: right; }
-  .board-val.num { font-size: 17px; }
+  .board-val { font-weight: 900; font-family: "Noto Serif TC", serif; font-size: 17px; text-align: right; }
   .board-empty { padding: 24px; text-align: center; color: var(--ink-faint2); font-size: 13.5px; font-weight: 700; }
 
   .text-jade { color: var(--jade); }
@@ -489,79 +393,43 @@
   }
   .filter-select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
 
-  /* ===== 萬獸園 (五行玉牌風) ===== */
-  .beast-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
-  .beast-card{
-    background:linear-gradient(160deg, rgba(28,35,30,0.9), rgba(10,15,12,0.95));
-    border:1px solid var(--beast-color); border-radius:6px;
-    overflow:hidden; position:relative; padding:16px 18px;
-    box-shadow:0 6px 16px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
+  /* ===== 多寶閣卡片 ===== */
+  .treasure-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; }
+  .treasure-card{
+    background:var(--paper-2); border:1px solid var(--border); border-left:5px solid var(--gold);
+    border-radius:8px; padding:0; overflow:hidden; position:relative;
+    box-shadow:0 4px 10px rgba(0,0,0,.04);
   }
-  .beast-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 0 24px rgba(0,0,0,0.5); }
-
-  /* 靈根光暈與底紋 */
-  .beast-card::before{
-    content:""; position:absolute; inset:0; z-index:0;
-    background: radial-gradient(circle at top right, var(--beast-color), transparent 60%); opacity:0.1; pointer-events:none;
+  .treasure-head{ background:linear-gradient(135deg,var(--ink),#2A2520); padding:14px 16px; position:relative; }
+  .treasure-name{
+    width:100%; background:transparent; border:none; color:#F8EDD1;
+    font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; padding:0;
+    text-shadow:0 1px 4px rgba(0,0,0,.8);
   }
-  .beast-card::after{
-    content:attr(data-root); position:absolute; right:10px; bottom:-10px; z-index:0;
-    font-family:"Zhi Mang Xing",cursive; font-size:140px; color:var(--beast-color); opacity:0.06; pointer-events:none;
+  .treasure-name:focus{ outline:none; border-bottom:1px solid var(--gold); }
+  .treasure-quote{
+    width:100%; background:transparent; border:none; color:#E8CA82; font-family:inherit;
+    font-size:12.5px; font-style:italic; padding:4px 0 0; margin-top:2px;
   }
-
-  .beast-head{ position:relative; z-index:1; display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-  .beast-name-wrap{ flex:1; min-width:0; }
-  .beast-name{
-    width:100%; background:transparent; border:none; color:#F3E8CC;
-    font-family:"Noto Serif TC",serif; font-weight:900; font-size:20px; padding:0; text-shadow:0 1px 4px rgba(0,0,0,.8);
+  .treasure-quote:focus{ outline:none; border-bottom:1px dashed rgba(232,202,130,.5); }
+  .treasure-meta{ display:flex; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .treasure-meta select, .treasure-meta input{
+    background:var(--paper); border:1px solid var(--border); border-radius:4px; padding:4px 8px;
+    font-family:inherit; font-size:12.5px; color:var(--ink-dim); font-weight:700;
   }
-  .beast-name:focus{ outline:none; border-bottom:1px solid var(--beast-color); }
-
-  /* 境界與狀態木籤 */
-  .beast-tags { display:flex; gap:8px; margin-top:4px; }
-  .beast-realm{
-    background:rgba(0,0,0,0.4); border:1px solid rgba(232,202,130,0.2); border-radius:3px;
-    padding:2px 8px; font-size:11px; color:#C9A75E; letter-spacing:1px; text-align:center;
+  .treasure-body{ padding:12px 16px; }
+  .tf-row{ margin-bottom:10px; }
+  .tf-label{ display:block; font-size:11.5px; font-weight:700; color:var(--gold-deep); letter-spacing:1px; margin-bottom:3px; }
+  .tf-input{
+    width:100%; background:var(--paper); border:1px solid var(--border); border-radius:5px;
+    padding:7px 10px; font-family:inherit; font-size:13.5px; color:var(--ink); line-height:1.7; resize:vertical;
   }
-  .beast-status {
-    background:rgba(232,202,130,0.1); border:1px solid rgba(232,202,130,0.3); border-radius:3px;
-    padding:2px 8px; font-size:11px; color:#F0DCA4; letter-spacing:1px; flex:1; text-align:center;
-  }
-  .beast-realm:focus, .beast-status:focus { outline:none; border-color:var(--beast-color); }
-
-  .beast-body{ position:relative; z-index:1; margin-top:16px; }
-
-  /* 本命神通框 */
-  .beast-skill-box{ position:relative; padding:12px; text-align:center; }
-  .beast-skill-box::before, .beast-skill-box::after {
-    content: "《"; position:absolute; top:50%; transform:translateY(-50%);
-    font-family:"Noto Serif TC",serif; font-size:24px; color:var(--beast-color); opacity:0.6;
-  }
-  .beast-skill-box::before { left: 0; }
-  .beast-skill-box::after { content: "》"; right: 0; }
-
-  .beast-skill-title{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:12px; color:var(--beast-color); margin-bottom:4px; letter-spacing:2px; }
-  .beast-skill-desc{
-    width:calc(100% - 40px); margin:0 auto; background:transparent; border:none; resize:none; overflow:hidden;
-    font-family:"LXGW WenKai TC",serif; font-size:14px; line-height:1.7; color:#DCCFA8; padding:0; text-align:center;
-  }
-  .beast-skill-desc:focus{ outline:none; }
-
-  .beast-del{ position:absolute; top:12px; right:12px; z-index:2; color:rgba(232,202,130,0.4); background:transparent; border:none; cursor:pointer; padding:4px; border-radius:50%; line-height:0; transition:color 0.2s; }
-  .beast-del svg{ width:16px; height:16px; }
-  .beast-del:hover{ color:#ff8a80; }
-
-  /* 隱藏原生 select 的外觀，使其更像一個純文字標籤 */
-  .beast-root-select {
-    position: absolute; opacity: 0; width: 40px; height: 30px; top: 12px; left: 12px; cursor: pointer; z-index: 2;
-  }
-  .beast-root-display {
-    position: absolute; top: 12px; left: 12px; z-index: 1; width: 24px; height: 24px;
-    display: flex; align-items: center; justify-content: center;
-    background: transparent; border: 1px solid var(--beast-color); border-radius: 50%;
-    color: var(--beast-color); font-family: "Ma Shan Zheng", cursive; font-size: 14px;
-    pointer-events: none;
+  .tf-input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(140,107,39,.1); }
+  .treasure-del{ position:absolute; top:12px; right:12px; color:rgba(245,233,221,.6); z-index:2; }
+  .treasure-del:hover{ color:#ff8a80; }
+  .rank-tag{
+    display:inline-block; padding:2px 10px; border-radius:3px; font-size:11.5px; font-weight:900;
+    background:var(--gold-deep); color:var(--paper); letter-spacing:1px;
   }
 
   /* ===== 本命玉牌殿 ===== */
@@ -600,6 +468,9 @@
   .jt-line-label .val{ font-family:"Noto Serif TC",serif; font-weight:700; font-size:13px; letter-spacing:0; }
   .jt-line.hp .jt-line-label{ color:#DE8B77; }
   .jt-line.qi .jt-line-label{ color:#7FC7A4; }
+  /* 生命／靈氣改成「在玉面上鑿出凹槽、槽裡嵌一條凸起的刻印」：
+     外發光會把邊緣糊掉、和玉牌底色融在一起，改用上亮下暗的硬邊來做立體感，
+     再於槽底壓一條深色細影，數值邊界一眼就分得出來。 */
   .jt-rail{
     position:relative; height:6px; border-radius:1px;
     background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.3));
@@ -610,6 +481,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.42), inset 0 -1px 0 rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4);
     transition:width .65s cubic-bezier(.22,.61,.36,1);
   }
+  /* 刻印末端的亮邊：目前值落在哪裡，靠這條高對比細線讀 */
   .jt-flow::after{
     content:""; position:absolute; right:0; top:-2px; bottom:-2px; width:1px;
     background:rgba(255,255,255,.62); box-shadow:1px 0 0 rgba(0,0,0,.55);
@@ -627,6 +499,7 @@
   .jt-stat svg{ width:16px; height:16px; flex-shrink:0; opacity:.8; }
   .jt-stat b{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px; letter-spacing:0; color:#EDE0BE; }
 
+  /* 天道排序：拖曳整面玉牌，或用左右箭頭一格一格挪 */
   .jade-tablet.sortable{ cursor:grab; }
   .jade-tablet.sortable:active{ cursor:grabbing; }
   .jade-tablet.dragging{ opacity:.45; }
@@ -842,6 +715,9 @@
 
 <div class="save-status" id="saveStatus">已自動儲存</div>
 
+<!-- 繁簡切換獨立一個 module，不跟下面連 Firebase 的那個共用同一份 import 圖：
+     ES module 的靜態 import 只要有一個載入失敗，整個 module 都不會執行，
+     繁簡切換明明跟 Firebase 無關，不該被 CDN 連不上的問題一起拖垮。 -->
 <script type="module">
   import { initScriptMode } from "./script-mode.js";
   initScriptMode();
@@ -851,20 +727,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, get, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  import * as SEED_DATA from "./seed-data.js";
-
-  const ROSTER_SEED = SEED_DATA.ROSTER_SEED || [];
-  const WAREHOUSE_SEED = SEED_DATA.WAREHOUSE_SEED || [];
-  const SECT_SEED = SEED_DATA.SECT_SEED || {};
-  const FACILITY_SEED = SEED_DATA.FACILITY_SEED || [];
-  const BEAST_SEED = SEED_DATA.BEAST_SEED || [
-    { id: "beast_1", name: "一階翻土蚯", root: "土", realm: "煉氣期", status: "翻土中", skill: "很會翻土。蚯蚓不翻土，要幹嘛？" },
-    { id: "beast_2", name: "一階巡狩犬", root: "金", realm: "煉氣期", status: "巡山中", skill: "危險感知。敵人靠近宗門時，發出全山都聽得見的叫聲示警。" },
-    { id: "beast_3", name: "一階尋寶鼠", root: "金", realm: "煉氣期", status: "尋寶中", skill: "可找尋方圓十公尺內天上地下的寶藏。" },
-    { id: "beast_4", name: "一階採藥兔", root: "木", realm: "煉氣期", status: "採藥中", skill: "每日可採集一株稀有靈草。" },
-    { id: "beast_5", name: "一階飛天鶴", root: "風", realm: "築基期", status: "盤旋中", skill: "飛得很快。飛天鶴真的飛得很快。" },
-    { id: "beast_6", name: "三階烈焰獅", root: "火", realm: "築基後期", status: "守護陣眼", skill: "燒起來了！烈焰獅口中噴火，把三十尺內的獵物都燒起來了。" }
-  ];
+  import { ROSTER_SEED, WAREHOUSE_SEED } from "./seed-data.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -886,38 +749,42 @@
 
   // ===== 狀態 =====
   let discordUser = null;
-  let admins = {};          
-  let warehouse = {};       
-  let stones = {};          
-  let logs = {};            
-  let roster = {};          
-  let treasury = {};        
-  let chars = {};           
-  let itemRequests = {};    
-  let tabletOrder = [];     
-  let facilityEdits = {};
-  let beasts = {};          
-  let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false, beasts:false };
+  let admins = {};          // discordId -> { role:"DM"|"Elder", name }
+  let warehouse = {};       // id -> { category, name, qty, effect }
+  let stones = {};          // { low, mid, high, extreme }
+  let logs = {};            // id -> { ts, actor, text, delta }
+  let roster = {};          // id -> { name, title, rank, root, job, path, realm, master }
+  let treasury = {};        // id -> 法寶
+  let chars = {};           // 角色卡（本命玉牌用）
+  let itemRequests = {};    // id -> { itemId, itemName, qty, charId, charName, reason, applicantId, applicantName, ts }
+  let tabletOrder = [];     // 本命玉牌的排列順序（角色卡 id 陣列），由天道排定
+  let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
   let syncError = null;
 
+  // ===== 沙盒模式 =====
+  // 尚未取得正式天道／長老授權時，可以自行啟用一份跟真實資料完全隔離的沙盒
+  // （所有讀寫都改走 sandbox/{ownerId}/ 底下），用來試用、調整介面而不動到宗門的真實帳目。
+  // 持有人身分（sandboxOwner）寫在資料庫的最外層，跨裝置都認得同一人；
+  // 「目前是否開著」則是純本機的開關，換一台裝置預設是關的，需要再開一次。
   const SANDBOX_LOCAL_KEY = "tf_dm_sandbox_on";
-  let sandboxOwner = null;         
+  let sandboxOwner = null;         // { id, name } 或 null；一律走真實路徑，不受沙盒開關影響
   let sandboxOwnerLoaded = false;
-  let discordAuthChecked = false;  
+  let discordAuthChecked = false;  // Discord 登入狀態（含「確定是訪客」）判定完成
   let sandboxOn = localStorage.getItem(SANDBOX_LOCAL_KEY) === "1";
   let dataSubscribed = false;
   let dataUnsubs = [];
   let lastSandboxActive = false;
 
+  // 靈石快速增減：可套用的整數面額（下面另有「自訂」可輸入任意數字）
   const STONE_QUICK_AMOUNTS = [100, 1000, 10000, 100000];
-  let lastStoneChange = null; 
+  let lastStoneChange = null; // { key, before, after } 供「復原上一筆」使用，僅存在本次瀏覽階段
 
-  let activeTab = "tab-sect";
+  let activeTab = "tab-warehouse";
   let warehouseCat = "丹藥";
   let rosterFilter = "";
   let rosterRank = "全部";
-  let rosterSort = "rank";        
-  let rosterRealmFilter = "";     
+  let rosterSort = "rank";        // rank / realmDesc / realmAsc / job / name
+  let rosterRealmFilter = "";     // 由境界統計卡點選；"未記錄" 代表沒填境界的那群
 
   const WAREHOUSE_CATS = ["丹藥","法器","材料","符咒"];
   const RANKS = ["長老","真傳","內門","外門","記名"];
@@ -928,25 +795,7 @@
     { k:"high", label:"上品靈石" }, { k:"extreme", label:"極品靈石" }
   ];
 
-  const BEAST_ROOT_COLORS = {
-    "金": "#D4AF37", 
-    "木": "#2D5A4C", 
-    "水": "#5D8AA8", 
-    "火": "#B5372B", 
-    "土": "#8B7355",
-    "雷": "#7C3AED",
-    "冰": "#AEEEEE",
-    "風": "#9AC0CD",
-    "暗": "#453A2A",
-    "光": "#F5E9DD"
-  };
-
-  function countBy(list, fn){
-    const out = {};
-    list.forEach(item => { const k = (fn(item) || "").trim() || "未記錄"; out[k] = (out[k] || 0) + 1; });
-    return out;
-  }
-
+  // ===== Discord 登入 =====
   function discordLogin(){
     const url = new URL("https://discord.com/oauth2/authorize");
     url.searchParams.set("client_id", DISCORD_CLIENT_ID);
@@ -985,10 +834,11 @@
     renderAuth(); renderAll(true);
   }
 
+  // 沙盒開著、而且登入的正是沙盒持有人本人，才算數——換人登入或沒開關，一律回真實權限。
   function sandboxActive(){ return sandboxOn && !!discordUser && !!sandboxOwner && discordUser.id === sandboxOwner.id; }
 
   function myRole(){
-    if(sandboxActive()) return "DM"; 
+    if(sandboxActive()) return "DM"; // 沙盒模式直接視同天道，不看（也可能還沒有的）沙盒管理員名單
     if(!discordUser) return null;
     const a = admins[discordUser.id];
     return a ? a.role : null;
@@ -1014,6 +864,9 @@
   document.getElementById("discordLoginBtn").addEventListener("click", discordLogin);
   document.getElementById("discordLogoutBtn").addEventListener("click", discordLogout);
 
+  // ===== 資料同步 =====
+  // 沙盒模式開啟時，把所有路徑改成 sandbox/{ownerId}/ 底下的隔離副本；
+  // sandboxOwner 自己例外——它必須一直讀寫真實路徑，否則無從得知「沙盒到底是誰的」。
   function dbPath(path){ return sandboxActive() ? `sandbox/${sandboxOwner.id}/${path}` : path; }
   function dref(path){ return ref(db, dbPath(path)); }
 
@@ -1022,31 +875,33 @@
       onData(snap.val() || {});
       if(key) loaded[key] = true;
       syncError = null;
-      renderAuth(); requestRender();
+      renderAuth(); renderAll();
     }, err => {
       console.error(path + " sync error", err);
       syncError = err;
-      requestRender(true);
+      renderAll(true);
     });
   }
 
+  // 訂閱庫房／花名冊等九項主資料。沙盒開關切換時會整批取消重訂，
+  // 改連到（或連回）對應路徑，並讓 loaded 重新歸零，畫面短暫顯示「連線中」而不是誤用舊資料。
   function subscribeAllData(){
     dataUnsubs.forEach(u => { try{ u(); }catch(e){} });
     dataUnsubs = [];
-    loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false, beasts:false };
+    loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
     dataUnsubs.push(watch("admins",     v => admins = v,    "admins"));
     dataUnsubs.push(watch("warehouse",  v => warehouse = v, "warehouse"));
     dataUnsubs.push(watch("stones",     v => stones = v));
     dataUnsubs.push(watch("warehouseLogs", v => logs = v));
-    dataUnsubs.push(watch("roster",     v => { roster = v; _charNameIdx = null; }, "roster"));
+    dataUnsubs.push(watch("roster",     v => roster = v,    "roster"));
     dataUnsubs.push(watch("treasury",   v => treasury = v,  "treasury"));
-    dataUnsubs.push(watch("characters", v => { chars = v; _charNameIdx = null; }, "chars"));
+    dataUnsubs.push(watch("characters", v => chars = v,     "chars"));
     dataUnsubs.push(watch("itemRequests", v => itemRequests = v));
     dataUnsubs.push(watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean)));
-    dataUnsubs.push(watch("facilities", v => facilityEdits = v));
-    dataUnsubs.push(watch("beasts", v => beasts = v, "beasts"));
   }
 
+  // 要等「登入狀態」與「沙盒持有人是誰」都確定了，才知道該連真實路徑還是沙盒路徑，
+  // 避免連錯一次又要整批重連。這兩項哪個晚到，就由它觸發第一次訂閱。
   function trySubscribeData(){
     if(dataSubscribed || !discordAuthChecked || !sandboxOwnerLoaded) return;
     dataSubscribed = true;
@@ -1059,6 +914,9 @@
     if(now !== lastSandboxActive){ lastSandboxActive = now; subscribeAllData(); }
   }
 
+  // 沙盒持有人是誰，這一項一律讀真實路徑（不能被自己所屬的沙盒開關影響到）。
+  // 一定要處理錯誤分支：資料庫規則如果還沒放行 sandboxOwner 這個路徑，讀取會被拒絕，
+  // 若沒有這個 catch，sandboxOwnerLoaded 永遠不會變 true，會害整個大殿卡在「連線中」出不來。
   onValue(ref(db, "sandboxOwner"), snap => {
     const v = snap.val();
     sandboxOwner = (v && v.id) ? v : null;
@@ -1066,14 +924,16 @@
     maybeResubscribe();
     renderAuth(); renderAll();
   }, err => {
-    console.warn("sandboxOwner sync error", err);
+    console.warn("sandboxOwner sync error（可能是資料庫規則還沒放行這個路徑）", err);
     sandboxOwner = null;
     sandboxOwnerLoaded = true;
     maybeResubscribe();
     renderAll(true);
   });
 
-  const SANDBOX_CLONE_PATHS = ["warehouse", "stones", "treasury", "roster", "characters", "tabletOrder", "facilities", "beasts"];
+  // 把「當下的真實資料」複製一份進沙盒，測試起來才有實感；admins／warehouseLogs／
+  // itemRequests 不複製——前者沙盒模式已經直接視同天道不需要，後兩者從空的開始更乾淨。
+  const SANDBOX_CLONE_PATHS = ["warehouse", "stones", "treasury", "roster", "characters", "tabletOrder"];
   async function seedSandboxFromReal(uid){
     const snaps = await Promise.all(SANDBOX_CLONE_PATHS.map(p => get(ref(db, p))));
     const updates = {};
@@ -1081,15 +941,21 @@
     await update(ref(db), updates);
   }
 
+  // 沙盒模式讀寫的是全新的 sandboxOwner／sandbox 這兩個路徑，資料庫規則如果只放行
+  // 現有的 admins／warehouse／stones… 等既有路徑，這裡就會被拒絕。用專門的提示取代
+  // 一般的「寫入失敗」，把該加的規則直接寫出來，天道不用另外來問。
   function explainSandboxPermissionError(e){
     const msg = String((e && (e.code || e.message)) || e || "");
     if(/permission_denied|permission denied/i.test(msg)){
-      alert("沙盒模式啟用失敗：資料庫規則還沒放行 sandboxOwner／sandbox 這兩個新路徑。");
+      alert("沙盒模式啟用失敗：資料庫規則還沒放行 sandboxOwner／sandbox 這兩個新路徑。\n\n"
+        + "請到 Firebase 主控台的 Realtime Database → 規則，比照現有的 admins／warehouse 等路徑，"
+        + "為 sandboxOwner 與 sandbox 各加一條讀寫規則（通常是 auth != null），儲存後再試一次即可。");
     } else {
       flash("啟用失敗：" + msg, true);
     }
   }
 
+  // 開關沙盒模式：純本機狀態，換裝置要重開一次；每次切換都要整批重連對應路徑的資料。
   function setSandboxOn(on){
     sandboxOn = on;
     try{ localStorage.setItem(SANDBOX_LOCAL_KEY, on ? "1" : "0"); }catch(e){}
@@ -1098,34 +964,52 @@
   }
 
   // ===== 共用工具 =====
+  // 全站不使用系統 emoji：所有圖示皆為手繪風格的 inline SVG（單色描線、無填色）。
   const svg = (body, cls) => `<svg class="${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
   const SVG = {
+    // 靈石：切面晶石
     stone: cls => svg(`<path d="M12 2.6 19.6 8 16.8 19.4H7.2L4.4 8Z"/><path d="M4.4 8h15.2"/><path d="m12 2.6-2.7 16.8"/><path d="m12 2.6 2.7 16.8"/><path d="m8.2 8 3.8 3.8L15.8 8"/>`, cls),
+    // 卷宗：兩端捲軸的帳冊
     scroll: cls => svg(`<path d="M3.4 5.6v12.8M20.6 5.6v12.8"/><rect x="5.4" y="4.4" width="13.2" height="15.2" rx="1.4"/><path d="M8.6 8.6h6.8M8.6 12h6.8M8.6 15.4h4.2"/>`, cls),
+    // 符籙：下端裁尖的傳音符
     talisman: cls => svg(`<path d="M7.4 2.6h9.2v13.9L12 21.4l-4.6-4.9z"/><path d="M12 5.6v9.6"/><path d="M9.4 8.4h5.2M9.4 11.6h5.2"/>`, cls),
+    // 護甲：宗門護心鏡
     shield: cls => svg(`<path d="M12 2.6 19.4 5.3v6.1c0 4.6-3.1 8.4-7.4 10-4.3-1.6-7.4-5.4-7.4-10V5.3z"/><path d="M12 7v8.6M8.7 11.3h6.6"/>`, cls),
+    // 業力：陰陽魚
     yinyang: cls => svg(`<circle cx="12" cy="12" r="9.2"/><path d="M12 2.8a4.6 4.6 0 0 0 0 9.2 4.6 4.6 0 0 1 0 9.2"/><circle cx="12" cy="7.4" r="1.4"/><circle cx="12" cy="16.6" r="1.4"/>`, cls),
+    // 申請調用：呈遞上稟
     request: cls => svg(`<path d="M12 3.2v9.6"/><path d="m8.3 6.7 3.7-3.5 3.7 3.5"/><path d="M4.8 13.8v4.8a2.2 2.2 0 0 0 2.2 2.2h10a2.2 2.2 0 0 0 2.2-2.2v-4.8"/>`, cls),
+    // 賜下：由上而下的賞賜
     grant: cls => svg(`<path d="M12 3.2v9.6"/><path d="m8.3 9.3 3.7 3.5 3.7-3.5"/><path d="M4.8 15.2v3.4a2.2 2.2 0 0 0 2.2 2.2h10a2.2 2.2 0 0 0 2.2-2.2v-3.4"/>`, cls),
+    // 駁回：折返的回帖
     reject: cls => svg(`<path d="M9.6 5.2 4.6 10.2l5 5"/><path d="M4.6 10.2h9.6a5 5 0 0 1 5 5v3.6"/>`, cls),
+    // 刪除
     cross: cls => svg(`<path d="M6.2 6.2 17.8 17.8M17.8 6.2 6.2 17.8"/>`, cls),
+    // 丹藥：葫蘆
     gourd: cls => svg(`<path d="M9.8 3h4.4"/><path d="M10.6 3v2.4C10.6 7 8.5 7.7 8.5 9.6c0 1.2.8 2 1.6 2.6-1.3.9-2.3 2.3-2.3 4 0 2.6 2 4.4 4.2 4.4s4.2-1.8 4.2-4.4c0-1.7-1-3.1-2.3-4 .8-.6 1.6-1.4 1.6-2.6 0-1.9-2.1-2.6-2.1-4.2V3"/><path d="M8.6 15.4h6.8"/>`, cls),
+    // 天劫雷紋
     bolt: cls => svg(`<path d="M13.6 2.6 5.8 13.2h5.2L9.4 21.4l8.2-11.2h-5.2z"/>`, cls),
+    // 劍
     sword: cls => svg(`<path d="M12 2.4 13.7 6v9.2h-3.4V6z"/><path d="M8.2 15.2h7.6"/><path d="M12 15.2v4.4"/><path d="M10.4 19.6h3.2"/>`, cls),
+    // 靈光星芒
     spark: cls => svg(`<path d="M10.4 2.6c.7 4.8 2.3 6.4 7.1 7.1-4.8.7-6.4 2.3-7.1 7.1-.7-4.8-2.3-6.4-7.1-7.1 4.8-.7 6.4-2.3 7.1-7.1z"/><path d="M18.2 15.4c.3 1.9 1 2.6 2.9 2.9-1.9.3-2.6 1-2.9 2.9-.3-1.9-1-2.6-2.9-2.9 1.9-.3 2.6-1 2.9-2.9z"/>`, cls),
+    // 血滴
     drop: cls => svg(`<path d="M12 3.2c3.4 4.2 5.6 7.1 5.6 9.7a5.6 5.6 0 1 1-11.2 0c0-2.6 2.2-5.5 5.6-9.7z"/>`, cls),
+    // 蓮華（功德）
     lotus: cls => svg(`<path d="M12 4.6c1.9 2 2.9 3.9 2.9 5.9 0 1.7-1.3 3.1-2.9 3.1s-2.9-1.4-2.9-3.1c0-2 1-3.9 2.9-5.9z"/><path d="M9.4 13.4c-1.5-1.5-3.4-2.3-5.3-2.3.2 2.1 1 3.8 2.5 5.3s3.4 2.3 5.4 2.3"/><path d="M14.6 13.4c1.5-1.5 3.4-2.3 5.3-2.3-.2 2.1-1 3.8-2.5 5.3s-3.4 2.3-5.4 2.3"/>`, cls),
+    // 業障鎖鏈
     chain: cls => svg(`<path d="M10.4 13.6 8 16a3.4 3.4 0 1 1-4.8-4.8l2.4-2.4"/><path d="m13.6 10.4 2.4-2.4a3.4 3.4 0 1 1 4.8 4.8l-2.4 2.4"/><path d="m9.5 14.5 5-5"/>`, cls),
+    // 左右移動（玉牌排序）
     chevronL: cls => svg(`<path d="M14.6 5.6 8.2 12l6.4 6.4"/>`, cls),
     chevronR: cls => svg(`<path d="M9.4 5.6 15.8 12l-6.4 6.4"/>`, cls),
+    // 復位
     reset: cls => svg(`<path d="M4.6 6.4v5h5"/><path d="M5.4 11.4a7 7 0 1 1 1.6 5"/>`, cls),
+    // 拖曳握把
     grip: cls => svg(`<path d="M9.2 6.4h.01M9.2 12h.01M9.2 17.6h.01M14.8 6.4h.01M14.8 12h.01M14.8 17.6h.01"/>`, cls),
-    vault: cls => svg(`<path d="M3.6 9.4 12 3.6l8.4 5.8"/><path d="M5.4 9.4v10.4h13.2V9.4"/><path d="M9.6 19.8v-5.6h4.8v5.6"/>`, cls),
-    gate: cls => svg(`<path d="M2.6 7.4h18.8"/><path d="M4.6 5.2h14.8"/><path d="M5.8 7.4v13M18.2 7.4v13"/><path d="M9.4 7.4v13M14.6 7.4v13"/><path d="M2.8 20.4h18.4"/>`, cls),
-    token: cls => svg(`<rect x="6.4" y="3.2" width="11.2" height="17.6" rx="2.2"/><path d="M9.4 7.6h5.2M9.4 11h5.2"/><circle cx="12" cy="16.2" r="1.6"/>`, cls),
-    eye: cls => svg(`<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>`, cls),
-    book: cls => svg(`<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>`, cls)
+    // 庫房大門
+    vault: cls => svg(`<path d="M3.6 9.4 12 3.6l8.4 5.8"/><path d="M5.4 9.4v10.4h13.2V9.4"/><path d="M9.6 19.8v-5.6h4.8v5.6"/>`, cls)
   };
+  // 玉牌裂痕（僅在瀕死時疊上）
   const CRACK_SVG = `<svg class="jt-crack" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M0 28 13 39 7 54l12 11"/><path d="M100 24 88 35l6 15-10 11"/><path d="M41 100 47 88l-7-9"/><path d="M8 0l6 13"/></svg>`;
 
   function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
@@ -1181,50 +1065,31 @@
 
   let lastLocalWriteAt = 0;
 
-  function paint(el, html){
-    if(!el) return false;
-    if(el.__tfHtml === html) return false;
-    el.__tfHtml = html;
-    el.innerHTML = html;
-    return true;
-  }
-
-  let renderQueued = false, renderQueuedForce = false;
-  function requestRender(force){
-    if(force) renderQueuedForce = true;
-    if(renderQueued) return;
-    renderQueued = true;
-    requestAnimationFrame(() => {
-      renderQueued = false;
-      const f = renderQueuedForce; renderQueuedForce = false;
-      renderAll(f);
-    });
-  }
-
   // ===== 主渲染 =====
   function renderAll(force){
     const area = document.getElementById("mainArea");
 
     if(syncError){
-      paint(area, `<div class="notice">連線失敗：${escapeHtml(syncError.message || String(syncError))}<br>請確認 Firebase 匿名登入已啟用，且 Realtime Database 規則允許讀寫。</div>`);
+      area.innerHTML = `<div class="notice">連線失敗：${escapeHtml(syncError.message || String(syncError))}<br>
+        請確認 Firebase 匿名登入已啟用，且 Realtime Database 規則允許讀寫。</div>`;
       return;
     }
-    if(!(loaded.warehouse && loaded.roster && loaded.treasury && loaded.chars && loaded.admins && loaded.beasts)){
-      paint(area, `<div class="notice info">連線中……</div>`);
+    if(!(loaded.warehouse && loaded.roster && loaded.treasury && loaded.chars && loaded.admins)){
+      area.innerHTML = `<div class="notice info">連線中……</div>`;
       return;
     }
+    // 內務堂總帳只有純顯示、沒有輸入框，先畫它才不會被下面的「正在輸入時不重繪」擋住；
+    // 否則長老在編輯庫房時新進來的調用申請，警訊數字會一直停在舊值。
+    renderHallStats();
 
-    const ae = document.activeElement;
-    const typing = !!ae && area.contains(ae) && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT");
-    if(!force && (Date.now() - lastLocalWriteAt < 2500 || typing)) return;
+    // 正在輸入時不要整頁重繪（會打斷打字），除非是明確的按鈕操作
+    if(!force && (Date.now() - lastLocalWriteAt < 2500 || area.contains(document.activeElement))) return;
 
     const editable = canEdit();
-    const changed = paint(area, `
+    area.innerHTML = `
       ${sandboxBannerHtml()}
       ${adminNoticeHtml()}
-      ${sectBannerHtml()}
       <div class="tabs">
-        <button class="tab-btn" data-tab="tab-sect">【山門殿宇】</button>
         <button class="tab-btn" data-tab="tab-warehouse">【宗門庫房】</button>
         <button class="tab-btn" data-tab="tab-treasury">【多寶閣】</button>
         <button class="tab-btn" data-tab="tab-roster">【弟子花名冊】</button>
@@ -1233,7 +1098,6 @@
         ${editable ? `<button class="tab-btn" data-tab="tab-requests">【待批核卷宗】${pendingRequests().length ? `<span class="tab-dot">${pendingRequests().length}</span>` : ""}</button>` : ""}
         ${isDM() ? `<button class="tab-btn" data-tab="tab-admin">【權限管理】</button>` : ""}
       </div>
-      <div class="tab-panel" id="tab-sect">${facilityHtml(editable)}</div>
       <div class="tab-panel" id="tab-warehouse">${warehouseHtml(editable)}</div>
       <div class="tab-panel" id="tab-treasury">${treasuryHtml(editable)}</div>
       <div class="tab-panel" id="tab-roster">${rosterHtml(editable)}</div>
@@ -1241,20 +1105,15 @@
       <div class="tab-panel" id="tab-combat">${combatHtml()}</div>
       ${editable ? `<div class="tab-panel" id="tab-requests">${requestsHtml()}</div>` : ""}
       ${isDM() ? `<div class="tab-panel" id="tab-admin">${adminHtml()}</div>` : ""}
-    `);
-    if(!changed) return;   
+    `;
 
-    if(!document.getElementById(activeTab)) activeTab = "tab-sect";
+    if(!document.getElementById(activeTab)) activeTab = "tab-warehouse";
     area.querySelectorAll(".tab-btn").forEach(btn => {
       btn.classList.toggle("active", btn.dataset.tab === activeTab);
       btn.onclick = () => {
         activeTab = btn.dataset.tab;
         area.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-        area.querySelectorAll(".tab-panel").forEach(p => {
-          const on = p.id === activeTab;
-          p.classList.toggle("active", on);
-          p.classList.toggle("swap", on);
-        });
+        area.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
       };
     });
     area.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === activeTab));
@@ -1265,6 +1124,7 @@
   }
 
   // ===== 【內務堂：宗門底蘊】=====
+  // 三面玉牌：左為靈石國庫、中為近期流水、右為傳音警訊。
   function fmtLogTime(ts){
     const d = new Date(num(ts));
     return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
@@ -1275,11 +1135,89 @@
       .sort((a,b) => num(a[1].ts) - num(b[1].ts));
   }
 
+  function renderHallStats(){
+    const items = Object.values(warehouse);
+    const stoneTotal = STONE_KEYS.reduce((s,x) => s + num(stones[x.k]), 0);
+    const stoneParts = STONE_KEYS
+      .map(s => `<span>${escapeHtml(s.label.replace("靈石",""))}<b>${num(stones[s.k]).toLocaleString()}</b></span>`)
+      .join("");
+
+    // 近期流水：庫房日誌最新三筆
+    const recent = Object.values(logs)
+      .filter(l => l && typeof l === "object")
+      .sort((a,b) => num(b.ts) - num(a.ts))
+      .slice(0, 3);
+
+    // 警訊：待批核申請 > 見底物資 > 低存量 > 重傷弟子
+    const reqCount = pendingRequests().length;
+    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
+    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
+    const wounded = Object.values(chars).filter(c => {
+      const mx = num(c.hp && c.hp.max);
+      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
+    }).length;
+
+    const notes = [];
+    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已然見底`);
+    if(lowStock > 0) notes.push(`${lowStock} 項物資存量不足三份`);
+    if(wounded > 0) notes.push(`${wounded} 名弟子本命玉牌將裂`);
+
+    const alarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
+    const alertBody = reqCount > 0
+      ? `<div class="lp-alert"><span class="urgent">長老請注意：有</span><b>${reqCount}</b><span class="urgent">筆調用申請待批核</span>
+           ${notes.length ? `<span class="lp-more">另：${escapeHtml(notes.join("、"))}。</span>` : ""}</div>`
+      : (notes.length
+          ? `<div class="lp-alert"><span class="urgent">內務堂稟報：</span>${escapeHtml(notes.join("、"))}，宜早作打算。</div>`
+          : `<div class="lp-alert quiet">符紙靜默，四下無事。庫房充盈，弟子安康。</div>`);
+
+    document.getElementById("hallStats").innerHTML = `
+      <div class="ledger-head">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
+      <div class="ledger">
+        <div class="ledger-panel">
+          <div class="lp-head">${SVG.stone()}<span>靈石國庫</span></div>
+          <div class="lp-stone">
+            ${SVG.stone("stone-sigil")}
+            <div>
+              <div class="lp-total">${stoneTotal.toLocaleString()}<span class="lp-unit">枚</span></div>
+              <div class="lp-breakdown">${stoneParts}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ledger-panel">
+          <div class="lp-head">${SVG.scroll()}<span>近期流水</span></div>
+          ${recent.length === 0
+            ? `<div class="lp-empty">帳冊尚無墨跡，庫房未見進出。</div>`
+            : `<ul class="lp-flow">${recent.map(l => {
+                const d = num(l.delta);
+                return `<li>
+                  <span class="lf-time">${fmtLogTime(l.ts)}</span>
+                  <span class="lf-actor">${escapeHtml(l.actor || "無名")}</span>
+                  <span class="lf-text">${escapeHtml(l.text || "")}</span>
+                  ${d ? `<span class="lf-delta ${d > 0 ? "plus" : "minus"}">${d > 0 ? "+" : ""}${d.toLocaleString()}</span>` : ""}
+                </li>`;
+              }).join("")}</ul>`}
+        </div>
+
+        <div class="ledger-panel${alarm ? " alarm" : ""}">
+          <div class="lp-head">${SVG.talisman()}<span>傳音警訊</span></div>
+          <div class="lp-talisman">
+            ${SVG.talisman("talisman-sigil")}
+            ${alertBody}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 沙盒模式的「啟用／開啟」入口：只有還沒被別人領走、或本來就是自己領走的，才會顯示；
+  // 別人領走的沙盒不關這個訪客的事，安靜地不顯示即可，避免誤導。
   function sandboxOptInHtml(){
     if(!sandboxOwnerLoaded) return "";
     if(!sandboxOwner){
       return `<div class="notice sandbox-optin">
-        <b>沙盒模式</b>：想在正式取得授權前，先試用天道功能？可以啟用一份跟真實資料完全隔離的沙盒（所有讀寫都在你自己的副本上，不會動到宗門的真實帳目），僅限你自己使用。
+        <b>沙盒模式</b>：想在正式取得授權前，先試用天道功能？可以啟用一份跟真實資料完全隔離的沙盒
+        （所有讀寫都在你自己的副本上，不會動到宗門的真實帳目），僅限你自己使用。
         <div style="margin-top:8px;"><button class="btn jade" data-action="claim-sandbox">啟用沙盒模式</button></div>
       </div>`;
     }
@@ -1296,7 +1234,7 @@
     if(!discordUser){
       return `<div class="notice">目前為訪客唯讀模式。登入 Discord 後，若你的身分已被天道授權，即可編輯庫房與花名冊。</div>`;
     }
-    if(sandboxActive()) return ""; 
+    if(sandboxActive()) return ""; // 沙盒模式下已經視同天道，不需要再顯示任何取得權限的提示
     if(Object.keys(admins).length === 0){
       return `<div class="notice">尚未設定任何管理員。第一位設定者將成為天道，可再授權其他長老。
         <div style="margin-top:8px;"><button class="btn gold" data-action="claim-dm">將我設為天道</button></div></div>`
@@ -1310,6 +1248,7 @@
     return "";
   }
 
+  // 沙盒模式進行中的常駐橫幅：任何分頁都看得到，避免忘記自己在測試資料裡。
   function sandboxBannerHtml(){
     if(!sandboxActive()) return "";
     return `<div class="sandbox-banner">
@@ -1322,306 +1261,8 @@
     </div>`;
   }
 
-  // ===== 山門殿宇 =====
-  const UPKEEP_KINDS = [
-    { k:"month", label:"每月" }, { k:"once", label:"單次" }, { k:"none", label:"不需靈石" }
-  ];
-  const gradeLabel = g => (STONE_KEYS.find(x => x.k === g) || {}).label || "中品靈石";
-  const gradeShort = g => gradeLabel(g).replace("靈石", "");
-
-  function facilityEntries(){
-    const edits = facilityEdits && typeof facilityEdits === "object" ? facilityEdits : {};
-    const out = [];
-    FACILITY_SEED.forEach(base => {
-      const e = edits[base.id];
-      if(e && e.removed) return;                       
-      out.push([base.id, Object.assign({}, base, e && typeof e === "object" ? e : {})]);
-    });
-    Object.entries(edits).forEach(([id, e]) => {
-      if(id.startsWith("_")) return;                   
-      if(FACILITY_SEED.some(b => b.id === id)) return; 
-      if(e && typeof e === "object" && !e.removed) out.push([id, e]);
-    });
-    return out;
-  }
-  function removedFacilities(){
-    const edits = facilityEdits && typeof facilityEdits === "object" ? facilityEdits : {};
-    return FACILITY_SEED.filter(b => edits[b.id] && edits[b.id].removed);
-  }
-  function isSeedFacility(id){ return FACILITY_SEED.some(b => b.id === id); }
-
-  function upkeepTotals(kind){
-    const out = {};
-    STONE_KEYS.forEach(x => out[x.k] = 0);
-    facilityEntries().forEach(([,f]) => {
-      if((f.upkeepKind || "month") !== kind) return;
-      const g = out[f.upkeepGrade] == null ? "mid" : f.upkeepGrade;
-      out[g] += num(f.upkeepQty);
-    });
-    return out;
-  }
-
-  function monthsLeft(){
-    const need = upkeepTotals("month");
-    let worst = null;
-    STONE_KEYS.forEach(x => {
-      const per = need[x.k];
-      if(per <= 0) return;
-      const m = Math.floor(num(stones[x.k]) / per);
-      if(worst === null || m < worst.months) worst = { months:m, key:x.k, per, have:num(stones[x.k]) };
-    });
-    return worst;   
-  }
-
-  function sectData(){
-    const e = facilityEdits && facilityEdits._sect;
-    return Object.assign({}, SECT_SEED, (e && typeof e === "object") ? e : {});
-  }
-  function sectField(k, fallback){
-    const v = sectData()[k];
-    return v == null || v === "" ? (fallback == null ? "" : fallback) : v;
-  }
-  function sectEnemies(){
-    const e = sectData().enemies;
-    if(Array.isArray(e)) return e.filter(Boolean);
-    if(e && typeof e === "object") return Object.values(e).filter(Boolean);
-    return String(e || "").split(/[、,，\s]+/).filter(Boolean);
-  }
-
-  function sectBannerHtml(){
-    const need = upkeepTotals("month");
-    const costText = STONE_KEYS.filter(x => need[x.k] > 0)
-      .map(x => `<span>${escapeHtml(gradeShort(x.k))}<b>${need[x.k].toLocaleString()}</b></span>`).join("") || `<span>無</span>`;
-    const left = monthsLeft();
-    const lowOnStones = left && left.months <= 2;
-    const enemies = sectEnemies();
-    
-    // 警訊計算
-    const items = Object.values(warehouse);
-    const reqCount = pendingRequests().length;
-    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
-    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
-    const wounded = Object.values(chars).filter(c => {
-      const mx = num(c.hp && c.hp.max);
-      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
-    }).length;
-
-    const notes = [];
-    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已見底`);
-    if(lowStock > 0) notes.push(`${lowStock} 項物資不足三份`);
-    if(wounded > 0) notes.push(`${wounded} 名弟子玉牌將裂`);
-
-    const hasAlarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
-
-    return `
-      <div class="sect-banner${lowOnStones ? " alarm" : ""}">
-        <div class="sb-main">
-          ${SVG.gate("sb-sigil")}
-          <div>
-            <div class="sb-name">${escapeHtml(sectField("name", "本門"))}<span class="sb-level">${escapeHtml(sectField("level", "－"))}</span></div>
-            <div class="sb-formation">護山大陣　${escapeHtml(sectField("formation", "－"))}</div>
-          </div>
-          <div class="sb-sub">護山大陣：${escapeHtml(sectField("formation", "－"))}</div>
-          ${enemies.length ? `<div class="sb-sub" style="margin-top:4px;">敵對勢力：${enemies.map(e => escapeHtml(e)).join("、")}</div>` : ""}
-        </div>
-
-        <div class="sb-right">
-          <div class="sb-info-group">
-            <span class="sb-label">門派聲望</span>
-            <span class="sb-value">${num(sectField("reputation", 0)).toLocaleString()}</span>
-          </div>
-          <div class="sb-info-group">
-            <span class="sb-label">殿宇建築</span>
-            <span class="sb-value">${facilityEntries().length} 座</span>
-          </div>
-          <div class="sb-info-group">
-            <span class="sb-label">每月開銷</span>
-            <span class="sb-cost-row">${costText}</span>
-          </div>
-          <div class="sb-info-group">
-            <span class="sb-label">庫存可支撐</span>
-            <span class="sb-value ${lowOnStones || hasAlarm ? "danger" : ""}">${left === null ? "－" : left.months.toLocaleString() + " 個月"}</span>
-            <span class="sb-cost-row" style="font-size:11px; margin-top:2px;">
-              ${hasAlarm ? `<b style="color:#FF9E82; margin-left:0;">內務堂有警訊！</b>` : (left === null ? "" : `${escapeHtml(gradeShort(left.key))}最先見底`)}
-            </span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function beastEntries(){
-    const out = [];
-    BEAST_SEED.forEach(b => {
-      const e = beasts[b.id];
-      if(e && e.removed) return;
-      out.push([b.id, Object.assign({}, b, e && typeof e === "object" ? e : {})]);
-    });
-    Object.entries(beasts).forEach(([id, e]) => {
-      if(BEAST_SEED.some(b => b.id === id)) return;
-      if(e && typeof e === "object" && !e.removed) out.push([id, e]);
-    });
-    return out;
-  }
-
-  function facilityHtml(editable){
-    const list = facilityEntries();
-    const beastList = beastEntries();
-    const gone = removedFacilities();
-    const monthNeed = upkeepTotals("month");
-    const onceList = facilityEntries().filter(([,f]) => f.upkeepKind === "once");
-    const left = monthsLeft();
-
-    return `
-      <div class="block-title">門派卷宗<span class="spacer"></span>
-        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">上方橫幅即時同步這裡的內容</span>
-      </div>
-      <div class="sect-form">
-        <label class="sf-field"><span>門派名稱</span>
-          <input data-s="name" value="${attr(sectField("name"))}" placeholder="例：無相門" ${editable?"":"disabled"}></label>
-        <label class="sf-field"><span>門派等級</span>
-          <input data-s="level" value="${attr(sectField("level"))}" placeholder="例：三級" ${editable?"":"disabled"}></label>
-        <label class="sf-field"><span>門派聲望</span>
-          <input data-s="reputation" type="number" value="${num(sectField("reputation", 0))}" ${editable?"":"disabled"}></label>
-        <label class="sf-field wide"><span>護山大陣</span>
-          <input data-s="formation" value="${attr(sectField("formation"))}" placeholder="例：五行幻獸大陣" ${editable?"":"disabled"}></label>
-        <label class="sf-field wide"><span>敵對勢力</span>
-          <input data-s="enemies" value="${attr(sectEnemies().join("、"))}" placeholder="用頓號分隔，例：六道聯盟、血手堂" ${editable?"":"disabled"}></label>
-      </div>
-
-      <div class="block-title" style="margin-top:30px;">本月開銷結算<span class="spacer"></span></div>
-      <div class="upkeep-box">
-        <div class="uk-row" style="flex:1;">
-          <div class="uk-cell">
-            <div class="uk-label">每月固定開銷</div>
-            <div class="uk-value">${STONE_KEYS.filter(x => monthNeed[x.k] > 0)
-              .map(x => `<span>${escapeHtml(gradeShort(x.k))} <b>${monthNeed[x.k].toLocaleString()}</b></span>`).join("") || "－"}</div>
-          </div>
-          <div class="uk-cell">
-            <div class="uk-label">庫存可支撐</div>
-            <div class="uk-value ${left && left.months <= 2 ? "danger" : ""}">${
-              left === null ? "－" : `<b>${left.months.toLocaleString()}</b> 個月`}</div>
-            ${left === null ? "" : `<div class="uk-note">${escapeHtml(gradeLabel(left.key))}庫存 ${left.have.toLocaleString()}，每月要用 ${left.per.toLocaleString()}，最先見底</div>`}
-          </div>
-        </div>
-        ${editable ? `<div class="uk-btn-area">
-          <button class="btn gold" data-action="settle-upkeep">結算本月設施消耗</button>
-          ${lastSettle ? `<button class="btn" data-action="undo-settle" style="font-size:12px;padding:5px 10px;">↩ 撤銷「${escapeHtml(lastSettle.label)}」</button>` : ""}
-        </div>` : ""}
-      </div>
-
-      ${onceList.length ? `
-      <div class="upkeep-box" style="margin-top:12px; padding: 12px 18px;">
-        <div class="uk-label" style="margin-bottom:0; min-width:100px;">用一次扣一次</div>
-        <div class="uk-once-list">
-          ${onceList.map(([id,f]) => `<div class="uk-once-row">
-            <span class="uk-once-name">${escapeHtml(f.name || "未命名建築")}</span>
-            <span class="uk-once-cost">${escapeHtml(gradeShort(f.upkeepGrade))} ${num(f.upkeepQty).toLocaleString()}</span>
-            ${editable ? `<button class="btn-icon" data-action="settle-once" data-id="${id}" title="開啟一次並扣除" style="margin-left:4px; color:var(--jade);">${SVG.grant()}</button>` : ""}
-          </div>`).join("")}
-        </div>
-      </div>` : ""}
-
-      <div class="block-title" style="margin-top:30px;">殿宇建築<span class="spacer"></span>
-        ${editable ? `<button class="btn gold" data-action="add-facility">＋ 新建殿宇</button>` : ""}
-      </div>
-      ${gone.length && editable ? `<div class="notice info" style="font-weight:400;">
-        已拆除的殿宇：${gone.map(b => `<button type="button" class="btn" style="font-size:12px;padding:3px 9px;margin:0 4px;"
-          data-action="restore-facility" data-id="${attr(b.id)}">↩ 重建${escapeHtml(b.name)}</button>`).join("")}
-      </div>` : ""}
-      ${list.length === 0
-        ? `<div class="notice info" style="font-weight:400;">尚無建築資料。</div>`
-        : `<div class="facility-grid">${list.map(([id,f]) => facilityCardHtml(id, f, editable)).join("")}</div>`}
-        
-      <div class="block-title" style="margin-top:30px;">萬獸園<span class="spacer"></span>
-        ${editable ? `<button class="btn gold" data-action="add-beast">＋ 收錄靈獸</button>` : ""}
-      </div>
-      ${beastList.length === 0
-        ? `<div class="notice info" style="font-weight:400;">尚無靈獸資料。</div>`
-        : `<div class="beast-grid">${beastList.map(([id,b]) => beastCardHtml(id, b, editable)).join("")}</div>`}
-    `;
-  }
-
-  function facilityCardHtml(id, f, editable){
-    const dis = editable ? "" : "disabled";
-    const kind = f.upkeepKind || "month";
-    const capMax = num(f.capMax);
-    const capNow = num(f.capNow);
-    const limit = String(f.limit || "").trim();
-    return `
-      <div class="facility-card">
-        ${editable ? `<button class="btn-icon fc-del-btn" data-action="del-facility" data-id="${id}" title="拆除">${SVG.cross()}</button>` : ""}
-        
-        <label class="fc-level-seal" title="${editable ? '修改等級' : '等級'}">
-          <input data-f="${id}" data-prop="level" value="${attr(f.level)}" placeholder="等級" ${dis}>
-        </label>
-
-        <div class="fc-head">
-          <input class="fc-name" data-f="${id}" data-prop="name" value="${attr(f.name)}" placeholder="建築名稱" ${dis}>
-        </div>
-        <div class="fc-spec">
-          <input data-f="${id}" data-prop="spec" value="${attr(f.spec)}" placeholder="建築規格（例：1 棟房子／30 畝／容納 50 人）" ${dis}>
-        </div>
-        ${capMax > 0 && f.capNow != null ? `<div class="fc-cap">
-          <div class="fc-cap-track"><div class="fc-cap-bar" style="width:${Math.min(100, capNow / capMax * 100).toFixed(1)}%"></div></div>
-          <span class="fc-cap-text">${capNow.toLocaleString()} / ${capMax.toLocaleString()} ${escapeHtml(f.capUnit || "")}</span>
-        </div>` : ""}
-        <textarea class="fc-fn auto-resize" data-f="${id}" data-prop="fn" placeholder="建築功能" ${dis}>${attr(f.fn)}</textarea>
-        
-        ${limit || editable ? `
-          <button type="button" class="fc-limit-btn" data-action="toggle-limit" data-id="${id}" style="${limit ? 'display:none;' : ''}">＋ 寫入限制與要求</button>
-          <div class="fc-limit-box ${limit ? 'show' : ''}" id="limit-box-${id}">
-            <span class="fc-limit-tag">限制與要求</span>
-            <textarea class="auto-resize" data-f="${id}" data-prop="limit" placeholder="寫入限制或升級要求" ${dis}>${attr(limit)}</textarea>
-          </div>
-        ` : ""}
-        
-        <div class="fc-foot">
-          <span class="fc-tag">
-            ${SVG.stone()}
-            <select data-f="${id}" data-prop="upkeepKind" ${dis}>
-              ${UPKEEP_KINDS.map(u => `<option value="${u.k}" ${kind === u.k ? "selected" : ""}>${u.label}</option>`).join("")}
-            </select>
-            ${kind !== "none" ? `
-              <input type="number" min="0" data-f="${id}" data-prop="upkeepQty" value="${num(f.upkeepQty)}" ${dis}>
-              <select data-f="${id}" data-prop="upkeepGrade" ${dis}>
-                ${STONE_KEYS.map(x => `<option value="${x.k}" ${(f.upkeepGrade || "mid") === x.k ? "selected" : ""}>${x.label.replace('靈石','')}</option>`).join("")}
-              </select>` : ""}
-          </span>
-        </div>
-      </div>`;
-  }
-
-  function beastCardHtml(id, b, editable){
-    const dis = editable ? "" : "disabled";
-    const root = String(b.root || "無").trim().charAt(0);
-    const color = BEAST_ROOT_COLORS[root] || "#8C6B27";
-    return `
-      <div class="beast-card" style="--beast-color: ${color};" data-root="${root}">
-        ${editable ? `<button class="beast-del" data-action="del-beast" data-id="${id}" title="移除">${SVG.cross()}</button>` : ""}
-        
-        <label class="beast-root-display" title="靈根：${attr(b.root)}">${root}</label>
-        ${editable ? `<input class="beast-root-select" data-b="${id}" data-prop="root" value="${attr(b.root)}" title="修改靈根">` : ""}
-
-        <div class="beast-head">
-          <div class="beast-name-wrap">
-            <input class="beast-name" data-b="${id}" data-prop="name" value="${attr(b.name)}" placeholder="靈獸名稱" ${dis}>
-            <div class="beast-tags">
-              <input class="beast-realm" data-b="${id}" data-prop="realm" value="${attr(b.realm)}" placeholder="境界" ${dis}>
-              <input class="beast-status" data-b="${id}" data-prop="status" value="${attr(b.status)}" placeholder="目前狀態" ${dis}>
-            </div>
-          </div>
-        </div>
-        <div class="beast-body">
-          <div class="beast-skill-box">
-            <div class="beast-skill-title">本命神通</div>
-            <textarea class="beast-skill-desc auto-resize" data-b="${id}" data-prop="skill" placeholder="神通描述" ${dis}>${attr(b.skill)}</textarea>
-          </div>
-        </div>
-      </div>`;
-  }
-
   // ===== 宗門庫房 =====
+  // 100 → "100"，1000 → "1千"，10000 → "1萬"，100000 → "10萬"：快速增減按鈕上的精簡標籤。
   function fmtAmt(n){
     if(n >= 10000) return (n / 10000) + "萬";
     if(n >= 1000) return (n / 1000) + "千";
@@ -1651,79 +1292,8 @@
   }
 
   function warehouseHtml(editable){
-    const items = Object.values(warehouse);
-    const stoneTotal = STONE_KEYS.reduce((s,x) => s + num(stones[x.k]), 0);
-    const stoneParts = STONE_KEYS
-      .map(s => `<span>${escapeHtml(s.label.replace("靈石",""))}<b>${num(stones[s.k]).toLocaleString()}</b></span>`)
-      .join("");
-    
-    const recent = Object.values(logs)
-      .filter(l => l && typeof l === "object")
-      .sort((a,b) => num(b.ts) - num(a.ts))
-      .slice(0, 3);
-      
-    const reqCount = pendingRequests().length;
-    const outOfStock = items.filter(i => num(i.qty) <= 0).length;
-    const lowStock = items.filter(i => num(i.qty) > 0 && num(i.qty) <= 2).length;
-    const wounded = Object.values(chars).filter(c => {
-      const mx = num(c.hp && c.hp.max);
-      return mx > 0 && num(c.hp && c.hp.current) / mx * 100 <= 30;
-    }).length;
-
-    const notes = [];
-    if(outOfStock > 0) notes.push(`${outOfStock} 項物資已見底`);
-    if(lowStock > 0) notes.push(`${lowStock} 項物資不足三份`);
-    if(wounded > 0) notes.push(`${wounded} 名弟子玉牌將裂`);
-
-    const alarm = reqCount > 0 || outOfStock > 0 || wounded > 0;
-    const alertBody = reqCount > 0
-      ? `<div class="lp-alert"><span class="urgent">長老請注意：有</span><b>${reqCount}</b><span class="urgent">筆調用申請待批核</span>
-           ${notes.length ? `<span class="lp-more">另：${escapeHtml(notes.join("、"))}。</span>` : ""}</div>`
-      : (notes.length
-          ? `<div class="lp-alert"><span class="urgent">內務堂稟報：</span>${escapeHtml(notes.join("、"))}，宜早作打算。</div>`
-          : `<div class="lp-alert quiet">符紙靜默，四下無事。庫房充盈，弟子安康。</div>`);
-
     return `
-      <div class="ledger-head" style="margin-top:8px;">${SVG.vault()}<span>內務堂 · 宗門底蘊</span><span class="lh-rule"></span></div>
-      <div class="ledger">
-        <div class="ledger-panel">
-          <div class="lp-head">${SVG.stone()}<span>靈石庫藏</span></div>
-          <div class="lp-stone">
-            ${SVG.stone("stone-sigil")}
-            <div>
-              <div class="lp-total">${stoneTotal.toLocaleString()}<span class="lp-unit">枚</span></div>
-              <div class="lp-breakdown">${stoneParts}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="ledger-panel">
-          <div class="lp-head">${SVG.scroll()}<span>近期流水</span></div>
-          ${recent.length === 0
-            ? `<div class="lp-empty">帳冊尚無墨跡，庫房未見進出。</div>`
-            : `<ul class="lp-flow">${recent.map(l => {
-                const d = num(l.delta);
-                return `<li>
-                  <span class="lf-time">${fmtLogTime(l.ts)}</span>
-                  <span class="lf-actor">${escapeHtml(l.actor || "無名")}</span>
-                  <span class="lf-text">${escapeHtml(l.text || "")}</span>
-                  ${d ? `<span class="lf-delta ${d > 0 ? "plus" : "minus"}">${d > 0 ? "+" : ""}${d.toLocaleString()}</span>` : ""}
-                </li>`;
-              }).join("")}</ul>`}
-        </div>
-
-        <div class="ledger-panel${alarm ? " alarm" : ""}" style="grid-column: 1 / -1; padding: 12px 18px;">
-          <div class="lp-talisman" style="margin-bottom:0; padding:0; background:transparent; border:none;">
-            ${SVG.talisman("talisman-sigil")}
-            <div style="display:flex; flex-direction:column; justify-content:center;">
-               <div class="lp-head" style="margin-bottom:2px; color:var(--vermillion-bright);">傳音警訊</div>
-               ${alertBody}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="block-title">靈石操作<span class="spacer"></span>
+      <div class="block-title">靈石總帳<span class="spacer"></span>
         <span id="stoneUndoSlot">${stoneUndoBtnHtml()}</span>
         ${editable ? `<span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">可直接改數字，或用卡片下方按鈕快速增減</span>` : ""}
       </div>
@@ -1753,10 +1323,14 @@
     `;
   }
 
+  // 表格獨立成一段：切換丹藥／法器／材料／符咒時只重畫這裡，
+  // 上面的靈石總帳與分類列不動，畫面就不會整個跳一下。
   function warehouseTableHtml(editable){
     const entries = Object.entries(warehouse)
       .filter(([,it]) => (it.category || "丹藥") === warehouseCat)
       .sort((a,b) => (a[1].name||"").localeCompare(b[1].name||"", "zh-Hant"));
+    // 團裡所有玩家都掛長老身分（弟子是 NPC），所以長老自己也要能向庫房請領，
+    // 「申請調用」對每個登入者都顯示；長老另外多一欄刪除。
     const canRequest = !!discordUser;
     const cols = 3 + (editable ? 1 : 0) + (canRequest ? 1 : 0);
     return `
@@ -1849,51 +1423,31 @@
         </div>
         <div class="treasure-body">
           <div class="tf-row"><label class="tf-label">法器外觀</label>
-            <textarea class="tf-input auto-resize" rows="1" data-t="${id}" data-prop="appearance" placeholder="外觀描述……" ${dis}>${attr(t.appearance)}</textarea></div>
+            <textarea class="tf-input" rows="2" data-t="${id}" data-prop="appearance" placeholder="外觀描述……" ${dis}>${attr(t.appearance)}</textarea></div>
           <div class="tf-row"><label class="tf-label">核心效果</label>
-            <textarea class="tf-input auto-resize" rows="1" data-t="${id}" data-prop="coreEffect" placeholder="核心效果……" ${dis}>${attr(t.coreEffect)}</textarea></div>
+            <textarea class="tf-input" rows="2" data-t="${id}" data-prop="coreEffect" placeholder="核心效果……" ${dis}>${attr(t.coreEffect)}</textarea></div>
           <div class="tf-row"><label class="tf-label">特殊效果</label>
-            <textarea class="tf-input auto-resize" rows="1" data-t="${id}" data-prop="specialEffect" placeholder="特殊效果……" ${dis}>${attr(t.specialEffect)}</textarea></div>
+            <textarea class="tf-input" rows="3" data-t="${id}" data-prop="specialEffect" placeholder="特殊效果……" ${dis}>${attr(t.specialEffect)}</textarea></div>
           <div class="tf-row"><label class="tf-label">使用條件</label>
             <input class="tf-input" data-t="${id}" data-prop="condition" value="${attr(t.condition)}" placeholder="例：佛修或武僧" ${dis}></div>
           <div class="tf-row"><label class="tf-label">法器升級</label>
-            <textarea class="tf-input auto-resize" rows="1" data-t="${id}" data-prop="upgrade" placeholder="升級方式……" ${dis}>${attr(t.upgrade)}</textarea></div>
+            <textarea class="tf-input" rows="2" data-t="${id}" data-prop="upgrade" placeholder="升級方式……" ${dis}>${attr(t.upgrade)}</textarea></div>
           <div class="tf-row"><label class="tf-label">升級效果</label>
-            <textarea class="tf-input auto-resize" rows="1" data-t="${id}" data-prop="upgradeEffect" placeholder="升級後效果……" ${dis}>${attr(t.upgradeEffect)}</textarea></div>
+            <textarea class="tf-input" rows="2" data-t="${id}" data-prop="upgradeEffect" placeholder="升級後效果……" ${dis}>${attr(t.upgradeEffect)}</textarea></div>
         </div>
       </div>`;
   }
 
   // ===== 花名冊 =====
-  function charNameIndex(){
-    const idx = new Map();
-    Object.values(chars).forEach(c => {
-      if(!c || typeof c !== "object") return;
-      const n = String(c.name || "").trim();
-      if(!n) return;
-      if(idx.has(n)) idx.set(n, null);        
-      else idx.set(n, c);
-    });
-    return idx;
-  }
-  let _charNameIdx = null;
-  function linkedCharFor(m){
-    if(!m || m.realmLink === "manual") return null;
-    if(!_charNameIdx) _charNameIdx = charNameIndex();
-    return _charNameIdx.get(String(m.name || "").trim()) || null;
-  }
-  function memberRealm(m){
-    const c = linkedCharFor(m);
-    const fromCard = c ? String(c.realm || "").trim() : "";
-    return fromCard || String((m && m.realm) || "").trim();
-  }
-
   function majorRealm(realm){
     const r = (realm || "").trim();
     if(!r) return "未記錄";
     return r.slice(0, 2);
   }
 
+  // 境界排序：先比大境界（煉氣→築基→金丹……），同一個大境界再比層數或期別。
+  // 「煉氣圓滿」要排在「煉氣九層」後面，所以期別的分數一律加在層數之上。
+  // 沒填境界的給 Infinity，兩個方向都墊底。
   const REALM_MAJORS = ["煉氣","築基","金丹","元嬰","化神","煉虛","合體","大乘","渡劫"];
   const REALM_STAGES = ["初期","中期","後期","圓滿"];
   const CN_NUM = { "一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,"十":10 };
@@ -1906,23 +1460,24 @@
     if(layer) return base + (CN_NUM[layer[1]] || 0);
     const stage = REALM_STAGES.findIndex(x => r.includes(x));
     if(stage >= 0) return base + 20 + stage;
-    return base + 50;      
+    return base + 50;      // 認得大境界但寫法特別的，排在該境界最後
   }
 
+  // Firebase 上偶爾會留下不是物件的殘骸（例如寫壞的節點），先濾掉再統計，
+  // 免得統計數字多一個人、名冊卻翻不到那一列。
   function rosterEntries(){
     return Object.entries(roster).filter(([,m]) => m && typeof m === "object");
   }
 
   function rosterHtml(editable){
-    _charNameIdx = null;                 
     const all = rosterEntries();
+    // 境界統計：以境界前兩字分組（煉氣／築基／金丹…），並保留完整子境界細分
     const groups = {};
     all.forEach(([,m]) => {
-      const realm = memberRealm(m);      
-      const g = majorRealm(realm);
+      const g = majorRealm(m.realm);
       if(!groups[g]) groups[g] = { count:0, detail:{} };
       groups[g].count++;
-      const full = realm || "未記錄";
+      const full = (m.realm || "").trim() || "未記錄";
       groups[g].detail[full] = (groups[g].detail[full] || 0) + 1;
     });
     const maxCount = Math.max(1, ...Object.values(groups).map(g => g.count));
@@ -1962,10 +1517,7 @@
       </div>
       <div class="notice info" style="font-weight:400;">
         上面的境界卡可以點：點「未記錄」就只列出沒填境界的弟子，不必在名冊裡一列列翻。
-        名冊裡沒填的欄位會用虛線框標起來，排序也可以改成依境界或依職業。<br>
-        <b>境界連動</b>：名冊姓名和角色卡的角色尊名一樣時，境界一欄會直接顯示<b>角色卡上的境界</b>（綠底那格），
-        玩家在卡上突破就自動跟著更新，這裡不必再改一次；上面的統計、排序與篩選也都是照連動後的境界計算。
-        要改回自己填的話，按那一格旁邊的鎖鏈鈕即可。同名有兩張以上角色卡時不會自動連動，以免連錯人。
+        名冊裡沒填的欄位會用虛線框標起來，排序也可以改成依境界或依職業。
       </div>
       <div class="sub-tabs">
         <button class="sub-tab ${rosterRank==="全部"?"active":""}" data-rank="全部">全部（${all.length}）</button>
@@ -1974,13 +1526,15 @@
       <div class="table-wrap" id="rosterTableWrap">${rosterTableHtml(editable)}</div>`;
   }
 
+  // 切換階級分頁或搜尋時只重畫這張表，上面的境界統計不動
   const ROSTER_SORTERS = (() => {
     const byName = (a, b) => String(a[1].name || "").localeCompare(String(b[1].name || ""), "zh-Hant");
+    // 沒填的職業排最後，不要跟有填的混在一起
     const jobKey = m => String(m.job || "").trim() || "\uFFFF";
     const byRealm = dir => (a, b) => {
-      const x = realmScore(memberRealm(a[1])), y = realmScore(memberRealm(b[1]));
+      const x = realmScore(a[1].realm), y = realmScore(b[1].realm);
       if(x === y) return byName(a, b);
-      if(!isFinite(x)) return 1;          
+      if(!isFinite(x)) return 1;          // 未填境界的兩個方向都墊底
       if(!isFinite(y)) return -1;
       return dir * (x - y);
     };
@@ -1994,12 +1548,12 @@
   })();
 
   function rosterTableHtml(editable){
-    _charNameIdx = null;
     const filtered = rosterEntries().filter(([,m]) => {
       if(rosterRank !== "全部" && (m.rank || "記名") !== rosterRank) return false;
-      if(rosterRealmFilter && majorRealm(memberRealm(m)) !== rosterRealmFilter) return false;
+      if(rosterRealmFilter && majorRealm(m.realm) !== rosterRealmFilter) return false;
       if(!rosterFilter) return true;
-      const hay = [m.name, m.title, m.root, m.job, m.path, memberRealm(m), m.master, majorRealm(memberRealm(m))]
+      // 搜「未記錄」也要找得到沒填境界的人，不然那一格永遠翻不出來
+      const hay = [m.name, m.title, m.root, m.job, m.path, m.realm, m.master, majorRealm(m.realm)]
         .join(" ").toLowerCase();
       return hay.includes(rosterFilter.toLowerCase());
     }).sort(ROSTER_SORTERS[rosterSort] || ROSTER_SORTERS.rank);
@@ -2029,7 +1583,7 @@
                   <td><input class="${String(m.root||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="root" value="${attr(m.root)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
                   <td><input class="${String(m.job||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="job" value="${attr(m.job)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
                   <td><input data-r="${id}" data-prop="path" value="${attr(m.path)}" placeholder="－" ${editable?"":"disabled"}></td>
-                  <td>${realmCellHtml(id, m, editable)}</td>
+                  <td><input class="${String(m.realm||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="realm" value="${attr(m.realm)}" placeholder="未記錄" ${editable?"":"disabled"}></td>
                   <td><input data-r="${id}" data-prop="master" value="${attr(m.master)}" placeholder="－" ${editable?"":"disabled"}></td>
                   ${editable ? `<td><button class="btn-icon" data-action="del-member" data-id="${id}" title="移出花名冊">${SVG.cross()}</button></td>` : ""}
                 </tr>`).join("")}
@@ -2037,26 +1591,13 @@
         </table>`;
   }
 
-  function realmCellHtml(id, m, editable){
-    const linked = linkedCharFor(m);
-    if(linked){
-      const realm = String(linked.realm || "").trim();
-      return `<div class="realm-cell">
-        <span class="realm-linked${realm ? "" : " miss"}"
-          title="與角色卡【${attr(linked.name)}】連動，境界請到角色卡上修改">${escapeHtml(realm || "角色卡尚未填寫")}</span>
-        ${editable ? `<button class="btn-icon link-toggle on" data-action="unlink-realm" data-id="${id}"
-          title="改為手動填寫，不再跟角色卡連動">${SVG.chain()}</button>` : ""}
-      </div>`;
-    }
-    const canRelink = !!(editable && m.realmLink === "manual" && (_charNameIdx || charNameIndex()).get(String(m.name || "").trim()));
-    return `<div class="realm-cell">
-      <input class="${String(m.realm||"").trim() ? "" : "miss"}" data-r="${id}" data-prop="realm" value="${attr(m.realm)}" placeholder="未記錄" ${editable?"":"disabled"}>
-      ${canRelink ? `<button class="btn-icon link-toggle" data-action="relink-realm" data-id="${id}"
-        title="改回跟同名角色卡連動">${SVG.chain()}</button>` : ""}
-    </div>`;
+  // ===== 天機閣分析 (原簡報分析) =====
+  function countBy(list, fn){
+    const out = {};
+    list.forEach(item => { const k = (fn(item) || "").trim() || "未記錄"; out[k] = (out[k] || 0) + 1; });
+    return out;
   }
 
-  // ===== 天機閣分析 =====
   function reportHtml(){
     const rosterList = Object.values(roster);
     const charList = Object.values(chars);
@@ -2066,66 +1607,66 @@
 
     const pct = (cur, mx) => { const c = num(cur), m = num(mx); return m <= 0 ? null : Math.max(0, Math.min(100, c/m*100)); };
 
+    // 1. 重傷瀕死名單 (HP <= 30%)
     const lowHp = charList.map(c => ({ c, p: pct(c.hp && c.hp.current, c.hp && c.hp.max) }))
       .filter(x => x.p != null && x.p <= 30).sort((a,b) => a.p - b.p);
 
+    // 2. 靈氣底蘊排行榜 (Top 5)
     const topQi = [...charList].filter(c => num(c.qi?.max) > 0).sort((a,b) => num(b.qi?.max) - num(a.qi?.max)).slice(0, 5);
-    
-    // 宗門百藝榜
-    const topJobs = countBy(rosterList, m => m.job);
-    const jobArray = Object.entries(topJobs)
-      .filter(([k]) => k !== "未記錄" && k)
-      .sort((a,b) => b[1] - a[1])
-      .map(([name, count]) => ({ name, count }))
-      .slice(0, 5);
 
-    const goodKarma = [...charList].filter(c => num(c.karma) < 0).sort((a,b) => num(a.karma) - num(b.karma)).slice(0, 5); 
-    const badKarma = [...charList].filter(c => num(c.karma) > 0).sort((a,b) => num(b.karma) - num(a.karma)).slice(0, 5);  
+    // 3. 因果善惡榜
+    const goodKarma = [...charList].filter(c => num(c.karma) < 0).sort((a,b) => num(a.karma) - num(b.karma)).slice(0, 5); // 越負越前面(功德)
+    const badKarma = [...charList].filter(c => num(c.karma) > 0).sort((a,b) => num(b.karma) - num(a.karma)).slice(0, 5);  // 越正越前面(業障)
 
+    // 4. 生態與運勢預警 (由花名冊推演)
     const pathCounts = countBy(rosterList, m => m.path);
     const jobCounts = countBy(rosterList, m => m.job);
     let warnings = [];
-    
+
+    // 檢查醫療/煉丹後勤
     const hasMedic = Object.keys(jobCounts).some(k => k.includes("丹") || k.includes("醫") || k.includes("補") || k.includes("藥"));
     if(!hasMedic && totalDisciples > 0) {
       warnings.push({ type: "danger", icon: SVG.gourd(), text: "後勤空虛：宗門內極度缺乏「煉丹」或「醫療」相關職業，若遇大戰恐無人救治，死傷慘重。" });
     }
-    
+
+    // 檢查邪修比例
     const evilCount = pathCounts["邪修"] || 0;
     if(evilCount > totalDisciples * 0.3) {
       warnings.push({ type: "warn", icon: SVG.bolt(), text: `風氣偏移：門內邪道修士高達 ${evilCount} 人，比例過高。近期須慎防正道聯盟借機發難，或引動大規模天劫降臨。` });
     }
 
+    // 檢查單一道途過於集中 (以劍修為例)
     const swordCount = pathCounts["劍修"] || 0;
     if(swordCount > totalDisciples * 0.5) {
       warnings.push({ type: "info", icon: SVG.sword(), text: "劍氣沖霄：本門逾半數為劍修，殺伐極盛！但須注意鬥法時輔助與防禦手段恐顯單一。" });
     }
 
+    // 都很健康的話給予正面回饋
     if(warnings.length === 0 && totalDisciples > 0) {
       warnings.push({ type: "good", icon: SVG.yinyang(), text: "陰陽調和：目前宗門百花齊放，各道途與職業分布尚稱均衡，氣運綿長，並無明顯短板。" });
     }
 
-    const renderBoard = (list, valFn, emptyMsg, colorClass, numClass = "") => {
+    const renderBoard = (list, valFn, emptyMsg, colorClass) => {
       if(list.length === 0) return `<div class="board-empty">${emptyMsg}</div>`;
       return list.map((item, i) => `
         <div class="board-row">
           <span class="board-rank">#${i+1}</span>
           <span class="board-name">${escapeHtml(item.name || "未命名")}</span>
-          <span class="board-val ${colorClass} ${numClass}">${valFn(item)}</span>
+          <span class="board-val ${colorClass}">${valFn(item)}</span>
         </div>`).join("");
     };
 
     return `
       <div class="report-section">
-        <div class="report-section-title">天機榜 · 戰鬥與生產</div>
+        <div class="report-section-title">天機榜 · 戰力底蘊</div>
         <div class="board-grid">
           <div class="board-card">
             <div class="board-head qi">${SVG.spark()} 靈氣巔峰榜 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">最高靈氣上限</span></div>
-            <div class="board-list">${renderBoard(topQi, c => num(c.qi?.max).toLocaleString(), "尚無填寫靈氣的修士", "text-jade", "num")}</div>
+            <div class="board-list">${renderBoard(topQi, c => num(c.qi?.max).toLocaleString(), "尚無填寫靈氣的修士", "text-jade")}</div>
           </div>
           <div class="board-card">
-            <div class="board-head treasure">${SVG.scroll()} 宗門百藝榜 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">職業人數排行</span></div>
-            <div class="board-list">${renderBoard(jobArray, j => j.count + " 人", "尚無填寫職業的弟子", "text-gold", "num")}</div>
+            <div class="board-head hp">${SVG.drop()} 命懸一線 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">生命 ≤ 30%</span></div>
+            <div class="board-list">${renderBoard(lowHp.map(x=>x.c), c => num(c.hp?.current) + " / " + num(c.hp?.max), "宗門上下目前安然無恙", "text-vermillion")}</div>
           </div>
         </div>
       </div>
@@ -2135,11 +1676,11 @@
         <div class="board-grid">
           <div class="board-card">
             <div class="board-head good">${SVG.lotus()} 功德無量 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">負業力排行</span></div>
-            <div class="board-list">${renderBoard(goodKarma, c => num(c.karma), "尚未發現功德顯赫之輩", "text-gold", "num")}</div>
+            <div class="board-list">${renderBoard(goodKarma, c => num(c.karma), "尚未發現功德顯赫之輩", "text-gold")}</div>
           </div>
           <div class="board-card">
             <div class="board-head bad">${SVG.chain()} 業障纏身 <span style="font-size:11px;font-weight:400;margin-left:auto;color:rgba(255,255,255,.5);">正業力排行</span></div>
-            <div class="board-list">${renderBoard(badKarma, c => "+" + num(c.karma), "門內尚無罪孽深重之徒", "text-purple", "num")}</div>
+            <div class="board-list">${renderBoard(badKarma, c => "+" + num(c.karma), "門內尚無罪孽深重之徒", "text-purple")}</div>
           </div>
         </div>
       </div>
@@ -2153,7 +1694,12 @@
     `;
   }
 
+
   // ===== 【本命玉牌殿】=====
+  // 報名制跑團的點名板：每位角色一面墨玉本命牌，生命與靈氣鑿成凸起的刻印，
+  // 血量低於三成則玉牌龜裂泛血。天道可自行排定玉牌順序（例如把本場出團的排前面）。
+
+  // 依天道排定的順序排列，沒排到的接在後面按姓名排
   function orderedChars(){
     const pos = new Map();
     tabletOrder.forEach((id, i) => { if(!pos.has(id)) pos.set(id, i); });
@@ -2167,6 +1713,7 @@
 
   function jadeTabletHtml(id, c, idx, total, sortable){
     const pct = (cur,max) => { const v=num(cur), m=num(max); return m<=0?0:Math.max(0,Math.min(100,v/m*100)); };
+    // 正業力＝業障（紫），負業力＝功德（金），與角色卡一致
     const karmaColor = k => num(k) > 0 ? "#B48CF0" : (num(k) < 0 ? "#E8CA82" : "rgba(220,207,168,.6)");
     const hpPct = pct(c.hp?.current, c.hp?.max);
     const qiPct = pct(c.qi?.current, c.qi?.max);
@@ -2181,7 +1728,7 @@
           <span class="jt-realm">${escapeHtml(c.realm || "－")}</span>
         </div>
         <div class="jt-meta">${escapeHtml([c.race, c.path, c.job].filter(Boolean).join(" · ") || "－")}
-          ${c.player ? ` <span class="jt-player">${escapeHtml(c.player)}</span>` : ""}</div>
+          ${c.player ? `　<span class="jt-player">${escapeHtml(c.player)}</span>` : ""}</div>
 
         <div class="jt-line hp">
           <div class="jt-line-label">
@@ -2231,6 +1778,7 @@
       <div class="jade-grid" id="jadeGrid">${jadeGridHtml()}</div>`;
   }
 
+  // 只重畫玉牌區，避免整頁重繪讓捲軸跳動
   function refreshJadeGrid(){
     const grid = document.getElementById("jadeGrid");
     if(!grid) return;
@@ -2256,7 +1804,9 @@
     await saveTabletOrder(ids);
   }
 
-  let draggingTablet = null;   
+  // 拖曳排序：滑鼠拖到哪就即時插到哪，放開才寫進資料庫。
+  // 觸控裝置不會觸發 HTML5 拖曳事件，所以另外保留左右箭頭那組按鈕。
+  let draggingTablet = null;   // 容器層的監聽只掛一次，拖曳中的牌得放在外層共用
   function wireTabletDrag(grid){
     if(!isDM()) return;
 
@@ -2275,6 +1825,7 @@
       });
     });
 
+    // 玉牌每次重畫都會再進來一次，容器上的監聽只掛一次，免得越疊越多
     if(grid.dataset.dragWired) return;
     grid.dataset.dragWired = "1";
     grid.addEventListener("dragover", e => {
@@ -2290,6 +1841,7 @@
     grid.addEventListener("drop", e => e.preventDefault());
   }
 
+  // 找出離游標最近的那面牌，再判斷該插在它前面還是後面
   function nearestSlot(grid, x, y){
     let best = null, bestDist = Infinity;
     grid.querySelectorAll(".jade-tablet:not(.dragging)").forEach(el => {
@@ -2302,7 +1854,10 @@
     return { el: best, before: x < b.left + b.width / 2 };
   }
 
+
   // ===== 【領物申請與賜寶系統】=====
+  // 弟子於庫房呈遞調用申請 → 內務長老於【待批核卷宗】賜下或駁回。
+
   function closeModal(){
     const m = document.getElementById("tfModal");
     if(m) m.remove();
@@ -2338,18 +1893,19 @@
 
     openModal(`
       <div class="modal-title">${SVG.request()}<span>領物申請</span></div>
-      <div class="modal-sub">向內務堂呈遞【${escapeHtml(itemName)}】的調用申請。庫房現存 ${stock.toLocaleString()} 份，申請將送入【待批核卷宗】，待長老賜下。</div>
+      <div class="modal-sub">向內務堂呈遞【${escapeHtml(itemName)}】的調用申請。庫房現存 ${stock.toLocaleString()} 份，
+        申請將送入【待批核卷宗】，待長老賜下。</div>
 
       <label class="modal-label">賜予何人</label>
       <select class="modal-field" id="reqChar">
-        ${mine.map(([id,c]) => `<option value="${attr(id)}">${escapeHtml(c.name || "未命名角色")}${c.realm ? ` （${escapeHtml(c.realm)}）` : ""}</option>`).join("")}
+        ${mine.map(([id,c]) => `<option value="${attr(id)}">${escapeHtml(c.name || "未命名角色")}${c.realm ? `　（${escapeHtml(c.realm)}）` : ""}</option>`).join("")}
       </select>
 
       <label class="modal-label">請求數量</label>
       <input class="modal-field" id="reqQty" type="number" min="1" step="1" value="1">
 
       <label class="modal-label">申請理由</label>
-      <textarea class="modal-field auto-resize" id="reqReason" rows="3" placeholder="例：閉關衝擊築基，需此丹護住心脈"></textarea>
+      <textarea class="modal-field" id="reqReason" rows="3" placeholder="例：閉關衝擊築基，需此丹護住心脈"></textarea>
 
       <div class="modal-foot">
         <button class="btn" data-modal="cancel">作罷</button>
@@ -2358,10 +1914,6 @@
       const sel = el.querySelector("#reqChar");
       const qtyEl = el.querySelector("#reqQty");
       const reasonEl = el.querySelector("#reqReason");
-      
-      const resize = () => { reasonEl.style.height = 'auto'; reasonEl.style.height = (reasonEl.scrollHeight) + 'px'; };
-      reasonEl.addEventListener('input', resize);
-      
       el.querySelector('[data-modal="cancel"]').onclick = closeModal;
       el.querySelector('[data-modal="submit"]').onclick = async btn => {
         const charId = sel.value;
@@ -2370,7 +1922,7 @@
         const reason = (reasonEl.value || "").trim();
         if(!c){ flash("找不到該角色卡", true); return; }
         if(qty <= 0){ flash("請填寫正確的數量", true); qtyEl.focus(); return; }
-        if(qty > stock && !confirm("庫房現存僅 " + stock + " 份，仍要提出 " + qty + " 份的申請嗎？")) return;
+        if(qty > stock && !confirm(`庫房現存僅 ${stock} 份，仍要提出 ${qty} 份的申請嗎？`)) return;
         if(!reason){ flash("請寫下申請理由，長老才好定奪", true); reasonEl.focus(); return; }
 
         const r = push(dref("itemRequests"));
@@ -2403,6 +1955,7 @@
       ${list.length === 0
         ? `<div class="notice info" style="font-weight:400;">案上清淨，並無待批核的調用申請。</div>`
         : `<div class="scroll-grid">${list.map(([id,r]) => {
+            // 法寶卷宗看多寶閣、庫房卷宗看庫房；法寶是獨一無二的，右上角改標品階與持有者
             const isTreasure = r.kind === "treasure";
             const tre = isTreasure ? treasury[r.itemId] : null;
             const item = isTreasure ? null : warehouse[r.itemId];
@@ -2435,12 +1988,14 @@
     `;
   }
 
+  // 從資料庫讀回角色卡的儲物袋（Firebase 可能把陣列還原成物件，統一轉回陣列）
   function readItemsList(char){
     const raw = char && char.itemsList;
     return Array.isArray(raw) ? raw.slice()
       : (raw && typeof raw === "object" ? Object.values(raw) : []);
   }
 
+  // 賜下多寶閣法寶：不扣庫存，寫進弟子儲物袋，並把多寶閣的持有者改記過去
   async function approveTreasureRequest(reqId, req){
     const reason = req.reason || "－";
     try{
@@ -2452,9 +2007,7 @@
       const holder = String(tre.holder || "").trim();
       const charName = req.charName || "未命名角色";
       if(holder && holder !== charName &&
-         !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。
-
-仍要改賜給「${charName}」嗎？`)) return;
+         !confirm(`【${tre.name || req.itemName}】目前記在「${holder}」名下。\n\n仍要改賜給「${charName}」嗎？`)) return;
 
       const charSnap = await get(dref("characters/" + req.charId));
       const char = charSnap.val();
@@ -2498,6 +2051,7 @@
     }
   }
 
+  // 賜下：庫房扣量 → 寫入弟子儲物袋 → 留下日誌 → 退掉卷宗
   async function approveRequest(reqId){
     const req = itemRequests[reqId];
     if(!req){ flash("此卷宗已不存在", true); return; }
@@ -2511,9 +2065,7 @@
       if(!item){ alert(`庫房已無【${req.itemName || "此物資"}】，無法賜下。`); return; }
       const have = num(item.qty);
       if(have < qty){
-        alert(`庫存不足，無法賜下。
-
-【${item.name || req.itemName}】現存 ${have}，申請 ${qty}。`);
+        alert(`庫存不足，無法賜下。\n\n【${item.name || req.itemName}】現存 ${have}，申請 ${qty}。`);
         return;
       }
 
@@ -2548,6 +2100,7 @@
     }
   }
 
+  // 駁回：僅退回卷宗，並在日誌留下一筆備查
   async function rejectRequest(reqId){
     const req = itemRequests[reqId];
     if(!req){ flash("此卷宗已不存在", true); return; }
@@ -2625,7 +2178,8 @@
       </div>` : ""}`;
   }
 
-  // ===== 基礎資料匯入 =====
+  // ===== 基礎資料匯入（弟子花名冊 / 倉儲物資）=====
+  // 種子資料放在 seed-data.js，匯入後一切以資料庫為準，網站上的編輯不會回寫檔案。
   const rosterKey = m => (m.rank || "記名") + "／" + String(m.name || "").trim();
   const whKey = w => (w.category || "丹藥") + "／" + String(w.name || "").trim();
 
@@ -2645,7 +2199,6 @@
         <div style="font-weight:700; margin-bottom:6px;">基礎資料匯入</div>
         <div style="font-size:13px; color:var(--ink-faint2); line-height:1.8; margin-bottom:12px;">
           把長老團與各級弟子的花名冊、以及倉儲的丹藥／法器／材料／符咒一次寫進資料庫。<br>
-          （【山門殿宇】的門派卷宗與殿宇建築不在這裡：那些是程式內建的預設值，一開站就在，不必匯入。）<br>
           <b>不會覆蓋現有資料</b>：同階級同名的弟子、同分類同名的物資都會自動略過，重複按也不會產生重複條目。
         </div>
         <div class="filter-row">
@@ -2657,14 +2210,13 @@
       </div>`;
   }
 
+  // 一次 update() 寫進去，避免上百筆各自往返
   async function importSeed(kind, btn){
     const isRoster = kind === "roster";
     const rows = isRoster ? pendingRoster() : pendingWarehouse();
     const noun = isRoster ? "位弟子" : "項物資";
     if(rows.length === 0){ flash(isRoster ? "花名冊已經是最新的了" : "倉儲已經是最新的了", false); return; }
-    if(!confirm(`要匯入 ${rows.length} ${noun}嗎？
-
-已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
+    if(!confirm(`要匯入 ${rows.length} ${noun}嗎？\n\n已存在的條目會自動略過，現有資料不會被覆蓋。`)) return;
 
     const payload = {};
     rows.forEach(row => { payload[push(dref(kind === "roster" ? "roster" : "warehouse")).key] = row; });
@@ -2684,6 +2236,10 @@
   }
 
   // ===== 事件綁定 =====
+  // 切換子分類／階級／搜尋時，只換掉那一張表格；
+  // 以前是整個 mainArea 重畫，捲軸與分頁動畫都會重來，畫面看起來就會整個跳一下。
+  // 換表格時把「分類列」釘在原本的螢幕位置上：表格長短不同會讓頁面高度改變，
+  // 不補正的話畫面會自己往上滑一段，看起來就是使用者說的「整個跳動」。
   function keepAnchored(anchorSel, fn){
     const anchor = document.querySelector(anchorSel);
     const before = anchor ? anchor.getBoundingClientRect().top : null;
@@ -2693,14 +2249,15 @@
       if(Math.abs(after - before) > 1) window.scrollBy(0, after - before);
     }
   }
-  
+  // 換表格時把高度變化做成 0.22 秒的過場：不同分類的筆數差很多，
+  // 直接抽換的話頁面高度會瞬間縮一大段，畫面就像被扯了一下。
   function swapTable(wrap, html){
     const from = wrap.getBoundingClientRect().height;
     wrap.classList.remove("swap-in");
     wrap.innerHTML = html;
     wireEvents(wrap);
     const to = wrap.getBoundingClientRect().height;
-    void wrap.offsetWidth;          
+    void wrap.offsetWidth;          // 強制重排，動畫才會重播
     wrap.classList.add("swap-in");
     if(Math.abs(to - from) > 4){
       wrap.style.height = from + "px";
@@ -2712,7 +2269,6 @@
       swapTable._t = setTimeout(() => { wrap.style.height = ""; wrap.style.transition = ""; }, 280);
     }
   }
-  
   function refreshWarehouseTable(){
     const wrap = document.getElementById("whTableWrap");
     if(!wrap) return;
@@ -2745,6 +2301,9 @@
     });
   }
 
+  // 實際套用一筆靈石增減（快速按鈕／自訂輸入都直接呼叫，不再另外跳二次確認——
+  // 按錯了馬上按對應的反向數字就能抵銷，靠下面的「復原上一筆」保底），跟直接改
+  // 數字欄共用同一套 before/after 記錄與日誌格式。
   async function applyStoneDelta(key, delta){
     if(!delta) return false;
     const before = num(stones[key]);
@@ -2764,44 +2323,8 @@
     return ok;
   }
 
-  let lastSettle = null;   
-  async function settleStones(items, label){
-    const summary = items.map(i => `${gradeLabel(i.key)} ${i.qty.toLocaleString()}`).join("、");
-    const short = items.filter(i => num(stones[i.key]) < i.qty);
-    const warn = short.length
-      ? `\n\n注意：${short.map(i => `${gradeLabel(i.key)}只有 ${num(stones[i.key]).toLocaleString()}`).join("、")}，`
-        + "不足的部分只會扣到 0 為止，差額請自行記帳。"
-      : "";
-    if(!confirm(`${label}？\n\n將從庫藏扣除：${summary}${warn}`)) return false;
-
-    const entries = [];
-    for(const i of items){
-      const before = num(stones[i.key]);
-      const after = Math.max(0, before - i.qty);
-      if(after === before) continue;
-      stones[i.key] = after;
-      if(!await writeNow("stones/" + i.key, after)) return false;
-      entries.push({ key:i.key, before, after });
-      const box = document.querySelector(`input[data-stone="${i.key}"]`);
-      if(box) box.value = after;
-    }
-    if(entries.length === 0){ flash("庫藏已經是 0，沒有可扣的靈石", false); return false; }
-    await writeLog(`${label}：${summary}`, null);
-    lastSettle = { label, entries };
-    lastStoneChange = null;   
-    refreshStoneUndo();
-    flash(`${label}已完成`, false);
-    renderAll(true);
-    return true;
-  }
-
   function wireEvents(area){
-    area.querySelectorAll(".auto-resize").forEach(el => {
-      const resize = () => { el.style.height = 'auto'; el.style.height = (el.scrollHeight) + 'px'; };
-      el.addEventListener('input', resize);
-      setTimeout(resize, 0); 
-    });
-
+    // 分類 / 階級 / 搜尋
     area.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
       warehouseCat = b.dataset.cat;
       document.querySelectorAll("[data-cat]").forEach(x => x.classList.toggle("active", x === b));
@@ -2819,6 +2342,7 @@
     const sortSel = area.querySelector("#rosterSort");
     if(sortSel) sortSel.onchange = () => { rosterSort = sortSel.value; refreshRosterTable(); };
 
+    // 境界統計卡＝名冊的境界篩選器；再點同一張就取消
     area.querySelectorAll("[data-realm-pick]").forEach(card => card.onclick = () => {
       const g = card.dataset.realmPick;
       rosterRealmFilter = rosterRealmFilter === g ? "" : g;
@@ -2836,6 +2360,7 @@
       refreshRosterTable();
     };
 
+    // 靈石：直接改數字（快速增減按鈕另外走 stone-quick / stone-custom action）
     area.querySelectorAll("input[data-stone]").forEach(input => {
       const key = input.dataset.stone;
       const before = num(stones[key]);
@@ -2852,6 +2377,7 @@
       };
     });
 
+    // 庫房欄位
     area.querySelectorAll("[data-w]").forEach(input => {
       const id = input.dataset.w, prop = input.dataset.prop;
       if(input.dataset.qty){
@@ -2871,6 +2397,7 @@
       }
     });
 
+    // 多寶閣欄位
     area.querySelectorAll("[data-t]").forEach(input => {
       const id = input.dataset.t, prop = input.dataset.prop;
       const handler = () => {
@@ -2880,50 +2407,14 @@
       if(input.tagName === "SELECT") input.onchange = handler; else input.oninput = handler;
     });
 
-    area.querySelectorAll("[data-b]").forEach(input => {
-      const id = input.dataset.b, prop = input.dataset.prop;
-      const handler = () => {
-        if(beasts[id]) beasts[id][prop] = input.value;
-        scheduleSave(`beasts/${id}/${prop}`, input.value);
-        if(prop === 'root') renderAll(false); // 靈根改變時更新邊框顏色
-      };
-      input.oninput = handler;
-    });
-
-    area.querySelectorAll("[data-s]").forEach(input => {
-      const prop = input.dataset.s;
-      input.oninput = () => {
-        const value = prop === "enemies"
-          ? input.value.split(/[、,，]+/).map(x => x.trim()).filter(Boolean)
-          : (prop === "reputation" ? num(input.value) : input.value);
-        if(!facilityEdits._sect || typeof facilityEdits._sect !== "object") facilityEdits._sect = {};
-        facilityEdits._sect[prop] = value;
-        scheduleSave(`facilities/_sect/${prop}`, value);
-        renderHallStats();      
-      };
-    });
-
-    area.querySelectorAll("[data-f]").forEach(input => {
-      const id = input.dataset.f, prop = input.dataset.prop;
-      const handler = () => {
-        const value = (prop === "upkeepQty" || prop === "capNow" || prop === "capMax") ? num(input.value) : input.value;
-        if(!facilityEdits[id] || typeof facilityEdits[id] !== "object") facilityEdits[id] = {};
-        facilityEdits[id][prop] = value;
-        scheduleSave(`facilities/${id}/${prop}`, value);
-        if(prop === "upkeepQty" || prop === "upkeepGrade" || prop === "upkeepKind"){
-          renderHallStats();    
-          if(prop === "upkeepKind") renderAll(true);   
-        }
-      };
-      if(input.tagName === "SELECT") input.onchange = handler; else input.oninput = handler;
-    });
-
+    // 花名冊欄位
     area.querySelectorAll("[data-r]").forEach(input => {
       const id = input.dataset.r, prop = input.dataset.prop;
       const handler = () => {
         if(roster[id]) roster[id][prop] = input.value;
         scheduleSave(`roster/${id}/${prop}`, input.value);
-        if(prop === "realm" || prop === "rank" || prop === "name"){
+        if(prop === "realm" || prop === "rank"){
+          // 境界統計與分頁計數要跟著更新，但延後到使用者離開輸入框再重繪
           clearTimeout(wireEvents._statTimer);
           wireEvents._statTimer = setTimeout(() => {
             if(document.activeElement !== input){ refreshCounts(); renderAll(true); }
@@ -2934,6 +2425,7 @@
       else input.oninput = handler;
     });
 
+    // 按鈕
     area.querySelectorAll("[data-action]").forEach(btn => {
       btn.onclick = async () => {
         const action = btn.dataset.action;
@@ -2950,6 +2442,7 @@
           return;
         }
 
+        // 沙盒模式：僅供啟用者本人試用，跟真實資料完全隔離
         if(action === "claim-sandbox"){
           if(!discordUser) return;
           if(sandboxOwner){ flash("沙盒模式已經有人啟用了", true); return; }
@@ -3024,23 +2517,27 @@
           if(isMe){
             const isLast = Object.keys(admins).length <= 1;
             const msg = isLast
-              ? "確定移除自己的權限？\n\n你是目前唯一的管理員，移除後宗門大殿會回到「尚未設定任何管理員」狀態，畫面上會重新出現「將我設為天道」按鈕，你隨時可以再取回權限。"
-              : "確定移除自己的權限？\n\n移除後你將變回唯讀的弟子身分，若要再取得權限，需請其他天道重新授權給你。";
+              ? "確定移除自己的權限？\n\n你是目前唯一的管理員，移除後宗門大殿會回到「尚未設定任何管理員」狀態，"
+                + "畫面上會重新出現「將我設為天道」按鈕，你隨時可以再取回權限。"
+              : "確定移除自己的權限？\n\n移除後你將變回唯讀的弟子身分，"
+                + "若要再取得權限，需請其他天道重新授權給你。";
             if(!confirm(msg)) return;
           } else {
             if(!confirm("確定撤銷此人的管理權限？")) return;
           }
           await writeNow("admins/" + uid, null);
-          if(isMe) activeTab = "tab-sect"; 
+          if(isMe) activeTab = "tab-warehouse"; // 權限管理分頁即將消失，先切回庫房避免停在空白分頁
           renderAll(true);
           return;
         }
 
+        // 弟子：領物申請（不需編輯權限）
         if(action === "request-item"){
           openRequestModal(btn.dataset.id);
           return;
         }
 
+        // 玉牌排序：只有天道能排
         if(action === "tablet-move" || action === "tablet-reset"){
           if(!isDM()){ flash("只有天道可以調整玉牌排列", true); return; }
           btn.disabled = true;
@@ -3055,6 +2552,7 @@
 
         if(!canEdit()) return;
 
+        // 長老：批核卷宗
         if(action === "approve-req"){
           btn.disabled = true;
           await approveRequest(btn.dataset.id);
@@ -3088,6 +2586,8 @@
           const id = btn.dataset.id, step = parseInt(btn.dataset.step, 10) || 0;
           const it = warehouse[id]; if(!it) return;
           const before = num(it.qty), after = Math.max(0, before + step);
+          // 數量已經是 0 還按減號時 after === before，這時不該白寫一次資料庫，
+          // 也不該在異動日誌與近期流水留下「0 ➔ 0」這種沒有意義的紀錄。
           if(after === before) return;
           it.qty = after;
           if(await writeNow(`warehouse/${id}/qty`, after)){
@@ -3098,6 +2598,8 @@
           renderHallStats();
         }
 
+        // 靈石快速增減：直接套用，不跳二次確認——按錯了馬上按對應的反向數字
+        // 抵銷就好，二次確認反而妨礙連續點擊；保底靠下面的「復原上一筆」。
         if(action === "stone-quick"){
           const key = btn.dataset.stone;
           const delta = parseInt(btn.dataset.delta, 10) || 0;
@@ -3114,7 +2616,7 @@
           const key = btn.dataset.stone;
           const label = (STONE_KEYS.find(s => s.k === key) || {}).label || key;
           const before = num(stones[key]);
-          const input = prompt(`${label} 自訂增減（正數增加、負數減少，目前 ${before.toLocaleString()}）：`);
+          const input = prompt(`${label}　自訂增減（正數增加、負數減少，目前 ${before.toLocaleString()}）：`);
           if(input === null) return;
           const d = parseInt(input, 10) || 0;
           if(!d) return;
@@ -3154,95 +2656,6 @@
           await writeNow("treasury/" + btn.dataset.id, null);
           renderAll(true);
         }
-
-        // ===== 山門殿宇 =====
-        if(action === "add-facility"){
-          const r = push(dref("facilities"));
-          const fresh = { name:"", level: sectField("level", ""), spec:"", fn:"",
-            upkeepKind:"month", upkeepGrade:"mid", upkeepQty:0,
-            limit:"", capNow:null, capMax:null, capUnit:"" };
-          facilityEdits[r.key] = fresh;
-          await writeNow("facilities/" + r.key, fresh);
-          renderAll(true);
-        }
-        if(action === "del-facility"){
-          const id = btn.dataset.id;
-          const f = (facilityEntries().find(([k]) => k === id) || [])[1] || {};
-          if(!confirm(`確定拆除「${f.name || "此建築"}」？\n\n`
-            + (isSeedFacility(id)
-                ? "這是預設的殿宇，拆掉之後上面會留一顆「重建」鈕，隨時可以再蓋回來。"
-                : "這一座的規格、功能與開銷都會從宗門卷宗上抹去。"))) return;
-          if(isSeedFacility(id)){
-            facilityEdits[id] = { removed: true };
-            await writeNow("facilities/" + id, { removed: true });
-          } else {
-            delete facilityEdits[id];
-            await writeNow("facilities/" + id, null);
-          }
-          renderAll(true);
-        }
-        if(action === "restore-facility"){
-          const id = btn.dataset.id;
-          const base = FACILITY_SEED.find(b => b.id === id);
-          if(!base) return;
-          if(!confirm(`重建「${base.name}」？\n\n會恢復成預設的規格與開銷。`)) return;
-          delete facilityEdits[id];
-          await writeNow("facilities/" + id, null);   
-          renderAll(true);
-        }
-        if(action === "toggle-limit"){
-          const id = btn.dataset.id;
-          btn.style.display = 'none';
-          document.getElementById('limit-box-' + id).classList.add('show');
-          return;
-        }
-
-        if(action === "add-beast"){
-          const r = push(dref("beasts"));
-          const fresh = { name:"", realm:"", root:"無", status:"", skill:"" };
-          beasts[r.key] = fresh;
-          await writeNow("beasts/" + r.key, fresh);
-          renderAll(true);
-        }
-        if(action === "del-beast"){
-          const b = beasts[btn.dataset.id] || {};
-          if(!confirm(`確定移除靈獸「${b.name || "未命名"}」？`)) return;
-          delete beasts[btn.dataset.id];
-          await writeNow("beasts/" + btn.dataset.id, null);
-          renderAll(true);
-        }
-
-        if(action === "settle-upkeep"){
-          const need = upkeepTotals("month");
-          const owe = STONE_KEYS.filter(x => need[x.k] > 0).map(x => ({ key:x.k, qty:need[x.k] }));
-          if(owe.length === 0){ flash("目前沒有任何每月開銷", false); return; }
-          await settleStones(owe, "結算本月設施消耗");
-        }
-        if(action === "settle-once"){
-          const f = (facilityEntries().find(([k]) => k === btn.dataset.id) || [])[1];
-          if(!f) return;
-          const qty = num(f.upkeepQty), grade = f.upkeepGrade || "mid";
-          if(qty <= 0){ flash("這座建築沒有設定單次消耗", false); return; }
-          await settleStones([{ key:grade, qty }], `開啟 ${f.name || "建築"} 一次`);
-        }
-        if(action === "undo-settle"){
-          if(!lastSettle) return;
-          if(!confirm(`撤銷「${lastSettle.label}」？
-
-${lastSettle.entries
-            .map(e => `${gradeLabel(e.key)} ${num(stones[e.key]).toLocaleString()} ➔ ${e.before.toLocaleString()}`).join("\n")}`)) return;
-          for(const e of lastSettle.entries){
-            stones[e.key] = e.before;
-            await writeNow("stones/" + e.key, e.before);
-            const box = document.querySelector(`input[data-stone="${e.key}"]`);
-            if(box) box.value = e.before;
-          }
-          await writeLog(`撤銷：${lastSettle.label}`, null);
-          lastSettle = null;
-          flash("已撤銷這次結算", false);
-          renderAll(true);
-        }
-
         if(action === "add-member"){
           const r = push(dref("roster"));
           const fresh = { name:"", rank: rosterRank === "全部" ? "記名" : rosterRank, title:"", root:"", job:"", path:"", realm:"", master:"" };
@@ -3256,23 +2669,6 @@ ${lastSettle.entries
           delete roster[btn.dataset.id];
           await writeNow("roster/" + btn.dataset.id, null);
           refreshRosterTable(); refreshCounts(); renderHallStats();
-        }
-        if(action === "unlink-realm" || action === "relink-realm"){
-          const rid = btn.dataset.id;
-          const m = roster[rid];
-          if(!m) return;
-          if(action === "unlink-realm"){
-            const cur = memberRealm(m);
-            m.realmLink = "manual";
-            if(cur) m.realm = cur;
-            await writeNow("roster/" + rid, m);
-            flash(`「${m.name || "此弟子"}」的境界改為手動填寫`, false);
-          } else {
-            m.realmLink = "auto";
-            await writeNow("roster/" + rid, m);
-            flash(`「${m.name || "此弟子"}」的境界已改回跟角色卡連動`, false);
-          }
-          renderAll(true);   
         }
       };
     });
