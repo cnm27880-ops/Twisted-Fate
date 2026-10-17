@@ -2653,16 +2653,17 @@
         desc
       });
 
-      await update(dref("treasury/" + req.itemId), { holder: charName });
-      await update(dref("characters/" + req.charId), {
-        itemsList,
-        updatedAt: Date.now(),
-        updatedBy: (discordUser && discordUser.name) || "內務堂"
+      // 一次多路徑寫入：法寶持有者、儲物袋、撤銷卷宗要嘛全成功、要嘛全不動
+      await update(ref(db), {
+        [dbPath("treasury/" + req.itemId + "/holder")]: charName,
+        [dbPath("characters/" + req.charId + "/itemsList")]: itemsList,
+        [dbPath("characters/" + req.charId + "/updatedAt")]: Date.now(),
+        [dbPath("characters/" + req.charId + "/updatedBy")]: (discordUser && discordUser.name) || "內務堂",
+        [dbPath("itemRequests/" + reqId)]: null
       });
       if(treasury[req.itemId]) treasury[req.itemId].holder = charName;
 
       await writeLog(`內務長老 將 多寶閣法寶【${tre.name || req.itemName || "未命名法寶"}】 賜予 弟子 ${charName} (理由：${reason})`, null);
-      await remove(dref("itemRequests/" + reqId));
       delete itemRequests[reqId];
 
       flash(`已賜下法寶【${tre.name || req.itemName || "法寶"}】`, false);
@@ -2702,16 +2703,17 @@
         desc: "數量: " + qty + "。理由: " + reason
       });
 
-      await update(dref("warehouse/" + req.itemId), { qty: have - qty });
-      await update(dref("characters/" + req.charId), {
-        itemsList,
-        updatedAt: Date.now(),
-        updatedBy: (discordUser && discordUser.name) || "內務堂"
+      // 一次多路徑寫入：扣庫存、寫儲物袋、撤銷卷宗要嘛全成功、要嘛全不動，不會再發生「庫存少了但角色沒收到」
+      await update(ref(db), {
+        [dbPath("warehouse/" + req.itemId + "/qty")]: have - qty,
+        [dbPath("characters/" + req.charId + "/itemsList")]: itemsList,
+        [dbPath("characters/" + req.charId + "/updatedAt")]: Date.now(),
+        [dbPath("characters/" + req.charId + "/updatedBy")]: (discordUser && discordUser.name) || "內務堂",
+        [dbPath("itemRequests/" + reqId)]: null
       });
       if(warehouse[req.itemId]) warehouse[req.itemId].qty = have - qty;
 
       await writeLog(`內務長老 將 【${req.itemName || "未命名物資"} x${qty}】 賜予 弟子 ${req.charName || "未命名角色"} (理由：${reason})`, -qty);
-      await remove(dref("itemRequests/" + reqId));
       delete itemRequests[reqId];
 
       flash(`已賜下【${req.itemName || "物資"} x${qty}】`, false);
