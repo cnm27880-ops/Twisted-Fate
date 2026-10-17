@@ -543,9 +543,44 @@
   .jt-move button:hover:not(:disabled){ background:rgba(232,202,130,.16); color:#F8EDD1; border-color:var(--gold); }
   .jt-move button:disabled{ opacity:.28; cursor:default; }
   .jt-move svg{ width:13px; height:13px; }
+  .jt-del{
+    position:absolute; right:8px; top:30px; z-index:3; display:flex; align-items:center; justify-content:center;
+    width:24px; height:22px; padding:0; cursor:pointer; opacity:0; transition:opacity .2s;
+    background:rgba(60,12,10,.7); border:1px solid rgba(184,58,44,.55); border-radius:3px; color:#F0B3A6;
+  }
+  .jade-tablet:hover .jt-del, .jade-tablet:focus-within .jt-del{ opacity:1; }
+  .jt-del:hover{ background:rgba(156,43,34,.75); color:#fff; }
+  .jt-del svg{ width:13px; height:13px; }
+  @media (hover:none){ .jt-del, .jt-move{ opacity:1; } }
   .jt-grip{ position:absolute; right:8px; top:8px; z-index:2; color:rgba(232,202,130,.3); pointer-events:none; }
   .jt-grip svg{ width:15px; height:15px; stroke-width:2.6; stroke-linecap:round; }
   .jade-tablet:hover .jt-grip{ color:rgba(232,202,130,.6); }
+  /* 任務石碑 */
+  .quest-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+  .quest-card{
+    padding:14px 16px 16px; border-radius:6px; border:1px solid var(--gold-deep);
+    background:linear-gradient(150deg, rgba(21,28,23,.94) 0%, rgba(7,11,9,.96) 100%);
+    box-shadow:inset 0 0 24px rgba(140,107,39,.13), 0 4px 14px rgba(0,0,0,.34); color:#E6DCC0;
+  }
+  .quest-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(232,202,130,.25); }
+  .quest-title{ flex:1; font-family:"Noto Serif TC",serif; font-weight:900; font-size:17px; letter-spacing:2px; color:#E8CA82; }
+  .quest-count{ font-size:12px; color:rgba(220,207,168,.7); }
+  .quest-item{ display:flex; align-items:flex-start; gap:8px; padding:6px 0; border-bottom:1px dashed rgba(232,202,130,.12); font-size:14px; line-height:1.6; }
+  .quest-item:last-child{ border-bottom:none; }
+  .quest-mark{ flex:0 0 auto; width:18px; height:18px; margin-top:3px; border:1px solid rgba(232,202,130,.5); border-radius:3px; display:flex; align-items:center; justify-content:center; color:#A6F0CA; font-size:13px; font-weight:900; }
+  .quest-item.done .quest-text{ text-decoration:line-through; color:rgba(220,207,168,.5); }
+  .quest-item.done .quest-mark{ background:rgba(45,90,76,.35); border-color:var(--jade); }
+  .quest-text{ flex:1; min-width:0; word-break:break-word; }
+  .quest-note{ flex:0 0 auto; padding:1px 9px; border-radius:10px; font-size:12px; font-weight:700; color:#E8CA82; background:rgba(140,107,39,.22); border:1px solid rgba(232,202,130,.3); }
+  .quest-empty{ padding:8px 0; font-size:13px; color:rgba(220,207,168,.5); }
+  .quest-input{ flex:1; min-width:0; padding:4px 8px; font:inherit; font-size:13.5px; color:#F0E6C8; background:rgba(0,0,0,.35); border:1px solid rgba(232,202,130,.25); border-radius:3px; }
+  .quest-input.note{ flex:0 0 96px; }
+  .quest-input.sec{ font-family:"Noto Serif TC",serif; font-weight:900; font-size:16px; color:#E8CA82; }
+  .quest-check{ flex:0 0 auto; width:18px; height:18px; margin-top:5px; cursor:pointer; accent-color:var(--jade); }
+  .quest-del{ flex:0 0 auto; margin-top:2px; background:transparent; border:none; cursor:pointer; color:rgba(240,179,166,.7); padding:3px; line-height:0; }
+  .quest-del:hover{ color:#fff; }
+  .quest-del svg{ width:14px; height:14px; }
+  .quest-add{ margin-top:8px; }
   .sort-hint{
     display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; padding:9px 14px;
     background:rgba(140,107,39,.07); border:1px dashed var(--border); border-radius:5px;
@@ -925,7 +960,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getDatabase, ref, onValue, get, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  import { ROSTER_SEED, WAREHOUSE_SEED, FACILITY_SEED, BEAST_SEED, SECT_PROFILE_SEED } from "./seed-data.js";
+  import { ROSTER_SEED, WAREHOUSE_SEED, FACILITY_SEED, BEAST_SEED, SECT_PROFILE_SEED, QUEST_SEED } from "./seed-data.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCLWbjKkxNLXF9N1iUftxhla1aiV2x3rU",
@@ -959,6 +994,7 @@
   let facilities = {};      // id -> 宗門設施；與種子資料合併，Firebase 優先
   let beasts = {};          // id -> 五行御獸玉牌；與種子資料合併，Firebase 優先
   let sectProfile = {};     // 無相門宗門檔案；Firebase 優先、種子作預設
+  let sectQuests = {};      // 任務石碑 { sections:[{ title, items:[{ text, done, note }] }] }；Firebase 優先、種子作預設
   let loaded = { warehouse:false, roster:false, treasury:false, chars:false, admins:false };
   let syncError = null;
 
@@ -1114,6 +1150,7 @@
     dataUnsubs.push(watchOptional("facilities", v => facilities = v));
     dataUnsubs.push(watchOptional("beasts", v => beasts = v));
     dataUnsubs.push(watchOptional("sectProfile", v => sectProfile = v));
+    dataUnsubs.push(watchOptional("sectQuests", v => sectQuests = v));
     dataUnsubs.push(watch("tabletOrder", v => tabletOrder = Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {}).filter(Boolean)));
   }
 
@@ -1150,7 +1187,7 @@
 
   // 把「當下的真實資料」複製一份進沙盒，測試起來才有實感；admins／warehouseLogs／
   // itemRequests 不複製——前者沙盒模式已經直接視同天道不需要，後兩者從空的開始更乾淨。
-  const SANDBOX_CLONE_PATHS = ["warehouse", "stones", "treasury", "roster", "characters", "tabletOrder"];
+  const SANDBOX_CLONE_PATHS = ["warehouse", "stones", "treasury", "roster", "characters", "tabletOrder", "sectQuests"];
   async function seedSandboxFromReal(uid){
     const snaps = await Promise.all(SANDBOX_CLONE_PATHS.map(p => get(ref(db, p))));
     const updates = {};
@@ -1352,6 +1389,7 @@
         <button class="tab-btn" data-tab="tab-roster">【弟子花名冊】</button>
         <button class="tab-btn" data-tab="tab-report">【天機閣】</button>
         <button class="tab-btn" data-tab="tab-combat">【本命玉牌殿】</button>
+        <button class="tab-btn" data-tab="tab-quests">【任務石碑】</button>
         ${editable ? `<button class="tab-btn" data-tab="tab-requests">【待批核卷宗】${pendingRequests().length ? `<span class="tab-dot">${pendingRequests().length}</span>` : ""}</button>` : ""}
         ${isDM() ? `<button class="tab-btn" data-tab="tab-admin">【權限管理】</button>` : ""}
       </div>
@@ -1361,6 +1399,7 @@
       <div class="tab-panel" id="tab-roster">${rosterHtml(editable)}</div>
       <div class="tab-panel" id="tab-report">${reportHtml()}</div>
       <div class="tab-panel" id="tab-combat">${combatHtml()}</div>
+      <div class="tab-panel" id="tab-quests">${questsHtml(editable)}</div>
       ${editable ? `<div class="tab-panel" id="tab-requests">${requestsHtml()}</div>` : ""}
       ${isDM() ? `<div class="tab-panel" id="tab-admin">${adminHtml()}</div>` : ""}
     `;
@@ -2277,6 +2316,7 @@
           <span class="jt-stat">${SVG.shield()}護甲<b>${num(c.ac)}</b></span>
           <span class="jt-stat">${SVG.yinyang()}業力<b style="color:${karmaColor(c.karma)};">${num(c.karma)}</b></span>
         </div>
+        ${isDM() ? `<button type="button" class="jt-del" data-action="del-char" data-id="${attr(id)}" title="刪除此角色卡" aria-label="刪除角色卡">${SVG.cross()}</button>` : ""}
         ${sortable ? `<div class="jt-move">
           <button data-action="tablet-move" data-id="${attr(id)}" data-dir="-1" title="往前移" ${idx === 0 ? "disabled" : ""}>${SVG.chevronL()}</button>
           <button data-action="tablet-move" data-id="${attr(id)}" data-dir="1" title="往後移" ${idx === total - 1 ? "disabled" : ""}>${SVG.chevronR()}</button>
@@ -2288,6 +2328,61 @@
     const list = orderedChars();
     const sortable = isDM();
     return list.map(([id,c], i) => jadeTabletHtml(id, c, i, list.length, sortable)).join("");
+  }
+
+  // ===== 【任務石碑】=====
+  // Firebase 回傳的陣列若有空洞會變成物件，統一轉成陣列再用。
+  function toList(v){ return Array.isArray(v) ? v : Object.values(v || {}); }
+  function currentQuests(){
+    const raw = (sectQuests && sectQuests.sections) ? toList(sectQuests.sections) : QUEST_SEED.sections;
+    return raw.filter(sec => sec && typeof sec === "object").map(sec => ({
+      title: String(sec.title || ""),
+      items: toList(sec.items).filter(it => it && typeof it === "object")
+        .map(it => ({ text: String(it.text || ""), done: !!it.done, note: String(it.note || "") }))
+    }));
+  }
+  async function saveQuests(sections, rerender){
+    sectQuests = { sections, updatedAt: Date.now(), updatedBy: discordUser ? discordUser.name : "天道" };
+    const ok = await writeNow("sectQuests", sectQuests);
+    if(ok && rerender) renderAll(true);
+    return ok;
+  }
+  function questsHtml(editable){
+    const secs = currentQuests();
+    const cards = secs.map((sec, si) => {
+      const doneN = sec.items.filter(it => it.done).length;
+      const rows = sec.items.length === 0
+        ? `<div class="quest-empty">尚無任務</div>`
+        : sec.items.map((it, ii) => editable
+          ? `<div class="quest-item">
+              <input type="checkbox" class="quest-check" data-q-sec="${si}" data-q-idx="${ii}" data-q-prop="done" ${it.done ? "checked" : ""} title="標記完成">
+              <input class="quest-input" data-q-sec="${si}" data-q-idx="${ii}" data-q-prop="text" value="${attr(it.text)}" placeholder="任務內容">
+              <input class="quest-input note" data-q-sec="${si}" data-q-idx="${ii}" data-q-prop="note" value="${attr(it.note)}" placeholder="進度">
+              <button type="button" class="quest-del" data-action="quest-del-item" data-q-sec="${si}" data-q-idx="${ii}" title="刪除此任務">${SVG.cross()}</button>
+            </div>`
+          : `<div class="quest-item${it.done ? " done" : ""}">
+              <span class="quest-mark">${it.done ? "✓" : ""}</span>
+              <span class="quest-text">${escapeHtml(it.text)}</span>
+              ${it.note ? `<span class="quest-note">${escapeHtml(it.note)}</span>` : ""}
+            </div>`).join("");
+      return `<div class="quest-card">
+        <div class="quest-head">
+          ${editable
+            ? `<input class="quest-input sec" data-q-sec="${si}" data-q-prop="title" value="${attr(sec.title)}" placeholder="任務分類名稱">`
+            : `<span class="quest-title">${escapeHtml(sec.title)}</span>`}
+          <span class="quest-count">${doneN}/${sec.items.length}</span>
+          ${editable ? `<button type="button" class="quest-del" data-action="quest-del-sec" data-q-sec="${si}" title="刪除整個分類">${SVG.cross()}</button>` : ""}
+        </div>
+        ${rows}
+        ${editable ? `<button type="button" class="btn quest-add" data-action="quest-add-item" data-q-sec="${si}">＋ 新增任務</button>` : ""}
+      </div>`;
+    }).join("");
+    return `
+      <div class="block-title">任務石碑<span class="spacer"></span>
+        <span style="font-size:12px;font-weight:400;color:var(--ink-faint2);">${editable ? "天道／長老可直接編修，修改後自動儲存" : "唯讀・由天道與長老維護"}</span>
+        ${editable ? `<button class="btn gold" data-action="quest-add-sec">＋ 新增分類</button>` : ""}
+      </div>
+      ${secs.length ? `<div class="quest-grid">${cards}</div>` : `<div class="notice info" style="font-weight:400;">石碑上還沒有任何任務。</div>`}`;
   }
 
   function combatHtml(){
@@ -2558,16 +2653,17 @@
         desc
       });
 
-      await update(dref("treasury/" + req.itemId), { holder: charName });
-      await update(dref("characters/" + req.charId), {
-        itemsList,
-        updatedAt: Date.now(),
-        updatedBy: (discordUser && discordUser.name) || "內務堂"
+      // 一次多路徑寫入：法寶持有者、儲物袋、撤銷卷宗要嘛全成功、要嘛全不動
+      await update(ref(db), {
+        [dbPath("treasury/" + req.itemId + "/holder")]: charName,
+        [dbPath("characters/" + req.charId + "/itemsList")]: itemsList,
+        [dbPath("characters/" + req.charId + "/updatedAt")]: Date.now(),
+        [dbPath("characters/" + req.charId + "/updatedBy")]: (discordUser && discordUser.name) || "內務堂",
+        [dbPath("itemRequests/" + reqId)]: null
       });
       if(treasury[req.itemId]) treasury[req.itemId].holder = charName;
 
       await writeLog(`內務長老 將 多寶閣法寶【${tre.name || req.itemName || "未命名法寶"}】 賜予 弟子 ${charName} (理由：${reason})`, null);
-      await remove(dref("itemRequests/" + reqId));
       delete itemRequests[reqId];
 
       flash(`已賜下法寶【${tre.name || req.itemName || "法寶"}】`, false);
@@ -2607,16 +2703,17 @@
         desc: "數量: " + qty + "。理由: " + reason
       });
 
-      await update(dref("warehouse/" + req.itemId), { qty: have - qty });
-      await update(dref("characters/" + req.charId), {
-        itemsList,
-        updatedAt: Date.now(),
-        updatedBy: (discordUser && discordUser.name) || "內務堂"
+      // 一次多路徑寫入：扣庫存、寫儲物袋、撤銷卷宗要嘛全成功、要嘛全不動，不會再發生「庫存少了但角色沒收到」
+      await update(ref(db), {
+        [dbPath("warehouse/" + req.itemId + "/qty")]: have - qty,
+        [dbPath("characters/" + req.charId + "/itemsList")]: itemsList,
+        [dbPath("characters/" + req.charId + "/updatedAt")]: Date.now(),
+        [dbPath("characters/" + req.charId + "/updatedBy")]: (discordUser && discordUser.name) || "內務堂",
+        [dbPath("itemRequests/" + reqId)]: null
       });
       if(warehouse[req.itemId]) warehouse[req.itemId].qty = have - qty;
 
       await writeLog(`內務長老 將 【${req.itemName || "未命名物資"} x${qty}】 賜予 弟子 ${req.charName || "未命名角色"} (理由：${reason})`, -qty);
-      await remove(dref("itemRequests/" + reqId));
       delete itemRequests[reqId];
 
       flash(`已賜下【${req.itemName || "物資"} x${qty}】`, false);
@@ -3031,6 +3128,21 @@
       else input.oninput = handler;
     });
 
+    // 任務石碑欄位：失焦（change）才寫入，避免邊打字邊重繪
+    area.querySelectorAll("[data-q-prop]").forEach(input => {
+      input.onchange = async () => {
+        if(!canEdit()) return;
+        const secs = currentQuests();
+        const si = parseInt(input.dataset.qSec, 10), ii = parseInt(input.dataset.qIdx, 10);
+        const prop = input.dataset.qProp;
+        if(!secs[si]) return;
+        if(prop === "title") secs[si].title = input.value.trim();
+        else if(secs[si].items[ii]) secs[si].items[ii][prop] = prop === "done" ? input.checked : input.value.trim();
+        else return;
+        await saveQuests(secs, prop === "done");
+      };
+    });
+
     // 按鈕
     area.querySelectorAll("[data-action]").forEach(btn => {
       btn.onclick = async () => {
@@ -3160,7 +3272,58 @@
           return;
         }
 
+        // 刪除角色卡：只有天道可以
+        if(action === "del-char"){
+          if(!isDM()){ flash("只有天道可以刪除角色卡", true); return; }
+          const id = btn.dataset.id;
+          const c = chars[id];
+          if(!c) return;
+          const reqIds = Object.entries(itemRequests)
+            .filter(([,r]) => r && r.charId === id).map(([rid]) => rid);
+          const msg = `確定刪除角色卡「${c.name || "未命名角色"}」${c.player ? `（玩家：${c.player}）` : ""}？\n\n`
+            + `這個動作無法復原，卡上的功法、物品與筆記都會一起消失。`
+            + (reqIds.length ? `\n此角色還有 ${reqIds.length} 筆待批核的領物申請，會一併撤銷。` : "");
+          if(!confirm(msg)) return;
+          btn.disabled = true;
+          const ok = await writeNow("characters/" + id, null);
+          if(!ok){ btn.disabled = false; return; }
+          delete chars[id];
+          // 順手清掉殘留：玉牌排序裡的 id、這張卡留下的領物申請
+          const nextOrder = tabletOrder.filter(x => x !== id);
+          if(nextOrder.length !== tabletOrder.length){
+            tabletOrder = nextOrder;
+            await writeNow("tabletOrder", nextOrder.length ? nextOrder : null);
+          }
+          for(const rid of reqIds){ delete itemRequests[rid]; await writeNow("itemRequests/" + rid, null); }
+          flash(`已刪除角色卡「${c.name || "未命名角色"}」`, false);
+          renderAll(true);
+          return;
+        }
+
         if(!canEdit()) return;
+
+        if(action === "quest-add-sec"){
+          const secs = currentQuests();
+          secs.push({ title: "新任務分類", items: [] });
+          await saveQuests(secs, true);
+          return;
+        }
+        if(action === "quest-add-item" || action === "quest-del-item" || action === "quest-del-sec"){
+          const secs = currentQuests();
+          const si = parseInt(btn.dataset.qSec, 10), ii = parseInt(btn.dataset.qIdx, 10);
+          if(!secs[si]) return;
+          if(action === "quest-add-item") secs[si].items.push({ text: "", done: false, note: "" });
+          else if(action === "quest-del-item"){
+            if(!secs[si].items[ii]) return;
+            if(!confirm(`確定刪除任務「${secs[si].items[ii].text || "未命名"}」？`)) return;
+            secs[si].items.splice(ii, 1);
+          } else {
+            if(!confirm(`確定刪除整個分類「${secs[si].title || "未命名"}」及其中 ${secs[si].items.length} 項任務？`)) return;
+            secs.splice(si, 1);
+          }
+          await saveQuests(secs, true);
+          return;
+        }
 
         if(action === "facility-deduct"){
           openFacilityDeductConfirm(btn);
