@@ -220,3 +220,47 @@ export const SECT_PROFILE_SEED = {
   guardianFormation: "五行幻獸大陣",
   enemyFactions: ["六道聯盟", "血手堂", "虎嘯門", "反虎嘯門大聯盟", "羅睺教"]
 };
+
+// 門派任務石碑預設內容；天道／長老在網站上編修後以 Firebase 的 sectQuests 為準。
+// done = 已完成；note = 進度備註（例如目前數量）。
+export const QUEST_SEED = {
+  sections: [
+    { title: "門派主線任務", items: [
+      { text: "全面接管虎嘯門，並消滅反虎嘯門大聯盟的所有勢力。", done: true, note: "" },
+      { text: "提升至4級。", done: false, note: "" }
+    ]},
+    { title: "提升至4級條件", items: [
+      { text: "門派聲望達到50000點。", done: false, note: "10500" },
+      { text: "門派靈根弟子達到5000人。", done: false, note: "158" },
+      { text: "門派有築基真人100人。", done: false, note: "22" },
+      { text: "門派有金丹真君20人。", done: false, note: "10" },
+      { text: "門派擁有四階靈獸、奇蟲各十隻。", done: false, note: "0" },
+      { text: "門派掌控一個郡，成為大夫。", done: true, note: "已達成" }
+    ]},
+    { title: "門派建築任務", items: [
+      { text: "門派所有特殊建築提升至3級。", done: true, note: "" },
+      { text: "建造3級養蟲房。", done: true, note: "" },
+      { text: "建造3級制符室。", done: true, note: "" },
+      { text: "建造3級傳送陣。", done: true, note: "" },
+      { text: "建造3階聚靈塔。", done: true, note: "" },
+      { text: "建造3階煉器房。", done: true, note: "" }
+    ]},
+    { title: "門派修行任務", items: [] },
+    { title: "門派聲望任務", items: [] },
+    { title: "門派養殖任務", items: [
+      { text: "烈焰獅　餵食１０顆敵人的金丹", done: false, note: "" },
+      { text: "翻土蚯　利用牠翻動３０畝靈田", done: false, note: "" },
+      { text: "尋寶鼠　利用牠找到１０個二階寶物", done: false, note: "" },
+      { text: "採藥兔　利用牠找到１株四階靈藥", done: true, note: "" },
+      { text: "巡山犬　餵食５顆敵人的金丹", done: false, note: "" }
+    ]},
+    { title: "門派支線任務", items: [
+      { text: "復育神農祖根，並使其庇護一方。", done: false, note: "88%/100%" },
+      { text: "培養四階煉丹師。", done: true, note: "" },
+      { text: "培養四階制符師。", done: true, note: "" },
+      { text: "在六道塔建立屬於無相門的第一間商鋪。", done: true, note: "" },
+      { text: "佔領虎嘯門靈藥圃。", done: true, note: "" },
+      { text: "佔領虎嘯門靈石礦脈。", done: true, note: "" }
+    ]}
+  ]
+};
